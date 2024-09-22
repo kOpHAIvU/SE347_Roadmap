@@ -1,4 +1,4 @@
-import Header from '../components/Header/index.js';
+import Header from '../components/HeaderLogged/index.js';
 import MainSection from '../components/MainSection/index.js';
 import Navigation from '../components/Navigation/index.js';
 import styles from './HomeLayout.module.scss';

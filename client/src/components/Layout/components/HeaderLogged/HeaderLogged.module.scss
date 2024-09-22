@@ -1,0 +1,16 @@
+.wrapper {
+    height: var(--default-layout-header-height);
+    width: var(--default-layout-width);
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    background-image: linear-gradient(40deg,#E5E5E5, #8A9ADB, #6580EB);
+    box-shadow: 0px 1px 1px rgb(0 0 0 / 12%);
+}
+
+.inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
