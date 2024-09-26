@@ -10,8 +10,6 @@ function HomeLayout({ children }) {
     return (
         <div className={cx('wrapper')}>
             <Header />
-            <Navigation />
-            <MainSection />
             <div className="container">
                 <div className="content">{children}</div>
             </div>

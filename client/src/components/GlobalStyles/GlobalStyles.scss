@@ -1,11 +1,16 @@
 @import 'normalize.css';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-
     // Default layout
-    --default-layout-header-height: 50px;
-    --default-layout-width: 1920px;
+    --search-button-width: 52px;
+    --default-layout-header-height: 60px;
+    --search-height: 46px;
+    --search-width: 500px;
+    --search-border-radius: 92px;
+    --search-top-spacer: 9px;
+    --default-layout-horizontal-spacer: 24px;
 }
 
 * {
