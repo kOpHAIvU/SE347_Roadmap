@@ -1,0 +1,49 @@
+.link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    width: 100%;
+    box-shadow: rgb(0 0 0 /12%) 0px 2px 12px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    height: calc(var(--search-height) - 7px);
+    width: calc(var(--search-height) - 7px);
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.menu {
+    margin-top: 5px;
+}
+
+.web-name {
+    display: flex;
+    align-items: center;
+    font-size: 2rem;
+    padding-right: 25px;
+    margin: 0 0 0 5px;
+
+    &.hidden {
+        height: 0;
+        width: 0;
+        visibility: hidden;
+        padding-right: 0;
+    }
+}
+
+.icon {
+    width: 20px;
+    scale: 1.5; /* Tăng kích thước của icon */
+}
+
+.item {
+    margin-top: 10px !important;
+    font-weight: 500;
+    font-size: 1.5rem;
+}

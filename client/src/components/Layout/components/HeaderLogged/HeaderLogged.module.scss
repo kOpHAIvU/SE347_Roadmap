@@ -1,62 +1,50 @@
 .wrapper {
-    height: var(--default-layout-header-height);
-    width: 100%;
-    position: fixed;
     display: flex;
-    justify-content: center;
-    background-image: linear-gradient(40deg,#E5E5E5, #8A9ADB, #6580EB);
-    box-shadow: rgb(0 0 0 /12%) 0px 2px 12px;
+    justify-content: space-between; /* Center the content horizontally */
+    width: calc(100% - 200px);
+
+    &.extend {
+        width: calc(100% - 80px);
+    }
 }
 
 .inner {
+    flex-grow: 1; /* Allows this div to take up the remaining width */
+    margin-top: 5px;
     height: 100%;
-    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--default-layout-horizontal-spacer);
-}
-
-.link {
-    display: flex;
+    padding: 0 15px; /* Add padding to avoid content touching the edges */
 }
 
 .navigation-btn {
+    padding: 0;
     background-color: transparent;
     width: var(--search-height);
     height: var(--search-height);
     align-items: center;
-    font-size: 2rem;
-    transition: transform ;
     margin: 0 10px 0 0;
 
     &:hover {
         cursor: pointer;
         transform: scale(1.1);
     }
-}
 
-.logo {
-    display: flex;
-    align-items: center;
-    height: var(--search-height);
-    width: var(--search-height);
-
-    &:hover {
-        cursor: pointer;
+    &:active ~ .navigation-btn {
+        transform: translateX(-100%);
+        opacity: 0;
     }
-
 }
-.web-name {
+
+.right-header {
     display: flex;
-    align-items: center;
-    font-size: 2rem;
-    margin: 0 0 0 5px;
+    padding-right: 5px;
 }
 
 .add-roadmap {
     display: flex;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     border-radius: var(--search-border-radius);
     font-size: 0.7rem;
     align-items: center;
@@ -79,24 +67,23 @@
 .plus-icon {
     width: 26px;
     height: 29px;
-    color: #91A0DD;
+    color: #91a0dd;
     padding-right: 5px;
     align-items: center;
     transition: all 0.5 ease-in-out;
 }
 
+.create-text {
+    font-weight: 600;
+}
+
 .avatar {
-    height: var(--search-height);
-    width: var(--search-height);
+    height: calc(var(--search-height) - 10px);
+    width: calc(var(--search-height) - 10px);
     border-radius: var(--search-border-radius);
     margin-left: 10px;
 
     &:hover {
         cursor: pointer;
     }
-}
-
-.right-header {
-    display: flex;
-    padding-right: 5px;
 }
