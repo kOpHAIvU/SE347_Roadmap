@@ -3,6 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MainGuest.module.scss';
 import classNames from 'classnames/bind';
 import { faFacebook, faGithub, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import image1 from './images/image01.png'
+import image2 from './images/image02.png'
+import image3 from './images/image03.png'
 
 
 const cx = classNames.bind(styles);
@@ -43,17 +46,14 @@ function MainGuestGuest() {
 
 
                 <div className={cx('right')}>
-                <p className={cx('main-description')}>
-                        That's why VertexOps was created — to help you excel at learning from home. If you're struggling with self-study, you've come to the right place.
-                    </p>
-                
+                    <div className={cx('image-container')}>
+                        <img src={image1} alt="Description 1" className={cx('image1')} />   
+                        <img src={image2} alt="Description 2" className={cx('image2')} />
+                        <img src={image3} alt="Description 3" className={cx('image3')} />    
+                    </div>
                 </div>
-
             </div>
-            
-            
         </div>
-    
 }
 
 export default MainGuestGuest;

@@ -82,7 +82,7 @@
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
     }
     &:active {
-        background-color: #b6515c;
+        background-color: #d2969d;
         transform: translateY(0); 
     }
     
@@ -114,9 +114,15 @@
 .left div {
         margin-left: 90px;
       }
-.right, .left  {
+.right {
     margin-right: 90px;
     flex: 1;
+    margin-left: 20px;
+}
+.left  {
+    margin-right: 20px;
+    flex: 1;
+    margin-left: 20px;
 }
 .main-title,
 .main-description{
@@ -142,3 +148,24 @@
 .social-icons a:not(:first-child) {
     margin-left: 20px;
 }
+.image-container {
+    margin:10px;
+}
+.image1 {
+    margin-left: 100px;
+    width: 250px; 
+    height: auto; 
+    margin-bottom: 100px;
+}
+
+  .image2 {
+    width: 200px; 
+    height: auto; 
+  }
+  
+  .image3 {
+    width: 200px; 
+    height: auto; 
+  }
+  
+
