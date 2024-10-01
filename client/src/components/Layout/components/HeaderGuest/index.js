@@ -10,11 +10,12 @@ function HeaderGuest() {
     return <div className={cx('wrapper')}>
         <div className={cx('inner')}>
             <div className={cx('link')}>
+
                 <div className={cx('logo')}>
                     <img src={images.logo} alt="VertexOps" />
                 </div>
-                <h1 className={cx('web-name')}>VertexOps</h1>
 
+                <h1 className={cx('web-name')}>VertexOps</h1>
 
             </div>
 
@@ -22,6 +23,7 @@ function HeaderGuest() {
                 <button className={cx('login-btn')}>
                         <h1>Log in</h1>
                 </button>
+                
             </div>
         </div>
     </div>;

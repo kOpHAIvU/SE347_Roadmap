@@ -1,0 +1,144 @@
+.wrapper {
+    padding: 20px;
+    margin-top: 90px;
+    display: flex;
+    justify-content: center;
+    background-color: #647FEA;
+    box-shadow: rgb(0 0 0 /12%) 0px 2px 12px;
+}
+
+.inner {
+    margin-top: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding:0;
+}
+
+.main-content {
+    background-color: #b2c9f5;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.main-title {
+    font-size: 2.6rem; 
+    color: #0a0a0a; 
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.main-description {
+    font-size: 1.5rem; 
+    color: #0a0a0a;
+    margin-bottom: 30px;
+}
+
+.button-group {
+    display: flex;
+    gap: 20px; 
+}
+
+.learn-more, .sign-up {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    font-size: 2.4rem;
+    color: #ffffff;
+
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.learn-more {
+    color: #ffffff;
+    background-color: #EB6581; 
+    border-radius: 8px;
+    &:hover {
+        background-color: #d25260; 
+        cursor: pointer;
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
+    }
+    &:active {
+        background-color: #d25260;
+        transform: translateY(0); 
+    }
+   
+}
+.sign-up {
+    font-weight: bold;
+    color: #ffffff;
+    background-color: transparent; 
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 8px;
+    &:hover {
+        background-color: #ffffff; 
+        color: #647FEA;
+        cursor: pointer;
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
+    }
+    &:active {
+        background-color: #b6515c;
+        transform: translateY(0); 
+    }
+    
+}
+
+.social-icons {
+    margin:0; 
+    display: flex;
+    margin-top: 40px;
+}
+
+.social-icons a {
+    margin: 0; 
+    width: 30px;  
+    height: 30px;
+    font-size: 3rem;
+    display: flex;   
+    background-color: white;
+    border-radius: 10%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+        transform: scale(1.1); 
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);  
+    }
+}
+
+.left div {
+        margin-left: 90px;
+      }
+.right, .left  {
+    margin-right: 90px;
+    flex: 1;
+}
+.main-title,
+.main-description{
+    color: white;
+}
+.main-title {
+    font-size: 3rem;
+}
+.social-icons .icon-github {
+    border-radius: 10%;
+}
+.social-icons .icon-linkedin {
+    color: #306cb2;
+}
+.social-icons .icon-facebook {
+    border-radius: 50%;
+    color: #0863f7;
+}
+.social-icons .icon-instagram {
+    background: linear-gradient(45deg, #515BD4 0%, #9510B8 26%, #E51804 66%, #FFBF00 100%);
+    color: white;
+}
+.social-icons a:not(:first-child) {
+    margin-left: 20px;
+}
