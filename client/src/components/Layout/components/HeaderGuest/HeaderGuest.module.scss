@@ -1,7 +1,8 @@
 .wrapper {
     height: 90px;
     width: 100%;
-    position: fixed;
+    position:fixed;
+    z-index: 10;
     display: flex;
     justify-content: center;
     background-color: #FFFFFF;

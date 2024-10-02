@@ -6,13 +6,19 @@ import { faFacebook, faGithub, faInstagram, faLinkedin } from '@fortawesome/free
 import image1 from './images/image01.png'
 import image2 from './images/image02.png'
 import image3 from './images/image03.png'
-
+import road1 from './images/road01.png'
+import road2 from './images/road02.png'
 
 const cx = classNames.bind(styles);
 
 function MainGuestGuest() {
     return <div className={cx('wrapper')}>
             <div className={cx('inner')}>
+
+                <div className={cx('image-road')}>
+                        <img src={road1} alt="Description 1" className={cx('road1')} />   
+                        <img src={road2} alt="Description 2" className={cx('road2')} />
+                </div>
 
                 <div className={cx('left')}>
                     <div className={cx('contents')}>

@@ -1,4 +1,5 @@
 .wrapper {
+    position: relative;
     padding: 20px;
     margin-top: 90px;
     display: flex;
@@ -7,6 +8,33 @@
     box-shadow: rgb(0 0 0 /12%) 0px 2px 12px;
 }
 
+.image-road {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+.road1 {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: auto;
+    transform: rotate(360deg);
+}
+.road2 {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: auto;
+    margin-top: 70px;
+}
+.left, r.right, .contents, .button-group, .social-icons, .image-container {
+    position: relative;
+    z-index: 3;
+}
 .inner {
     margin-top: 60px;
     display: flex;
@@ -96,7 +124,6 @@
 }
 
 .social-icons a {
-    // margin: 0; 
     width: 30px;  
     height: 30px;
     font-size: 3rem;
@@ -125,6 +152,9 @@
     flex: 1;
     margin-left: 20px;
 }
+.contents {
+    background-color: #647FEA;
+}
 .main-title,
 .main-description{
     color: white;
@@ -150,7 +180,6 @@
     margin-left: 20px;
 }
 .image-container img {
-    // margin:10px;
     flex-direction: column;
     display: block;
 }
