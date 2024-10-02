@@ -1,0 +1,97 @@
+.wrapper {
+}
+
+.container {
+    cursor: pointer;
+    width: 334px;
+    height: 279px;
+    border-radius: 15px;
+    margin: 7px;
+    background-image: linear-gradient(200deg, #6580eb, #ffffff);
+    border: 1.5px solid #000000;
+
+    &:hover {
+        scale: 1.01;
+        color: rgba(22, 24, 35, 0.7);
+    }
+
+    &:active {
+        scale: 0.99;
+    }
+}
+.roadmap-pic {
+    height: 162px;
+    width: 318px;
+    border-radius: 15px;
+    object-fit: cover;
+    align-items: center;
+    margin: 8px 8px 0 8px;
+}
+.title {
+    font-size: 2rem;
+    margin: 0 8px;
+}
+.content {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin: 0 8px;
+}
+.below {
+    display: flex;
+    height: 32px;
+    width: 100%;
+}
+
+.clone-btn {
+    width: 69px;
+    height: 22px;
+    border-radius: 15px;
+    margin: 5px 5px;
+    background-color: transparent;
+    border: 1.5px solid #6580eb;
+
+    &:hover {
+        background-color: #6580eb;
+
+        .clone-title,
+        .clone-icon {
+            color: white;
+        }
+    }
+}
+
+.clone-title,
+.clone-icon {
+    align-items: center;
+    margin-right: 5px;
+    margin-top: 2px;
+    color: #6580eb;
+}
+
+.love {
+    background-color: transparent;
+    height: 22px;
+    width: 22px;
+    margin: 3px 0;
+    color: #e15959;
+    align-items: center;
+
+    &:hover {
+        scale: 1.1;
+    }
+}
+
+.clone-num {
+    height: 22px;
+    margin: 3px 0;
+    margin-left: auto;
+    font-size: 1.2rem;
+}
+
+.bolt-icon {
+    margin-right: 8px;
+}
+
+.num {
+    margin-right: 3px;
+}

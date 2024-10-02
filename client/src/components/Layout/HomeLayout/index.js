@@ -4,8 +4,7 @@ import styles from './HomeLayout.module.scss';
 import classNames from 'classnames/bind';
 import { Layout } from 'antd';
 import HeaderLogged from '../components/HeaderLogged/index.js';
-
-
+import RoadmapItem from '../components/RoadmapItem/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -28,7 +27,22 @@ function HomeLayout() {
                 <Header className={cx('header')}>
                     <HeaderLogged collapsed={collapsed} setCollapsed={setCollapsed} />
                 </Header>
-                <Content className={cx('content')}>
+                <Content className={cx('content', { collapsed: collapsed })}>
+                    <h1 className={cx('page-title')}>Recommended Roadmaps</h1>
+                    <div className={cx('container')} >
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                        <RoadmapItem />
+                    </div>
                 </Content>
             </Layout>
         </Layout>
