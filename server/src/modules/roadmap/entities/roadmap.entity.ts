@@ -7,6 +7,9 @@ export class Roadmap {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({nullable: false, unique: true })
+    code: string;
+
     @Column({nullable: false })
     title: string;
 
@@ -19,13 +22,13 @@ export class Roadmap {
     @OneToMany(() => Comment, comment => comment.roadmap)
     comment: Comment[]
 
-    @Column({nullable: false })
+    @Column({default: 0})
     clone: number;
 
-    @Column({nullable: false })
+    @Column({default: 0})
     react: number;
 
-    @Column({ type: 'boolean', default: false }) // Default status is 0 (false)
+    @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
     isActive: boolean;
 
     @CreateDateColumn()  
@@ -33,6 +36,5 @@ export class Roadmap {
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
-
 
 }

@@ -20,8 +20,8 @@ export class Comment {
     @JoinColumn()
     parentComment: Comment;
 
-    @Column({type: 'boolean', default: false})
-    status: boolean;
+    @Column({type: 'boolean', default: true})
+    isActive: boolean;
 
     @CreateDateColumn()  
     createdAt: Date;

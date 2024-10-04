@@ -34,12 +34,10 @@ export class User {
 
     @ManyToOne(() => Role, role => role.user)
     role: Role
-
     
     @OneToMany(() => Roadmap, roadmap => roadmap.owner)
     roadmap: Roadmap[]
 
     @OneToMany(() => Comment, comment => comment.poster)
     comment: Comment[]
-
 }
