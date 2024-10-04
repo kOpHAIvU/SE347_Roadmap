@@ -8,6 +8,10 @@ import { User } from './modules/user/entities/user.entity';
 import { UserModule } from './modules/user/user.module';
 import { RoleModule } from './modules/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { RoadmapModule } from './modules/roadmap/roadmap.module';
+import { Roadmap } from './modules/roadmap/entities/roadmap.entity';
+import { Comment } from './modules/comment/entities/comment.entity';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
@@ -18,12 +22,14 @@ import { AuthModule } from './modules/auth/auth.module';
       username: 'root',
       password: 'Loantuyetcute',
       database: 'roadmap',
-      entities: [User, Role],  // Đăng ký các entity
+      entities: [User, Role, Roadmap, Comment],  // Đăng ký các entity
       synchronize: true,
     }),
     UserModule,
     RoleModule,
     AuthModule,
+    RoadmapModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
