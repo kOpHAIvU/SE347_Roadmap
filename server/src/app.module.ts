@@ -8,6 +8,8 @@ import { User } from './modules/user/entities/user.entity';
 import { UserModule } from './modules/user/user.module';
 import { RoleModule } from './modules/role/role.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import dbConfig from './config/db.config';
 
 @Module({
   imports: [
@@ -24,6 +26,11 @@ import { AuthModule } from './modules/auth/auth.module';
     UserModule,
     RoleModule,
     AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      expandVariables: true,
+      load:[dbConfig],
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

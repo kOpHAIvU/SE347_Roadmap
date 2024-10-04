@@ -14,13 +14,16 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  // @Get('/users')
+  // getUsers() {
+  //   return this.appService.getUsers();
+  // }
+
   @Get('profile')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @UseGuards(AuthGuard('jwt'))
-  @Roles('admin')  
-  getProfile(
-    @Req() request,
-  ): string {
+  @Roles('admin')
+  getProfile(@Req() request): string {
     return request.user;
   }
 }
