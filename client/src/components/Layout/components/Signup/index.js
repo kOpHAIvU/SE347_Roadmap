@@ -1,16 +1,15 @@
 import { Link } from 'react-router-dom'; 
-import styles from './Login.module.scss';
+import styles from './Signup.module.scss';
 import classNames from 'classnames/bind';
 import images from '~/assets/images';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
-import Signup from '~/page/Signup';
 import road1 from './images/road01.png'
 import road2 from './images/road02.png'
 
 const cx = classNames.bind(styles);
 
-function Login() {
+function Signup() {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('inner')}>
@@ -24,28 +23,32 @@ function Login() {
                     <div className={cx('logo')}>
                         <img src={images.logo} alt="VertexOps" />
                     </div>
-                    <h1>Log in</h1>
-                    <p>Welcome back to VertexOps!!!</p>
+                    <h1>Sign up</h1>
+                    <p>Create your free account 😎!!!</p>
 
                     <button className={cx('google-btn')}>
                         <FontAwesomeIcon icon={faGoogle} className={cx('fa-google')}/>
-                        <trong>Log in with Google</trong>
+                        <trong>Sign up with Google</trong>
                     </button>
 
                     <input 
                         type="text" 
-                        placeholder="Username or Email" 
+                        placeholder="Email" 
                         className={cx('input-field')}
                     />
                     <input 
                         type="password" 
-                        placeholder="Password" 
+                        placeholder="Username" 
                         className={cx('input-field')}
                     />
-                    <a href="#" className={cx('forgot-password')}>Forgot Password?</a>
-                    <button className={cx('login-btn')}>Log in</button>
-                    <p className={cx('sign-up')}>Don't have an account? 
-                        <Link to="/signup">Sign up</Link>
+                    <input 
+                        type="password" 
+                        placeholder="Username" 
+                        className={cx('input-field')}
+                    />
+                    <button className={cx('login-btn')}>Sign up</button>
+                    <p className={cx('log-in')}>Already have an account?
+                        <Link to="/login">Log In</Link>
                     </p>
                 </div>
 
@@ -54,4 +57,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Signup;
