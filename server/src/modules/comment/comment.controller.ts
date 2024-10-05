@@ -8,8 +8,8 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post('new')
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentService.create(createCommentDto);
+  async create(@Body() createCommentDto: CreateCommentDto) {
+    return await this.commentService.create(createCommentDto);
   }
 
   @Get('all')
@@ -17,17 +17,18 @@ export class CommentController {
     return this.commentService.findAll();
   }
 
-  @Get('id/:id')
+  @Get('code/:id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.commentService.findOneById(+id);
   }
 
-  @Patch(':id')
+  // Only the content of the comment can be updated
+  @Patch('code/:id')
   update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
     return this.commentService.update(+id, updateCommentDto);
   }
 
-  @Delete(':id')
+  @Delete('code/:id')
   remove(@Param('id', ParseIntPipe) id: string) {
     return this.commentService.remove(+id);
   }

@@ -1,5 +1,5 @@
 import { RoadmapService } from './../roadmap/roadmap.service';
-import { Injectable, Query } from '@nestjs/common';
+import { Injectable, Logger, Query } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -44,8 +44,8 @@ export class CommentService {
 
   async create(createCommentDto: CreateCommentDto): Promise<any> {
     try {
-      const owner = await this.userService.findOneById(createCommentDto.poster); 
-      if (!owner) {
+      const poster = await this.userService.findOneById(createCommentDto.poster); 
+      if (!poster) {
           throw new Error('User not found'); 
       }
       const roadmap = (await this.roadmapService.findOneById(createCommentDto.roadmap));
@@ -57,12 +57,20 @@ export class CommentService {
         throw new Error("Parent comment not found");
       }
 
+      console.log(parentComment);
+      console.log(roadmap.data);
+      console.log(poster);
+
       const comment = this.commentRepository.create({
-        ...createCommentDto,
-        poster: owner,
-        roadmap,
-        parentComment,
+        content: createCommentDto.content, 
+        poster: poster,  
+        roadmap: roadmap.data, 
+        parentComment: parentComment, 
+        isActive: true,  
+        createdAt: new Date()  
       });
+
+      console.log(comment);
 
       const result = await this.commentRepository.save(comment);
       if (!result) {
@@ -74,14 +82,16 @@ export class CommentService {
         return {
           statusCode: 201,
           message: "Create comment successfully",
-          data: result,
+          data: {
+            ...result,
+          },
         }
       }
     }catch (error) {
       return {
         error: error.message,
         statusCode: 500,
-        message: 'Failed to create comment',
+        message: 'Failed to create comment because of server error',
       }
     }
   } 
@@ -146,6 +156,7 @@ export class CommentService {
       }
     } catch(error) {
       return {
+        error: error.message,
         statusCode: 500,
         message: 'Failed to update comment',
       }

@@ -1,4 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { Roadmap } from "src/modules/roadmap/entities/roadmap.entity";
+import { User } from "src/modules/user/entities/user.entity";
 
 export class CreateCommentDto {
 
@@ -19,6 +21,5 @@ export class CreateCommentDto {
     parentComment: number;
 
     @IsNumber()
-    @IsNotEmpty()
     isActive: boolean;
 }
