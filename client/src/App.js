@@ -6,7 +6,7 @@ function App() {
    const renderRoute = (route) => {
       const Page = route.Component;
       const Layout = route.layout || MainScreenLayout;
-
+            
       return (
          <Route
             key={route.path}

@@ -12,6 +12,8 @@
     align-items: center;
     height: calc(var(--search-height) - 7px);
     width: calc(var(--search-height) - 7px);
+    margin-left: 10px;
+    transition: transform 0.8s ease-in;
 
     &:hover {
         cursor: pointer;

@@ -10,10 +10,10 @@ function MainScreenLayout({ children }) {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('wrapper')}>
-            <Header />
-            <Main />
-            <footer>
-            </footer>
+                <Header />
+                <Main />
+                <footer>
+                </footer>
             </div>
         </div>
     );

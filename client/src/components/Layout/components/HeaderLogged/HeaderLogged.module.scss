@@ -5,7 +5,6 @@
 
 .inner {
     flex-grow: 1; /* Allows this div to take up the remaining width */
-    margin-top: 5px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -14,12 +13,14 @@
 }
 
 .navigation-btn {
+    display: flex;
+    justify-content: center;
     padding: 0;
     background-color: transparent;
     width: var(--search-height);
-    height: var(--search-height);
+    height: calc(var(--search-height) - 6px);
     align-items: center;
-    margin: 0 10px 0 0;
+    transition: transform 0.2s ease;
 
     &:hover {
         cursor: pointer;
@@ -35,6 +36,8 @@
 .right-header {
     display: flex;
     padding-right: 5px;
+    height: calc(var(--search-height) - 2px);
+    align-items: center;
 }
 
 .add-roadmap {

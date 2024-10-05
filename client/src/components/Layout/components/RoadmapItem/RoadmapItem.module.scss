@@ -1,9 +1,6 @@
-.wrapper {
-}
-
 .container {
     cursor: pointer;
-    width: 334px;
+    width: 304px;
     height: 279px;
     border-radius: 15px;
     margin: 7px;
@@ -15,69 +12,90 @@
         color: rgba(22, 24, 35, 0.7);
     }
 
-    &:active {
-        scale: 0.99;
-    }
 }
+
 .roadmap-pic {
     height: 162px;
-    width: 318px;
+    width: 288px;
     border-radius: 15px;
     object-fit: cover;
     align-items: center;
     margin: 8px 8px 0 8px;
 }
+
 .title {
     font-size: 2rem;
     margin: 0 8px;
+    padding: 0 5px;
 }
 .content {
+    width: 278px;
     font-size: 1.2rem;
     font-weight: 400;
     margin: 0 8px;
+    padding: 0 5px;
 }
 .below {
     display: flex;
     height: 32px;
     width: 100%;
+    align-items: center; 
 }
 
 .clone-btn {
     width: 69px;
     height: 22px;
     border-radius: 15px;
-    margin: 5px 5px;
+    display: flex;
+    margin: 5px;
     background-color: transparent;
     border: 1.5px solid #6580eb;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease;
 
     &:hover {
         background-color: #6580eb;
+        transform: scale(1.04); /* Phồng to từ tâm */
 
         .clone-title,
         .clone-icon {
             color: white;
         }
     }
+
+    &:active {
+        scale: 0.9;
+    }
 }
 
 .clone-title,
 .clone-icon {
     align-items: center;
-    margin-right: 5px;
-    margin-top: 2px;
     color: #6580eb;
+    scale: 0.9;
+    margin: 2px 0;
+}
+
+.clone-icon {
+    margin-left: 2px;
 }
 
 .love {
     background-color: transparent;
     height: 22px;
     width: 22px;
-    margin: 3px 0;
     color: #e15959;
     align-items: center;
+    transition: transform 0.3s ease;
 
     &:hover {
         scale: 1.1;
+    }
+
+    &:active {
+        scale: 0.9;
     }
 }
 
@@ -86,6 +104,7 @@
     margin: 3px 0;
     margin-left: auto;
     font-size: 1.2rem;
+    align-items: end; 
 }
 
 .bolt-icon {
