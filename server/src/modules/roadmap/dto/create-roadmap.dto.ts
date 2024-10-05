@@ -1,1 +1,34 @@
-export class CreateRoadmapDto {}
+import { Transform } from "class-transformer";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+
+export class CreateRoadmapDto {
+
+    @IsString()
+    @IsNotEmpty()
+    code: string;
+
+    @IsString()
+    @IsNotEmpty()
+    title: string;
+
+    @IsString()
+    @IsNotEmpty()
+    content: string;
+    
+    @IsNumber()
+    owner: number;
+
+    @IsNumber()
+    @IsOptional()
+    clone: number;
+
+    @IsNumber()
+    @IsOptional()
+    react: number;
+
+    @IsBoolean()
+    @IsOptional()
+    isActive: boolean;  
+}
+
+
