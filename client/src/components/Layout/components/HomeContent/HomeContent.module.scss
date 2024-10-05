@@ -1,0 +1,23 @@
+.wrapper {
+    margin-top: 60px;
+    width: calc(100% - 200px);
+    margin-left: 200px;
+    
+    &.collapsed {
+        width: calc(100% - 80px);
+        margin-left: 80px;
+    }
+}
+
+.page-title {
+    margin: 10px 0 0 10px;
+    font-size: 1.8rem;
+    text-decoration: underline;
+    text-decoration-color: rgb(145, 145, 145);
+    text-decoration-thickness: 2px;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap
+}

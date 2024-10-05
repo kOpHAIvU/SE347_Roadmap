@@ -1,12 +1,11 @@
-import { Fragment } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { publicRoutes, privateRoutes } from '~/routes'
-import { DefaultLayout } from './components/Layout/index.js';
+import { publicRoutes, privateRoutes, accountDataRoutes } from '~/routes'
+import { MainScreenLayout } from './components/Layout/index.js';
 
 function App() {
    const renderRoute = (route) => {
       const Page = route.Component;
-      const Layout = route.layout || DefaultLayout;
+      const Layout = route.layout || MainScreenLayout;
 
       return (
          <Route
@@ -27,6 +26,7 @@ function App() {
             <Routes>
                {publicRoutes.map(renderRoute)}
                {privateRoutes.map(renderRoute)}
+               {accountDataRoutes.map(renderRoute)}
             </Routes>
          </div>
       </Router>

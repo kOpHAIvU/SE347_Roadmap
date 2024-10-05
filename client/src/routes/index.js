@@ -1,4 +1,5 @@
-import { HomeLayout, MainScreenLayout } from "~/components/Layout/index.js";
+import Roadmap from "~/components/Layout/components/RoadmapContent/index.js";
+import { DefaultLayout, MainScreenLayout } from "~/components/Layout/index.js";
 import Home from "~/page/Home/index.js";
 import Information from "~/page/Information/index.js";
 import Login from "~/page/Login/index.js";
@@ -18,13 +19,17 @@ const publicRoutes = [
 ];
 
 const privateRoutes = [
-    { path: '/home', Component: Home, layout: HomeLayout },
-    { path: '/timeline', Component: Timeline, layout: HomeLayout },
-    { path: '/your_roadmap', Component: YourRoadmap, layout: HomeLayout },
-    { path: '/favorite', Component: YourFavourite, layout: HomeLayout },
-    { path: '/account', Component: Account, layout: HomeLayout },
-    { path: '/security', Component: Security, layout: HomeLayout },
-    { path: '/report', Component: Report, layout: HomeLayout },
+    { path: '/home', Component: Home, layout: DefaultLayout },
+    { path: '/timeline', Component: Timeline, layout: DefaultLayout },
+    { path: '/your_roadmap', Component: YourRoadmap, layout: DefaultLayout },
+    { path: '/favorite', Component: YourFavourite, layout: DefaultLayout },
+    { path: '/account', Component: Account, layout: DefaultLayout },
+    { path: '/security', Component: Security, layout: DefaultLayout },
+    { path: '/report', Component: Report, layout: DefaultLayout },
 ];
 
-export { publicRoutes, privateRoutes };
+const accountDataRoutes = [
+    { path: '/roadmap/1', Component: Roadmap, },
+]
+
+export { publicRoutes, privateRoutes, accountDataRoutes };

@@ -1,14 +1,6 @@
 .wrapper {
     display: flex;
     justify-content: space-between; /* Center the content horizontally */
-    width: calc(100% - 200px);
-    margin-left: 200px;
-
-    &.extend {
-        width: calc(100% - 80px);
-        margin-left: 80px;
-
-    }
 }
 
 .inner {
