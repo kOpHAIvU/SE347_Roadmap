@@ -1,0 +1,74 @@
+.wrapper {
+    background-color: white;
+}
+
+.page-title {
+    margin: 5px 0 0 10px;
+    font-size: 1.8rem;
+    text-decoration: underline;
+    text-decoration-color: rgb(145, 145, 145);
+    text-decoration-thickness: 2px;
+    padding: 5px 10px;
+}
+
+.content-section {
+    margin: 0 15px;
+    padding: 5px;
+    border-radius: 10px;
+    transition: all 0.3s ease; /* Thêm hiệu ứng chuyển đổi mềm mại */
+    display: flex;
+    align-items: center; /* Căn giữa theo chiều dọc */
+
+    &:hover {
+        scale: 1.003;
+        background: rgba(22, 24, 35, 0.03);
+
+        .rewrite-content-btn {
+            opacity: 0.7;
+        }
+    }
+}
+
+.content-input {
+    width: 100%; /* Đặt textarea chiếm hết chiều rộng của phần tử cha */
+    border-radius: 5px;
+    padding: 10px;
+    line-height: 1.5;
+    resize: none; /* Tắt khả năng thay đổi kích thước của textarea */
+}
+
+.content {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Giới hạn số dòng hiển thị */
+    -webkit-box-orient: vertical;
+    overflow: hidden; /* Ẩn phần nội dung thừa */
+    text-overflow: ellipsis; /* Thêm dấu "..." khi bị ẩn */
+    line-height: 1.5; /* Khoảng cách giữa các dòng */
+    max-height: calc(1.6em * 3); /* Giới hạn chiều cao dựa trên số dòng */
+
+    &.expanded {
+        -webkit-line-clamp: unset; /* Khi mở rộng, bỏ giới hạn dòng */
+        white-space: normal;
+        overflow: visible;
+        max-height: none; /* Bỏ giới hạn chiều cao */
+        height: auto; /* Đặt chiều cao tự động để ôm hết nội dung */
+    }
+}
+
+.rewrite-content-btn {
+    align-items: center;
+    padding: 5px;
+    scale: 1.2;
+    opacity: 1;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+
+    &:hover {
+        scale: 1.4;
+        background-color: #a1a1a1;
+    }
+
+    &:active {
+        scale: 0.9;
+    }
+}

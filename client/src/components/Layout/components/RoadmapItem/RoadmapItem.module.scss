@@ -1,22 +1,26 @@
+:root {
+    --card-width: 304px;
+    --card-height: 279px;
+}
+
 .container {
     cursor: pointer;
-    width: 304px;
-    height: 279px;
+    width: var(--card-width);
+    height: var(--card-height);
     border-radius: 15px;
     margin: 7px;
-    background-image: linear-gradient(200deg, #6580eb, #ffffff);
+    background-image: linear-gradient(200deg, var(--main-color), var(--side-color));
     border: 1.5px solid #000000;
 
     &:hover {
         scale: 1.01;
         color: rgba(22, 24, 35, 0.7);
     }
-
 }
 
 .roadmap-pic {
     height: 162px;
-    width: 288px;
+    width: calc(var(--card-width) - 16px);
     border-radius: 15px;
     object-fit: cover;
     align-items: center;
@@ -29,7 +33,7 @@
     padding: 0 5px;
 }
 .content {
-    width: 278px;
+    width: calc(var(--card-width) - 13px);
     font-size: 1.2rem;
     font-weight: 400;
     margin: 0 8px;
@@ -39,7 +43,7 @@
     display: flex;
     height: 32px;
     width: 100%;
-    align-items: center; 
+    align-items: center;
 }
 
 .clone-btn {
@@ -73,13 +77,17 @@
 .clone-title,
 .clone-icon {
     align-items: center;
-    color: #6580eb;
+    color: var(--main-color);
     scale: 0.9;
     margin: 2px 0;
 }
 
 .clone-icon {
     margin-left: 2px;
+}
+
+.clone-title {
+    font-weight: 500;
 }
 
 .love {
@@ -104,7 +112,7 @@
     margin: 3px 0;
     margin-left: auto;
     font-size: 1.2rem;
-    align-items: end; 
+    align-items: end;
 }
 
 .bolt-icon {

@@ -1,9 +1,9 @@
-import RoadmapContent from "~/components/Layout/components/RoadmapContent/index.js";
 import { MainScreenLayout, LoginLayout, SignupLayout, DefaultLayout } from "~/components/Layout/index.js";
 import Home from "~/page/Home/index.js";
 import Information from "~/page/Information/index.js";
 import Login from "~/page/Login/index.js";
 import MainScreen from "~/page/MainScreen/index.js";
+import OwnRoadmap from "~/page/OwnRoadmap/index.js";
 import { Account, Report, Security } from "~/page/Settings/index.js";
 import Signup from "~/page/Signup/index.js";
 import Timeline from "~/page/Timeline/index.js";
@@ -29,7 +29,7 @@ const privateRoutes = [
 ];
 
 const accountDataRoutes = [
-    { path: '/roadmap/1', Component: RoadmapContent },
+    { path: '/roadmap/:id', Component: OwnRoadmap, layout: DefaultLayout },
 ]
 
 export { publicRoutes, privateRoutes, accountDataRoutes };

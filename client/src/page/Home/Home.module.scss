@@ -1,9 +1,14 @@
+.wrapper {
+    background-color: white;
+}
+
 .page-title {
-    margin: 10px 0 0 10px;
+    margin: 5px 0 0 10px;
     font-size: 1.8rem;
     text-decoration: underline;
     text-decoration-color: rgb(145, 145, 145);
     text-decoration-thickness: 2px;
+    padding: 5px 10px;
 }
 
 .container {
