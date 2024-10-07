@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { Roadmap } from "src/modules/roadmap/entities/roadmap.entity";
 import { User } from "src/modules/user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -16,17 +17,23 @@ export class Comment {
     @ManyToOne(() => Roadmap, roadmap => roadmap.id)
     roadmap: Roadmap;
 
-    @OneToOne(() => Comment)
-    @JoinColumn()
+    @ManyToOne(() => Comment, comment => comment.childComments)
+    @JoinColumn({ name: 'parentCommentId' })  
     parentComment: Comment;
+
+
+    @OneToMany(() => Comment, comment => comment.parentComment)
+    childComments: Comment[];
 
     @Column({type: 'boolean', default: true})
     isActive: boolean;
 
     @CreateDateColumn()  
+    @Exclude()
     createdAt: Date;
 
     @DeleteDateColumn({ nullable: true })  
+    @Exclude()
     deletedAt: Date | null;
 
 }

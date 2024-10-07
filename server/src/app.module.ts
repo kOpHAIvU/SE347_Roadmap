@@ -16,13 +16,13 @@ import { CommentModule } from './modules/comment/comment.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mysql',  // Loại cơ sở dữ liệu
+      type: 'mysql',  
       host: 'localhost',
       port: 3306,
       username: 'root',
       password: 'Loantuyetcute',
       database: 'roadmap',
-      entities: [User, Role, Roadmap, Comment],  // Đăng ký các entity
+      entities: [User, Role, Roadmap, Comment],  
       synchronize: true,
     }),
     UserModule,
