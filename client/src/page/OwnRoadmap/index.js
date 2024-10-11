@@ -32,16 +32,42 @@ function OwnRoadmap({ roadmapName = 'Name not given',
         }
     }, [isEditing, contentText]);
 
-    const [tickArray, setTickArray] = useState(Array(10).fill(false));
+    // State for the list of levels
+    const [levels, setLevels] = useState([{ id: 1, ticked: false, node: node, isEditing: false }]);
+    const [activeNodeIndex, setActiveNodeIndex] = useState(null); // To track which node is active
 
     const toggleTickArray = (index) => {
-        setTickArray((prevArray) =>
-            prevArray.map((value, i) => (i === index ? !value : value))
+        setLevels((prevLevels) =>
+            prevLevels.map((level, i) => (i === index ? { ...level, ticked: !level.ticked } : level))
         );
     };
 
-    const [rewriteNode, setRewriteNode] = useState(node);
-    const [isRewriteNode, setIsRewriteNode] = useState(false);
+    const addNodeSameLevel = () => {
+        if (activeNodeIndex !== null) {
+            setLevels((prevLevels) => {
+                // Create a new level to insert
+                const newLevel = { id: prevLevels.length + 1, ticked: false, node: 'Write something...' };
+                // Insert the new level right after the active node
+                return [
+                    ...prevLevels.slice(0, activeNodeIndex + 1), // Get all levels up to the active one
+                    newLevel, // Add the new level
+                    ...prevLevels.slice(activeNodeIndex + 1), // Get the rest of the levels
+                ];
+            });
+        }
+    };
+
+    const toggleEditNode = (index) => {
+        setLevels((prevLevels) =>
+            prevLevels.map((level, i) => (i === index ? { ...level, isEditing: !level.isEditing } : level))
+        );
+    };
+
+    const updateNodeContent = (index, newContent) => {
+        setLevels((prevLevels) =>
+            prevLevels.map((level, i) => (i === index ? { ...level, node: newContent } : level))
+        );
+    };
 
 
     return (
@@ -79,50 +105,50 @@ function OwnRoadmap({ roadmapName = 'Name not given',
             </div>
 
             <div className={cx('roadmap-section')}>
-                <div className={cx('level-one')}>
-                    <div className={cx('show-section')}>
-                        {tickArray[1] ? (
-                            <FontAwesomeIcon
-                                onClick={() => toggleTickArray(1)}
-                                icon={faSquareCheck}
-                                className={cx('ticked')} />
-                        ) : (
-                            <div
-                                onClick={() => toggleTickArray(1)}
-                                className={cx('tick')} />
-                        )}
-                        {isRewriteNode ? (
-                            <input
-                                className={cx('level-one-content-edit')}
-                                type="text"
-                                value={rewriteNode}
-                                onChange={(e) => setRewriteNode(e.target.value)}
-                                onBlur={() => setIsRewriteNode(!isRewriteNode)}
-                                autoFocus />
-                        ) : (
-                            <h1 className={cx('level-one-content')}>{rewriteNode}</h1>
-                        )}
+                {levels.map((level, index) => (
+                    <div className={cx('level-one')} key={level.id}>
+                        <div className={cx('show-section')}>
+                            {level.ticked ? (
+                                <FontAwesomeIcon
+                                    onClick={() => toggleTickArray(index)}
+                                    icon={faSquareCheck}
+                                    className={cx('ticked')}
+                                />
+                            ) : (
+                                <div
+                                    onClick={() => toggleTickArray(index)}
+                                    className={cx('tick')}
+                                />
+                            )}
+                            {level.isEditing ? (
+                                <input
+                                    className={cx('level-one-content-edit')}
+                                    type="text"
+                                    value={level.node}
+                                    onChange={(e) => updateNodeContent(index, e.target.value)}
+                                    onBlur={() => toggleEditNode(index)}
+                                    autoFocus
+                                />
+                            ) : (
+                                <h1 className={cx('level-one-content')}>{level.node}</h1>
+                            )}
 
-                        {isRewriteNode ? (
                             <FontAwesomeIcon
-                                icon={faTrashCan}
-                                className={cx('remove-node')} />
-                        ) : (
-                            <FontAwesomeIcon
-                                onClick={() => setIsRewriteNode(!isRewriteNode)}
-                                icon={penRegular}
+                                onClick={() => toggleEditNode(index)}
+                                icon={level.isEditing ? faTrashCan : penRegular}
                                 className={cx('rewrite-node')}
                             />
-                        )}
+                        </div>
 
+                        <div className={cx('hidden-section')}>
+                            <FontAwesomeIcon className={cx('same-level')}
+                                icon={faSquarePlus}
+                                onClick={() => { setActiveNodeIndex(index); addNodeSameLevel(); }} />
+                            <FontAwesomeIcon className={cx('achild-level-check')} icon={faSquare} />
+                            <FontAwesomeIcon className={cx('child-level-radio')} icon={faCircle} />
+                        </div>
                     </div>
-
-                    <div className={cx('hidden-section')}>
-                        <FontAwesomeIcon className={cx('add-node')} icon={faSquarePlus} />
-                        <FontAwesomeIcon className={cx('add-node')} icon={faSquare} />
-                        <FontAwesomeIcon className={cx('add-node')} icon={faCircle} />
-                    </div>
-                </div>
+                ))}
             </div>
         </div>
     );

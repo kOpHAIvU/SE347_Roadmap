@@ -94,16 +94,23 @@
 }
 
 .level-one {
+    border-top: 1px solid rgba(22, 24, 35, 0.12);
+    left: 10px;
+    right: 10px;
     position: relative;
 }
 
 .show-section {
     display: flex;
-    background-color: rgba(22, 24, 35, 0.12);
     width: 100%;
     padding: 10px 0 10px 20px;
     max-width: 100%;
     cursor: pointer;
+    z-index: 2;
+
+    &:hover {
+        background-color: rgba(22, 24, 35, 0.12);
+    }
 
     &:hover .tick,
     &:hover .level-one-content {
@@ -172,22 +179,31 @@
 }
 
 .hidden-section {
-    margin: 5px 0 10px 20px;
+    position: absolute; /* Make it absolute */
+    left: 0; /* Align to left */
+    right: 0; /* Align to right */
+    margin: 0 0 10px 20px; /* Adjust as needed */
+    padding-top: 5px;
     background-color: white;
-    display: flex; /* Luôn hiện, nhưng sẽ dịch chuyển ra ngoài màn hình */
-    opacity: 0; /* Ẩn đi bằng cách giảm độ mờ */
-    transform: translateY(-20px); /* Dịch chuyển xuống dưới 20px */
-    transition: transform 0.3s ease, opacity 0.3s ease; /* Thời gian chuyển đổi */
-    pointer-events: none;
+    max-height: 0; /* Start with max-height 0 */
+    opacity: 0; /* Start hidden */
+    transition: max-height 0.3s ease, opacity 0.3s ease-in; /* Transition for smooth animation */
+    overflow: hidden; /* Hide overflow content */
+    z-index: 1;
+    border-top: 1px solid rgba(22, 24, 35, 0.12);
 }
 
-.show-section:hover + .hidden-section {
-    transform: translateY(0); /* Đưa nó lên vị trí ban đầu */
-    opacity: 1; /* Hiển thị lại */
+.show-section:hover + .hidden-section,
+.hidden-section:hover {
+    max-height: 100px; /* Set a maximum height for the reveal */
+    opacity: 1; /* Make it visible */
     pointer-events: auto;
+    position: relative;
 }
 
-.add-node {
+.same-level,
+.achild-level-check,
+.child-level-radio {
     height: 17px;
     width: 17px;
     color: rgba(22, 24, 35, 0.5);
@@ -202,6 +218,6 @@
     }
 
     &:active {
-        scale: 0.9;
+        scale: 0.8;
     }
 }
