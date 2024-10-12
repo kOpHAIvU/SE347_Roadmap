@@ -55,6 +55,7 @@
     }
 }
 .login-container {
+    //#647FEA
     background-color: #647FEA;
     padding: 2rem;
     border: 1px solid #000;
@@ -93,7 +94,7 @@ button {
     border: 1px solid #000;
     border-radius: 50px;
     align-items: center;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
     .fa-google {
         margin-right: 10px; 
     }
@@ -119,7 +120,7 @@ button {
         background-color: #d47979; 
         cursor: pointer;
         transform: translateY(-2px); 
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
+        box-shadow: 0 6px 16px rgba(104, 12, 12, 0.15); 
     }
     &:active {
         background-color: #b01313;
@@ -133,7 +134,7 @@ button {
     border-radius: 5px;
     margin: 1rem 0;
     background-color: #f7f7f7;
-    font-size: 1,2rem;
+    font-size: 1.5rem;
     transition: border-color 0.3s ease;
 
     &:focus {
@@ -145,7 +146,7 @@ button {
 
 .forgot-password {
     display: block;
-    margin-bottom: 1.5rem;
+    margin: 1.5rem 0;
     color: #8ab6f8;
     text-decoration: none;
 
@@ -162,4 +163,29 @@ a {
     &:hover {
         text-decoration: underline;
     }
+}
+
+
+.form-group {
+    width: 100%;
+    position: relative;
+    margin-bottom: 1.2rem; 
+
+    &.invalid {
+        .input-field {
+            border-color: #f33a58;
+        }
+
+        .error-message {
+            display: block;
+            color: #980303;
+            font-weight: 500;
+            font-size: 1.2rem;
+            position: absolute;
+            left: 0;
+        }
+    }
+}
+.error-message {
+    display: none; // Ẩn lỗi mặc định
 }

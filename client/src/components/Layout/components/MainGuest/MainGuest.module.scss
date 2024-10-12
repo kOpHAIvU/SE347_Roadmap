@@ -42,23 +42,20 @@
     padding:0;
 }
 
-.main-content {
-    background-color: #b2c9f5;
-    padding: 40px;
-    border-radius: 10px;
-    text-align: center;
+.main-title,
+.main-description{
+    color: white;
 }
 
 .main-title {
-    font-size: 2.6rem; 
-    color: #0a0a0a; 
+    font-size: 3rem;
+    margin-left: 10px;
     margin-bottom: 20px;
     line-height: 1.4;
 }
 
 .main-description {
     font-size: 1.5rem; 
-    color: #0a0a0a;
     margin-bottom: 30px;
 }
 
@@ -81,7 +78,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 .learn-more {
-    color: #ffffff;
     background-color: #EB6581; 
     border-radius: 8px;
     &:hover {
@@ -98,7 +94,6 @@
 }
 .sign-up {
     font-weight: bold;
-    color: #ffffff;
     background-color: transparent; 
     border: 2px solid rgb(255, 255, 255);
     border-radius: 8px;
@@ -154,13 +149,7 @@
 .contents {
     background-color: #647FEA;
 }
-.main-title,
-.main-description{
-    color: white;
-}
-.main-title {
-    font-size: 3rem;
-}
+
 .social-icons .icon-github {
     border-radius: 10%;
 }
