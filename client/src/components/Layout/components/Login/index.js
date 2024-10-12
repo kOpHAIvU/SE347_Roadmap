@@ -22,14 +22,14 @@ function Login() {
 
     const validate = () => {
         const newErrors = {};
-        if (!formData.email) newErrors.email = 'Vui lòng nhập email';
+        if (!formData.email) newErrors.email = 'Please enter your email!';
         else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email không hợp lệ';
+            newErrors.email = 'Invalid email!';
         }
 
-        if (!formData.password) newErrors.password = 'Vui lòng nhập mật khẩu';
+        if (!formData.password) newErrors.password = 'Please enter your password!';
         else if (formData.password.length < 6) {
-            newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự';
+            newErrors.password = 'Password must have at least 6 characters';
         }
 
         return newErrors;
