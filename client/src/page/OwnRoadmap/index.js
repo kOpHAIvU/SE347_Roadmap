@@ -2,18 +2,20 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './OwnRoadmap.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare as penSolid, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
+import { faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
+import LevelOne from '~/components/Layout/components/RoadmapLevel/LevelOne/index.js';
+import LevelTwo from '~/components/Layout/components/RoadmapLevel/LevelTwo/index.js';
+import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/index.js';
 
 const cx = classNames.bind(styles);
 
 function OwnRoadmap({ roadmapName = 'Name not given',
-    content = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.'
-    , node = 'Install the environment' }) {
+    title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.'
+    , content = 'Install the environment' }) {
     console.log('Rendering OwnRoadmap');
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
-    const [contentText, setContentText] = useState(content);
+    const [titleText, setTitleText] = useState(title);
     const [isEditing, setIsEditing] = useState(false);
     const textareaRef = useRef(null);
 
@@ -30,45 +32,69 @@ function OwnRoadmap({ roadmapName = 'Name not given',
         if (isEditing) {
             adjustTextareaHeight(); // Điều chỉnh chiều cao khi chuyển sang chế độ chỉnh sửa
         }
-    }, [isEditing, contentText]);
+    }, [isEditing, titleText]);
 
     // State for the list of levels
-    const [levels, setLevels] = useState([{ id: 1, ticked: false, node: node, isEditing: false }]);
-    const [activeNodeIndex, setActiveNodeIndex] = useState(null); // To track which node is active
+    const [nodes, setNodes] = useState([{ id: 1, level: 1, type: 'Checkbox', ticked: false, content: content }
+        , { id: 2, level: 2, type: 'Checkbox', ticked: false, content: content }]);
+    const [activeContentIndex, setActiveContentIndex] = useState(null); // To track which node is active
 
-    const toggleTickArray = (index) => {
-        setLevels((prevLevels) =>
-            prevLevels.map((level, i) => (i === index ? { ...level, ticked: !level.ticked } : level))
-        );
+    // Hàm để cập nhật toàn bộ nội dung của node
+    const updateNodeContent = (index, updatedNode) => {
+        setNodes((prevLevels) => {
+            const updatedLevels = [...prevLevels];
+            updatedLevels[index] = updatedNode; // Cập nhật toàn bộ node
+            return updatedLevels;
+        });
     };
 
-    const addNodeSameLevel = () => {
-        if (activeNodeIndex !== null) {
-            setLevels((prevLevels) => {
-                // Create a new level to insert
-                const newLevel = { id: prevLevels.length + 1, ticked: false, node: 'Write something...' };
-                // Insert the new level right after the active node
-                return [
-                    ...prevLevels.slice(0, activeNodeIndex + 1), // Get all levels up to the active one
-                    newLevel, // Add the new level
-                    ...prevLevels.slice(activeNodeIndex + 1), // Get the rest of the levels
+
+    // Cập nhật lại addNodeSameLevel để không cần phải gọi hàm này thủ công.
+    const handleSameLevelClick = (index, level) => {
+        const newId = nodes.length + 1; // Tạo ID mới cho node
+        const newLevel = { id: newId, level: level, type: 'Checkbox', ticked: false, content: 'Write something...' };
+
+        // Kiểm tra node ngay dưới
+        if (index + 1 < nodes.length && nodes[index + 1].level < level) {
+            // Nếu node ngay dưới có level thấp hơn
+            setNodes((prevLevels) => {
+                const updatedLevels = [
+                    ...prevLevels.slice(0, index + 1), // Các node trước node hiện tại
+                    newLevel, // Chèn node mới ngay sau node hiện tại
+                    ...prevLevels.slice(index + 1) // Các node sau đó
                 ];
+                return updatedLevels;
             });
+
+            setActiveContentIndex(index + 1); // Cập nhật activeContentIndex để phản ánh vị trí mới
+        } else {
+            // Nếu không thì tìm node cùng cấp đầu tiên ở phía dưới
+            const insertIndex = nodes.findIndex((node, idx) => {
+                return idx > index && node.level === level; // Tìm node cùng cấp đầu tiên ở phía dưới
+            });
+
+            // Update nodes: insert the new level
+            setNodes((prevLevels) => {
+                const updatedLevels = insertIndex === -1 // Nếu không tìm thấy node cùng cấp phía dưới
+                    ? [...prevLevels, newLevel] // Chèn vào cuối
+                    : [
+                        ...prevLevels.slice(0, insertIndex), // Các node trước node tìm thấy
+                        newLevel, // Chèn node mới
+                        ...prevLevels.slice(insertIndex) // Các node sau đó
+                    ];
+                return updatedLevels;
+            });
+
+            // Cập nhật activeContentIndex
+            setActiveContentIndex(insertIndex === -1 ? nodes.length : insertIndex);
         }
     };
 
-    const toggleEditNode = (index) => {
-        setLevels((prevLevels) =>
-            prevLevels.map((level, i) => (i === index ? { ...level, isEditing: !level.isEditing } : level))
-        );
+    const handleDeleteNode = (index) => {
+        console.log("Deleting node at index: ", index);
+        setNodes((prevNodes) => prevNodes.filter((_, i) => i !== index)); // Remove node by index
     };
-
-    const updateNodeContent = (index, newContent) => {
-        setLevels((prevLevels) =>
-            prevLevels.map((level, i) => (i === index ? { ...level, node: newContent } : level))
-        );
-    };
-
+    console.log(nodes)
 
     return (
         <div className={cx('wrapper')}>
@@ -83,8 +109,8 @@ function OwnRoadmap({ roadmapName = 'Name not given',
                     <textarea
                         ref={textareaRef}
                         type="text"
-                        value={contentText}
-                        onChange={(e) => setContentText(e.target.value)}
+                        value={titleText}
+                        onChange={(e) => setTitleText(e.target.value)}
                         onBlur={() => setIsEditing(!isEditing)} // Khi mất focus, quay lại chế độ xem
                         className={cx('content-input')}
                         autoFocus // Tự động focus vào input khi chuyển sang chế độ chỉnh sửa
@@ -94,7 +120,7 @@ function OwnRoadmap({ roadmapName = 'Name not given',
                         className={cx('content', { expanded: contentExpanded })}
                         onClick={() => setIsContentExpanded(!contentExpanded)}
                     >
-                        {contentText}
+                        {titleText}
                     </span>
                 )}
                 <FontAwesomeIcon
@@ -105,50 +131,49 @@ function OwnRoadmap({ roadmapName = 'Name not given',
             </div>
 
             <div className={cx('roadmap-section')}>
-                {levels.map((level, index) => (
-                    <div className={cx('level-one')} key={level.id}>
-                        <div className={cx('show-section')}>
-                            {level.ticked ? (
-                                <FontAwesomeIcon
-                                    onClick={() => toggleTickArray(index)}
-                                    icon={faSquareCheck}
-                                    className={cx('ticked')}
+                {nodes.map((node, index) => {
+                    switch (node.level) {
+                        case 1:
+                            return (
+                                <LevelOne
+                                    key={node.id}
+                                    children={node}
+                                    index={index}
+                                    handleSameLevelClick={handleSameLevelClick}
+                                    updateNodeContent={updateNodeContent}
+                                    handleDeleteNode={handleDeleteNode}
+                                    allNodes={nodes}
                                 />
-                            ) : (
-                                <div
-                                    onClick={() => toggleTickArray(index)}
-                                    className={cx('tick')}
+                            );
+                        case 2:
+                            return (
+                                <LevelTwo
+                                    key={node.id}
+                                    children={node}
+                                    index={index}
+                                    handleSameLevelClick={handleSameLevelClick}
+                                    updateNodeContent={updateNodeContent}
+                                    handleDeleteNode={handleDeleteNode}
+                                    allNodes={nodes}
                                 />
-                            )}
-                            {level.isEditing ? (
-                                <input
-                                    className={cx('level-one-content-edit')}
-                                    type="text"
-                                    value={level.node}
-                                    onChange={(e) => updateNodeContent(index, e.target.value)}
-                                    onBlur={() => toggleEditNode(index)}
-                                    autoFocus
+                            );
+                        case 3:
+                            return (
+                                <LevelThree
+                                    key={node.id}
+                                    children={node}
+                                    index={index}
+                                    handleSameLevelClick={handleSameLevelClick}
+                                    updateNodeContent={updateNodeContent}
+                                    handleDeleteNode={handleDeleteNode}
                                 />
-                            ) : (
-                                <h1 className={cx('level-one-content')}>{level.node}</h1>
-                            )}
+                            );
+                        default:
+                            console.log('Error! Node not define yet.');
+                            return null;
+                    }
+                })}
 
-                            <FontAwesomeIcon
-                                onClick={() => toggleEditNode(index)}
-                                icon={level.isEditing ? faTrashCan : penRegular}
-                                className={cx('rewrite-node')}
-                            />
-                        </div>
-
-                        <div className={cx('hidden-section')}>
-                            <FontAwesomeIcon className={cx('same-level')}
-                                icon={faSquarePlus}
-                                onClick={() => { setActiveNodeIndex(index); addNodeSameLevel(); }} />
-                            <FontAwesomeIcon className={cx('achild-level-check')} icon={faSquare} />
-                            <FontAwesomeIcon className={cx('child-level-radio')} icon={faCircle} />
-                        </div>
-                    </div>
-                ))}
             </div>
         </div>
     );

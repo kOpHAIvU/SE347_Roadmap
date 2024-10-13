@@ -3,7 +3,7 @@ import classNames from 'classnames/bind';
 
 const cx = classNames.bind(styles);
 
-function LevelThree() {
+function LevelThree({ children, index, handleSameLevelClick, updateNodeContent, handleDeleteNode }) {
     return ( 
         <div></div>
      );
