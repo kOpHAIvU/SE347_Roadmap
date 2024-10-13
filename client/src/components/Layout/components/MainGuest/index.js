@@ -8,10 +8,19 @@ import image2 from './images/image02.png'
 import image3 from './images/image03.png'
 import road1 from './images/road01.png'
 import road2 from './images/road02.png'
+import { useNavigate } from 'react-router-dom';
+
+
 
 const cx = classNames.bind(styles);
 
 function MainGuestGuest() {
+    const navigate = useNavigate(); // Khởi tạo useNavigate
+
+    const handleSignupClick = () => {
+        navigate('/signup'); // Điều hướng đến trang login
+    };
+
     return <div className={cx('wrapper')}>
             <div className={cx('inner')}>
 
@@ -30,7 +39,7 @@ function MainGuestGuest() {
                     
                     <div className={cx('button-group')}>
                         <button className={cx('learn-more')}>Lean more</button>
-                        <button className={cx('sign-up')}>Sign up</button>
+                        <button className={cx('sign-up')} onClick={handleSignupClick}>Sign up</button>
                     </div>
                     
                     <div className={cx('social-icons')}>
