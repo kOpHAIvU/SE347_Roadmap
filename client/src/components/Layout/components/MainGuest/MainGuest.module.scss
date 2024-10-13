@@ -14,6 +14,12 @@
     left: 0;
     width: 100%;
     height: 100%;
+    img {
+        transition: filter 0.3s ease;
+    }
+    &.road1 {
+        filter: sepia(50%) brightness(80%);
+    }
 }
 
 .road1 {

@@ -48,7 +48,6 @@ function Signup() {
     };
 
     return (
-        <div className={cx('wrapper')}>
             <div className={cx('inner')}>
                 <div className={cx('image-road')}>
                     <img src={road1} alt="Road 1" className={cx('road1')} />
@@ -121,7 +120,6 @@ function Signup() {
                     </p>
                 </form>
             </div>
-        </div>
     );
 }
 
