@@ -1,4 +1,4 @@
-import { MainScreenLayout, LoginLayout, SignupLayout, DefaultLayout } from "~/components/Layout/index.js";
+import { MainScreenLayout,  DefaultLayout } from "~/components/Layout/index.js";
 import Home from "~/page/Home/index.js";
 import Information from "~/page/Information/index.js";
 import Login from "~/page/Login/index.js";
@@ -13,8 +13,8 @@ import YourRoadmap from "~/page/YourRoadmap/index.js";
 
 const publicRoutes = [
     { path: '/', Component: MainScreen, layout: MainScreenLayout },
-    { path: '/login', Component: Login, layout: LoginLayout },
-    { path: '/signup', Component: Signup, layout: SignupLayout },
+    { path: '/login', Component: Login, layout: MainScreenLayout },
+    { path: '/signup', Component: Signup, layout: MainScreenLayout },
     { path: '/information', Component: Information },
 ];
 

@@ -11,7 +11,6 @@ import road2 from './images/road02.png'
 import { useNavigate } from 'react-router-dom';
 
 
-
 const cx = classNames.bind(styles);
 
 function MainGuestGuest() {
