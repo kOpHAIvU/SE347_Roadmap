@@ -1,47 +1,76 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
-import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import styles from './LevelTwo.module.scss';
 import classNames from 'classnames/bind';
 import { useEffect, useRef, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function LevelTwo({ children, index, handleSameLevelClick, updateNodeContent, handleDeleteNode, allNodes }) {
+function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNode, updateNodeContent, handleDeleteNode, allNodes, hoveredIndex, setHoveredIndex }) {
     const [ticked, setTicked] = useState(children.ticked);
     const [content, setContent] = useState(children.content);
     const [isEditing, setIsEditing] = useState(false);
+    const timeoutRef = useRef(null);
+
     useEffect(() => {
         setTicked(children.ticked);
         setContent(children.content);
     }, [children]);
 
     const handleUpdateNode = (updatedTicked = ticked, updatedContent = content) => {
+        // Tạo node đã cập nhật
         const updatedNode = { ...children, ticked: updatedTicked, content: updatedContent };
-        updateNodeContent(index, updatedNode); // Call the parent's update function
-    };
+        updateNodeContent(index, updatedNode); // Gọi hàm cập nhật từ parent
+    
+        // Nếu node được ticked và là RadioButton
+        if (updatedTicked && children.type === 'RadioButton') {
+            // Cập nhật các node khác cùng level thành chưa ticked
+            allNodes.forEach((node, idx) => {
+                if (idx !== index && node.level === children.level && node.type === 'RadioButton') {
+                    console.log("Hehe",allNodes[idx])
+                    const otherNode = { ...node, ticked: false }; // Bỏ tick cho node khác
+                    updateNodeContent(idx, otherNode); // Cập nhật node khác
+                }
+            });
+        }
+    };    
 
-    const [showHiddenSection, setShowHiddenSection] = useState(false); // Control hidden section visibility
-    const timeoutRef = useRef(null); // Store timeout ID for clearing
     // Handle mouse enter
     const handleMouseEnter = () => {
-        setShowHiddenSection(true); // Show immediately on hover
-        clearTimeout(timeoutRef.current); // Clear any existing timeout
+        // Clear any existing timeout when mouse enters
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        setHoveredIndex(index); // Update the hovered index
     };
 
-    // Handle mouse leave with a delay
     const handleMouseLeave = () => {
-        // Start a timeout to hide the section after 3 seconds
+        // Set a timeout of 1.5 seconds to hide the section
         timeoutRef.current = setTimeout(() => {
-            setShowHiddenSection(false); // Hide after delay
-        }, 1500); // Delay of 3 seconds
+            setHoveredIndex(null); // Reset hovered index after delay
+        }, 1500);
     };
+
+    // Kiểm tra loại node ngay dưới node hiện tại
+    const getNodeBelowTypeAndLevel = () => {
+        if (index + 1 < allNodes.length) {
+            const belowNode = allNodes[index + 1];
+            if (belowNode.level > children.level) {
+                return belowNode.type; // Trả về loại node ngay dưới nếu có level cao hơn
+            }
+        }
+        return null; // Nếu không có node dưới hoặc không có level cao hơn
+    };
+
+    const nodeBelowType = getNodeBelowTypeAndLevel();
 
     return (
         <div className={cx('level-two')} key={children.id}>
-            <div className={cx('show-section')}
+            <div className={cx('show-section', { 'with-hidden-section': hoveredIndex === index })}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}>
+
                 {ticked ? (
                     <FontAwesomeIcon
                         onClick={() => {
@@ -49,16 +78,17 @@ function LevelTwo({ children, index, handleSameLevelClick, updateNodeContent, ha
                             setTicked(newTicked);  // Update local state
                             handleUpdateNode(newTicked);
                         }}
-                        icon={faSquareCheck}
+                        icon={children.type === 'Checkbox' ? faSquareCheck : faCircleCheck}
                         className={cx('ticked')}
                     />
                 ) : (
-                    <div
+                    <FontAwesomeIcon
                         onClick={() => {
                             const newTicked = true;  // Set ticked to true
                             setTicked(newTicked);  // Update local state
                             handleUpdateNode(newTicked);
                         }}
+                        icon={children.type === 'Checkbox' ? faSquare : faCircle}
                         className={cx('tick')}
                     />
                 )}
@@ -81,7 +111,7 @@ function LevelTwo({ children, index, handleSameLevelClick, updateNodeContent, ha
 
                 <div className={cx('update-node')}>
                     <FontAwesomeIcon
-                        onClick={() => setIsEditing()}
+                        onClick={() => setIsEditing(true)}
                         icon={penRegular}
                         className={cx('rewrite-node')}
                     />
@@ -96,18 +126,35 @@ function LevelTwo({ children, index, handleSameLevelClick, updateNodeContent, ha
                 </div>
             </div>
 
-            <div className={cx('hidden-section', { visible: showHiddenSection })}
+            <div
+                className={cx('hidden-section', {
+                    visible: hoveredIndex === index,
+                })}
                 onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}>
+                onMouseLeave={handleMouseLeave}
+            >
                 <FontAwesomeIcon
                     className={cx('same-level')}
                     icon={faSquarePlus}
                     onClick={() => {
-                        handleSameLevelClick(index, children.level)
+                        handleSameLevelClick(index, children.level, children.type)
                     }}
                 />
-                <FontAwesomeIcon className={cx('child-level-check')} icon={faSquare} />
-                <FontAwesomeIcon className={cx('child-level-radio')} icon={faCircle} />
+                {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
+                {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+                    <FontAwesomeIcon
+                        className={cx('child-level-check')}
+                        icon={faSquare}
+                        onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                    />
+                ) : null}
+                {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
+                    <FontAwesomeIcon
+                        className={cx('child-level-radio')}
+                        icon={faCircle}
+                        onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
+                    />
+                ) : null}
             </div>
         </div>
     );
