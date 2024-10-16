@@ -4,8 +4,8 @@ import classNames from 'classnames/bind';
 import images from '~/assets/images';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGoogle } from '@fortawesome/free-brands-svg-icons';
-import road1 from './images/road01.png';
-import road2 from './images/road02.png';
+import road1 from '~/assets/images/road01.png'
+import road2 from '~/assets/images/road02.png'
 import { useState } from 'react';
 
 const cx = classNames.bind(styles);

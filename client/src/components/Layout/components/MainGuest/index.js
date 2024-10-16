@@ -2,12 +2,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './MainGuest.module.scss';
 import classNames from 'classnames/bind';
+import images from '~/assets/images';
 import { faFacebook, faGithub, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
-import image1 from './images/image01.png'
-import image2 from './images/image02.png'
-import image3 from './images/image03.png'
-import road1 from './images/road01.png'
-import road2 from './images/road02.png'
+import image1 from '~/assets/images/image01.png'
+import image2 from '~/assets/images/image02.png'
+import image3 from '~/assets/images/image03.png'
+import road1 from './images/road01.png';
+import road2 from './images/road02.png';
 import { useNavigate } from 'react-router-dom';
 
 
