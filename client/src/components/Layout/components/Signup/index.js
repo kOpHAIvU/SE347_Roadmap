@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom';
 import styles from './Signup.module.scss';
 import classNames from 'classnames/bind';
 import images from '~/assets/images';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import road1 from '~/assets/images/road01.png'
 import road2 from '~/assets/images/road02.png'
 import { useState } from 'react';
@@ -19,7 +17,17 @@ function Signup() {
         setFormData({ ...formData, [name]: value });
         setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi nhập lại
     };
-
+    const handleBlur = (e) => {
+        const { name, value } = e.target;
+        
+        if (name === 'email') {
+            const emailError = 
+                !value ? 'Please enter your email!' : 
+                !/\S+@\S+\.\S+/.test(value) ? 'Invalid email!' : '';
+    
+            setErrors((prev) => ({ ...prev, email: emailError }));
+        }
+    };
     const validate = () => {
         const newErrors = {};
         if (!formData.email) newErrors.email = 'Please enter your email!';
@@ -62,7 +70,7 @@ function Signup() {
                     <p>Create your free account 😎!!!</p>
 
                     <button type="button" className={cx('google-btn')}>
-                        <FontAwesomeIcon icon={faGoogle} className={cx('fa-google')} />
+                        <img src={images.google} alt="Google Logo"className={cx('google-logo')} />
                         <strong>Sign up with Google</strong>
                     </button>
 
@@ -75,6 +83,7 @@ function Signup() {
                             className={cx('input-field')}
                             value={formData.email}
                             onChange={handleChange}
+                            onBlur={handleBlur}
                         />
                         {errors.email && (
                             <span className={cx('error-message')}>{errors.email}</span>

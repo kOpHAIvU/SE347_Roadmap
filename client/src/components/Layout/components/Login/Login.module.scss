@@ -91,14 +91,19 @@ button {
 }
 
 .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #CEBABA;
     color: white;
     border: 1px solid #000;
     border-radius: 50px;
     align-items: center;
     margin-bottom: 3rem;
-    .fa-google {
-        margin-right: 10px; 
+    .google-logo {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
     }
     &:hover {
         background-color: #ff0000; 
@@ -191,6 +196,19 @@ button {
         }
     }
 }
-.error-message {
-    display: none; 
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888; // Màu con mắt
 }
+
+.password-toggle:hover {
+    color: #333; // Màu khi hover
+}
+// .error-message {
+//     display: none; 
+// }

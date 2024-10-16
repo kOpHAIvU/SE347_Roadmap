@@ -91,13 +91,18 @@ button {
 }
 
 .google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #CEBABA;
     color: white;
     border: 1px solid #000;
     border-radius: 50px;
     align-items: center;
     margin-bottom: 3rem;
-    .fa-google {
+    .google-logo {
+        width: 20px;
+        height: 20px;
         margin-right: 10px;
     }
     &:hover {
