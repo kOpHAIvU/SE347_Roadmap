@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate  } from 'react-router-dom';
 import styles from './Signup.module.scss';
 import classNames from 'classnames/bind';
 import images from '~/assets/images';
@@ -11,6 +11,8 @@ const cx = classNames.bind(styles);
 function Signup() {
     const [formData, setFormData] = useState({ email: '', username: '', password: '' });
     const [errors, setErrors] = useState({ email: '', username: '', password: '' });
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate(); 
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -44,7 +46,7 @@ function Signup() {
         return newErrors;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async  (e) => {
         e.preventDefault();
         const newErrors = validate();
         if (Object.keys(newErrors).length > 0) {
@@ -52,6 +54,24 @@ function Signup() {
         } else {
             console.log('Form data:', formData);
             // Call API hoặc thực hiện logic khác ở đây
+            try {
+                const response = await fetch('http://localhost:5000/api/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Sign up successful!');
+                    navigate('/home'); // Điều hướng đến trang Home
+                } else {
+                    alert(data.message || 'Signup failed!'); // Thông báo lỗi
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
         }
     };
 
