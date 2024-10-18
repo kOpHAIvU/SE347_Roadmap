@@ -86,8 +86,8 @@ function Signup() {
                     <div className={cx('logo')}>
                         <img src={images.logo} alt="VertexOps" />
                     </div>
-                    <h1>Sign up</h1>
-                    <p>Create your free account 😎!!!</p>
+                    <h1 className={cx('sign-up-title')}>Sign up</h1>
+                    <p className={cx('sign-up-description')}>Create your free account 😎!!!</p>
 
                     <button type="button" className={cx('google-btn')}>
                         <img src={images.google} alt="Google Logo"className={cx('google-logo')} />
@@ -145,7 +145,8 @@ function Signup() {
                     </button>
 
                     <p className={cx('log-in')}>
-                        Already have an account? <Link to="/login" >Log In</Link>
+                        Already have an account? 
+                        <Link to="/login" className={cx('log-in-link')}>Log In</Link>
                     </p>
                 </form>
             </div>
