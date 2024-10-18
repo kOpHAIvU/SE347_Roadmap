@@ -1,0 +1,214 @@
+.wrapper {
+    position: relative;
+    margin-top: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    background-color: #B2C1FD;
+}
+
+.inner {
+    margin: 30px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding:0;
+}
+
+.image-road {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.road1 {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: auto;
+    transform: rotate(360deg);
+}
+.road2 {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: auto;
+    margin-top: 200px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    height: 80px;
+    width: 80px;
+    justify-content: center;
+    &:hover {
+        cursor: pointer;
+    }
+}
+.login-container {
+    //#647FEA
+    position: relative;
+    z-index: 3;
+    background-color: #647FEA;
+    padding: 2rem;
+    border: 1px solid #000;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    width: 80vh;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+h1 {
+    color: #f7f7f7;
+}
+
+h1, p {
+    text-align: left;
+    width: 100%;
+    padding: 10px;
+}
+
+button {
+    font-size: 16px;
+    width: 100%;
+    padding: 0.8rem;
+    cursor: pointer;
+    margin: 1rem 0;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        opacity: 0.9;
+    }
+}
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #CEBABA;
+    color: white;
+    border: 1px solid #000;
+    border-radius: 50px;
+    align-items: center;
+    margin-bottom: 3rem;
+    .google-logo {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
+    &:hover {
+        background-color: #ff0000; 
+        cursor: pointer;
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
+    }
+    &:active {
+        background-color: #727996;
+        transform: translateY(0); 
+    }
+}
+
+.login-btn {
+    background-color: #EB6581;
+    color: white;
+    border: 1px solid #000;
+    border-radius: 10px;
+    margin-top: 2rem;
+    &:hover {
+        background-color: #4346eb; 
+        cursor: pointer;
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 16px rgba(104, 12, 12, 0.15); 
+    }
+    &:active {
+        background-color: #b01313;
+        transform: translateY(0); 
+    }
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #1a1818;
+    border-radius: 5px;
+    margin: 1rem 0;
+    background-color: #f7f7f7;
+    font-size: 1.5rem;
+    transition: border-color 0.3s ease;
+
+    &:focus {
+        border-color: #8ab6f8;
+        outline: none;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+}
+
+.forgot-password {
+    display: block;
+    margin: 1.5rem 0;
+    color: #8ab6f8;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.sign-up {
+    text-align: center;
+}
+.sign-up a {
+    text-decoration: underline !important;
+     color: #333; 
+
+    &:hover {
+    color: white; 
+  }
+}
+
+
+.form-group {
+    width: 100%;
+    position: relative;
+    margin-bottom: 1.2rem; 
+
+    &.invalid {
+        .input-field {
+            border-color: #f33a58;
+        }
+
+        .error-message {
+            display: block;
+            color: #980303;
+            font-weight: 500;
+            font-size: 1.2rem;
+            position: absolute;
+            left: 0;
+        }
+    }
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888; // Màu con mắt
+}
+
+.password-toggle:hover {
+    color: #333; // Màu khi hover
+}
+// .error-message {
+//     display: none; 
+// }
