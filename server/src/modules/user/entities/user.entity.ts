@@ -4,6 +4,7 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateCol
 import { Comment } from './../../comment/entities/comment.entity';
 import { Member } from 'src/modules/member/entities/member.entity';
 import { Team } from 'src/modules/team/entities/team.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -14,6 +15,7 @@ export class User {
     username: string;
     
     @Column({ length: 100, nullable: false })
+    @Exclude()
     password: string;
 
     @Column({nullable: false })
