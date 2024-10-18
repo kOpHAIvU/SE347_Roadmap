@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './OwnRoadmap.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
+import { faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
 import LevelOne from '~/components/Layout/components/RoadmapLevel/LevelOne/index.js';
 import LevelTwo from '~/components/Layout/components/RoadmapLevel/LevelTwo/index.js';
 import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/index.js';
@@ -12,7 +12,6 @@ const cx = classNames.bind(styles);
 function OwnRoadmap({ roadmapName = 'Name not given',
     title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.'
     , content = 'Install the environment' }) {
-    console.log('Rendering OwnRoadmap');
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [titleText, setTitleText] = useState(title);
@@ -38,36 +37,66 @@ function OwnRoadmap({ roadmapName = 'Name not given',
     const [hoveredIndex, setHoveredIndex] = useState(null);
 
     // State for the list of levels
-    const [nodes, setNodes] = useState([{ id: 1, level: 1, type: 'Checkbox', ticked: false, content: content }
-        , { id: 2, level: 2, type: 'RadioButton', ticked: false, content: content }]);
+    const [nodes, setNodes] = useState(null);
     const [activeContentIndex, setActiveContentIndex] = useState(null); // To track which node is active
 
     // Hàm để cập nhật toàn bộ nội dung của node
-    const updateNodeContent = (index, updatedNode) => {
-        setNodes((prevLevels) => {
-            const updatedLevels = [...prevLevels];
-            const isRadioButton = updatedNode.type === 'RadioButton';
-    
-            // Nếu node được cập nhật là RadioButton, bỏ tick cho tất cả RadioButton khác
-            if (isRadioButton) {
-                updatedLevels.forEach((node, i) => {
-                    if (i !== index && node.type === 'RadioButton') {
-                        node.ticked = false; // Bỏ tick cho RadioButton khác
+    const updateNodeTickState = (index, updatedNode) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            const isCheckbox = updatedNode.type === 'Checkbox';
+            if (isCheckbox) {
+                // Đảo ngược trạng thái ticked nếu là Checkbox
+                updatedNode.ticked = !updatedNode.ticked;
+            } else {
+                if (!updatedNode.ticked) {
+                    updatedNode.ticked = true;
+
+                    // Bỏ tick cho các RadioButton ở phía trên cho đến khi gặp node không phải là RadioButton
+                    for (let i = index - 1; i >= 0; i--) {
+                        if (updatedNodes[i] == null || updatedNodes[i].type !== 'RadioButton')
+                            break;
+                        updatedNodes[i].ticked = false;
                     }
-                });
+
+                    // Bỏ tick cho các RadioButton ở phía dưới cho đến khi gặp node không phải là RadioButton
+                    for (let i = index + 1; i < updatedNodes.length; i++) {
+                        if (updatedNodes[i] == null || updatedNodes[i].type !== 'RadioButton')
+                            break;
+                        updatedNodes[i].ticked = false;
+                    }
+                } else {
+                    updatedNode.ticked = false;
+                }
             }
-    
-            updatedLevels[index] = updatedNode; // Cập nhật node cụ thể
-            return updatedLevels;
+            // Cập nhật node cụ thể
+            updatedNodes[index] = updatedNode;
+            return updatedNodes;
         });
-    };    
+        setTimeout(() => setHoveredIndex(null), 0);
+    };
 
-
+    const updateNodeContent = (index, newContent) => {
+        console.log("nodes call 2");
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes[index] = {
+                ...updatedNodes[index], // giữ nguyên các thông tin khác của node
+                content: newContent,    // cập nhật content mới
+            };
+            return updatedNodes;
+        });
+    };
 
     // Cập nhật lại addNodeSameLevel để không cần phải gọi hàm này thủ công.
     const handleSameLevelClick = (index, level, type) => {
-        const newId = nodes.length + 1; // Create a new ID for the node
+        const newId = nodes ? nodes.length + 1 : 1;
         const newLevel = { id: newId, level: level, type: type, ticked: false, content: 'Write something...' };
+
+        if (nodes === null) {
+            setNodes([newLevel]);
+            return;
+        }
 
         // Check the node immediately below
         if (index + 1 < nodes.length) {
@@ -141,9 +170,29 @@ function OwnRoadmap({ roadmapName = 'Name not given',
 
     const handleDeleteNode = (index) => {
         console.log("Deleting node at index: ", index);
-        setNodes((prevNodes) => prevNodes.filter((_, i) => i !== index)); // Remove node by index
+
+        // Node cần xóa
+        const nodeToDelete = nodes[index];
+
+        // Xóa node tại vị trí chỉ định
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes.splice(index, 1); // Xóa node hiện tại
+
+            // Tiếp tục kiểm tra và xóa các node phía dưới
+            for (let i = index; i < updatedNodes.length;) {
+                const currentNode = updatedNodes[i];
+                if (currentNode.level > nodeToDelete.level) {
+                    updatedNodes.splice(i, 1); // Xóa node nếu level cao hơn
+                } else {
+                    break; // Dừng lại nếu gặp node có level bằng hoặc thấp hơn
+                }
+            }
+
+            return updatedNodes; // Trả về danh sách node đã được cập nhật
+        });
     };
-    console.log(nodes)
+
 
     return (
         <div className={cx('wrapper')}>
@@ -180,56 +229,70 @@ function OwnRoadmap({ roadmapName = 'Name not given',
             </div>
 
             <div className={cx('roadmap-section')}>
-                {nodes.map((node, index) => {
-                    switch (node.level) {
-                        case 1:
-                            return (
-                                <LevelOne
-                                    key={node.id}
-                                    children={node}
-                                    index={index}
-                                    handleSameLevelClick={handleSameLevelClick}
-                                    handleAddChildLevelNode={handleAddChildLevelNode}
-                                    updateNodeContent={updateNodeContent}
-                                    handleDeleteNode={handleDeleteNode}
-                                    allNodes={nodes}
-                                    hoveredIndex={hoveredIndex}
-                                    setHoveredIndex={setHoveredIndex}
-                                />
-                            );
-                        case 2:
-                            return (
-                                <LevelTwo
-                                    key={node.id}
-                                    children={node}
-                                    index={index}
-                                    handleSameLevelClick={handleSameLevelClick}
-                                    handleAddChildLevelNode={handleAddChildLevelNode}
-                                    updateNodeContent={updateNodeContent}
-                                    handleDeleteNode={handleDeleteNode}
-                                    allNodes={nodes}
-                                    hoveredIndex={hoveredIndex}
-                                    setHoveredIndex={setHoveredIndex}
-                                />
-                            );
-                        case 3:
-                            return (
-                                <LevelThree
-                                    key={node.id}
-                                    children={node}
-                                    index={index}
-                                    handleSameLevelClick={handleSameLevelClick}
-                                    updateNodeContent={updateNodeContent}
-                                    handleDeleteNode={handleDeleteNode}
-                                    hoveredIndex={hoveredIndex}
-                                    setHoveredIndex={setHoveredIndex}
-                                />
-                            );
-                        default:
-                            console.log('Error! Node not define yet.');
-                            return null;
-                    }
-                })}
+                {nodes === null ? (
+                    <div className={cx('add-first-node')}
+                        onClick={() => {
+                            handleSameLevelClick(0, 1, 'Checkbox');
+                        }}>
+                        <FontAwesomeIcon className={cx('add-button')} icon={faSquarePlus} />
+                        <h1 className={cx('add-text')}>Create your first node now!!!</h1>
+                    </div>
+                ) : (
+                    nodes.map((node, index) => {
+                        switch (node.level) {
+                            case 1:
+                                return (
+                                    <LevelOne
+                                        key={node.id}
+                                        children={node}
+                                        index={index}
+                                        handleSameLevelClick={handleSameLevelClick}
+                                        handleAddChildLevelNode={handleAddChildLevelNode}
+                                        updateNodeTickState={updateNodeTickState}
+                                        updateNodeContent={updateNodeContent}
+                                        handleDeleteNode={handleDeleteNode}
+                                        allNodes={nodes}
+                                        hoveredIndex={hoveredIndex}
+                                        setHoveredIndex={setHoveredIndex}
+                                    />
+                                );
+                            case 2:
+                                return (
+                                    <LevelTwo
+                                        key={node.id}
+                                        children={node}
+                                        index={index}
+                                        handleSameLevelClick={handleSameLevelClick}
+                                        handleAddChildLevelNode={handleAddChildLevelNode}
+                                        updateNodeTickState={updateNodeTickState}
+                                        updateNodeContent={updateNodeContent}
+                                        handleDeleteNode={handleDeleteNode}
+                                        allNodes={nodes}
+                                        hoveredIndex={hoveredIndex}
+                                        setHoveredIndex={setHoveredIndex}
+                                    />
+                                );
+                            case 3:
+                                return (
+                                    <LevelThree
+                                        key={node.id}
+                                        children={node}
+                                        index={index}
+                                        handleSameLevelClick={handleSameLevelClick}
+                                        updateNodeTickState={updateNodeTickState}
+                                        updateNodeContent={updateNodeContent}
+                                        handleDeleteNode={handleDeleteNode}
+                                        allNodes={nodes}
+                                        hoveredIndex={hoveredIndex}
+                                        setHoveredIndex={setHoveredIndex}
+                                    />
+                                );
+                            default:
+                                console.log('Error! Node not define yet.');
+                                return null;
+                        }
+                    })
+                )}
 
             </div>
         </div>

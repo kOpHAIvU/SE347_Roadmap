@@ -3,38 +3,15 @@ import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCirc
 import { faCircleCheck, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import styles from './LevelTwo.module.scss';
 import classNames from 'classnames/bind';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNode, updateNodeContent, handleDeleteNode, allNodes, hoveredIndex, setHoveredIndex }) {
-    const [ticked, setTicked] = useState(children.ticked);
+function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNode, updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes, hoveredIndex, setHoveredIndex }) {
+    const ticked = children.ticked;
     const [content, setContent] = useState(children.content);
     const [isEditing, setIsEditing] = useState(false);
     const timeoutRef = useRef(null);
-
-    useEffect(() => {
-        setTicked(children.ticked);
-        setContent(children.content);
-    }, [children]);
-
-    const handleUpdateNode = (updatedTicked = ticked, updatedContent = content) => {
-        // Tạo node đã cập nhật
-        const updatedNode = { ...children, ticked: updatedTicked, content: updatedContent };
-        updateNodeContent(index, updatedNode); // Gọi hàm cập nhật từ parent
-    
-        // Nếu node được ticked và là RadioButton
-        if (updatedTicked && children.type === 'RadioButton') {
-            // Cập nhật các node khác cùng level thành chưa ticked
-            allNodes.forEach((node, idx) => {
-                if (idx !== index && node.level === children.level && node.type === 'RadioButton') {
-                    console.log("Hehe",allNodes[idx])
-                    const otherNode = { ...node, ticked: false }; // Bỏ tick cho node khác
-                    updateNodeContent(idx, otherNode); // Cập nhật node khác
-                }
-            });
-        }
-    };    
 
     // Handle mouse enter
     const handleMouseEnter = () => {
@@ -65,6 +42,11 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
 
     const nodeBelowType = getNodeBelowTypeAndLevel();
 
+    const handleSaveContent = () => {
+        setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
+        updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
+    };
+
     return (
         <div className={cx('level-two')} key={children.id}>
             <div className={cx('show-section', { 'with-hidden-section': hoveredIndex === index })}
@@ -74,9 +56,7 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 {ticked ? (
                     <FontAwesomeIcon
                         onClick={() => {
-                            const newTicked = false;  // Set ticked to false
-                            setTicked(newTicked);  // Update local state
-                            handleUpdateNode(newTicked);
+                            updateNodeTickState(index, children);
                         }}
                         icon={children.type === 'Checkbox' ? faSquareCheck : faCircleCheck}
                         className={cx('ticked')}
@@ -84,9 +64,7 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 ) : (
                     <FontAwesomeIcon
                         onClick={() => {
-                            const newTicked = true;  // Set ticked to true
-                            setTicked(newTicked);  // Update local state
-                            handleUpdateNode(newTicked);
+                            updateNodeTickState(index, children);
                         }}
                         icon={children.type === 'Checkbox' ? faSquare : faCircle}
                         className={cx('tick')}
@@ -99,9 +77,9 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
                         type="text"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        onBlur={() => {
-                            setIsEditing(!isEditing);
-                            handleUpdateNode();
+                        onBlur={handleSaveContent} // Gọi hàm cập nhật content khi mất focus
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleSaveContent(); // Cập nhật khi nhấn Enter
                         }}
                         autoFocus
                     />
