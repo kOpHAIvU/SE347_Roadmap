@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Roadmap } from './entities/roadmap.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
+import { ResponseDto } from './common/roadmap.interface';
 
 @Injectable()
 export class RoadmapService {
@@ -15,9 +16,14 @@ export class RoadmapService {
     private userService: UserService,
   ) {}
 
-  async create(createRoadmapDto: CreateRoadmapDto): Promise<any>{
+  async create(
+    createRoadmapDto: CreateRoadmapDto
+  ): Promise<ResponseDto>{
     try {
-      const owner = await this.userService.findOneById(createRoadmapDto.owner); 
+      const ownerResponse = await this.userService.findOneById(createRoadmapDto.owner); 
+      const owner = Array.isArray(ownerResponse.data)
+                    ? ownerResponse.data[0]
+                    : ownerResponse.data;
       if (!owner) {
           throw new Error('User not found'); 
       }
@@ -29,23 +35,10 @@ export class RoadmapService {
       return {
         statusCode: 201,
         message: 'Create roadmap successfully',
-        data: {
-          code: result.code,
-          title: result.title,
-          content: result.content,
-          clone: result.clone,
-          react: result.react,
-          owner: {
-            id: owner.id,
-            email: owner.email,
-            fullName: owner.fullName,
-          },
-          createdAt: result.createdAt,
-        },
+        data: result,
       }
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Failed to create roadmap'
       }
@@ -55,15 +48,17 @@ export class RoadmapService {
   async findAll(
     page = 1,
     limit = 10,
-  ): Promise<any> {
+  ): Promise<ResponseDto> {
     try {
       const roadmap = await this.roadmapRepository
                       .createQueryBuilder('roadmap')
-                      .where("roadmap.isActive = :isActive", { isActive: true })
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
                       .orderBy('roadmap.createdAt', 'DESC')
                       .skip((page - 1) * limit)  
                       .take(limit)                
-                      .getManyAndCount();
+                      .getMany();
+
       return {
         statusCode: 200,
         message: 'Get this of roadmap successfully',
@@ -77,7 +72,9 @@ export class RoadmapService {
     }
   }
 
-  async findOneById(id: number): Promise<any> {
+  async findOneById(
+    id: number
+  ): Promise<ResponseDto> {
     try {
       const roadmap = await this.roadmapRepository.findOneBy({ 
         id,
@@ -90,6 +87,7 @@ export class RoadmapService {
           message: 'Roadmap not found'
         }
       }
+      
       return {
         statusCode: 200,
         message: 'Get roadmap successfully',
@@ -103,7 +101,11 @@ export class RoadmapService {
     }
   }
 
-  async findOneByCode(code: string): Promise<any> {
+  
+
+  async findOneByCode(
+    code: string
+  ): Promise<ResponseDto> {
     try {
       const roadmap = await this.roadmapRepository.findOneBy({ 
         code,
@@ -133,10 +135,13 @@ export class RoadmapService {
   async updateById(
     id: number, 
     updateRoadmapDto: UpdateRoadmapDto
-  ): Promise<any> {
+  ): Promise<ResponseDto> {
     try {
       const getData = await this.findOneById(id);
-      const roadmap = getData.data;
+      const roadmap = Array.isArray(getData.data) 
+        ? getData.data[0] 
+        : getData.data;
+      //const roadmap = getData.data;
       if (!roadmap) {
         return {
           statusCode: 404,
@@ -144,11 +149,6 @@ export class RoadmapService {
         }
       }
       Logger.log(roadmap);
-
-      // const result = await this.roadmapRepository.save({
-      //   ...roadmap,
-      //   ...updateRoadmapDto,
-      // });
 
       Object.assign(roadmap, updateRoadmapDto);
       const result = await this.roadmapRepository.save(roadmap);
@@ -161,7 +161,6 @@ export class RoadmapService {
       }
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Failed to update roadmap'
       }
@@ -171,11 +170,13 @@ export class RoadmapService {
   async updateByCode(
     code: string, 
     updateRoadmapDto: UpdateRoadmapDto
-  ): Promise<any> {  
+  ): Promise<ResponseDto> {  
     try {
 
       const getData = await this.findOneByCode(code);
-      const roadmap = getData.data;
+      //const roadmap = getData.data;
+      const roadmap = Array.isArray(getData.data)
+                      ? getData[0] : getData
 
       if (!roadmap) {
         return {
@@ -195,7 +196,6 @@ export class RoadmapService {
       }
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Failed to update roadmap'
       }
@@ -205,7 +205,10 @@ export class RoadmapService {
   async removeById(id: number) {
     try {
       const getData = await this.findOneById(id);
-      const roadmap = getData.data;
+      const roadmap = Array.isArray(getData.data) 
+        ? getData.data[0] 
+        : getData.data;
+     // const roadmap = getData.data;
       if (!roadmap) {
         return {
           statusCode: 404,
@@ -230,10 +233,15 @@ export class RoadmapService {
     }
   }
 
-  async removeByCode(code: string) {
+  async removeByCode(
+    code: string
+  ): Promise<ResponseDto> {
     try {
       const getData = await this.findOneByCode(code);
-      const roadmap = getData.data;
+      const roadmap = Array.isArray(getData.data) 
+        ? getData.data[0] 
+        : getData.data;
+      //const roadmap = getData.data;
       if (!roadmap) {
         return {
           statusCode: 404,
@@ -252,7 +260,6 @@ export class RoadmapService {
       }
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Failed to delete roadmap'
       }

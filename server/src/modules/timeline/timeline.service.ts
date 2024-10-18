@@ -5,6 +5,7 @@ import { Timeline } from './entities/timeline.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoadmapService } from '../roadmap/roadmap.service';
+import {ResponseDto} from './common/response.interface'
 
 @Injectable()
 export class TimelineService {
@@ -15,34 +16,30 @@ export class TimelineService {
     private roadmapService: RoadmapService,
   ) {}
 
-  async create(createTimelineDto: CreateTimelineDto): Promise<any> {
+  async create(
+    createTimelineDto: CreateTimelineDto
+  ): Promise<ResponseDto> {
     try {
-      const roadmap = await this.roadmapService.findOneById(createTimelineDto.roadmap);
-      if (!roadmap.data) { 
+      const roadmapResponse = await this.roadmapService.findOneById(createTimelineDto.roadmap);
+      const roadmap = Array.isArray(roadmapResponse.data) 
+                      ? roadmapResponse.data[0] 
+                      : roadmapResponse.data;
+      if (!roadmap) { 
         throw new Error('Error occurred while finding roadmap');
       }
       
       const timeline = await this.timelineRepository.create({
         ...createTimelineDto,
-        roadmap: roadmap.data,
+        roadmap: roadmap,
       });
       const result = await this.timelineRepository.save(timeline);
       return {
         statusCode: 201,
         message: 'Create timeline successfully',
-        data: {
-          title: result.title,
-          content: result.content,
-          roadmap: {
-            id: roadmap.data.id,
-            code: roadmap.data.code,
-            title: roadmap.data.title,
-          },
-        },
+        data: timeline
       }
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Server error when creating timeline'
       }
@@ -52,7 +49,7 @@ export class TimelineService {
   async findAll(
     page: number ,
     limit: number,
-  ): Promise<any> {
+  ): Promise<ResponseDto> {
     try {
       const timelines = await this.timelineRepository
                         .createQueryBuilder('timeline')
@@ -61,7 +58,7 @@ export class TimelineService {
                         .orderBy('timeline.createdAt', 'DESC')
                         .skip((page - 1) * limit)  
                         .take(limit)                
-                        .getManyAndCount();
+                        .getMany();
       return {
         statusCode: 200,
         message: 'Get this of roadmap successfully',
@@ -69,14 +66,15 @@ export class TimelineService {
       }
     } catch(error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Server error when finding all timelines'
       }
     }
   }
 
-  async findOneById(id: number): Promise<any>  {
+  async findOneById(
+    id: number
+  ): Promise<ResponseDto>  {
     try {
       const timeline = await this.timelineRepository
                       .createQueryBuilder('timeline')
@@ -86,6 +84,13 @@ export class TimelineService {
                       .andWhere('timeline.deletedAt is null') 
                       .getOne(); 
 
+      if (!timeline) {
+        return {
+          statusCode: 404,
+          message: 'Timeline not found'
+        }
+      }
+
       return {
         statusCode: 200,
         message: 'Get timeline successfully',
@@ -93,14 +98,16 @@ export class TimelineService {
       }
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Server error when finding timeline'
       }
     }
   }
 
-  async update(id: number, updateTimelineDto: UpdateTimelineDto): Promise<any>  {
+  async update(
+    id: number, 
+    updateTimelineDto: UpdateTimelineDto
+  ): Promise<ResponseDto>  {
     const timeline = await this.findOneById(id);
     Logger.log(timeline);
   
@@ -112,14 +119,17 @@ export class TimelineService {
     }
   
     try {
-      const roadmap = await this.roadmapService.findOneById(updateTimelineDto.roadmap);
-      if (!roadmap.data) {
-        throw new Error('Error occurred while finding roadmap');
+      const roadmapResponse = await this.roadmapService.findOneById(updateTimelineDto.roadmap);
+      const roadmap = Array.isArray(roadmapResponse.data) 
+                      ? roadmapResponse.data[0] 
+                      : roadmapResponse.data;
+      if (!roadmap) { 
+        throw new Error('Roadmap is not found');
       }
-  
-      const newTimeline = this.timelineRepository.merge(timeline.data, {
+
+      const newTimeline = this.timelineRepository.create({
         ...updateTimelineDto,
-        roadmap: roadmap.data,  
+        roadmap: roadmap,
       });
   
       const result = await this.timelineRepository.save(newTimeline);
@@ -127,37 +137,33 @@ export class TimelineService {
       return {
         statusCode: 200,
         message: 'Update timeline successfully',
-        data: {
-          title: result.title,
-          content: result.content,
-          roadmap: {
-            id: roadmap.data.id,
-            code: roadmap.data.code,
-            title: roadmap.data.title,
-          },
-        },
+        data: result
       };
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Server error when updating timeline',
       };
     }
   }
   
-  async remove(id: number): Promise<any> {
-    const timeline = await this.findOneById(id);
-    if (!timeline.data) {
+  async remove(
+    id: number
+  ): Promise<ResponseDto> {
+    const timelineResponse = await this.findOneById(id);
+    const timeline = Array.isArray(timelineResponse.data)
+                    ? timelineResponse.data[0]
+                    : timelineResponse.data;
+    if (!timeline) {
       return {
         statusCode: 404,
         message: 'Timeline not found'
       }
     }
     try {
-      timeline.data.isActive = false;
-      timeline.data.deletedAt = new Date();
-      const result = await this.timelineRepository.save(timeline.data);
+      timeline.isActive = false;
+      timeline.deletedAt = new Date();
+      const result = await this.timelineRepository.save(timeline);
       return {
         statusCode: 204,
         message: 'Remove timeline successfully',
@@ -165,7 +171,6 @@ export class TimelineService {
       }
     } catch(error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Server error when removing timeline'
       }
