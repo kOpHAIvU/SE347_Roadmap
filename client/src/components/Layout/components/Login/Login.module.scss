@@ -56,9 +56,9 @@
     z-index: 3;
     background-color: #B2C1FD;
     padding: 2rem;
-    border: 1px solid #410079;
+    // border: 1px solid #410079;
     border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 0 10px rgba(255, 255, 255, 0.5); ;
+    box-shadow: 0 4px 20px rgba(87, 62, 229, 0.4) ;
     width: 80vh;
     text-align: center;
     display: flex;
@@ -122,7 +122,7 @@
 .login-btn {
     background-color: #6f69fd;
     color: white;
-    border: 1px solid #000;
+    // border: 1px solid #000;
     border-radius: 5px;
     margin-top: 2rem;
     &:hover {
@@ -140,7 +140,7 @@
 .input-field {
     width: 100%;
     padding: 0.8rem;
-    border: 1.4px solid #4c0f92;
+    border: 1.4px solid rgba(51, 0, 110, 0.5);
     border-radius: 5px;
     margin: 1rem 0;
     background-color: #f7f7f7;

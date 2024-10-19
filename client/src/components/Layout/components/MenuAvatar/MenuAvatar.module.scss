@@ -1,3 +1,15 @@
-.avatar-dropdown {
-    width: 200px;
+// .avatar-dropdown {
+//     width: 180px;
+// }
+
+.custom-dropdown {
+    width: 100%;
+    max-height: min((100vh - 96px) - 60px, 734px);
+    min-height: 100px;
+    padding: 8px 0 0 0; 
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.12);
+    overflow-y: auto; 
+    box-sizing: border-box; 
 }

@@ -26,9 +26,9 @@ function MenuAvatar({ children, items = [] }) {
             placement='bottom-end'
             render={(attrs) => (
                 <div className={cx('avatar-dropdown')} tabIndex="-1" {...attrs}>
-                    <PopperWrapper>
-                        {renderItems()};
-                    </PopperWrapper>
+                    <div className={cx('custom-dropdown')}>
+                        {renderItems()}
+                    </div>
                 </div>
             )}
             >
