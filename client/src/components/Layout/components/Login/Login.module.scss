@@ -69,11 +69,14 @@
         color: #030303;
         text-shadow: 
         0 2px 5px rgba(0, 0, 0, 0.3); 
+
     }
     .login-title, .login-welcome {
         text-align: left;
         width: 100%;
-        padding: 10px;
+    }
+    .login-welcome {
+        padding: 8px 8px 8px 0;
     }
     button {
         font-size: 16px;
@@ -101,7 +104,7 @@
     border: 1.2px solid #007bff;
     border-radius: 50px;
     align-items: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     .google-logo {
         width: 20px;
         height: 20px;
@@ -118,6 +121,29 @@
         transform: translateY(0); 
     }
 }
+
+.divider {
+    display: flex;
+    align-items: center;
+    width: 100%; /* Chiều rộng dòng */
+    margin: 10px 0; /* Khoảng cách trên dưới */
+
+    &::before,
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background-color: rgba(83, 10, 167, 0.2); /* Màu của đường kẻ */
+    }
+}
+
+.divider-text {
+    margin: 0 12px; /* Khoảng cách giữa chữ và các đường */
+    color: #171212; /* Màu chữ */
+    font-size: 12px;
+    white-space: nowrap;
+}
+
 
 .login-btn {
     background-color: #6f69fd;
@@ -142,7 +168,7 @@
     padding: 0.8rem;
     border: 1.4px solid rgba(51, 0, 110, 0.5);
     border-radius: 5px;
-    margin: 1rem 0;
+    margin: 0.8rem 0;
     background-color: #f7f7f7;
     font-size: 1.5rem;
     transition: border-color 0.3s ease;
@@ -156,7 +182,7 @@
 
 .forgot-password {
     display: block;
-    margin: 1.5rem 0;
+    margin: 1rem 0;
     color: #8ab6f8;
     text-decoration: none;
 
