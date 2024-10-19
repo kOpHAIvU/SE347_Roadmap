@@ -94,6 +94,10 @@ function Signup() {
                         <strong>Sign up with Google</strong>
                     </button>
 
+                    <div className={cx('divider')}>
+                        <span className={cx('divider-text')}>OR</span>
+                    </div>
+
                     {/* Email Input */}
                     <div className={cx('form-group', { invalid: !!errors.email })}>
                         <input
@@ -140,7 +144,7 @@ function Signup() {
                         )}
                     </div>
 
-                    <button type="submit" className={cx('login-btn')}>
+                    <button type="submit" className={cx('sign-btn')}>
                         Sign up
                     </button>
 
