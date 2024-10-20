@@ -59,7 +59,7 @@
     // border: 1px solid #410079;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(87, 62, 229, 0.4) ;
-    width: 80vh;
+    width: 86vh;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -126,19 +126,19 @@
     display: flex;
     align-items: center;
     width: 100%; /* Chiều rộng dòng */
-    margin: 10px 0; /* Khoảng cách trên dưới */
+    margin: 8px 0; /* Khoảng cách trên dưới */
 
     &::before,
     &::after {
         content: "";
         flex: 1;
         height: 1px;
-        background-color: rgba(83, 10, 167, 0.2); /* Màu của đường kẻ */
+        background-color: rgba(83, 10, 167, 0.2); 
     }
 }
 
 .divider-text {
-    margin: 0 12px; /* Khoảng cách giữa chữ và các đường */
+    margin: 0 12px; 
     color: #171212; /* Màu chữ */
     font-size: 12px;
     white-space: nowrap;
