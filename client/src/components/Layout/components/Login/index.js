@@ -91,13 +91,18 @@ function Login() {
                     <div className={cx('logo')}>
                         <img src={images.logo} alt="VertexOps" />
                     </div>
-                    <h1>Log in</h1>
-                    <p>Welcome back to VertexOps!!!</p>
+                    <h1 className={cx('login-title')}>Log in</h1>
+                    <p className={cx('login-welcome')}>Welcome back to VertexOps😍!!!</p>
+
 
                     <button type="button" className={cx('google-btn')}>
                         <img src={images.google} alt="Google Logo"className={cx('google-logo')} />
                         <strong>Log in with Google</strong>
                     </button>
+
+                    <div className={cx('divider')}>
+                        <span className={cx('divider-text')}>OR</span>
+                    </div>
 
                     {/* Email Input */}
                     <div className={cx('form-group', { invalid: !!errors.email })}>
@@ -141,8 +146,10 @@ function Login() {
                     </button>
 
                     <p className={cx('sign-up')}>
-                        Don't have an account? <Link to="/signup">Sign up</Link>
+                        Don't have an account?{' '}
+                        <Link to="/signup" className={cx('sign-up-link')}>Sign up</Link>
                     </p>
+
                 </form>
             </div>
     );

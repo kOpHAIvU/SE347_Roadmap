@@ -1,26 +1,25 @@
 .wrapper {
     display: flex;
     justify-content: space-between; /* Center the content horizontally */
+    margin-top: 8px;
 }
 
 .inner {
     flex-grow: 1; /* Allows this div to take up the remaining width */
     height: 100%;
     display: flex;
-    align-items: center;
     justify-content: space-between;
     padding: 0 15px; /* Add padding to avoid content touching the edges */
 }
 
 .navigation-btn {
     display: flex;
-    justify-content: center;
     padding: 0;
     background-color: transparent;
     width: var(--search-height);
     height: calc(var(--search-height) - 6px);
     align-items: center;
-    transition: transform 0.2s ease;
+    transition: transform 0.3s ease-in;
 
     &:hover {
         cursor: pointer;
@@ -86,3 +85,4 @@
         cursor: pointer;
     }
 }
+

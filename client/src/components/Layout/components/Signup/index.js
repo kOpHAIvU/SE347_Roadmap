@@ -86,13 +86,17 @@ function Signup() {
                     <div className={cx('logo')}>
                         <img src={images.logo} alt="VertexOps" />
                     </div>
-                    <h1>Sign up</h1>
-                    <p>Create your free account 😎!!!</p>
+                    <h1 className={cx('sign-up-title')}>Sign up</h1>
+                    <p className={cx('sign-up-description')}>Create your free account 😎!!!</p>
 
                     <button type="button" className={cx('google-btn')}>
                         <img src={images.google} alt="Google Logo"className={cx('google-logo')} />
                         <strong>Sign up with Google</strong>
                     </button>
+
+                    <div className={cx('divider')}>
+                        <span className={cx('divider-text')}>OR</span>
+                    </div>
 
                     {/* Email Input */}
                     <div className={cx('form-group', { invalid: !!errors.email })}>
@@ -140,12 +144,13 @@ function Signup() {
                         )}
                     </div>
 
-                    <button type="submit" className={cx('login-btn')}>
+                    <button type="submit" className={cx('sign-btn')}>
                         Sign up
                     </button>
 
                     <p className={cx('log-in')}>
-                        Already have an account? <Link to="/login" >Log In</Link>
+                        Already have an account? 
+                        <Link to="/login" className={cx('log-in-link')}>Log In</Link>
                     </p>
                 </form>
             </div>
