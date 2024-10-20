@@ -48,7 +48,7 @@
 
 .clone-btn {
     width: 69px;
-    height: 22px;
+    height: var(--icon-size);
     border-radius: 15px;
     display: flex;
     margin: 5px;
@@ -92,8 +92,8 @@
 
 .love {
     background-color: transparent;
-    height: 22px;
-    width: 22px;
+    height: var(--icon-size);
+    width: var(--icon-size);
     color: #e15959;
     align-items: center;
     transition: transform 0.3s ease;
@@ -108,7 +108,7 @@
 }
 
 .clone-num {
-    height: 22px;
+    height: var(--icon-size);
     margin: 3px 0;
     margin-left: auto;
     font-size: 1.2rem;

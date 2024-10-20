@@ -104,36 +104,39 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 </div>
             </div>
 
-            <div
-                className={cx('hidden-section', {
-                    visible: hoveredIndex === index,
-                })}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
-                <FontAwesomeIcon
-                    className={cx('same-level')}
-                    icon={faSquarePlus}
-                    onClick={() => {
-                        handleSameLevelClick(index, children.level, children.type)
-                    }}
-                />
-                {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
-                {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+            {/* Kiểm tra nếu node là Checkbox thì không render hidden-section */}
+            {children.type !== 'RadioButton' && (
+                <div
+                    className={cx('hidden-section', {
+                        visible: hoveredIndex === index,
+                    })}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                >
                     <FontAwesomeIcon
-                        className={cx('child-level-check')}
-                        icon={faSquare}
-                        onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                        className={cx('same-level')}
+                        icon={faSquarePlus}
+                        onClick={() => {
+                            handleSameLevelClick(index, children.level, children.type);
+                        }}
                     />
-                ) : null}
-                {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
-                    <FontAwesomeIcon
-                        className={cx('child-level-radio')}
-                        icon={faCircle}
-                        onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
-                    />
-                ) : null}
-            </div>
+                    {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
+                    {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+                        <FontAwesomeIcon
+                            className={cx('child-level-check')}
+                            icon={faSquare}
+                            onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                        />
+                    ) : null}
+                    {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
+                        <FontAwesomeIcon
+                            className={cx('child-level-radio')}
+                            icon={faCircle}
+                            onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
+                        />
+                    ) : null}
+                </div>
+            )}
         </div>
     );
 }

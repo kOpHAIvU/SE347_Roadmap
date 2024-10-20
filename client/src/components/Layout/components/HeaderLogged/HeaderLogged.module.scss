@@ -76,8 +76,8 @@
 }
 
 .avatar {
-    height: calc(var(--search-height) - 10px);
-    width: calc(var(--search-height) - 10px);
+    height: var(--avatar-size);
+    width: var(--avatar-size);
     border-radius: var(--search-border-radius);
     margin-left: 10px;
 
