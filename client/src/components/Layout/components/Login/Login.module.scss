@@ -5,7 +5,7 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-    background-color: #B2C1FD;
+    background-color: #b2c1fd;
 }
 
 .inner {
@@ -13,7 +13,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding:0;
+    padding: 0;
 }
 
 .image-road {
@@ -53,7 +53,7 @@
     //#647FEA
     position: relative;
     z-index: 3;
-    background-color: #647FEA;
+    background-color: #647fea;
     padding: 2rem;
     border: 1px solid #000;
     border-radius: 10px;
@@ -70,7 +70,8 @@ h1 {
     color: #f7f7f7;
 }
 
-h1, p {
+h1,
+p {
     text-align: left;
     width: 100%;
     padding: 10px;
@@ -94,7 +95,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #CEBABA;
+    background-color: #cebaba;
     color: white;
     border: 1px solid #000;
     border-radius: 50px;
@@ -106,32 +107,32 @@ button {
         margin-right: 10px;
     }
     &:hover {
-        background-color: #ff0000; 
+        background-color: #ff0000;
         cursor: pointer;
-        transform: translateY(-2px); 
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); 
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
     &:active {
         background-color: #727996;
-        transform: translateY(0); 
+        transform: translateY(0);
     }
 }
 
 .login-btn {
-    background-color: #EB6581;
+    background-color: #eb6581;
     color: white;
     border: 1px solid #000;
     border-radius: 10px;
     margin-top: 2rem;
     &:hover {
-        background-color: #4346eb; 
+        background-color: #4346eb;
         cursor: pointer;
-        transform: translateY(-2px); 
-        box-shadow: 0 6px 16px rgba(104, 12, 12, 0.15); 
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(104, 12, 12, 0.15);
     }
     &:active {
         background-color: #b01313;
-        transform: translateY(0); 
+        transform: translateY(0);
     }
 }
 
@@ -168,18 +169,17 @@ button {
 }
 .sign-up a {
     text-decoration: underline !important;
-     color: #333; 
+    color: #333;
 
     &:hover {
-    color: white; 
-  }
+        color: white;
+    }
 }
-
 
 .form-group {
     width: 100%;
     position: relative;
-    margin-bottom: 1.2rem; 
+    margin-bottom: 1.2rem;
 
     &.invalid {
         .input-field {
@@ -210,5 +210,5 @@ button {
     color: #333; // Màu khi hover
 }
 // .error-message {
-//     display: none; 
+//     display: none;
 // }
