@@ -9,7 +9,7 @@
         position: absolute;
         width: 1px; /* Độ rộng của đường gạch */
         height: 47px; /* Chiều cao của đường gạch */
-        background-color: rgba(22, 24, 35, 0.12);
+        background-color: var(--gray-color);
         left: -28px; /* Đường gạch bên trái cách 56px */
         top: 0; /* Đặt đường gạch tại đỉnh */
     }
@@ -19,7 +19,7 @@
         position: absolute;
         width: 1px; /* Độ rộng của đường gạch */
         height: 47px; /* Chiều cao của đường gạch */
-        background-color: rgba(22, 24, 35, 0.12);
+        background-color: var(--gray-color);
         left: 0px; /* Đường gạch bên trái cách 28px */
         top: 0; /* Đặt đường gạch tại đỉnh */
     }
@@ -39,7 +39,7 @@
     }
 
     &:hover {
-        background-color: rgba(22, 24, 35, 0.12);
+        background-color: var(--gray-color);
     }
 
     &:hover .tick,
@@ -55,8 +55,8 @@
 
 .ticked,
 .tick {
-    height: 22px;
-    width: 22px;
+    height: var(--icon-size);
+    width: var(--icon-size);
     border-radius: 6px;
     cursor: pointer;
     align-items: center;
@@ -124,7 +124,7 @@
 
     &:hover {
         scale: 1.4;
-        background-color: rgba(22, 24, 35, 0.12);
+        background-color: var(--gray-color);
     }
 
     &:active {

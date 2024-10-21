@@ -9,7 +9,7 @@
         position: absolute;
         width: 1px;
         height: 47px;
-        background-color: rgba(22, 24, 35, 0.12);
+        background-color: var(--gray-color);
     }
 }
 
@@ -27,7 +27,7 @@
     }
 
     &:hover {
-        background-color: rgba(22, 24, 35, 0.12);
+        background-color: var(--gray-color);
     }
 
     &:hover .tick,
@@ -43,8 +43,8 @@
 
 .ticked,
 .tick {
-    height: 22px;
-    width: 22px;
+    height: var(--icon-size);
+    width: var(--icon-size);
     border-radius: 6px;
     cursor: pointer;
     align-items: center;
@@ -112,7 +112,7 @@
 
     &:hover {
         scale: 1.4;
-        background-color: rgba(22, 24, 35, 0.12);
+        background-color: var(--gray-color);
     }
 
     &:active {
@@ -132,7 +132,7 @@
     transition: max-height 0.3s ease, opacity 0.3s ease-in; /* Transition for smooth animation */
     overflow: hidden; /* Hide overflow content */
     z-index: 1;
-    border-top: 1px solid rgba(22, 24, 35, 0.12);
+    border-top: 1px solid var(--gray-color);
 
     &.visible { /* Class added to control visibility */
         max-height: 100px; /* Set a maximum height for the reveal */

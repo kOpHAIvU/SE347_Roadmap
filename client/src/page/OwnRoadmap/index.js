@@ -6,6 +6,7 @@ import { faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid
 import LevelOne from '~/components/Layout/components/RoadmapLevel/LevelOne/index.js';
 import LevelTwo from '~/components/Layout/components/RoadmapLevel/LevelTwo/index.js';
 import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/index.js';
+import Comment from '~/components/Layout/components/Comment/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -293,8 +294,8 @@ function OwnRoadmap({ roadmapName = 'Name not given',
                         }
                     })
                 )}
-
             </div>
+            <Comment />
         </div>
     );
 }
