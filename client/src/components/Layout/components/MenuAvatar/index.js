@@ -60,7 +60,7 @@ function MenuAvatar({ children, items = [] }) {
     return (
         <Tippy
             interactive
-            visible 
+            // visible 
             delay ={[0, 500]}
             placement="bottom-end"
             render={(attrs) => (
