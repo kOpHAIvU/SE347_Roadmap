@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames/bind';
 import styles from './Account.module.scss';
-import SettingAccountItem from '~/components/Layout/components/SettingAccountItem'; // Sửa tên import cho chính xác
+import SettingAccountItem from '~/components/Layout/components/SettingItem'; 
 
 const cx = classNames.bind(styles);
 
@@ -9,8 +9,7 @@ const cx = classNames.bind(styles);
 const ACCOUNT_ITEMS = [
   {
     label: 'Profile Photo',
-    value: 'https://i.pinimg.com/736x/e6/9d/09/e69d09cbbc827e4e117ce570f633120c.jpg', // Giá trị có thể là URL của ảnh đại diện
-    edit: false
+    value: 'https://i.pinimg.com/736x/e6/9d/09/e69d09cbbc827e4e117ce570f633120c.jpg', 
   },
   {
     label: 'Username',

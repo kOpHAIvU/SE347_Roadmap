@@ -1,10 +1,10 @@
 import React from 'react';
 import classNames from 'classnames/bind';
-import styles from './SettingAccountItem.module.scss';
+import styles from './SettingItem.module.scss';
 
 const cx = classNames.bind(styles);
 
-const SettingAccountItem = ({ item }) => {
+const SettingItem = ({ item }) => {
   const handleRemovePhoto = () => {
     // Logic để xóa ảnh (có thể set giá trị của item.value thành '')
     console.log('Remove Photo');
@@ -24,6 +24,7 @@ const SettingAccountItem = ({ item }) => {
   return (
     <div className={cx('field')}>
         <label className={cx('label')}>{item.label}</label>
+        <span className={cx('item-value-header')}>{item.value.content_header}</span>
 
       {item.label === 'Profile Photo' ? (
         <div className={cx('profile-photo')}>
@@ -63,7 +64,17 @@ const SettingAccountItem = ({ item }) => {
           </button>
 
         </div>
-      ) : item.options ? (
+      ) : item.label === 'Login' ? (
+        <div className={cx('item-details')}>
+          <img src={item.value.logo} alt={item.value.label} className={cx('item-logo')} />
+          <div>
+            <b>{item.value.label}</b>
+            <br />
+            <span className={cx('item-value')}>{item.value.content}</span>
+          </div>
+        </div>
+      ) 
+      : item.options ? (
         <div className={cx('options-group')}>
           {item.options.map((option, index) => (
             <label key={index}>
@@ -72,14 +83,20 @@ const SettingAccountItem = ({ item }) => {
             </label>
           ))}
         </div>
-      ) : (
+      )
+       : item.sercurity ? (
+        <div className={cx('input-group-custom')}>
+            <span className={cx('value')}>{item.value}</span>
+            <button className={cx('edit-btn')}>{item.button}</button>
+        </div>
+      ): (
         <div className={cx('input-group')}>
             <span className={cx('value')}>{item.value}</span>
-          {item.edit && <button className={cx('edit-btn')}>Edit</button>}
+            {item.edit && <button className={cx('edit-btn')}>Edit</button>}
         </div>
       )}
     </div>
   );
 };
 
-export default SettingAccountItem;
+export default SettingItem;
