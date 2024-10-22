@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './HeaderLogged.module.scss';
 import classNames from 'classnames/bind';
-import { faCircleQuestion, faGear, faPlus, faQuestion, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faCircleQuestion, faFlag, faGear, faLock, faPlus, faQuestion, faRightFromBracket, faUser } from '@fortawesome/free-solid-svg-icons';
 import Search from '../Search/index.js';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
@@ -10,16 +10,38 @@ import MenuAvatar from '../MenuAvatar/index.js';
 const cx = classNames.bind(styles);
 const MENU_ITEMS = [
     {
-        icon: <FontAwesomeIcon icon={faGear}/>,
+        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faGear}/>,
         title: 'Settings',
+        children: {
+            title: 'Settings',
+            data: [
+                {
+                    icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faUser}/>,
+                    title: 'Your account',
+                    to: '/account',
+                },
+                {
+                    icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faLock}/>,
+                    title: 'Login & security',
+                    to: '/security',
+                },
+                {
+                    icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faFlag}/>,
+                    title: 'Report a problem',
+                    to: '/report', 
+                }
+            ]
+        }
     },
     {
-        icon: <FontAwesomeIcon icon={faCircleQuestion}/>,
+        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faCircleQuestion}/>,
         title: 'More about Vertex',
+        to: '/information'
     },
     {
-        icon: <FontAwesomeIcon icon={faRightFromBracket}/>,
+        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faRightFromBracket}/>,
         title: 'Log out',
+        to: '/',
     }
 ];
 
