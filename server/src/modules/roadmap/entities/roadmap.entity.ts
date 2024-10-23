@@ -15,6 +15,9 @@ export class Roadmap {
     title: string;
 
     @Column({nullable: false })
+    avatar: string;
+
+    @Column({nullable: false })
     content: string;
     
     @ManyToOne(() => User, owner => owner.roadmap)
