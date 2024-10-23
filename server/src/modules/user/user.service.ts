@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto } from '../auth/dto/login-dto';
+import {ResponseDto} from './common/response.interface';
 
 @Injectable()
 export class UserService {
@@ -32,12 +33,31 @@ export class UserService {
     return user;
   }
 
-  async findOneById(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({where: {id}});
-    if (!user) {
-      throw new UnauthorizedException('Could not find user');
-    } 
-    return user;
+  // async findOneById(id: number): Promise<User> {
+  //   const user = await this.usersRepository.findOne({where: {id}});
+  //   if (!user) {
+  //     throw new UnauthorizedException('Could not find user');
+  //   } 
+  //   return user;
+  // }
+
+  async findOneById(id: number): Promise<ResponseDto> {
+    try {
+      const user = await this.usersRepository.findOne({where: {id}});
+      if (!user) {
+        throw new UnauthorizedException('Could not find user');
+      } 
+      return {
+        statusCode: 200,
+        message: 'Get user successfully',
+        data: []
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: 'Server error when getting user'
+      }
+    }
   }
 
 }

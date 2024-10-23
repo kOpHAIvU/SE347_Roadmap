@@ -1,34 +1,59 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query  } from '@nestjs/common';
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
+import { JwtAuthGuard } from '../auth/common/jwt-guard';
+import { AuthGuard } from '@nestjs/passport';
+import { RoleGuard } from '../role/common/role.guard';
+import { Roles } from '../role/common/role.decorator';
 
 @Controller('roadmap')
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
-  @Post()
+  @Post('new')
   create(@Body() createRoadmapDto: CreateRoadmapDto) {
     return this.roadmapService.create(createRoadmapDto);
   }
 
-  @Get()
-  findAll() {
+  @Get('all')
+  // @UseGuards(JwtAuthGuard, RoleGuard)
+  // @UseGuards(AuthGuard('jwt'))
+  // @Roles('admin') 
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 100,
+  ) {
     return this.roadmapService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roadmapService.findOne(+id);
+  @Get('id/:id')
+  findOneById(@Param('id', ParseIntPipe) id: number) {
+    return this.roadmapService.findOneById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
-    return this.roadmapService.update(+id, updateRoadmapDto);
+  @Get('code/:code')
+  findOneByCode(@Param('code') code: string) {
+    return this.roadmapService.findOneByCode(code);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roadmapService.remove(+id);
+  @Patch('id/:id')
+  updateById(@Param('id', ParseIntPipe) id: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
+    return this.roadmapService.updateById(+id, updateRoadmapDto);
+  }
+
+  @Patch('code/:code')
+  updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
+    return this.roadmapService.updateByCode(code, updateRoadmapDto);  
+  }
+
+  @Delete('id/:id')
+  removeById(@Param('id', ParseIntPipe) id: number) {
+    return this.roadmapService.removeById(+id);
+  }
+
+  @Delete('code/:code')
+  removeByCode(@Param('code') code: string) {
+    return this.roadmapService.removeByCode(code);
   }
 }
