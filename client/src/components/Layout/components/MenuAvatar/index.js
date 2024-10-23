@@ -15,14 +15,14 @@ function MenuAvatar({ children, items = [] }) {
 
     const renderItems = () => {
         return items.map((item, index) => (
-            <MenuItem key ={index} data={item} onClick={() => handleMenuItemClick(item)}/>
+            <MenuItem key={index} data={item} onClick={() => handleMenuItemClick(item)} />
         ));
     }
     return (
         <Tippy
             interactive
             // visible={visible}
-             visible
+            visible
             placement='bottom-end'
             render={(attrs) => (
                 <div className={cx('avatar-dropdown')} tabIndex="-1" {...attrs}>
@@ -31,9 +31,9 @@ function MenuAvatar({ children, items = [] }) {
                     </div>
                 </div>
             )}
-            >
+        >
             {children}
-            </Tippy>
+        </Tippy>
     );
 }
 
