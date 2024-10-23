@@ -5,9 +5,7 @@ import { UserModule } from '../user/user.module';
 import {JwtModule} from '@nestjs/jwt';
 import { JwtStrategy } from './common/jwt-strategy';
 import {authConstants} from './common/auth.constants';
-import { Role } from '../role/entities/role.entity';
 import { RoleModule } from '../role/role.module';
-import { RoleService } from '../role/role.service';
 
 @Module({
   imports: [
