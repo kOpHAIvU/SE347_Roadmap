@@ -14,8 +14,7 @@ export class User {
     @Column({ length: 100, nullable: false })
     username: string;
     
-    @Column({ length: 100, nullable: false })
-    @Exclude()
+    @Column({ length: 100})
     password: string;
 
     @Column({nullable: false })
@@ -23,6 +22,9 @@ export class User {
 
     @Column({ length: 10, nullable: false })
     gender: string;
+
+    @Column()
+    avatar: string;
 
     @Column({ length: 100, unique: true, nullable: false })
     email: string;

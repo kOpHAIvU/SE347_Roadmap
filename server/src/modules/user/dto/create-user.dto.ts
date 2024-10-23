@@ -3,11 +3,8 @@ import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateUserDto {
     @IsString()
-    @IsNotEmpty()
     username: string;
     
-    @IsString()
-    @IsNotEmpty()
     @Exclude()
     password: string;
 
@@ -19,5 +16,11 @@ export class CreateUserDto {
 
     @IsString()
     email: string;
+
+    @IsString()
+    role: number;
+
+    @IsString()
+    avatar: string;
 
 }

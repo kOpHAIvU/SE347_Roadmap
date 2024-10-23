@@ -1,0 +1,93 @@
+.wrapper {
+    display: flex;
+    justify-content: space-between; /* Center the content horizontally */
+    margin-top: 8px;
+}
+
+.inner {
+    flex-grow: 1; /* Allows this div to take up the remaining width */
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 15px; /* Add padding to avoid content touching the edges */
+}
+
+.navigation-btn {
+    display: flex;
+    padding: 0;
+    background-color: transparent;
+    width: var(--search-height);
+    height: calc(var(--search-height) - 6px);
+    align-items: center;
+    transition: transform 0.3s ease-in;
+
+    &:hover {
+        cursor: pointer;
+        transform: scale(1.1);
+    }
+
+    &:active ~ .navigation-btn {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+.right-header {
+    display: flex;
+    padding-right: 5px;
+    height: calc(var(--search-height) - 2px);
+    align-items: center;
+}
+
+.add-roadmap {
+    display: flex;
+    background-color: #ffffff;
+    border-radius: var(--search-border-radius);
+    font-size: 0.7rem;
+    align-items: center;
+    padding: 3px 10px;
+
+    &:hover {
+        background-color: #f5f5f5;
+    }
+
+    &:hover .plus-icon {
+        transform: scale(1.1);
+        font-size: 1rem;
+    }
+
+    &:active {
+        background-color: #d8d8d8;
+    }
+}
+
+.plus-icon {
+    width: 26px;
+    height: 29px;
+    color: #91a0dd;
+    padding-right: 5px;
+    align-items: center;
+    transition: all 0.5 ease-in-out;
+}
+
+.create-text {
+    font-weight: 600;
+    padding: 7px 0;
+}
+
+.avatar {
+    height: var(--avatar-size);
+    width: var(--avatar-size);
+    border-radius: var(--search-border-radius);
+    margin-left: 10px;
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+.setting-icon {
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+}

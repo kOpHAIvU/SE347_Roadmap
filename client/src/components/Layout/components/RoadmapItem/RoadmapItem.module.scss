@@ -1,0 +1,132 @@
+:root {
+    --card-width: 304px;
+    --card-height: 279px;
+}
+
+.container {
+    cursor: pointer;
+    width: var(--card-width);
+    height: var(--card-height);
+    border-radius: 15px;
+    margin: 7px;
+    background-image: linear-gradient(200deg, var(--main-color), var(--side-color));
+    border: 1.5px solid #000000;
+
+    &:hover {
+        scale: 1.01;
+        color: rgba(22, 24, 35, 0.7);
+    }
+}
+
+.roadmap-pic {
+    height: 162px;
+    width: calc(var(--card-width) - 16px);
+    border-radius: 15px;
+    object-fit: cover;
+    align-items: center;
+    margin: 8px 8px 0 8px;
+}
+
+.title {
+    font-size: 2rem;
+    margin: 0 8px;
+    padding: 0 5px;
+}
+.content {
+    width: calc(var(--card-width) - 13px);
+    height: 36px;
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin: 0 8px;
+    padding: 0 5px;
+
+    /* Thuộc tính cho text overflow */
+    display: -webkit-box;                /* Sử dụng box model */
+    -webkit-box-orient: vertical;        /* Định hướng theo chiều dọc */
+    overflow: hidden;                     /* Ẩn phần bị tràn */
+    -webkit-line-clamp: 2;               /* Giới hạn tối đa 3 dòng */
+    line-clamp: 3;                       /* Cách này chỉ hoạt động trên một số trình duyệt nhất định */
+}
+.below {
+    display: flex;
+    height: 32px;
+    width: 100%;
+    align-items: center;
+}
+
+.clone-btn {
+    width: 69px;
+    height: var(--icon-size);
+    border-radius: 15px;
+    display: flex;
+    margin: 5px 5px 5px 10px;
+    background-color: transparent;
+    border: 1.5px solid #6580eb;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.5s ease;
+
+    &:hover {
+        background-color: #6580eb;
+        transform: scale(1.04); /* Phồng to từ tâm */
+
+        .clone-title,
+        .clone-icon {
+            color: white;
+        }
+    }
+
+    &:active {
+        scale: 0.9;
+    }
+}
+
+.clone-title,
+.clone-icon {
+    align-items: center;
+    color: var(--main-color);
+    scale: 0.9;
+    margin: 2px 0;
+}
+
+.clone-icon {
+    margin-left: 2px;
+}
+
+.clone-title {
+    font-weight: 500;
+}
+
+.love {
+    background-color: transparent;
+    height: var(--icon-size);
+    width: var(--icon-size);
+    color: #e15959;
+    align-items: center;
+    transition: transform 0.3s ease;
+
+    &:hover {
+        scale: 1.1;
+    }
+
+    &:active {
+        scale: 0.9;
+    }
+}
+
+.clone-num {
+    height: var(--icon-size);
+    margin: 3px 0;
+    margin-left: auto;
+    font-size: 1.2rem;
+    align-items: end;
+}
+
+.bolt-icon {
+    margin-right: 8px;
+}
+
+.num {
+    margin-right: 3px;
+}
