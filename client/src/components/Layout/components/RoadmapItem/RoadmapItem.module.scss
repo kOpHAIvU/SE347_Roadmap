@@ -34,10 +34,18 @@
 }
 .content {
     width: calc(var(--card-width) - 13px);
+    height: 36px;
     font-size: 1.2rem;
     font-weight: 400;
     margin: 0 8px;
     padding: 0 5px;
+
+    /* Thuộc tính cho text overflow */
+    display: -webkit-box;                /* Sử dụng box model */
+    -webkit-box-orient: vertical;        /* Định hướng theo chiều dọc */
+    overflow: hidden;                     /* Ẩn phần bị tràn */
+    -webkit-line-clamp: 2;               /* Giới hạn tối đa 3 dòng */
+    line-clamp: 3;                       /* Cách này chỉ hoạt động trên một số trình duyệt nhất định */
 }
 .below {
     display: flex;
@@ -51,7 +59,7 @@
     height: var(--icon-size);
     border-radius: 15px;
     display: flex;
-    margin: 5px;
+    margin: 5px 5px 5px 10px;
     background-color: transparent;
     border: 1.5px solid #6580eb;
     padding: 0;

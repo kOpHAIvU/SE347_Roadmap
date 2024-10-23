@@ -36,6 +36,14 @@ function Search() {
         }
     };
 
+    let source = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTY9rbnfWjDYgEV05aJ1t2yAZNbABSafruYSQ&s"
+    const roadmaps = [
+        { id: 0, title: 'CSS cơ bản', author: 'KoPhaiVu', clones: 123, avatar: source },
+        { id: 1, title: 'HTML cơ bản', author: 'KoPhaiVu', clones: 123, avatar: source },
+        { id: 2, title: 'Javascript cơ bản', author: 'KoPhaiVu', clones: 123, avatar: source },
+        { id: 3, title: 'Github cơ bản', author: 'KoPhaiVu', clones: 123, avatar: source },
+    ];
+
     // Lắng nghe sự kiện click chuột ra ngoài vùng Search
     document.addEventListener('mousedown', handleClickOutside);
 
@@ -48,9 +56,9 @@ function Search() {
                 render={(attrs) => (
                     <div className={cx('search-result')} tabIndex="-1" {...attrs}>
                         <PopperWrapper>
-                            <AccountItem />
-                            <AccountItem />
-                            <AccountItem />
+                            {roadmaps.map((roadmap) => {
+                                return <AccountItem key={roadmap.id} children={roadmap} />;
+                            })}
                         </PopperWrapper>
                     </div>
                 )}
