@@ -20,6 +20,7 @@ import { Timeline } from './modules/timeline/entities/timeline.entity';
 import { Member } from './modules/member/entities/member.entity';
 import { TeamModule } from './modules/team/team.module';
 import { Team } from './modules/team/entities/team.entity';
+import { GoogleStrategy } from './modules/auth/common/google.strategy';
 
 @Module({
   imports: [
@@ -48,6 +49,6 @@ import { Team } from './modules/team/entities/team.entity';
     TeamModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GoogleStrategy],
 })
 export class AppModule {}
