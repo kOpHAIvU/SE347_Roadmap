@@ -88,6 +88,8 @@ function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 )}
 
                 <div className={cx('update-node')}>
+                    <input className={cx('due-time')} value="2 days" />
+
                     <FontAwesomeIcon
                         onClick={() => setIsEditing(true)}
                         icon={penRegular}
