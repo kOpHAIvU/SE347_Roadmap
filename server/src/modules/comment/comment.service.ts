@@ -116,6 +116,9 @@ export class CommentService {
     try {
       const comments = await this.commentRepository
                       .createQueryBuilder('comment')
+                      .leftJoinAndSelect('comment.poster', 'poster')
+                      .leftJoinAndSelect('comment.roadmap', 'roadmap')
+                      .leftJoinAndSelect('comment.parentComment', 'parentComment')
                       .where("comment.isActive = :isActive", { isActive: true })
                       .andWhere("comment.deletedAt IS NULL")
                       .skip((page - 1) * limit)  
@@ -136,7 +139,7 @@ export class CommentService {
     } catch(error) {
       return {
         statusCode: 500,
-        message: 'Failed to get comments',
+        message: error.message,
       }
     }
   }

@@ -21,6 +21,7 @@
         "react-pro-sidebar": "^1.1.0",
         "react-router-dom": "^6.26.2",
         "react-scripts": "^5.0.1",
+        "roadmap": "file:",
         "web-vitals": "^2.1.4"
     },
     "scripts": {

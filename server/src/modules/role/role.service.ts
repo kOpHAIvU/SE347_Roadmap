@@ -19,25 +19,27 @@ export class RoleService {
     return roleName
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<any> {
     try {
       const role = await this.roleRepository.findOne({where: {id}});
+      console.log("Find role by id:", role);
       if (!role) { 
-        throw new NotFoundException('Không tìm thấy nhóm người dùng');
+        return {
+          message: 'Not found',
+          statusCode: 404,
+          data: null,
+        }
       }
       return {
-        message: 'Tìm thấy nhóm người dùng',
+        message: 'Found',
         statusCode: 200,
         data: role,
       };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      } else {
-        // Nếu lỗi khác, ném ra lỗi InternalServerErrorException
-        throw new InternalServerErrorException(
-          'Có lỗi xảy ra trong quá trình tìm kiếm nhóm người dùng',
-        );
+      return {
+        message: 'Server is not OK',
+        statusCode: 500,
+        data: null,
       }
     }
   }
