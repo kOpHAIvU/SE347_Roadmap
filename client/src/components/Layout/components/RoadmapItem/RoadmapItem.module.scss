@@ -11,9 +11,10 @@
     margin: 7px;
     background-image: linear-gradient(200deg, var(--main-color), var(--side-color));
     border: 1.5px solid #000000;
+    transition: var(--transform);
 
     &:hover {
-        scale: 1.01;
+        transform: scale(1.01);
         color: rgba(22, 24, 35, 0.7);
     }
 }
@@ -65,7 +66,7 @@
     padding: 0;
     justify-content: center;
     align-items: center;
-    transition: transform 0.5s ease;
+    transition: var(--transform);
 
     &:hover {
         background-color: #6580eb;
@@ -78,7 +79,7 @@
     }
 
     &:active {
-        scale: 0.9;
+        transform: scale(0.9);
     }
 }
 
@@ -104,14 +105,14 @@
     width: var(--icon-size);
     color: #e15959;
     align-items: center;
-    transition: transform 0.3s ease;
+    transition: var(--transform);
 
     &:hover {
-        scale: 1.1;
+        transform: scale(1.9);
     }
 
     &:active {
-        scale: 0.9;
+        transform: scale(0.9);
     }
 }
 

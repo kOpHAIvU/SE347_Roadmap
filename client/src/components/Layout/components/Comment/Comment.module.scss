@@ -2,11 +2,13 @@
     --icon-size: 22px;
 }
 .wrapper {
-    width: 100%;
-    margin: 0 0 0 20px;
     border-top: 1px solid var(--gray-color);
     left: 10px;
     right: 10px;
+}
+
+.inner {
+    margin: 0 0 0 20px;
 }
 
 .title {
@@ -55,15 +57,19 @@
     padding: 6px;
 
     &:hover {
-        scale: 1.1;
+        transform: scale(1.1);
     }
 
     &:active {
-        scale: 0.95;
+        transform: scale(0.95);
         background-color: var(--gray-color);
     }
 
     &.active {
         color: var(--main-color);
     }
+}
+
+.comment-section {
+    margin-left: 10px;
 }
