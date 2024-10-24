@@ -52,6 +52,7 @@ function Search() {
             <Tippy
                 interactive
                 visible={visible}
+                placement='bottom-end'
                 onClickOutside={() => setVisible(false)}
                 render={(attrs) => (
                     <div className={cx('search-result')} tabIndex="-1" {...attrs}>
