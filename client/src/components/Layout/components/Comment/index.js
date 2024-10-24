@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './Comment.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -44,6 +44,52 @@ function Comment() {
             parent: 0
         }
     ])
+
+    const token = 'your-jwt-token'; // Thay bằng JWT token của bạn
+
+    // Hàm fetch để lấy danh sách comments
+    const fetchComments = async () => {
+        try {
+            const response = await fetch('http://localhost:3004/comment/all', 
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    //'Authorization': `Bearer ${token}`, // Cung cấp JWT token
+                },
+            });
+
+            if (!response.statusCode === 200) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json(); 
+            const comments = data.data[0]; // Lấy danh sách comments từ phần tử đầu tiên
+            const modifiedComments = comments.map(comment => {
+                const createdAt = new Date(comment.createdAt);
+                const year = createdAt.getFullYear();
+                const month = String(createdAt.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần +1
+                const day = String(createdAt.getDate()).padStart(2, '0');
+                const formattedDate = `${year}-${month}-${day}`;
+                return {
+                    id: comment.id,
+                    poster: comment.poster.fullName,
+                    day: formattedDate,
+                    avatar: comment.poster.avatar,
+                    content: comment.content,
+                    parent: comment.parentComment.id,
+                }
+        });
+            console.log(modifiedComments);
+            setComments(modifiedComments); 
+        } catch (error) {
+            console.log(error.message); 
+        }
+    };
+
+    useEffect(() => {
+        fetchComments();
+    }, []);
 
     function getChildComments(parentId) {
         return comments.filter(comment => comment.parent === parentId);
