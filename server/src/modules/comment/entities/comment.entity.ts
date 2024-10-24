@@ -21,7 +21,6 @@ export class Comment {
     @JoinColumn({ name: 'parentCommentId' })  
     parentComment: Comment;
 
-
     @OneToMany(() => Comment, comment => comment.parentComment)
     childComments: Comment[];
 
