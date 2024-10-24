@@ -9,6 +9,7 @@ import Signup from "~/page/Signup/index.js";
 import Timeline from "~/page/Timeline/index.js";
 import YourFavourite from "~/page/YourFavourite/index.js";
 import YourRoadmap from "~/page/YourRoadmap/index.js";
+import YourTimeline from "~/page/YourTimeline/index.js";
 
 
 const publicRoutes = [
@@ -20,7 +21,7 @@ const publicRoutes = [
 
 const privateRoutes = [
     { path: '/home', Component: Home, layout: DefaultLayout },
-    { path: '/timeline', Component: Timeline, layout: DefaultLayout },
+    { path: '/timeline', Component: YourTimeline, layout: DefaultLayout },
     { path: '/your_roadmap', Component: YourRoadmap, layout: DefaultLayout },
     { path: '/favorite', Component: YourFavourite, layout: DefaultLayout },
     { path: '/account', Component: Account, layout: DefaultLayout },
@@ -30,6 +31,8 @@ const privateRoutes = [
 
 const accountDataRoutes = [
     { path: '/roadmap/:id', Component: OwnRoadmap, layout: DefaultLayout },
+    { path: '/timeline/:id', Component: Timeline, layout: DefaultLayout },
+
 ]
 
 export { publicRoutes, privateRoutes, accountDataRoutes };

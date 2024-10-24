@@ -73,10 +73,11 @@
 
 .due-time {
     font-weight: 400;
-    color: #8f8f8f;
+    color: #666666;
     font-size: 1.3rem;
     align-self: center;
     background: transparent;
+    text-align: end;
 }
 
 .update-node {
@@ -93,7 +94,7 @@
 }
 
 .delete-node {
-    color: #e15959;
+    color: var(--color-red);
 }
 
 .delete-node,
