@@ -23,6 +23,7 @@ const privateRoutes = [
     { path: '/home', Component: Home, layout: DefaultLayout },
     { path: '/timeline', Component: YourTimeline, layout: DefaultLayout },
     { path: '/timeline/setting', Component: TimelineSetting, layout: DefaultLayout },
+    { path: '/timeline/setting/invite', Component: TimelineSetting, layout: DefaultLayout },
     { path: '/your_roadmap', Component: YourRoadmap, layout: DefaultLayout },
     { path: '/favorite', Component: YourFavourite, layout: DefaultLayout },
     { path: '/account', Component: Account, layout: DefaultLayout },
