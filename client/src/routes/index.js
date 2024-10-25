@@ -4,11 +4,12 @@ import Information from "~/page/Information/index.js";
 import Login from "~/page/Login/index.js";
 import MainScreen from "~/page/MainScreen/index.js";
 import OwnRoadmap from "~/page/OwnRoadmap/index.js";
-import { Account, Report, Security } from "~/page/Settings/index.js";
+import { Account, Report, Security, TimelineSetting } from "~/page/Settings/index.js";
 import Signup from "~/page/Signup/index.js";
 import Timeline from "~/page/Timeline/index.js";
 import YourFavourite from "~/page/YourFavourite/index.js";
 import YourRoadmap from "~/page/YourRoadmap/index.js";
+import YourTimeline from "~/page/YourTimeline/index.js";
 
 
 const publicRoutes = [
@@ -20,7 +21,8 @@ const publicRoutes = [
 
 const privateRoutes = [
     { path: '/home', Component: Home, layout: DefaultLayout },
-    { path: '/timeline', Component: Timeline, layout: DefaultLayout },
+    { path: '/timeline', Component: YourTimeline, layout: DefaultLayout },
+    { path: '/timeline/setting', Component: TimelineSetting, layout: DefaultLayout },
     { path: '/your_roadmap', Component: YourRoadmap, layout: DefaultLayout },
     { path: '/favorite', Component: YourFavourite, layout: DefaultLayout },
     { path: '/account', Component: Account, layout: DefaultLayout },
@@ -30,6 +32,8 @@ const privateRoutes = [
 
 const accountDataRoutes = [
     { path: '/roadmap/:id', Component: OwnRoadmap, layout: DefaultLayout },
+    { path: '/timeline/:id', Component: Timeline, layout: DefaultLayout },
+
 ]
 
 export { publicRoutes, privateRoutes, accountDataRoutes };

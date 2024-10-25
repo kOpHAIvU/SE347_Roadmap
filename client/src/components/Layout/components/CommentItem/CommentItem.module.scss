@@ -90,7 +90,7 @@
     border-radius: 50%;
     padding: 6px;
     cursor: pointer;
-    color: #e15959;
+    color: var(--color-red);
     transition: background-color 0.3s ease-in, transform 0.2s ease-in;
 
     &:hover {

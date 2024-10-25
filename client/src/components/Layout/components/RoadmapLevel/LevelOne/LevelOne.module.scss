@@ -71,7 +71,17 @@
     background-color: transparent;
 }
 
+.due-time {
+    font-weight: 400;
+    color: #666666;
+    font-size: 1.3rem;
+    align-self: center;
+    background: transparent;
+    text-align: end;
+}
+
 .update-node {
+    display: flex;
     align-items: center;
     margin-left: auto;
     margin-right: 15px;
@@ -84,7 +94,7 @@
 }
 
 .delete-node {
-    color: #e15959;
+    color: var(--color-red);
 }
 
 .delete-node,
