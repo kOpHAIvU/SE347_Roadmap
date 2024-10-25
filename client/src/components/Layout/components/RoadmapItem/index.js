@@ -3,11 +3,10 @@ import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faCircleDown, faHeart as faSolidHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart } from '@fortawesome/free-regular-svg-icons'
-import { useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function RoadmapItem({ key, children, onLoveChange }) {
+function RoadmapItem({ children, onLoveChange }) {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('container')}>

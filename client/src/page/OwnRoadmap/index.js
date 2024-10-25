@@ -1,23 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
-import styles from './OwnRoadmap.module.scss';
-import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
+import { faCircleDown, faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import LevelOne from '~/components/Layout/components/RoadmapLevel/LevelOne/index.js';
 import LevelTwo from '~/components/Layout/components/RoadmapLevel/LevelTwo/index.js';
 import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/index.js';
 import Comment from '~/components/Layout/components/Comment/index.js';
+import styles from './OwnRoadmap.module.scss';
+import classNames from 'classnames/bind';
 
 const cx = classNames.bind(styles);
 
-function OwnRoadmap({ roadmapName = 'Name not given',
-    title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.'
-    , content = 'Install the environment' }) {
+function OwnRoadmap() {
+    let roadmapName = 'Name not given';
+    let title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [titleText, setTitleText] = useState(title);
     const [isEditing, setIsEditing] = useState(false);
     const textareaRef = useRef(null);
+    const [loved, setLoved] = useState(false);
 
     const adjustTextareaHeight = () => {
         if (textareaRef.current) {
@@ -92,7 +94,7 @@ function OwnRoadmap({ roadmapName = 'Name not given',
     // Cập nhật lại addNodeSameLevel để không cần phải gọi hàm này thủ công.
     const handleSameLevelClick = (index, level, type) => {
         const newId = nodes ? nodes.length + 1 : 1;
-        const newLevel = { id: newId, level: level, type: type, ticked: false, content: 'Write something...' };
+        const newLevel = { id: newId, level: level, type: type, ticked: false, due_time: 2, content: 'Write something...' };
 
         if (nodes === null) {
             setNodes([newLevel]);
@@ -138,7 +140,7 @@ function OwnRoadmap({ roadmapName = 'Name not given',
 
     const handleAddChildLevelNode = (index, level, type) => {
         const newId = nodes.length + 1; // Tạo ID mới cho node
-        const newLevel = { id: newId, level: level + 1, type: type, ticked: false, content: 'Write something...' };
+        const newLevel = { id: newId, level: level + 1, type: type, ticked: false, due_time: 1, content: 'Write something...' };
 
         let insertIndex = -1; // Vị trí để chèn node mới
 
@@ -194,6 +196,17 @@ function OwnRoadmap({ roadmapName = 'Name not given',
         });
     };
 
+    const handleDueTimeChange = (index, newDueTime) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes[index] = {
+                ...updatedNodes[index], // Giữ nguyên các thông tin khác của node
+                due_time: newDueTime,   // Cập nhật due_time mới
+            };
+            console.log("Nodes: ", nodes);
+            return updatedNodes;
+        });
+    };
 
     return (
         <div className={cx('wrapper')}>
@@ -255,6 +268,7 @@ function OwnRoadmap({ roadmapName = 'Name not given',
                                         allNodes={nodes}
                                         hoveredIndex={hoveredIndex}
                                         setHoveredIndex={setHoveredIndex}
+                                        handleDueTimeChange={handleDueTimeChange}
                                     />
                                 );
                             case 2:
@@ -271,6 +285,7 @@ function OwnRoadmap({ roadmapName = 'Name not given',
                                         allNodes={nodes}
                                         hoveredIndex={hoveredIndex}
                                         setHoveredIndex={setHoveredIndex}
+                                        handleDueTimeChange={handleDueTimeChange}
                                     />
                                 );
                             case 3:
@@ -279,13 +294,12 @@ function OwnRoadmap({ roadmapName = 'Name not given',
                                         key={node.id}
                                         children={node}
                                         index={index}
-                                        handleSameLevelClick={handleSameLevelClick}
                                         updateNodeTickState={updateNodeTickState}
                                         updateNodeContent={updateNodeContent}
                                         handleDeleteNode={handleDeleteNode}
                                         allNodes={nodes}
                                         hoveredIndex={hoveredIndex}
-                                        setHoveredIndex={setHoveredIndex}
+                                        handleDueTimeChange={handleDueTimeChange}
                                     />
                                 );
                             default:
@@ -294,6 +308,20 @@ function OwnRoadmap({ roadmapName = 'Name not given',
                         }
                     })
                 )}
+            </div>
+            <div className={cx('drop-react')}>
+                <button
+                    onClick={() => setLoved(!loved)}
+                    className={cx('react-love', { loved: loved })}
+                >
+                    <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
+                    <h1 className={cx('love-text')}>Love</h1>
+                </button>
+
+                <button className={cx('clone-roadmap')}>
+                    <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
+                    <h1 className={cx('clone-text')}>Clone</h1>
+                </button>
             </div>
             <Comment />
         </div>
