@@ -1,11 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleDown, faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
-import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
+import { useRef, useState } from 'react';
 import LevelOne from '~/components/Layout/components/RoadmapLevel/LevelOne/index.js';
 import LevelTwo from '~/components/Layout/components/RoadmapLevel/LevelTwo/index.js';
 import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/index.js';
-import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './Timeline.module.scss';
 import classNames from 'classnames/bind';
 import ChatSection from '~/components/Layout/components/ChatSection/index.js';
@@ -13,29 +9,11 @@ import ChatSection from '~/components/Layout/components/ChatSection/index.js';
 const cx = classNames.bind(styles);
 
 function Timeline() {
+    const authority = 'Administrator'
     let roadmapName = 'Name not given';
     let title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
-    const [titleText, setTitleText] = useState(title);
-    const [isEditing, setIsEditing] = useState(false);
-    const textareaRef = useRef(null);
-    const [loved, setLoved] = useState(false);
-
-    const adjustTextareaHeight = () => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto'; // Đặt chiều cao về 'auto' để loại bỏ chiều cao hiện tại
-            const lineHeight = parseInt(getComputedStyle(textareaRef.current).lineHeight, 10);
-            const extraLinesHeight = lineHeight * 1; // Thêm chiều cao cho 2 dòng nữa
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight + extraLinesHeight}px`; // Đặt chiều cao mới
-        }
-    };
-
-    useEffect(() => {
-        if (isEditing) {
-            adjustTextareaHeight(); // Điều chỉnh chiều cao khi chuyển sang chế độ chỉnh sửa
-        }
-    }, [isEditing, titleText]);
 
     // New state to track the hovered index
     const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -47,39 +25,15 @@ function Timeline() {
     const [activeContentIndex, setActiveContentIndex] = useState(null); // To track which node is active
 
     // Hàm để cập nhật toàn bộ nội dung của node
-    const updateNodeTickState = (index, updatedNode) => {
-        setNodes((prevNodes) => {
-            const updatedNodes = [...prevNodes];
-            const isCheckbox = updatedNode.type === 'Checkbox';
-            if (isCheckbox) {
-                // Đảo ngược trạng thái ticked nếu là Checkbox
-                updatedNode.ticked = !updatedNode.ticked;
-            } else {
-                if (!updatedNode.ticked) {
-                    updatedNode.ticked = true;
+    const handleNodeAddition = (index, level, type) => {
+        const newLevel = { id: nodes.length + 1, level, type, ticked: false, due_time: 2, content: 'Write something...' };
 
-                    // Bỏ tick cho các RadioButton ở phía trên cho đến khi gặp node không phải là RadioButton
-                    for (let i = index - 1; i >= 0; i--) {
-                        if (updatedNodes[i] == null || updatedNodes[i].type !== 'RadioButton')
-                            break;
-                        updatedNodes[i].ticked = false;
-                    }
-
-                    // Bỏ tick cho các RadioButton ở phía dưới cho đến khi gặp node không phải là RadioButton
-                    for (let i = index + 1; i < updatedNodes.length; i++) {
-                        if (updatedNodes[i] == null || updatedNodes[i].type !== 'RadioButton')
-                            break;
-                        updatedNodes[i].ticked = false;
-                    }
-                } else {
-                    updatedNode.ticked = false;
-                }
-            }
-            // Cập nhật node cụ thể
-            updatedNodes[index] = updatedNode;
-            return updatedNodes;
+        setNodes(prevNodes => {
+            const updatedLevels = [...prevNodes];
+            const insertIndex = updatedLevels.findIndex((node, i) => i > index && node.level <= level);
+            updatedLevels.splice(insertIndex === -1 ? updatedLevels.length : insertIndex, 0, newLevel);
+            return updatedLevels;
         });
-        setTimeout(() => setHoveredIndex(null), 0);
     };
 
     const updateNodeContent = (index, newContent) => {
@@ -95,50 +49,27 @@ function Timeline() {
     };
 
     // Cập nhật lại addNodeSameLevel để không cần phải gọi hàm này thủ công.
-    const handleSameLevelClick = (index, level, type) => {
-        const newId = nodes ? nodes.length + 1 : 1;
-        const newLevel = { id: newId, level: level, type: type, ticked: false, due_time: 2, content: 'Write something...' };
+    const updateNodeState = (index, updatedNode) => {
+        setNodes(prevNodes => {
+            const newNodes = [...prevNodes];
+            const isCheckbox = updatedNode.type === 'Checkbox';
 
-        if (nodes === null) {
-            setNodes([newLevel]);
-            return;
-        }
+            updatedNode.ticked = isCheckbox ? !updatedNode.ticked : true; // Đảo ngược nếu là Checkbox
 
-        // Check the node immediately below
-        if (index + 1 < nodes.length) {
-            const belowNode = nodes[index + 1];
-            if (belowNode.level <= level) {
-                // If the node below has a level equal to or lower than the current node
-                setNodes((prevLevels) => {
-                    const updatedLevels = [
-                        ...prevLevels.slice(0, index + 1), // Nodes before the current node
-                        newLevel, // Insert the new node
-                        ...prevLevels.slice(index + 1) // Nodes after
-                    ];
-                    return updatedLevels;
-                });
-                return; // Exit early since we already inserted the new node
+            // Xóa tick cho RadioButton
+            for (let i = index - 1; i >= 0; i--) {
+                if (newNodes[i].type !== 'RadioButton') break;
+                newNodes[i].ticked = false;
             }
-        }
-
-        // If the node below has a higher level, find the first node below that has a level <= current node
-        for (let i = index + 1; i < nodes.length; i++) {
-            if (nodes[i].level <= level) {
-                // Insert the new node before this found node
-                setNodes((prevLevels) => {
-                    const updatedLevels = [
-                        ...prevLevels.slice(0, i), // Nodes before the found node
-                        newLevel, // Insert the new node
-                        ...prevLevels.slice(i) // Nodes after
-                    ];
-                    return updatedLevels;
-                });
-                return; // Exit after inserting
+            for (let i = index + 1; i < newNodes.length; i++) {
+                if (newNodes[i].type !== 'RadioButton') break;
+                newNodes[i].ticked = false;
             }
-        }
 
-        // If no node was found with a level <= current node, append it to the end
-        setNodes((prevLevels) => [...prevLevels, newLevel]);
+            newNodes[index] = updatedNode;
+            return newNodes;
+        });
+        setTimeout(() => setHoveredIndex(null), 0);
     };
 
     const handleAddChildLevelNode = (index, level, type) => {
@@ -214,74 +145,44 @@ function Timeline() {
     return (
         <div className={cx('wrapper')}>
             <div className={cx('timeline-section')}>
-                <input
-                    className={cx('page-title')}
-                    value={roadName}
-                    onChange={(e) => setRoadName(e.target.value)}
-                />
+                {authority === 'Administrator' ? (
+                    <input
+                        className={cx('page-title')}
+                        value={roadName}
+                        onChange={(e) => setRoadName(e.target.value)}
+                    />
+                ) : (
+                    <h1 className={cx('page-title')}>{roadName}</h1>
+                )}
+
 
                 <span
                     className={cx('content', { expanded: contentExpanded })}
                     onClick={() => setIsContentExpanded(!contentExpanded)}
                 >
-                    {titleText}
+                    {title}
                 </span>
 
                 <div className={cx('timeline-section')}>
                     {nodes.map((node, index) => {
-                        switch (node.level) {
-                            case 1:
-                                return (
-                                    <LevelOne
-                                        key={node.id}
-                                        children={node}
-                                        index={index}
-                                        handleSameLevelClick={handleSameLevelClick}
-                                        handleAddChildLevelNode={handleAddChildLevelNode}
-                                        updateNodeTickState={updateNodeTickState}
-                                        updateNodeContent={updateNodeContent}
-                                        handleDeleteNode={handleDeleteNode}
-                                        allNodes={nodes}
-                                        hoveredIndex={hoveredIndex}
-                                        setHoveredIndex={setHoveredIndex}
-                                        handleDueTimeChange={handleDueTimeChange}
-                                    />
-                                );
-                            case 2:
-                                return (
-                                    <LevelTwo
-                                        key={node.id}
-                                        children={node}
-                                        index={index}
-                                        handleSameLevelClick={handleSameLevelClick}
-                                        handleAddChildLevelNode={handleAddChildLevelNode}
-                                        updateNodeTickState={updateNodeTickState}
-                                        updateNodeContent={updateNodeContent}
-                                        handleDeleteNode={handleDeleteNode}
-                                        allNodes={nodes}
-                                        hoveredIndex={hoveredIndex}
-                                        setHoveredIndex={setHoveredIndex}
-                                        handleDueTimeChange={handleDueTimeChange}
-                                    />
-                                );
-                            case 3:
-                                return (
-                                    <LevelThree
-                                        key={node.id}
-                                        children={node}
-                                        index={index}
-                                        updateNodeTickState={updateNodeTickState}
-                                        updateNodeContent={updateNodeContent}
-                                        handleDeleteNode={handleDeleteNode}
-                                        allNodes={nodes}
-                                        hoveredIndex={hoveredIndex}
-                                        handleDueTimeChange={handleDueTimeChange}
-                                    />
-                                );
-                            default:
-                                console.log('Error! Node not define yet.');
-                                return null;
-                        }
+                        const LevelComponent = node.level === 1 ? LevelOne : node.level === 2 ? LevelTwo : LevelThree;
+                        return (
+                            <LevelComponent
+                                key={node.id}
+                                userType={authority}
+                                children={node}
+                                index={index}
+                                handleSameLevelClick={handleNodeAddition}
+                                handleAddChildLevelNode={handleAddChildLevelNode}
+                                updateNodeTickState={updateNodeState}
+                                updateNodeContent={updateNodeContent}
+                                handleDeleteNode={handleDeleteNode}
+                                allNodes={nodes}
+                                hoveredIndex={hoveredIndex}
+                                setHoveredIndex={setHoveredIndex}
+                                handleDueTimeChange={handleDueTimeChange}
+                            />
+                        );
                     })}
                 </div>
             </div>

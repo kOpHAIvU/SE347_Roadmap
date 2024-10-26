@@ -40,6 +40,7 @@
 }
 
 .content {
+    width: 100%; /* Đặt textarea chiếm hết chiều rộng của phần tử cha */
     display: -webkit-box;
     -webkit-line-clamp: 3; /* Giới hạn số dòng hiển thị */
     -webkit-box-orient: vertical;

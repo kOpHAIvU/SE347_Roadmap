@@ -8,7 +8,7 @@ import { useRef, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNode
+function LevelOne({ userType, children, index, handleSameLevelClick, handleAddChildLevelNode
     , updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes
     , hoveredIndex, setHoveredIndex, handleDueTimeChange }) {
     const ticked = children.ticked;
@@ -74,17 +74,13 @@ function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 onMouseLeave={handleMouseLeave}>
                 {ticked ? (
                     <FontAwesomeIcon
-                        onClick={() => {
-                            updateNodeTickState(index, children)
-                        }}
+                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
                         icon={faSquareCheck}
                         className={cx('ticked')}
                     />
                 ) : (
                     <FontAwesomeIcon
-                        onClick={() => {
-                            updateNodeTickState(index, children)
-                        }}
+                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
                         icon={faSquare}
                         className={cx('tick')}
                     />
@@ -111,76 +107,87 @@ function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 )}
 
                 <div className={cx('update-node')}>
-                    <input
-                        className={cx('due-time')}
-                        type="text"
-                        value={dueTime}
-                        onFocus={handleDueTimeFocus}
-                        onBlur={handleDueTimeBlur}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (!isNaN(value)) {
-                                setDueTime(value); // Only allow numeric values
-                            }
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
+                    {userType === 'Reviewer' ? (
+                        <h1 className={cx('due-time')}>{dueTime}</h1>
+                    ) : (
+                        <input
+                            className={cx('due-time')}
+                            type="text"
+                            value={dueTime}
+                            onFocus={handleDueTimeFocus}
+                            onBlur={handleDueTimeBlur}
+                            onChange={(e) => {
                                 const value = e.target.value;
                                 if (!isNaN(value)) {
                                     setDueTime(value); // Only allow numeric values
                                 }
-                                e.target.blur()
-                            }
-                        }}
-                    />
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const value = e.target.value;
+                                    if (!isNaN(value)) {
+                                        setDueTime(value); // Only allow numeric values
+                                    }
+                                    e.target.blur();
+                                }
+                            }}
+                        />
+                    )}
 
-                    <FontAwesomeIcon
-                        onClick={() => setIsEditing(true)}
-                        icon={penRegular}
-                        className={cx('rewrite-node')}
-                    />
+                    {(userType === 'Administrator' || userType === 'Editor') && (
+                        <>
+                            <FontAwesomeIcon
+                                onClick={() => setIsEditing(true)}
+                                icon={penRegular}
+                                className={cx('rewrite-node')}
+                            />
 
-                    <FontAwesomeIcon
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteNode(index)
-                        }}
-                        icon={faTrashCan}
-                        className={cx('delete-node')} />
+                            <FontAwesomeIcon
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteNode(index);
+                                }}
+                                icon={faTrashCan}
+                                className={cx('delete-node')}
+                            />
+                        </>
+                    )}
                 </div>
             </div>
 
-            <div
-                className={cx('hidden-section', {
-                    visible: hoveredIndex === index,
-                })}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
-                <FontAwesomeIcon
-                    className={cx('same-level')}
-                    icon={faSquarePlus}
-                    onClick={() => {
-                        handleSameLevelClick(index, children.level, children.type)
-                    }}
-                />
-                {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
-                {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+            {userType === 'Administrator' && (
+                <div
+                    className={cx('hidden-section', {
+                        visible: hoveredIndex === index,
+                    })}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                >
                     <FontAwesomeIcon
-                        className={cx('child-level-check')}
-                        icon={faSquare}
-                        onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                        className={cx('same-level')}
+                        icon={faSquarePlus}
+                        onClick={() => {
+                            handleSameLevelClick(index, children.level, children.type);
+                        }}
                     />
-                ) : null}
-                {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
-                    <FontAwesomeIcon
-                        className={cx('child-level-radio')}
-                        icon={faCircle}
-                        onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
-                    />
-                ) : null}
-            </div>
+                    {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
+                    {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+                        <FontAwesomeIcon
+                            className={cx('child-level-check')}
+                            icon={faSquare}
+                            onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                        />
+                    ) : null}
+                    {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
+                        <FontAwesomeIcon
+                            className={cx('child-level-radio')}
+                            icon={faCircle}
+                            onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
+                        />
+                    ) : null}
+                </div>
+            )}
         </div>
     );
 }

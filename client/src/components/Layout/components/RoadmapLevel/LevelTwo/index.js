@@ -7,7 +7,7 @@ import { useRef, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNode
+function LevelTwo({ userType, children, index, handleSameLevelClick, handleAddChildLevelNode
     , updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes
     , hoveredIndex, setHoveredIndex, handleDueTimeChange }) {
     const ticked = children.ticked;
@@ -75,17 +75,13 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
 
                 {ticked ? (
                     <FontAwesomeIcon
-                        onClick={() => {
-                            updateNodeTickState(index, children);
-                        }}
+                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
                         icon={children.type === 'Checkbox' ? faSquareCheck : faCircleCheck}
                         className={cx('ticked')}
                     />
                 ) : (
                     <FontAwesomeIcon
-                        onClick={() => {
-                            updateNodeTickState(index, children);
-                        }}
+                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
                         icon={children.type === 'Checkbox' ? faSquare : faCircle}
                         className={cx('tick')}
                     />
@@ -149,7 +145,7 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
             </div>
 
             {/* Kiểm tra nếu node là Checkbox thì không render hidden-section */}
-            {children.type !== 'RadioButton' && (
+            {userType === 'Administrator' && children.type !== 'RadioButton' && (
                 <div
                     className={cx('hidden-section', {
                         visible: hoveredIndex === index,
