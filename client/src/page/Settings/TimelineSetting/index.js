@@ -17,7 +17,6 @@ function TimelineSetting() {
     const location = useLocation();
 
     useEffect(() => {
-        // Kiểm tra URL khi component được mount
         if (location.pathname === '/timeline/setting/invite') {
             setIsInviteFormVisible(true);
         }
