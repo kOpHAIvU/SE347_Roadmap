@@ -8,6 +8,7 @@ import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/i
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './Timeline.module.scss';
 import classNames from 'classnames/bind';
+import ChatSection from '~/components/Layout/components/ChatSection/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -40,7 +41,9 @@ function Timeline() {
     const [hoveredIndex, setHoveredIndex] = useState(null);
 
     // State for the list of levels
-    const [nodes, setNodes] = useState(null);
+    const [nodes, setNodes] = useState([
+        { id: 0, level: 1, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something...' }
+    ]);
     const [activeContentIndex, setActiveContentIndex] = useState(null); // To track which node is active
 
     // Hàm để cập nhật toàn bộ nội dung của node
@@ -210,49 +213,22 @@ function Timeline() {
 
     return (
         <div className={cx('wrapper')}>
-            <input
-                className={cx('page-title')}
-                value={roadName}
-                onChange={(e) => setRoadName(e.target.value)}
-            />
-
-            <div className={cx('content-section')}>
-                {isEditing ? (
-                    <textarea
-                        ref={textareaRef}
-                        type="text"
-                        value={titleText}
-                        onChange={(e) => setTitleText(e.target.value)}
-                        onBlur={() => setIsEditing(!isEditing)} // Khi mất focus, quay lại chế độ xem
-                        className={cx('content-input')}
-                        autoFocus // Tự động focus vào input khi chuyển sang chế độ chỉnh sửa
-                    />
-                ) : (
-                    <span
-                        className={cx('content', { expanded: contentExpanded })}
-                        onClick={() => setIsContentExpanded(!contentExpanded)}
-                    >
-                        {titleText}
-                    </span>
-                )}
-                <FontAwesomeIcon
-                    className={cx('rewrite-content-btn')}
-                    icon={penSolid}
-                    onClick={() => setIsEditing(!isEditing)}
+            <div className={cx('timeline-section')}>
+                <input
+                    className={cx('page-title')}
+                    value={roadName}
+                    onChange={(e) => setRoadName(e.target.value)}
                 />
-            </div>
 
-            <div className={cx('roadmap-section')}>
-                {nodes === null ? (
-                    <div className={cx('add-first-node')}
-                        onClick={() => {
-                            handleSameLevelClick(0, 1, 'Checkbox');
-                        }}>
-                        <FontAwesomeIcon className={cx('add-button')} icon={faSquarePlus} />
-                        <h1 className={cx('add-text')}>Create your first node now!!!</h1>
-                    </div>
-                ) : (
-                    nodes.map((node, index) => {
+                <span
+                    className={cx('content', { expanded: contentExpanded })}
+                    onClick={() => setIsContentExpanded(!contentExpanded)}
+                >
+                    {titleText}
+                </span>
+
+                <div className={cx('timeline-section')}>
+                    {nodes.map((node, index) => {
                         switch (node.level) {
                             case 1:
                                 return (
@@ -306,24 +282,12 @@ function Timeline() {
                                 console.log('Error! Node not define yet.');
                                 return null;
                         }
-                    })
-                )}
+                    })}
+                </div>
             </div>
-            <div className={cx('drop-react')}>
-                <button
-                    onClick={() => setLoved(!loved)}
-                    className={cx('react-love', { loved: loved })}
-                >
-                    <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
-                    <h1 className={cx('love-text')}>Love</h1>
-                </button>
-
-                <button className={cx('clone-roadmap')}>
-                    <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
-                    <h1 className={cx('clone-text')}>Clone</h1>
-                </button>
+            <div className={cx('chat-section')}>
+                <ChatSection />
             </div>
-            <Comment />
         </div>
     );
 }

@@ -1,6 +1,8 @@
 .level-one {
+    width: calc(100% - 10px); /* 20px là tổng khoảng cách từ cả hai phía */
     border-top: 1px solid var(--gray-color);
     left: 10px;
+    right: 10px;
     position: relative;
 }
 
@@ -134,7 +136,8 @@
     z-index: 1;
     border-top: 1px solid var(--gray-color);
 
-    &.visible { /* Class added to control visibility */
+    &.visible {
+        /* Class added to control visibility */
         max-height: 100px; /* Set a maximum height for the reveal */
         opacity: 1; /* Make it visible */
         pointer-events: auto;

@@ -1,4 +1,6 @@
 .level-three {
+    width: calc(100% - 10px - 56px);
+    border-top: 1px solid var(--gray-color);
     left: 10px;
     right: 10px;
     position: relative;

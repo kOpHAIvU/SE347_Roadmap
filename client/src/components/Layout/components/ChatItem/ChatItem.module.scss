@@ -1,0 +1,47 @@
+.wrapper {
+    cursor: pointer;
+    height: auto;
+    width: 100%;
+    display: flex;
+    padding: 5px;
+    &:hover {
+        background-color: rgba(101, 128, 235, 0.15);
+    }
+}
+
+.avatar {
+    margin-top: 5px;
+    height: var(--avatar-size);
+    width: var(--avatar-size);
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.send-info {
+    flex: 1;
+    padding-left: 5px;
+    max-width: calc(100% - var(--avatar-size)); /* Điều chỉnh độ rộng theo kích thước avatar */
+}
+
+.sender-infor {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.username {
+    font-size: 1.5rem;
+}
+
+.date-send {
+    margin-right: 5px;
+    color: #b1b1b1;
+    margin-left: 5px;
+}
+
+.content {
+    white-space: normal; /* Cho phép xuống dòng */
+    word-wrap: break-word; /* Ngắt từ nếu quá dài */
+    max-width: 100%; /* Đảm bảo độ rộng không vượt quá vùng cha */
+    text-align: justify;
+}
