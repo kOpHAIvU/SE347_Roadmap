@@ -43,6 +43,7 @@
     width: 100%; /* Đặt textarea chiếm hết chiều rộng của phần tử cha */
     display: -webkit-box;
     -webkit-line-clamp: 3; /* Giới hạn số dòng hiển thị */
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden; /* Ẩn phần nội dung thừa */
     text-overflow: ellipsis; /* Thêm dấu "..." khi bị ẩn */
@@ -52,6 +53,7 @@
 
     &.expanded {
         -webkit-line-clamp: unset; /* Khi mở rộng, bỏ giới hạn dòng */
+        line-clamp: unset;
         white-space: normal;
         overflow: visible;
         max-height: none; /* Bỏ giới hạn chiều cao */

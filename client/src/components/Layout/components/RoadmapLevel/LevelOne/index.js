@@ -3,59 +3,55 @@ import styles from './LevelOne.module.scss';
 import classNames from 'classnames/bind';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import { useDrag, useDrop } from 'react-dnd';
 
 
 const cx = classNames.bind(styles);
 
-function LevelOne({ userType, children, index, handleSameLevelClick, handleAddChildLevelNode
-    , updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes
-    , hoveredIndex, setHoveredIndex, handleDueTimeChange }) {
-    const ticked = children.ticked;
-    const [content, setContent] = useState(children.content);
+function LevelOne({
+    userType,
+    children,
+    index,
+    handleSameLevelClick,
+    handleAddChildLevelNode,
+    updateNodeTickState,
+    updateNodeContent,
+    handleDeleteNode,
+    allNodes,
+    handleDueTimeChange,
+    handleSwapNodes
+}) {
+    const { ticked, content: initialContent, due_time: initialDueTime, level, type, id } = children;
+    const [content, setContent] = useState(initialContent);
+    const [dueTime, setDueTime] = useState(`${initialDueTime} days`);
     const [isEditing, setIsEditing] = useState(false);
-    const timeoutRef = useRef(null);
+    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
 
-    const handleMouseEnter = () => {
-        // Clear any existing timeout when mouse enters
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        setHoveredIndex(index); // Update the hovered index
-    };
+    // Kéo và thả cho LevelOne
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'NODE',
+        item: { index },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    }), [index]);
 
-    const handleMouseLeave = () => {
-        // Set a timeout of 1.5 seconds to hide the section
-        timeoutRef.current = setTimeout(() => {
-            setHoveredIndex(null); // Reset hovered index after delay
-        }, 1500);
-    };
-
-    // Kiểm tra loại node ngay dưới node hiện tại
-    const getNodeBelowTypeAndLevel = () => {
-        if (index + 1 < allNodes.length) {
-            const belowNode = allNodes[index + 1];
-            if (belowNode.level > children.level) {
-                return belowNode.type; // Trả về loại node ngay dưới nếu có level cao hơn
+    const [, drop] = useDrop({
+        accept: 'NODE',
+        hover(item) {
+            // Chỉ hoán đổi nếu item không phải là chính nó
+            if (item.index !== index) {
+                // Gọi hàm để hoán đổi vị trí
+                handleSwapNodes(item.index, index);
+                item.index = index; // Cập nhật chỉ số của item
             }
-        }
-        return null; // Nếu không có node dưới hoặc không có level cao hơn
-    };
-
-    const nodeBelowType = getNodeBelowTypeAndLevel();
+        },
+    });
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
         updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
-    };
-
-    const [dueTime, setDueTime] = useState(children.due_time + ' days');
-    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
-
-    // Handle due-time input focus and blur
-    const handleDueTimeFocus = () => {
-        setIsDueTimeFocused(true);
-        setDueTime(dueTime.replace(' days', '')); // Remove ' days' on focus
     };
 
     const handleDueTimeBlur = () => {
@@ -67,24 +63,21 @@ function LevelOne({ userType, children, index, handleSameLevelClick, handleAddCh
         }
     };
 
+    const nodeBelowType = index + 1 < allNodes.length && allNodes[index + 1].level > level
+        ? allNodes[index + 1].type
+        : null;
+
     return (
-        <div className={cx('level-one')} key={children.id}>
-            <div className={cx('show-section', { 'with-hidden-section': hoveredIndex === index })}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}>
-                {ticked ? (
-                    <FontAwesomeIcon
-                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
-                        icon={faSquareCheck}
-                        className={cx('ticked')}
-                    />
-                ) : (
-                    <FontAwesomeIcon
-                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
-                        icon={faSquare}
-                        className={cx('tick')}
-                    />
-                )}
+        <div ref={drop}
+            className={cx('level-one', { 'dragging': isDragging })}
+            key={children.id}>
+            <div ref={drag} className={cx('show-section')}
+            >
+                <FontAwesomeIcon
+                    onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
+                    icon={ticked ? faSquareCheck : faSquare}
+                    className={cx(ticked ? 'ticked' : 'tick')}
+                />
 
                 {isEditing ? (
                     <input
@@ -113,22 +106,18 @@ function LevelOne({ userType, children, index, handleSameLevelClick, handleAddCh
                         <input
                             className={cx('due-time')}
                             type="text"
-                            value={dueTime}
-                            onFocus={handleDueTimeFocus}
+                            value={isDueTimeFocused ? dueTime.replace(' days', '') : dueTime}
+                            onFocus={() => setIsDueTimeFocused(true)}
                             onBlur={handleDueTimeBlur}
                             onChange={(e) => {
                                 const value = e.target.value;
                                 if (!isNaN(value)) {
-                                    setDueTime(value); // Only allow numeric values
+                                    setDueTime(value);
                                 }
                             }}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    const value = e.target.value;
-                                    if (!isNaN(value)) {
-                                        setDueTime(value); // Only allow numeric values
-                                    }
                                     e.target.blur();
                                 }
                             }}
@@ -157,19 +146,11 @@ function LevelOne({ userType, children, index, handleSameLevelClick, handleAddCh
             </div>
 
             {userType === 'Administrator' && (
-                <div
-                    className={cx('hidden-section', {
-                        visible: hoveredIndex === index,
-                    })}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                >
+                <div className={cx('hidden-section')}>
                     <FontAwesomeIcon
                         className={cx('same-level')}
                         icon={faSquarePlus}
-                        onClick={() => {
-                            handleSameLevelClick(index, children.level, children.type);
-                        }}
+                        onClick={() => handleSameLevelClick(index, level, type)}
                     />
                     {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
                     {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (

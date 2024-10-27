@@ -1,0 +1,32 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.draggable-item {
+    padding: 8px;
+    margin: 4px;
+    background-color: #4caf50;
+    color: white;
+    cursor: grab;
+    border-radius: 4px;
+}
+
+.droppable-area {
+    padding: 20px;
+    border: 2px dashed #ccc;
+    width: 200px;
+    text-align: center;
+    margin-top: 20px;
+    border-radius: 4px;
+}
+
+.droppable-area.canDrop {
+    border-color: green;
+}
+
+.droppable-area.isOver {
+    background-color: rgba(76, 175, 80, 0.2);
+}

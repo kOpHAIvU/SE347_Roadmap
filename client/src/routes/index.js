@@ -1,4 +1,5 @@
 import { MainScreenLayout,  DefaultLayout } from "~/components/Layout/index.js";
+import TestLayout from "~/components/Layout/TestLayout/index.js";
 import Home from "~/page/Home/index.js";
 import Information from "~/page/Information/index.js";
 import Login from "~/page/Login/index.js";
@@ -34,7 +35,7 @@ const privateRoutes = [
 const accountDataRoutes = [
     { path: '/roadmap/:id', Component: OwnRoadmap, layout: DefaultLayout },
     { path: '/timeline/:id', Component: Timeline, layout: DefaultLayout },
-
+    { path: '/test', layout: TestLayout },
 ]
 
 export { publicRoutes, privateRoutes, accountDataRoutes };

@@ -4,53 +4,61 @@ import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { useDrag, useDrop } from 'react-dnd';
 
 const cx = classNames.bind(styles);
 
-function LevelThree({ children, index, updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes, hoveredIndex, handleDueTimeChange }) {
-    const ticked = children.ticked;
-    const [content, setContent] = useState(children.content);
+function LevelThree({
+    children,
+    index,
+    updateNodeTickState,
+    updateNodeContent,
+    handleDeleteNode,
+    handleDueTimeChange,
+    handleSwapNodes
+}) {
+    const { ticked, content: initialContent, due_time } = children;
+    const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
+    const [dueTime, setDueTime] = useState(`${due_time} days`);
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
         updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
     };
 
-    const [dueTime, setDueTime] = useState(children.due_time + ' days');
-    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
+    // Kéo và thả cho LevelOne
+    const [{ isDragging }, drag] = useDrag(() => ({
+        type: 'NODE',
+        item: { index },
+        collect: (monitor) => ({
+            isDragging: monitor.isDragging(),
+        }),
+    }), [index]);
 
-    // Handle due-time input focus and blur
-    const handleDueTimeFocus = () => {
-        setIsDueTimeFocused(true);
-        setDueTime(dueTime.replace(' days', '')); // Remove ' days' on focus
-    };
-
-    const handleDueTimeBlur = () => {
-        setIsDueTimeFocused(false);
-        if (!isNaN(dueTime)) {
-            const newDueTime = `${dueTime} days`; // Add ' days' after blur
-            setDueTime(newDueTime);
-            handleDueTimeChange(index, newDueTime); // Gọi hàm cập nhật due-time
-        }
-    };
+    const [, drop] = useDrop({
+        accept: 'NODE',
+        hover(item) {
+            // Chỉ hoán đổi nếu item không phải là chính nó
+            if (item.index !== index) {
+                // Gọi hàm để hoán đổi vị trí
+                handleSwapNodes(item.index, index);
+                item.index = index; // Cập nhật chỉ số của item
+            }
+        },
+    });
 
     return (
-        <div className={cx('level-three')} key={children.id}>
-            <div className={cx('show-section', { 'with-hidden-section': hoveredIndex === index })}>
-                {ticked ? (
-                    <FontAwesomeIcon
-                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
-                        icon={children.type === 'Checkbox' ? faSquareCheck : faCircleCheck}
-                        className={cx('ticked')}
-                    />
-                ) : (
-                    <FontAwesomeIcon
-                        onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
-                        icon={children.type === 'Checkbox' ? faSquare : faCircle}
-                        className={cx('tick')}
-                    />
-                )}
+        <div
+            ref={drop}
+            className={cx('level-three', { 'dragging': isDragging })}
+            key={children.id}>
+            <div ref={drag} className={cx('show-section')}>
+                <FontAwesomeIcon
+                    onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
+                    icon={ticked ? (children.type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (children.type === 'Checkbox' ? faSquare : faCircle)}
+                    className={cx(ticked ? 'ticked' : 'tick')}
+                />
 
                 {isEditing ? (
                     <input
@@ -58,10 +66,8 @@ function LevelThree({ children, index, updateNodeTickState, updateNodeContent, h
                         type="text"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        onBlur={handleSaveContent} // Gọi hàm cập nhật content khi mất focus
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveContent(); // Cập nhật khi nhấn Enter
-                        }}
+                        onBlur={handleSaveContent}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSaveContent()}
                         autoFocus
                     />
                 ) : (
@@ -73,22 +79,20 @@ function LevelThree({ children, index, updateNodeTickState, updateNodeContent, h
                         className={cx('due-time')}
                         type="text"
                         value={dueTime}
-                        onFocus={handleDueTimeFocus}
-                        onBlur={handleDueTimeBlur}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (!isNaN(value)) {
-                                setDueTime(value); // Only allow numeric values
+                        onFocus={() => setDueTime(dueTime.replace(' days', ''))}
+                        onBlur={() => {
+                            if (!isNaN(dueTime)) {
+                                const newDueTime = `${dueTime} days`;
+                                setDueTime(newDueTime);
+                                handleDueTimeChange(index, newDueTime);
                             }
                         }}
+                        onChange={(e) => !isNaN(e.target.value) && setDueTime(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault();
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
-                                    setDueTime(value); // Only allow numeric values
-                                }
-                                e.target.blur()
+                                if (!isNaN(e.target.value)) setDueTime(e.target.value);
+                                e.target.blur();
                             }
                         }}
                     />
