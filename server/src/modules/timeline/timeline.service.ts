@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoadmapService } from '../roadmap/roadmap.service';
 import {ResponseDto} from './common/response.interface'
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class TimelineService {
@@ -14,6 +15,7 @@ export class TimelineService {
     @InjectRepository(Timeline)
     private timelineRepository: Repository<Timeline>,
     private roadmapService: RoadmapService,
+    private userService: UserService,
   ) {}
 
   async create(
@@ -24,6 +26,13 @@ export class TimelineService {
       const roadmap = Array.isArray(roadmapResponse.data) 
                       ? roadmapResponse.data[0] 
                       : roadmapResponse.data;
+      const leaderResponse = await this.userService.findOneById(createTimelineDto.leader);
+      const leader = Array.isArray(leaderResponse.data)
+                    ? leaderResponse.data[0]
+                    : leaderResponse.data;
+      if (!leader) {
+        throw new Error('User not found');
+      }
       if (!roadmap) { 
         throw new Error('Error occurred while finding roadmap');
       }
@@ -31,6 +40,7 @@ export class TimelineService {
       const timeline = await this.timelineRepository.create({
         ...createTimelineDto,
         roadmap: roadmap,
+        leader: leader,
       });
       const result = await this.timelineRepository.save(timeline);
       return {
@@ -126,10 +136,18 @@ export class TimelineService {
       if (!roadmap) { 
         throw new Error('Roadmap is not found');
       }
+      const leaderResponse = await this.userService.findOneById(updateTimelineDto.leader);
+      const leader = Array.isArray(leaderResponse.data)
+                    ? leaderResponse.data[0]
+                    : leaderResponse.data;
+      if (!leader) {
+        throw new Error('User not found');
+      }
 
       const newTimeline = this.timelineRepository.create({
         ...updateTimelineDto,
         roadmap: roadmap,
+        leader: leader,
       });
   
       const result = await this.timelineRepository.save(newTimeline);

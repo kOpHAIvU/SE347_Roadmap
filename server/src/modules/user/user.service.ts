@@ -48,7 +48,7 @@ export class UserService {
 
   async findOne(loginDto: LoginDto): Promise<User> {
 
-    const  user = await this.usersRepository.findOneBy({email: loginDto.email});
+    const  user = await this.usersRepository.findOneBy({username: loginDto.username});
     if (!user) {
       throw new UnauthorizedException('Could not find user');
     } 
@@ -59,12 +59,16 @@ export class UserService {
     try {
       const user = await this.usersRepository.findOne({where: {id}});
       if (!user) {
-        throw new UnauthorizedException('Could not find user');
+        return {
+          statusCode: 404,
+          message: 'User not found',
+          data: []
+        }
       } 
       return {
         statusCode: 200,
         message: 'Get user successfully',
-        data: []
+        data: user
       }
     } catch(error) {
       return {
