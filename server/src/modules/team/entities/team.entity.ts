@@ -14,14 +14,14 @@ export class Team {
     @Column()
     avatar: string;
 
-    @ManyToOne(() => Timeline, timeline => timeline.team)
-    timeline: Timeline;
+    // @ManyToOne(() => Timeline, timeline => timeline.team)
+    // timeline: Timeline;
 
     @ManyToOne(() => User, leader => leader.team)
     leader: User;
 
-    @OneToMany(() => Member, member => member.team)
-    team: Member[]
+    // @OneToMany(() => Member, member => member.team)
+    // team: Member[]
 
     @Column({ type: 'boolean', default: true }) 
     isActive: boolean;

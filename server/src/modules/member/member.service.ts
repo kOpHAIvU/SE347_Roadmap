@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { TeamService } from '../team/team.service';
 import {ResponseDto} from './common/response.interface';
+import { TimelineService } from '../timeline/timeline.service';
 
 @Injectable()
 export class MemberService {
@@ -15,7 +16,7 @@ export class MemberService {
     @InjectRepository(Member)
     private memberRepository: Repository<Member>,
     private userService: UserService,
-    private teamService: TeamService,
+    private timelineService: TimelineService,
   ) {}
 
   async checkMemberExistInTeam(
@@ -66,7 +67,7 @@ export class MemberService {
       if (!user) {
         throw new Error('User not found');
       }
-      const teamResponse = await this.teamService.findOneById(createMemberDto.team);
+      const teamResponse = await this.timelineService.findOneById(createMemberDto.team);
       const team = Array.isArray(teamResponse)
                   ? teamResponse[0]
                   : teamResponse;
@@ -82,7 +83,7 @@ export class MemberService {
       const division = await this.memberRepository.create({
         ...createMemberDto,
         member: user,
-        team,
+        timeline: team,
       })
       const result = await this.memberRepository.save(division);
       return {
@@ -168,7 +169,7 @@ export class MemberService {
             message: 'User not found',
           }
         }
-        const teamResponse = await this.teamService.findOneById(updateMemberDto.team);
+        const teamResponse = await this.timelineService.findOneById(updateMemberDto.team);
         const team = Array.isArray(teamResponse)
                     ? teamResponse[0]
                     : teamResponse;
@@ -191,7 +192,7 @@ export class MemberService {
         const updatedMember = this.memberRepository.merge(member.data, {
           ...updateMemberDto,
           member: user.data,
-          team: team.data,
+          timeline: team.data,
         });
         const result = await this.memberRepository.save(updatedMember);
         return {

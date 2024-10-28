@@ -20,7 +20,7 @@ export class Roadmap {
     @Column({nullable: false })
     content: string;
     
-    @ManyToOne(() => User, owner => owner.roadmap)
+    @ManyToOne(() => User, owner => owner.roadmap, { eager: true })
     owner: User
 
     @OneToMany(() => Comment, comment => comment.roadmap)

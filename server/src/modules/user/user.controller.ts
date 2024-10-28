@@ -11,5 +11,9 @@ export class UserController {
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
+  @Get("id/:id")
+  findOneById(@Param('id') id: string) {
+    return this.userService.findOneById(+id);
+  }
 
 }
