@@ -1,7 +1,7 @@
-import { User } from "src/modules/user/entities/user.entity";
+import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from './../../comment/entities/comment.entity';
-import { Timeline } from "src/modules/timeline/entities/timeline.entity";
+import { Timeline } from "../../timeline/entities/timeline.entity";
 
 @Entity()
 export class Roadmap {

@@ -1,7 +1,6 @@
-import { Member } from "src/modules/member/entities/member.entity";
-import { Roadmap } from "src/modules/roadmap/entities/roadmap.entity";
-import { Team } from "src/modules/team/entities/team.entity";
-import { User } from "src/modules/user/entities/user.entity";
+import { Member } from "../../member/entities/member.entity";
+import { Roadmap } from "../../roadmap/entities/roadmap.entity";
+import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
