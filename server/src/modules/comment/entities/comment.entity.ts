@@ -1,6 +1,6 @@
 import { Exclude } from "class-transformer";
-import { Roadmap } from "src/modules/roadmap/entities/roadmap.entity";
-import { User } from "src/modules/user/entities/user.entity";
+import { Roadmap } from "../../roadmap/entities/roadmap.entity";
+import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()

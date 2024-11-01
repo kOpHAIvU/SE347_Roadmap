@@ -1,11 +1,10 @@
 import { Roadmap } from './../../roadmap/entities/roadmap.entity';
-import { Role } from 'src/modules/role/entities/role.entity';
+import { Role } from '../../role/entities/role.entity';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, OneToMany, ManyToMany, ManyToOne, OneToOne } from 'typeorm';
 import { Comment } from './../../comment/entities/comment.entity';
-import { Member } from 'src/modules/member/entities/member.entity';
-import { Team } from 'src/modules/team/entities/team.entity';
-import { Exclude } from 'class-transformer';
-import { Timeline } from 'src/modules/timeline/entities/timeline.entity';
+import { Member } from '../../member/entities/member.entity';
+import { Team } from '../../team/entities/team.entity';
+import { Timeline } from '../../timeline/entities/timeline.entity';
 
 @Entity()
 export class User {

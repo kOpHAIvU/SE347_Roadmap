@@ -84,7 +84,8 @@ export class RoadmapService {
       if (!roadmap) {
         return {
           statusCode: 404,
-          message: 'Roadmap not found'
+          message: 'Roadmap not found',
+          data: null
         }
       }
       

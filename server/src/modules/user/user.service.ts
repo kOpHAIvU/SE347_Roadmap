@@ -9,6 +9,7 @@ import { LoginDto } from '../auth/dto/login-dto';
 import {ResponseDto} from './common/response.interface';
 import { RoleService } from '../role/role.service';
 import { Role } from '../role/entities/role.entity';
+import { isNull } from 'util';
 
 @Injectable()
 export class UserService {
@@ -21,10 +22,10 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const roleResponse = await this.roleService.findOne(createUserDto.role);
-      if (roleResponse.statusCode == 404 || roleResponse.statusCode == 500) {
-        throw new UnauthorizedException('Could not find role');
-      } 
-      console.log("Role response:", roleResponse);
+    if (roleResponse.statusCode == 404 || roleResponse.statusCode == 500) {
+      throw new UnauthorizedException('Role is not found');
+    } 
+    console.log("Role response:", roleResponse);
     let user: User = null;
     if (createUserDto.password) {
       const salt = await bcrypt.genSalt(); 
@@ -48,7 +49,9 @@ export class UserService {
 
   async findOne(loginDto: LoginDto): Promise<User> {
 
-    const  user = await this.usersRepository.findOneBy({username: loginDto.username});
+    const  user = await this.usersRepository.findOneBy({
+      username: loginDto.username, 
+    });
     if (!user) {
       throw new UnauthorizedException('Could not find user');
     } 
@@ -62,7 +65,7 @@ export class UserService {
         return {
           statusCode: 404,
           message: 'User not found',
-          data: []
+          data: null
         }
       } 
       return {
