@@ -46,4 +46,10 @@ describe('RoadmapService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe ('Create roadmap', () => {
+    it('Show "User not found" message if cant find role by id', async() => {
+    })
+  })
+
 });

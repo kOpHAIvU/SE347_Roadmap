@@ -1,5 +1,3 @@
-import { Member } from "src/modules/member/entities/member.entity";
-import { Timeline } from "src/modules/timeline/entities/timeline.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 

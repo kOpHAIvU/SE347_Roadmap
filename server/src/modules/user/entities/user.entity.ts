@@ -4,7 +4,6 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateCol
 import { Comment } from './../../comment/entities/comment.entity';
 import { Member } from '../../member/entities/member.entity';
 import { Team } from '../../team/entities/team.entity';
-import { Exclude } from 'class-transformer';
 import { Timeline } from '../../timeline/entities/timeline.entity';
 
 @Entity()

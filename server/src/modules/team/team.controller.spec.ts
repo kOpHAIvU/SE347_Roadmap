@@ -3,6 +3,8 @@ import { TeamController } from './team.controller';
 import { TeamService } from './team.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Team } from './entities/team.entity';
+import { TimelineService } from '../timeline/timeline.service';
+import { UserService } from '../user/user.service';
 
 describe('TeamController', () => {
   let controller: TeamController;
@@ -16,6 +18,14 @@ describe('TeamController', () => {
     delete: jest.fn(),
   };
 
+  const mockTimelineService = {
+    findOneById: jest.fn(),
+  }
+
+  const mockUserService = {
+    findOneById: jest.fn(),
+  } 
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TeamController],
@@ -24,6 +34,14 @@ describe('TeamController', () => {
         {
           provide: getRepositoryToken(Team),
           useValue: mockMemberRepository,
+        },
+        {
+          provide: TimelineService,
+          useValue: mockTimelineService,
+        },
+        {
+          provide: UserService,
+          useValue: mockUserService,
         }
       ],
     }).compile();

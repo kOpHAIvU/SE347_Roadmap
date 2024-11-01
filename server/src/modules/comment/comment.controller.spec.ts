@@ -3,12 +3,13 @@ import { CommentController } from './comment.controller';
 import { CommentService } from './comment.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Comment } from '../comment/entities/comment.entity';
+import { UserService } from '../user/user.service';
+import { RoadmapService } from '../roadmap/roadmap.service';
 
 describe('CommentController', () => {
   let controller: CommentController;
   let service: CommentService;
 
-  // Định nghĩa mockCommentRepository ngay trong mô tả kiểm thử
   const mockCommentRepository = {
     find: jest.fn(),
     findOne: jest.fn(),
@@ -16,6 +17,14 @@ describe('CommentController', () => {
     save: jest.fn(),
     delete: jest.fn(),
   };
+
+  const mockUserService = {
+    findOneById: jest.fn(),
+  }
+
+  const mockRoadmapService = {
+    findOneById: jest.fn(),
+  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -26,6 +35,14 @@ describe('CommentController', () => {
           provide: getRepositoryToken(Comment),
           useValue: mockCommentRepository, // Sử dụng mock repository
         },
+        {
+          provide: UserService,
+          useValue: mockUserService,
+        },
+        {
+          provide: RoadmapService,
+          useValue: mockRoadmapService,
+        }
       ],
     }).compile();
 

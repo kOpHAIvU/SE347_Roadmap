@@ -3,6 +3,7 @@ import { RoadmapController } from './roadmap.controller';
 import { RoadmapService } from './roadmap.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Roadmap } from './entities/roadmap.entity';
+import { UserService } from '../user/user.service';
 
 const mockRoadmapRepository = {
   create: jest.fn(),
@@ -13,9 +14,13 @@ const mockRoadmapRepository = {
   delete: jest.fn(),
 }
 
+const mockUserService = {
+  findOneById: jest.fn(),
+}
+
 describe('RoadmapController', () => {
   let controller: RoadmapController;
-  let service: RoadmapService;
+  let service: RoadmapService;  
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,6 +30,10 @@ describe('RoadmapController', () => {
         {
           provide: getRepositoryToken(Roadmap),
           useValue: mockRoadmapRepository,
+        },
+        {
+          provide: UserService,
+          useValue: mockUserService,
         }
       ],
     }).compile();
