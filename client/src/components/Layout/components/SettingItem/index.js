@@ -1,102 +1,177 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './SettingItem.module.scss';
 
 const cx = classNames.bind(styles);
 
-const SettingItem = ({ item }) => {
-  const handleRemovePhoto = () => {
-    // Logic để xóa ảnh (có thể set giá trị của item.value thành '')
-    console.log('Remove Photo');
-  };
+const SettingItem = ({ item, onUpdateValue }) => {
+    const defaultPhotoUrl = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
 
-  const handleChangePhoto = () => {
-    // Logic để thay đổi ảnh (có thể mở một dialog chọn ảnh)
-    console.log('Change Photo');
-  };
+    const getInitialPhoto = () => {
+        const storedPhoto = localStorage.getItem('profilePhoto');
+        return storedPhoto || item.value || defaultPhotoUrl;
+    };
 
-  const handleDisconnect = () => {
-    console.log('Disconnected from', item.value.platform);
-    // Thêm logic để ngắt kết nối tài khoản mạng xã hội
-  };
+    const [photo, setPhoto] = useState(getInitialPhoto());
 
+    useEffect(() => {
+        // Chỉ lưu item.value vào localStorage nếu không có profilePhoto
+        if (!localStorage.getItem('profilePhoto') && item.value) {
+            localStorage.setItem('profilePhoto', item.value);
+        }
+    }, [item.value]);
 
-  return (
-    <div className={cx('field')}>
-        <label className={cx('label')}>{item.label}</label>
-        <span className={cx('item-value-header')}>{item.value.content_header}</span>
+    const handleRemovePhoto = () => {
+        setPhoto(defaultPhotoUrl);
+        // localStorage.removeItem('profilePhoto');
+        localStorage.setItem('profilePhoto', defaultPhotoUrl);
+        console.log('Photo removed');
+    };
 
-      {item.label === 'Profile Photo' ? (
-        <div className={cx('profile-photo')}>
+    const handleChangePhoto = (event) => {
+        if (event.target.files && event.target.files[0]) {
+            const newPhoto = URL.createObjectURL(event.target.files[0]);
+            setPhoto(newPhoto);
+            localStorage.setItem('profilePhoto', newPhoto);
+            console.log('Photo changed');
+        }
+    };
 
-          <img
-           src={item.value || 'default-profile.png'} 
-           alt="Profile" 
-           className={cx('profile-img')} 
-           />
+    // Thêm trạng thái để quản lý chế độ chỉnh sửa
+    const [isEditing, setIsEditing] = useState(false);
+    const [value, setValue] = useState(item.value); // Giá trị hiện tại
 
-          <div className={cx('photo-actions')}>
+    const handleEdit = () => {
+        setIsEditing(true); // Chuyển sang chế độ chỉnh sửa
+    };
 
-            <button onClick={handleRemovePhoto} className={cx('remove-btn')}>
-                Remove Photo
-            </button>
+    const handleSave = () => {
+        setIsEditing(false); // Lưu giá trị và quay lại chế độ xem
+        // gọi callback để cập nhật giá trị trong component
+        if (onUpdateValue) {
+            onUpdateValue(value); // cập nhật giá trị
+        }
+    };
 
-            <button onClick={handleChangePhoto} className={cx('change-btn')}>
-                Change Photo
-            </button>
+    const handleCancel = () => {
+        setIsEditing(false);
+        setValue(item.value);
+    };
 
-          </div>
+    const handleDisconnect = () => {
+        console.log('Disconnected from', item.value.platform);
+    };
+
+    const [selectedValue, setSelectedValue] = useState(() => localStorage.getItem('gender') || item.value); // Lấy giá trị từ localStorage hoặc item.value
+
+    // Hàm xử lý khi thay đổi giá trị
+    const handleOptionChange = (event) => {
+        const newValue = event.target.value;
+        setSelectedValue(newValue);
+        localStorage.setItem('gender', newValue);
+        console.log(`Selected gender: ${newValue}`);
+    };
+
+    return (
+        <div className={cx('field')}>
+            <label className={cx('label')}>{item.label}</label>
+            <span className={cx('item-value-header')}>{item.value.content_header}</span>
+
+            {item.label === 'Profile Photo' ? (
+                <div className={cx('profile-photo')}>
+                    <img src={photo} alt="Profile" className={cx('profile-img')} />
+
+                    <div className={cx('photo-actions')}>
+                        <button onClick={handleRemovePhoto} className={cx('remove-btn')}>
+                            Remove Photo
+                        </button>
+
+                        <label className={cx('change-btn')}>
+                            Change Photo
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleChangePhoto}
+                                style={{ display: 'none' }}
+                            />
+                        </label>
+                    </div>
+                </div>
+            ) : item.label === 'Connected social accounts' ? (
+                <div className={cx('social-account')}>
+                    <img src={item.value.logo} alt={item.value.platform} className={cx('social-logo')} />
+
+                    <div className={cx('social-info')}>
+                        <span className={cx('social-name')}>{item.value.platform}</span>
+                        <span className={cx('social-username')}>{item.value.username}</span>
+                    </div>
+
+                    <button onClick={handleDisconnect} className={cx('disconnect-btn')}>
+                        Disconnect
+                    </button>
+                </div>
+            ) : item.label === 'Login' ? (
+                <div className={cx('item-details')}>
+                    <img src={item.value.logo} alt={item.value.label} className={cx('item-logo')} />
+                    <div>
+                        <b>{item.value.label}</b>
+                        <br />
+                        <span className={cx('item-value')}>{item.value.content}</span>
+                    </div>
+                </div>
+            ) : item.options ? (
+                <div className={cx('options-group')}>
+                    {item.options.map((option, index) => (
+                        <label key={index}>
+                            <input
+                                type="radio"
+                                name={item.label.toLowerCase()}
+                                value={option}
+                                checked={selectedValue === option}
+                                onChange={handleOptionChange}
+                            />
+                            {option}
+                        </label>
+                    ))}
+                </div>
+            ) : item.sercurity ? (
+                <div className={cx('input-group-custom')}>
+                    <span className={cx('value')}>{item.value}</span>
+                    <button className={cx('edit-btn')}>{item.button}</button>
+                </div>
+            ) : (
+                <div className={cx('input-group')}>
+                    {/* <span className={cx('value')}>{item.value}</span>
+            {item.edit && <button className={cx('edit-btn')}>Edit</button>} */}
+                    {isEditing ? (
+                        <>
+                            <input
+                                type="text"
+                                value={value}
+                                onChange={(e) => setValue(e.target.value)}
+                                className={cx('input-value')}
+                            />
+                            <button onClick={handleCancel} className={cx('cancel-btn')}>
+                                Cancel
+                            </button>
+                            <button onClick={handleSave} className={cx('save-btn')}>
+                                Save
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <span className={cx('value')}>{item.value}</span>
+                            {item.edit && (
+                                <button onClick={handleEdit} className={cx('edit-btn')}>
+                                    Edit
+                                </button>
+                            )}
+                        </>
+                    )}
+                </div>
+            )}
         </div>
-      )  : item.label === 'Connected social accounts' ? (
-        <div className={cx('social-account')}>
-
-          <img src={item.value.logo} alt={item.value.platform} className={cx('social-logo')}/>
-
-          <div className={cx('social-info')}>
-
-            <span className={cx('social-name')}>{item.value.platform}</span>
-            <span className={cx('social-username')}>{item.value.username}</span>
-
-          </div>
-
-          <button onClick={handleDisconnect} className={cx('disconnect-btn')}>
-            Disconnect
-          </button>
-
-        </div>
-      ) : item.label === 'Login' ? (
-        <div className={cx('item-details')}>
-          <img src={item.value.logo} alt={item.value.label} className={cx('item-logo')} />
-          <div>
-            <b>{item.value.label}</b>
-            <br />
-            <span className={cx('item-value')}>{item.value.content}</span>
-          </div>
-        </div>
-      ) 
-      : item.options ? (
-        <div className={cx('options-group')}>
-          {item.options.map((option, index) => (
-            <label key={index}>
-              <input type="radio" name={item.label.toLowerCase()} value={option.toLowerCase()} />
-              {option}
-            </label>
-          ))}
-        </div>
-      )
-       : item.sercurity ? (
-        <div className={cx('input-group-custom')}>
-            <span className={cx('value')}>{item.value}</span>
-            <button className={cx('edit-btn')}>{item.button}</button>
-        </div>
-      ): (
-        <div className={cx('input-group')}>
-            <span className={cx('value')}>{item.value}</span>
-            {item.edit && <button className={cx('edit-btn')}>Edit</button>}
-        </div>
-      )}
-    </div>
-  );
+    );
 };
 
 export default SettingItem;
