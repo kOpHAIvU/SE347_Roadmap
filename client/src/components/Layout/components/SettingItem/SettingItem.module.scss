@@ -41,7 +41,7 @@
         display: flex;
         gap: 10px;
         margin-left: auto; 
-
+        
         .remove-btn,
         .change-btn {
             background-color: #EBEFFF;
@@ -52,7 +52,9 @@
             width: auto;
             border-radius: 5px;
             font-size: 14px;
-  
+            font-weight: 650;
+            display: inline-block;
+
             &:hover {
                 background-color: #cdd6f8;
             }
@@ -150,9 +152,25 @@
     justify-content: space-between;
 
     .value {
-      margin-top: 10px; 
+        margin-top: 10px; 
+        font-size: 18px;
+    }
+
+    .input-value {
+        margin-top: 10px; 
+        font-size: 18px;
+        position: relative;
+        padding: 8px;
+        outline: none;
+        border: 1px solid #ccc;
+        transition: border-color 0.3s;
+    
+        &:focus {
+            border-color: blue;
+        }
     }
 }
+
   
 .input-group-custom {
     display: flex;
@@ -165,7 +183,12 @@
     }
 }
 
-.edit-btn {
+.cancel-btn {
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+.edit-btn, .save-btn, .cancel-btn {
     background-color: #EBEFFF;
     color: black;
     border: 1.5px solid rgba(0, 0, 0, 0.2);

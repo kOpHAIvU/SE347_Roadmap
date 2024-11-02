@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Account.module.scss';
 import SettingAccountItem from '~/components/Layout/components/SettingItem'; 
@@ -28,8 +28,8 @@ const ACCOUNT_ITEMS = [
   },
   {
     label: 'Gender',
-    value: '',
-    options: ['Male', 'Female', 'Others'], // Hiển thị các radio button
+    value: 'Male',
+    options: ['Male', 'Female', 'Others'], 
     edit: false
   },
   {
@@ -44,11 +44,23 @@ const ACCOUNT_ITEMS = [
 ];
 
 const Account = () => {
+  const [accountData, setAccountData] = useState(ACCOUNT_ITEMS); // Lưu trữ dữ liệu tài khoản
+
+  const handleUpdateValue = (index, newValue) => {
+    const updatedAccountData = [...accountData];
+    updatedAccountData[index].value = newValue; // Cập nhật giá trị mới
+    setAccountData(updatedAccountData); // Cập nhật trạng thái
+  };
+
   return (
     <div className={cx('wrapper')}>
       <h1>Your account</h1>
-      {ACCOUNT_ITEMS.map((item, index) => (
-        <SettingAccountItem key={index} item={item} />
+      {accountData.map((item, index) => (
+        <SettingAccountItem 
+          key={index} 
+          item={item} 
+          onUpdateValue={(newValue) => handleUpdateValue(index, newValue)} // Truyền callback
+        />
       ))}
     </div>
   );
