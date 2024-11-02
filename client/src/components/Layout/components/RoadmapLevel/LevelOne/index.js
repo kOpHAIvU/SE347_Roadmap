@@ -4,8 +4,6 @@ import classNames from 'classnames/bind';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
-
 
 const cx = classNames.bind(styles);
 
@@ -19,35 +17,13 @@ function LevelOne({
     updateNodeContent,
     handleDeleteNode,
     allNodes,
-    handleDueTimeChange,
-    handleSwapNodes
+    handleDueTimeChange 
 }) {
     const { ticked, content: initialContent, due_time: initialDueTime, level, type, id } = children;
     const [content, setContent] = useState(initialContent);
     const [dueTime, setDueTime] = useState(`${initialDueTime} days`);
     const [isEditing, setIsEditing] = useState(false);
     const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
-
-    // Kéo và thả cho LevelOne
-    const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'NODE',
-        item: { index },
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-        }),
-    }), [index]);
-
-    const [, drop] = useDrop({
-        accept: 'NODE',
-        hover(item) {
-            // Chỉ hoán đổi nếu item không phải là chính nó
-            if (item.index !== index) {
-                // Gọi hàm để hoán đổi vị trí
-                handleSwapNodes(item.index, index);
-                item.index = index; // Cập nhật chỉ số của item
-            }
-        },
-    });
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
@@ -68,10 +44,10 @@ function LevelOne({
         : null;
 
     return (
-        <div ref={drop}
-            className={cx('level-one', { 'dragging': isDragging })}
+        <div
+            className={cx('level-one')}
             key={children.id}>
-            <div ref={drag} className={cx('show-section')}
+            <div className={cx('show-section')}
             >
                 <FontAwesomeIcon
                     onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import styles from './LevelThree.module.scss';
+import styles from './AdvanceLevelThree.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
@@ -7,7 +7,7 @@ import { faSquareCheck, faCircleCheck } from '@fortawesome/free-solid-svg-icons'
 
 const cx = classNames.bind(styles);
 
-function LevelThree({
+function AdvanceLevelThree({
     children,
     index,
     updateNodeTickState,
@@ -92,4 +92,4 @@ function LevelThree({
     );
 }
 
-export default LevelThree;
+export default AdvanceLevelThree;

@@ -1,0 +1,40 @@
+.wrapper {
+    width: 100%;
+    max-width: 100vw;
+    min-height: 300px;
+    margin: 10px 0;
+    box-sizing: border-box;
+    padding: 0 10px;
+}
+
+.add-first-node {
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    transform-origin: left center;
+
+    &:hover {
+        transform: scale(1.1);
+
+        .add-text {
+            text-decoration: underline;
+        }
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+.add-button {
+    width: var(--search-height);
+    height: var(--search-height);
+    color: var(--main-color);
+}
+
+.add-text {
+    color: var(--main-color);
+    margin-left: 10px;
+}

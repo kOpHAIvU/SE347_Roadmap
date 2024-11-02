@@ -1,10 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleCheck, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import styles from './LevelTwo.module.scss';
-import classNames from 'classnames/bind';
 import { useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import classNames from 'classnames/bind';
+import styles from './LevelTwo.module.scss';
 
 const cx = classNames.bind(styles);
 
@@ -17,34 +16,12 @@ function LevelTwo({ userType,
     updateNodeContent,
     handleDeleteNode,
     allNodes,
-    handleDueTimeChange,
-    handleSwapNodes
+    handleDueTimeChange
 }) {
     const { ticked, content: initialContent, due_time, level, type, id } = children;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
-
-    // Kéo và thả
-    const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'NODE',
-        item: { index },
-        collect: (monitor) => ({
-            isDragging: monitor.isDragging(),
-        }),
-    }), [index]);
-
-    const [, drop] = useDrop({
-        accept: 'NODE',
-        hover(item) {
-            // Chỉ hoán đổi nếu item không phải là chính nó
-            if (item.index !== index) {
-                // Gọi hàm để hoán đổi vị trí
-                handleSwapNodes(item.index, index);
-                item.index = index; // Cập nhật chỉ số của item
-            }
-        },
-    });
 
     const nodeBelowType = index + 1 < allNodes.length && allNodes[index + 1].level > level ? allNodes[index + 1].type : null;
 
@@ -61,11 +38,10 @@ function LevelTwo({ userType,
         }
     };
     return (
-        <div ref={drop}
-            className={cx('level-two', { 'dragging': isDragging })}
+        <div
+            className={cx('level-two')}
             key={children.id}>
             <div
-                ref={drag}
                 className={cx('show-section')}>
                 <FontAwesomeIcon
                     onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
