@@ -1,16 +1,21 @@
-import styles from './AdvanceLevelOne.module.scss';
-import classNames from 'classnames/bind';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Circle, Image, Rect, Text } from 'react-konva';
 import TrashCanIcon from '~/assets/images/trash-can-regular.svg'
-import PenIcon from '~/assets/images/pen-to-square-solid.svg'
+import PenRegular from '~/assets/images/pen-to-square-regular.svg'
 
-const cx = classNames.bind(styles);
-
-function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
+function AdvanceLevelOne({ x, y, text, onDragMove }) {
+    const textRef = useRef(null);
+    const [textLines, setTextLines] = useState(1);
     const textWidth = Math.max(Math.min(text.length * 8, 500), 200); // Chiều rộng của text: tối đa 200px, tối thiểu 100px
-    const finalWidth = textWidth + 55;
-    const finalHeight = 50;
+    const finalWidth = textWidth + 70;
+
+    useEffect(() => {
+        if (textRef.current) {
+            const lineCount = Math.ceil(textRef.current.text().length / (finalWidth / 8));
+            setTextLines(lineCount);
+        }
+    }, [text, finalWidth]);
+    const finalHeight = (16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20;
 
     // State để theo dõi trạng thái hover và active
     const [isCheckboxHovered, setIsCheckboxHovered] = useState(false);
@@ -55,9 +60,49 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
         trashImg.onload = () => setTrashImage(trashImg); // Khi hình ảnh thùng rác được tải, cập nhật state
 
         const penImg = new window.Image();
-        penImg.src = PenIcon; // Thay đổi đường dẫn đến biểu tượng bút
+        penImg.src = PenRegular; // Thay đổi đường dẫn đến biểu tượng bút
         penImg.onload = () => setPenImage(penImg); // Khi hình ảnh bút được tải, cập nhật state
     }, []);
+
+    const [isPenHovered, setIsPenHovered] = useState(false);
+    const [isPenActive, setIsPenActive] = useState(false);
+    const [isTrashHovered, setIsTrashHovered] = useState(false);
+    const [isTrashActive, setIsTrashActive] = useState(false);
+
+    const penScale = isPenActive ? 0.95 : isPenHovered ? 1.1 : 1;
+    const trashScale = isTrashActive ? 0.95 : isTrashHovered ? 1.1 : 1;
+
+    const [isEditing, setIsEditing] = useState(false); // State để kiểm soát chế độ chỉnh sửa
+    const [editedText, setEditedText] = useState(text); // State cho nội dung chỉnh sửa
+    const textareaRef = useRef(null); // Thêm ref cho textarea
+
+    const handlePenClick = () => {
+        setIsEditing(true);
+        const canvasRect = document.getElementById('canvas-id').getBoundingClientRect(); // ID của canvas chứa Konva
+        textareaRef.current.style.position = 'absolute';
+        textareaRef.current.style.left = `${x + 20 + canvasRect.left}px`;
+        textareaRef.current.style.top = `${y + 19 + canvasRect.top}px`;
+        textareaRef.current.style.width = `${finalWidth - 35}px`;
+        textareaRef.current.style.height = `${finalHeight}px`;
+        textareaRef.current.style.display = 'block'; // Hiển thị textarea
+    };
+
+    const handleOutsideClick = (e) => {
+        if (textareaRef.current && !textareaRef.current.contains(e.target)) {
+            setIsEditing(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isEditing) {
+            document.addEventListener("mousedown", handleOutsideClick);
+        } else {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        }
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        };
+    }, [isEditing]);
 
     return (
         <React.Fragment>
@@ -69,7 +114,6 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
                 height={25}
                 stroke="rgba(22, 24, 35, 0.12)"
                 strokeWidth={1}
-                onClick={onClick}
                 draggable
                 onDragMove={onDragMove}
             />
@@ -83,39 +127,61 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
                 stroke="#6580eb"
                 strokeWidth={2}
                 cornerRadius={5}
-                onClick={onClick}
                 draggable
                 onDragMove={onDragMove}
             />
 
-            {/* Text */}
-            <Text
-                x={x + 25}
-                y={y + finalHeight / 2 - 3}
-                text={text}
-                fontSize={16}
-                fill="black"
-                align="left"
-                verticalAlign="middle"
-                width={finalWidth - 20} // Giới hạn chiều rộng để text có thể xuống dòng
-                wrap="word" // Tự động xuống dòng
-                offsetX={0} // Không cần điều chỉnh offset khi dùng wrap
-                offsetY={8}
-                lineHeight={1.5}
-            />
+            {!isEditing ? (
+                <Text
+                    ref={textRef}
+                    x={x + 20}
+                    y={y + 19}
+                    text={editedText}
+                    fontSize={16}
+                    fill="black"
+                    align="left"
+                    verticalAlign="middle"
+                    width={finalWidth - 35}
+                    wrap="word"
+                    lineHeight={1.5}
+                />
+            ) : (
+                <textarea
+                    ref={textareaRef} // Đặt ref cho textarea
+                    value={editedText}
+                    onChange={(e) => setEditedText(e.target.value)}
+                    style={{
+                        position: 'absolute',
+                        top: `${y + 19}px`,
+                        left: `${x + 20}px`,
+                        width: `${finalWidth - 35}px`,
+                        height: `${finalHeight}px`,
+                        fontSize: '16px',
+                        lineHeight: '1.5',
+                        padding: '4px',
+                        resize: 'none',
+                        zIndex: 10,
+                    }}
+                    autoFocus
+                />
+            )}
 
             {/*Pen icon */}
             {penImage && (
                 <Image
                     image={penImage}
                     x={x + textWidth + 14}
-                    y={y + 15}
-                    width={17}
-                    height={17}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        console.log('Pen icon clicked');
-                    }}
+                    y={y + (finalHeight - 24) / 2}
+                    width={19}
+                    height={19}
+                    scaleX={penScale}
+                    scaleY={penScale}
+                    onMouseEnter={() => setIsPenHovered(true)}
+                    onMouseLeave={() => setIsPenHovered(false)}
+                    onMouseDown={() => setIsPenActive(true)}
+                    onMouseUp={() => { setIsPenActive(false); }}
+                    onClick={handlePenClick}
+
                 />
             )}
 
@@ -123,20 +189,21 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
             {trashImage && (
                 <Image
                     image={trashImage}
-                    x={x + textWidth + 35} // Vị trí thùng rác
-                    y={y + 15} // Điều chỉnh cho phù hợp
-                    width={17} // Kích thước thùng rác
-                    height={17}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        console.log('Trash bin clicked');
-                    }}
+                    x={x + textWidth + 40}
+                    y={y + (finalHeight - 24) / 2}
+                    width={19}
+                    height={19}
+                    scaleX={trashScale}
+                    scaleY={trashScale}
+                    onMouseEnter={() => setIsTrashHovered(true)}
+                    onMouseLeave={() => setIsTrashHovered(false)}
+                    onMouseDown={() => setIsTrashActive(true)}
+                    onMouseUp={() => setIsTrashActive(false)}
                 />
             )}
 
             {/* Checkbox */}
             <Rect
-                className={cx('checkbox')}
                 x={checkboxX}
                 y={checkboxY}
                 width={20}
@@ -145,8 +212,6 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
                 stroke="#6580eb"
                 strokeWidth={2}
                 cornerRadius={3}
-                draggable
-                onDragMove={onDragMove}
                 onMouseEnter={() => setIsCheckboxHovered(true)}
                 onMouseLeave={() => setIsCheckboxHovered(false)}
                 onMouseDown={() => setIsCheckboxActive(true)}
@@ -183,7 +248,7 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
             )}
             {/* Add same level node */}
             <Rect
-                x={x + 3}
+                x={x + 5}
                 y={y + finalHeight + 4}
                 width={15}
                 height={15}
@@ -199,7 +264,7 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
                 }}
             />
             <Text
-                x={x + 6}
+                x={x + 8}
                 y={y + finalHeight + 5}
                 width={10}
                 height={10}
@@ -218,7 +283,7 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
 
             {/* Add checkbox child level */}
             <Rect
-                x={x + 22}
+                x={x + 25}
                 y={y + finalHeight + 4}
                 width={15}
                 height={15}
@@ -237,9 +302,9 @@ function AdvanceLevelOne({ x, y, text, onClick, onDragMove }) {
 
             {/* Add radiobutton child level */}
             <Circle
-                x={x + 42 + 7.5}
+                x={x + 45 + 7.5}
                 y={y + finalHeight + 4 + 7.5}
-                radius={7.5}
+                radius={8}
                 stroke="rgba(22, 24, 35, 0.22)"
                 strokeWidth={1}
                 fill="white"

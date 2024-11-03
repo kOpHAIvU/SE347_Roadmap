@@ -24,7 +24,7 @@ function AdvanceRoadmap() {
     };
 
     return (
-        <Stage width={window.innerWidth} height={600}>
+        <Stage id="canvas-id" width={window.innerWidth} height={600}>
             <Layer>
                 {nodes.map(node => (
                     <AdvanceLevelOne
