@@ -131,40 +131,19 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
                 onDragMove={onDragMove}
             />
 
-            {!isEditing ? (
-                <Text
-                    ref={textRef}
-                    x={x + 20}
-                    y={y + 19}
-                    text={editedText}
-                    fontSize={16}
-                    fill="black"
-                    align="left"
-                    verticalAlign="middle"
-                    width={finalWidth - 35}
-                    wrap="word"
-                    lineHeight={1.5}
-                />
-            ) : (
-                <textarea
-                    ref={textareaRef} // Đặt ref cho textarea
-                    value={editedText}
-                    onChange={(e) => setEditedText(e.target.value)}
-                    style={{
-                        position: 'absolute',
-                        top: `${y + 19}px`,
-                        left: `${x + 20}px`,
-                        width: `${finalWidth - 35}px`,
-                        height: `${finalHeight}px`,
-                        fontSize: '16px',
-                        lineHeight: '1.5',
-                        padding: '4px',
-                        resize: 'none',
-                        zIndex: 10,
-                    }}
-                    autoFocus
-                />
-            )}
+            <Text
+                ref={textRef}
+                x={x + 20}
+                y={y + 11}
+                text={editedText}
+                fontSize={16}
+                fill="black"
+                align="left"
+                verticalAlign="middle"
+                width={finalWidth - 35}
+                wrap="word"
+                lineHeight={1.5}
+            />
 
             {/*Pen icon */}
             {penImage && (
