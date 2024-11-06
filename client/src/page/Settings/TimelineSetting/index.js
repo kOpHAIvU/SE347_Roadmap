@@ -1,5 +1,5 @@
-import React, { useState, useEffect  } from 'react';
-import { useNavigate, useLocation  } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './TimelineSetting.module.scss';
 import { users, invites } from '../Users';
@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
-const cx = classNames.bind(styles);  
+const cx = classNames.bind(styles);
 
 function TimelineSetting() {
     const [userList, setUserList] = useState(users);
@@ -22,43 +22,41 @@ function TimelineSetting() {
         }
     }, [location.pathname]);
     const handleRoleChange = (userId, newRole) => {
-        setUserList((prevUsers) =>
-        prevUsers.map((user) =>
-            user.id === userId ? { ...user, role: newRole } : user
-        )
-        );
+        setUserList((prevUsers) => prevUsers.map((user) => (user.id === userId ? { ...user, role: newRole } : user)));
     };
 
     const handleInviteButtonClick = () => {
-        setIsInviteFormVisible(true); 
+        setIsInviteFormVisible(true);
         navigate('/timeline/setting/invite');
     };
 
-    const handleCloseInviteForm  = () => {
+    const handleCloseInviteForm = () => {
         setIsInviteFormVisible(false);
         navigate('/timeline/setting');
     };
 
-
     const handleRevokeInvite = (inviteId) => {
-        setInviteList((prevInvites) =>
-        prevInvites.filter((invite) => invite.id !== inviteId)
-        );
+        setInviteList((prevInvites) => prevInvites.filter((invite) => invite.id !== inviteId));
     };
 
+    const handleDeleteUser = (userId) => {
+        setUserList((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+    };
     return (
         <>
-            <div className={cx('wrapper', { 'blur-background': isInviteFormVisible  })}>
+            <div className={cx('wrapper', { 'blur-background': isInviteFormVisible })}>
                 <h1>Settings my timeline</h1>
                 <h2 className={cx('user-header')}>User Management</h2>
 
-                <div className={cx('user')}> 
+                <div className={cx('user')}>
                     <div className={cx('inviteSection')}>
                         <h2>User</h2>
                         <p className={cx('title')}>
                             Invite your friends to join the timeline and work together seamlessly.
                         </p>
-                        <button className={cx('inviteButton')} onClick={handleInviteButtonClick}>Invite people</button>
+                        <button className={cx('inviteButton')} onClick={handleInviteButtonClick}>
+                            Invite people
+                        </button>
                     </div>
 
                     <div className={cx('userList')}>
@@ -79,20 +77,20 @@ function TimelineSetting() {
                                     <option value="Editor">Editor</option>
                                     <option value="Reviewer">Reviewer</option>
                                 </select>
-                                
-                                <button className={cx('deleteButton')}>
-                                    <FontAwesomeIcon className={cx('delete-icon')} icon={faTrashCan} /> 
+
+                                <button className={cx('deleteButton')} onClick={() => handleDeleteUser(user.id)}>
+                                    <FontAwesomeIcon className={cx('delete-icon')} icon={faTrashCan} />
                                 </button>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className={cx('invite')}> 
+                <div className={cx('invite')}>
                     <div className={cx('inviteSection')}>
-                        <h2 >Pending Invites</h2>
+                        <h2>Pending Invites</h2>
                         <p className={cx('title')}>
-                        Resend invitations to those who haven’t joined yet or revoke invites you no longer need.
+                            Resend invitations to those who haven’t joined yet or revoke invites you no longer need.
                         </p>
                     </div>
 
@@ -104,20 +102,16 @@ function TimelineSetting() {
                                     <p className={cx('userName')}>{invite.name}</p>
                                     <p className={cx('userEmail')}>{invite.email}</p>
                                 </div>
-                                
-                                <button className={cx('resendButton')}>
-                                    Resend Invite
-                                </button>
 
-                                <button className={cx('revokeButton')}>
+                                <button className={cx('resendButton')}>Resend Invite</button>
+
+                                <button className={cx('revokeButton')} onClick={() => handleRevokeInvite(invite.id)}>
                                     Revoke Invite
                                 </button>
                             </div>
                         ))}
                     </div>
                 </div>
-
-                
             </div>
 
             {/* Form mời bạn */}
@@ -130,23 +124,17 @@ function TimelineSetting() {
 
                     <form className={cx('contentForm')}>
                         <label>
-                            <strong>
-                                Username:
-                            </strong>
+                            <strong>Username:</strong>
                             <input type="text" name="username" />
                         </label>
 
                         <label>
-                            <strong>
-                                Email Address:
-                            </strong>
+                            <strong>Email Address:</strong>
                             <input type="email" name="email" />
                         </label>
 
                         <label>
-                            <strong>
-                                Role:
-                            </strong>
+                            <strong>Role:</strong>
                             <div className={cx('roleRadioGroup')}>
                                 <label>
                                     <input type="radio" name="role" value="Administrator" /> Administrator
@@ -161,20 +149,22 @@ function TimelineSetting() {
                         </label>
 
                         <label>
-                            <strong>
-                                Message
-                            </strong> (Optional):
+                            <strong>Message</strong> (Optional):
                             <textarea name="message"></textarea>
                         </label>
                     </form>
 
                     <div className={cx('footer-form')}>
-                            <button type="button" onClick={handleCloseInviteForm} className={cx('btnCancel')}>Cancel</button>
-                            <button type="submit" className={cx('btnSubmit')}>Invite</button>
+                        <button type="button" onClick={handleCloseInviteForm} className={cx('btnCancel')}>
+                            Cancel
+                        </button>
+                        <button type="submit" className={cx('btnSubmit')}>
+                            Invite
+                        </button>
                     </div>
                 </div>
             )}
-        </>    
+        </>
     );
 }
 

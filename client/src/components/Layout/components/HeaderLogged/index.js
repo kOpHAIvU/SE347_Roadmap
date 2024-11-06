@@ -50,7 +50,7 @@ const MENU_ITEMS = [
         to: '/information',
     },
     {
-        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faRightFromBracket} />,
+        icon: <FontAwesomeIcon className={cx('setting-icon', 'logout-icon')} icon={faRightFromBracket} />,
         title: 'Log out',
         to: '/',
     },
@@ -64,8 +64,11 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const handleCreate = () => {
         if (name && description) {
-            const newId = 'Vinhcute';
-            navigate(`/timeline/${newId}`);
+            const newId = `Vincute${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
+            navigate(`/roadmap/${newId}`);
+            setShowForm(false);
+            setName('');
+            setDescription('');
         }
     };
 
