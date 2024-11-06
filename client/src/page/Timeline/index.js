@@ -2,9 +2,9 @@ import { useRef, useState } from 'react';
 import LevelOne from '~/components/Layout/components/RoadmapLevel/LevelOne/index.js';
 import LevelTwo from '~/components/Layout/components/RoadmapLevel/LevelTwo/index.js';
 import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/index.js';
-import styles from './Timeline.module.scss';
-import classNames from 'classnames/bind';
 import ChatSection from '~/components/Layout/components/ChatSection/index.js';
+import classNames from 'classnames/bind';
+import styles from './Timeline.module.scss';
 
 const cx = classNames.bind(styles);
 

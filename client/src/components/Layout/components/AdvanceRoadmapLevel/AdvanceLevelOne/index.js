@@ -3,19 +3,43 @@ import { Circle, Image, Rect, Text } from 'react-konva';
 import TrashCanIcon from '~/assets/images/trash-can-regular.svg'
 import PenRegular from '~/assets/images/pen-to-square-regular.svg'
 
-function AdvanceLevelOne({ x, y, text, onDragMove }) {
+function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNodeDue }) {
     const textRef = useRef(null);
+    const dueTimeRef = useRef(null)
+    const textareaRef = useRef(null); // Thêm ref cho textarea
+    const [isEditing, setIsEditing] = useState(false);
+    const [content, setContent] = useState(node.content);
+    const [due, setDue] = useState(node.due_time);
     const [textLines, setTextLines] = useState(1);
-    const textWidth = Math.max(Math.min(text.length * 8, 500), 200); // Chiều rộng của text: tối đa 200px, tối thiểu 100px
-    const finalWidth = textWidth + 70;
+    const [textWidth, setTextWidth] = useState(Math.max(Math.min(content.length * 8, 500), 200));
+    const [finalWidth, setFinalWidth] = useState(textWidth + 70); // Thêm state cho finalWidth
 
     useEffect(() => {
-        if (textRef.current) {
-            const lineCount = Math.ceil(textRef.current.text().length / (finalWidth / 8));
-            setTextLines(lineCount);
-        }
-    }, [text, finalWidth]);
+        // Cập nhật textWidth
+        const newTextWidth = Math.max(Math.min(node.content.length * 8, 500), 200);
+        setTextWidth(newTextWidth);
+
+        setFinalWidth(newTextWidth + 70);
+
+        // Tính toán số dòng
+        const lineCount = Math.ceil(content.length / (newTextWidth / 8));
+        setTextLines(lineCount);
+    }, [content]);
+
+    // Tính toán finalHeight
     const finalHeight = (16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20;
+
+    // Sử dụng useEffect để theo dõi sự thay đổi của textWidth và finalWidth nếu cần
+    useEffect(() => {
+        // Cập nhật finalWidth mỗi khi textWidth thay đổi
+        setFinalWidth(textWidth + 85);
+    }, [textWidth]);
+
+
+    useEffect(() => {
+        const dueTimeWidth = textRef.current.getTextWidth();
+        textRef.current.width(dueTimeWidth + 10); // Thêm một ít padding nếu cần
+    }, [node.due_time]);
 
     // State để theo dõi trạng thái hover và active
     const [isCheckboxHovered, setIsCheckboxHovered] = useState(false);
@@ -36,8 +60,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
 
     // Tính toán vị trí cho Checkbox
     const checkboxScale = isCheckboxActive ? 0.95 : isCheckboxHovered ? 1.1 : 1;
-    const checkboxX = x - 10 - (20 * (checkboxScale) - 20) / 2; // Điều chỉnh x để giữ tâm cho Checkbox
-    const checkboxY = y + (finalHeight - 20) / 2 - (20 * (checkboxScale) - 20) / 2; // Điều chỉnh y để giữ tâm cho Checkbox
+    const checkboxX = node.x - 10 - (20 * (checkboxScale) - 20) / 2; // Điều chỉnh x để giữ tâm cho Checkbox
+    const checkboxY = node.y + (finalHeight - 20) / 2 - (20 * (checkboxScale) - 20) / 2; // Điều chỉnh y để giữ tâm cho Checkbox
 
     // Hàm xử lý nhấn vào checkbox hoặc tick
     const handleToggle = () => {
@@ -72,23 +96,60 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
     const penScale = isPenActive ? 0.95 : isPenHovered ? 1.1 : 1;
     const trashScale = isTrashActive ? 0.95 : isTrashHovered ? 1.1 : 1;
 
-    const [isEditing, setIsEditing] = useState(false); // State để kiểm soát chế độ chỉnh sửa
-    const [editedText, setEditedText] = useState(text); // State cho nội dung chỉnh sửa
-    const textareaRef = useRef(null); // Thêm ref cho textarea
-
     const handlePenClick = () => {
         setIsEditing(true);
-        const canvasRect = document.getElementById('canvas-id').getBoundingClientRect(); // ID của canvas chứa Konva
-        textareaRef.current.style.position = 'absolute';
-        textareaRef.current.style.left = `${x + 20 + canvasRect.left}px`;
-        textareaRef.current.style.top = `${y + 19 + canvasRect.top}px`;
-        textareaRef.current.style.width = `${finalWidth - 35}px`;
-        textareaRef.current.style.height = `${finalHeight}px`;
-        textareaRef.current.style.display = 'block'; // Hiển thị textarea
+        const newContent = textRef.current;
+        const stageBox = newContent.getClientRect();
+        const textarea = document.createElement('textarea');
+
+        // Tính toán vị trí và kích thước textarea
+        const windowWidth = window.innerWidth;
+        const textareaWidth = 400;
+
+        const leftPosition = (windowWidth - textareaWidth) / 2;
+
+        textarea.style.position = 'absolute';
+        textarea.style.top = `160px`;
+        textarea.style.left = `${leftPosition}px`;
+        textarea.style.width = `textareaWidth`;
+
+        // Tính toán chiều cao của textarea để đảm bảo hiển thị 2 dòng
+        const lineHeight = 1.5;
+        const fontSize = newContent.fontSize();
+        const height = lineHeight * fontSize * 2; // 2 dòng, điều chỉnh theo font size và line height
+        textarea.style.height = `${height}px`;
+
+        textarea.style.fontSize = `${fontSize}px`;
+        textarea.style.lineHeight = `${lineHeight}`;
+        textarea.style.fontFamily = `${newContent.fontFamily()}`;
+
+        // Sửa viền của textarea và bỏ viền mặc định
+        textarea.style.border = '2px solid #6580eb'; // Độ dày viền và màu sắc
+        textarea.style.borderRadius = '8px'; // Bo góc mềm mại
+        textarea.style.padding = '5px'; // Thêm padding nếu muốn
+        textarea.style.outline = 'none'; // Loại bỏ viền mặc định của textarea
+
+        textarea.rows = 2;
+        textarea.cols = Math.floor(stageBox.width / 8);
+        textarea.value = node.content;
+
+        document.body.appendChild(textarea);
+        textarea.focus();
+
+        textarea.onblur = () => {
+            updateNodeContent(index, textarea.value)
+            document.body.removeChild(textarea);
+            setIsEditing(false);
+        };
+
+        textarea.oninput = (e) => {
+            setContent(e.target.value);
+        };
     };
 
+
     const handleOutsideClick = (e) => {
-        if (textareaRef.current && !textareaRef.current.contains(e.target)) {
+        if (textareaRef.current && typeof textareaRef.current.contains === "function" && !textareaRef.current.contains(e.target)) {
             setIsEditing(false);
         }
     };
@@ -108,8 +169,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
         <React.Fragment>
             {/* Add node background */}
             <Rect
-                x={x}
-                y={y + finalHeight - 2}
+                x={node.x}
+                y={node.y + finalHeight - 2}
                 width={70}
                 height={25}
                 stroke="rgba(22, 24, 35, 0.12)"
@@ -119,8 +180,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
             />
             {/* Node background */}
             <Rect
-                x={x}
-                y={y}
+                x={node.x}
+                y={node.y}
                 width={finalWidth}
                 height={finalHeight}
                 fill="white"
@@ -131,26 +192,40 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
                 onDragMove={onDragMove}
             />
 
+            {/* Content */}
             <Text
                 ref={textRef}
-                x={x + 20}
-                y={y + 11}
-                text={editedText}
+                x={node.x + 20}
+                y={node.y + 11}
+                text={content}
                 fontSize={16}
                 fill="black"
                 align="left"
                 verticalAlign="middle"
-                width={finalWidth - 35}
+                width={finalWidth - 70}
                 wrap="word"
                 lineHeight={1.5}
+            />
+
+            {/* Due time */}
+            <Text
+                ref={dueTimeRef}
+                x={node.x + textWidth + 29}
+                y={node.y + (finalHeight - 24) / 2}
+                text={node.due_time + ' days'}
+                fontSize={16}
+                fill="#666666"
+                align="left"
+                verticalAlign="middle"
+                width={finalWidth - 35}
             />
 
             {/*Pen icon */}
             {penImage && (
                 <Image
                     image={penImage}
-                    x={x + textWidth + 14}
-                    y={y + (finalHeight - 24) / 2}
+                    x={node.x + textWidth + 55}
+                    y={node.y + (finalHeight - 24) / 2}
                     width={19}
                     height={19}
                     scaleX={penScale}
@@ -168,8 +243,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
             {trashImage && (
                 <Image
                     image={trashImage}
-                    x={x + textWidth + 40}
-                    y={y + (finalHeight - 24) / 2}
+                    x={node.x + textWidth + 81}
+                    y={node.y + (finalHeight - 24) / 2}
                     width={19}
                     height={19}
                     scaleX={trashScale}
@@ -227,8 +302,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
             )}
             {/* Add same level node */}
             <Rect
-                x={x + 5}
-                y={y + finalHeight + 4}
+                x={node.x + 5}
+                y={node.y + finalHeight + 4}
                 width={15}
                 height={15}
                 cornerRadius={3}
@@ -243,8 +318,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
                 }}
             />
             <Text
-                x={x + 8}
-                y={y + finalHeight + 5}
+                x={node.x + 8}
+                y={node.y + finalHeight + 5}
                 width={10}
                 height={10}
                 text="+"
@@ -262,8 +337,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
 
             {/* Add checkbox child level */}
             <Rect
-                x={x + 25}
-                y={y + finalHeight + 4}
+                x={node.x + 25}
+                y={node.y + finalHeight + 4}
                 width={15}
                 height={15}
                 cornerRadius={3}
@@ -281,8 +356,8 @@ function AdvanceLevelOne({ x, y, text, onDragMove }) {
 
             {/* Add radiobutton child level */}
             <Circle
-                x={x + 45 + 7.5}
-                y={y + finalHeight + 4 + 7.5}
+                x={node.x + 45 + 7.5}
+                y={node.y + finalHeight + 4 + 7.5}
                 radius={8}
                 stroke="rgba(22, 24, 35, 0.22)"
                 strokeWidth={1}

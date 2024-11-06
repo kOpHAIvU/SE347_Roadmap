@@ -8,8 +8,8 @@ const cx = classNames.bind(styles);
 
 function AdvanceRoadmap() {
     const [nodes, setNodes] = useState([
-        { id: 1, level: 1, x: 50, y: 50, type: 'square', ticked: false, due_time: 2, content: 'Write something...' },
-        { id: 2, level: 1, x: 150, y: 150, type: 'square', ticked: false, due_time: 2, content: 'Continue here...' },
+        { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something...' },
+        { id: 2, level: 1, x: 150, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Continue here...' },
     ]);
 
     const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: 600 });
@@ -19,11 +19,11 @@ function AdvanceRoadmap() {
             const xValues = nodes.map(node => node.x);
             const yValues = nodes.map(node => node.y);
             const widths = nodes.map(node => {
-                const nodeWidth = Math.max(Math.min(node.content.length * 8, 500), 200) + 70;
+                const nodeWidth = node.x + Math.max(Math.min(node.content.length * 8, 500), 200) + 85;
                 return node.x + nodeWidth;
             });
 
-            const maxWidth = Math.max(...widths);
+            const maxWidth = Math.max(...widths) + 100;
             const maxHeight = Math.max(...yValues) + 200; // 200 là khoảng trống cho viền
 
             setStageSize({ width: maxWidth, height: maxHeight });
@@ -42,7 +42,7 @@ function AdvanceRoadmap() {
 
     const getCenterOfSide = (node, side) => {
         const { x, y } = node;
-        const width = Math.max(Math.min(node.content.length * 8, 500), 200) + 70;
+        const width = Math.max(Math.min(node.content.length * 8, 500), 200) + 85;
         const lineCount = Math.ceil(node.content.length / (width / 8));
         const height = (16 * 1.5 * lineCount) + 1.5 * (lineCount - 1) + 20;
 
@@ -52,7 +52,7 @@ function AdvanceRoadmap() {
             case 'bottom':
                 return { x: x + width / 2, y: y + height };
             case 'left':
-                return { x, y: y + height / 2 };
+                return { x: x - 10, y: y + height / 2 };
             case 'right':
                 return { x: x + width, y: y + height / 2 };
             default:
@@ -109,6 +109,22 @@ function AdvanceRoadmap() {
             fill="#6580eb" />;
     };
 
+    const updateNodeContent = (index, newContent) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes[index] = { ...updatedNodes[index], content: newContent };
+            return updatedNodes;
+        });
+    };
+
+    const updateNodeDue = (index, newDue) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes[index] = { ...updatedNodes[index], due_time: newDue };
+            return updatedNodes;
+        });
+    };
+
     return (
         <div style={{
             border: '2px solid black',
@@ -118,15 +134,16 @@ function AdvanceRoadmap() {
         }}>
             <Stage id="canvas-id" width={stageSize.width} height={stageSize.height}>
                 <Layer>
-                    {nodes.map(node => (
-                        <AdvanceLevelOne
+                    {nodes.map((node, index) => {
+                        return <AdvanceLevelOne
                             key={node.id}
-                            x={node.x}
-                            y={node.y}
-                            text={node.content}
-                            onDragMove={(e) => handleDragMove(e, node.id)} // Cập nhật vị trí khi kéo
+                            node={node}
+                            index={index}
+                            onDragMove={(e) => handleDragMove(e, node.id)}
+                            updateNodeContent={updateNodeContent}
+                            updateNodeDue={updateNodeDue}
                         />
-                    ))}
+                    })}
 
                     {nodes.slice(0, -1).map((node, index) =>
                         renderArrow(node, nodes[index + 1]) // Vẽ mũi tên giữa các node liên tiếp
