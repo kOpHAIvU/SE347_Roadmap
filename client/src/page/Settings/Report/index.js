@@ -21,7 +21,7 @@ function Report() {
     };
 
     const handleSendReport = () => {
-        // Ttạm thời log ra console nha
+        // Tạm thời log ra console nha
         console.log('Report Text:', reportText);
         console.log('Attached Files:', attachedFiles);
 
