@@ -239,6 +239,7 @@ export class CommentService {
           message: "Comment not found"
         };
       }
+     Logger.log(existedComment)
 
       const comment = Array.isArray(existedComment.data) 
         ? existedComment.data[0] 

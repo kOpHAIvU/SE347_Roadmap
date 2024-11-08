@@ -24,13 +24,24 @@ export class RoadmapService {
       const owner = Array.isArray(ownerResponse.data)
                     ? ownerResponse.data[0]
                     : ownerResponse.data;
-      if (!owner) {
-          throw new Error('User not found'); 
-      }
+      // if (!owner) {
+      //     return {
+      //         statusCode: 404,
+      //         message: 'User not found',
+      //     }
+      // }
       const roadmap = this.roadmapRepository.create({
           ...createRoadmapDto,
           owner, 
       });
+
+      if (!roadmap) {
+        return {
+          statusCode: 500,
+          message: 'Failed to create roadmap'
+        }
+      }
+
       const result = await this.roadmapRepository.save(roadmap); 
       return {
         statusCode: 201,
@@ -58,6 +69,13 @@ export class RoadmapService {
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
+      
+      if (!roadmap) {
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+        }
+      }
 
       return {
         statusCode: 200,
@@ -84,7 +102,8 @@ export class RoadmapService {
       if (!roadmap) {
         return {
           statusCode: 404,
-          message: 'Roadmap not found'
+          message: 'Roadmap not found',
+          data: null
         }
       }
       
@@ -101,8 +120,6 @@ export class RoadmapService {
     }
   }
 
-  
-
   async findOneByCode(
     code: string
   ): Promise<ResponseDto> {
@@ -115,7 +132,8 @@ export class RoadmapService {
       if (!roadmap) {
         return {
           statusCode: 404,
-          message: 'Roadmap not found'
+          message: 'Roadmap not found',
+          data: null
         }
       }
 
@@ -148,10 +166,25 @@ export class RoadmapService {
           message: 'Roadmap not found'
         }
       }
+      const ownerResponse = await this.userService.findOneById(updateRoadmapDto.owner);
+      const owner = Array.isArray(ownerResponse.data)
+                    ? ownerResponse.data[0]
+                    : ownerResponse.data;
+      if (!owner) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+        }
+      }
       Logger.log(roadmap);
 
-      Object.assign(roadmap, updateRoadmapDto);
-      const result = await this.roadmapRepository.save(roadmap);
+      //Object.assign(roadmap, updateRoadmapDto);
+      const roadmapCreate = this.roadmapRepository.create({
+        ...roadmap,
+        ...updateRoadmapDto,
+        owner,
+      })
+      const result = await this.roadmapRepository.save(roadmapCreate);
       Logger.log(roadmap);
 
       return {
@@ -184,10 +217,24 @@ export class RoadmapService {
           message: 'Roadmap not found'
         }
       }
-      updateRoadmapDto.code = roadmap.code;
 
-      Object.assign(roadmap, updateRoadmapDto);
-      const result = await this.roadmapRepository.save(roadmap);
+      const ownerResponse = await this.userService.findOneById(updateRoadmapDto.owner);
+      const owner = Array.isArray(ownerResponse.data)
+                    ? ownerResponse.data[0]
+                    : ownerResponse.data;
+      if (!owner) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+        }
+      }
+
+      const roadmapCreate = this.roadmapRepository.create({
+        ...roadmap,
+        ...updateRoadmapDto,
+        owner,
+      })
+      const result = await this.roadmapRepository.save(roadmapCreate);
 
       return {
         statusCode: 201,

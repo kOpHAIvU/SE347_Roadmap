@@ -1,10 +1,10 @@
 import { Roadmap } from './../../roadmap/entities/roadmap.entity';
-import { Role } from 'src/modules/role/entities/role.entity';
+import { Role } from '../../role/entities/role.entity';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, OneToMany, ManyToMany, ManyToOne, OneToOne } from 'typeorm';
 import { Comment } from './../../comment/entities/comment.entity';
-import { Member } from 'src/modules/member/entities/member.entity';
-import { Team } from 'src/modules/team/entities/team.entity';
-import { Exclude } from 'class-transformer';
+import { Member } from '../../member/entities/member.entity';
+import { Team } from '../../team/entities/team.entity';
+import { Timeline } from '../../timeline/entities/timeline.entity';
 
 @Entity()
 export class User {
@@ -38,7 +38,9 @@ export class User {
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
 
-    @ManyToOne(() => Role, role => role.user)
+    // Add attribute { eager: true } to return role object when query user
+
+    @ManyToOne(() => Role, role => role.user, { eager: true })
     role: Role
     
     @OneToMany(() => Roadmap, roadmap => roadmap.owner)
@@ -47,7 +49,7 @@ export class User {
     @OneToMany(() => Comment, comment => comment.poster)
     comment: Comment[]
 
-    @OneToMany(() => Team, team => team.leader)
+    @OneToMany(() => Timeline, team => team.leader)
     team: Team[]
 
     @OneToMany(() => Member, member => member.member)

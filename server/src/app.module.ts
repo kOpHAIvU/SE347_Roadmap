@@ -12,15 +12,6 @@ import { RoadmapModule } from './modules/roadmap/roadmap.module';
 import { Roadmap } from './modules/roadmap/entities/roadmap.entity';
 import { Comment } from './modules/comment/entities/comment.entity';
 import { CommentModule } from './modules/comment/comment.module';
-import { MemberModule } from './modules/member/member.module';
-import { MessageModule } from './modules/message/message.module';
-import { PerformanceModule } from './modules/performance/performance.module';
-import { TimelineModule } from './modules/timeline/timeline.module';
-import { Timeline } from './modules/timeline/entities/timeline.entity';
-import { Member } from './modules/member/entities/member.entity';
-import { TeamModule } from './modules/team/team.module';
-import { Team } from './modules/team/entities/team.entity';
-import { GoogleStrategy } from './modules/auth/common/google.strategy';
 
 @Module({
   imports: [
@@ -31,10 +22,6 @@ import { GoogleStrategy } from './modules/auth/common/google.strategy';
       username: 'root',
       password: 'Loantuyetcute',
       database: 'roadmap',
-      entities: [User, Role, Roadmap, 
-        Comment, Timeline, 
-        Member, Team
-      ],  
       synchronize: true,
     }),
     UserModule,
@@ -42,11 +29,6 @@ import { GoogleStrategy } from './modules/auth/common/google.strategy';
     AuthModule,
     RoadmapModule,
     CommentModule,
-    MemberModule,
-    MessageModule,
-    PerformanceModule,
-    TimelineModule,
-    TeamModule
   ],
   controllers: [AppController],
   providers: [AppService, GoogleStrategy],
