@@ -8,7 +8,9 @@ import { useRef, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNode, updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes, hoveredIndex, setHoveredIndex }) {
+function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNode
+    , updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes
+    , hoveredIndex, setHoveredIndex, handleDueTimeChange }) {
     const ticked = children.ticked;
     const [content, setContent] = useState(children.content);
     const [isEditing, setIsEditing] = useState(false);
@@ -47,6 +49,24 @@ function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNo
         updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
     };
 
+    const [dueTime, setDueTime] = useState(children.due_time + ' days');
+    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
+
+    // Handle due-time input focus and blur
+    const handleDueTimeFocus = () => {
+        setIsDueTimeFocused(true);
+        setDueTime(dueTime.replace(' days', '')); // Remove ' days' on focus
+    };
+
+    const handleDueTimeBlur = () => {
+        setIsDueTimeFocused(false);
+        if (!isNaN(dueTime)) {
+            const newDueTime = `${dueTime} days`; // Add ' days' after blur
+            setDueTime(newDueTime);
+            handleDueTimeChange(index, newDueTime); // Gọi hàm cập nhật due-time
+        }
+    };
+
     return (
         <div className={cx('level-one')} key={children.id}>
             <div className={cx('show-section', { 'with-hidden-section': hoveredIndex === index })}
@@ -78,7 +98,10 @@ function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNo
                         onChange={(e) => setContent(e.target.value)}
                         onBlur={handleSaveContent} // Gọi hàm cập nhật content khi mất focus
                         onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveContent(); // Cập nhật khi nhấn Enter
+                            if (e.key === 'Enter') {
+                                e.preventDefault(); // Ngăn việc tạo dòng mới khi nhấn Enter
+                                handleSaveContent(); // Cập nhật khi nhấn Enter
+                            }
                         }}
                         autoFocus
                     />
@@ -88,6 +111,30 @@ function LevelOne({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 )}
 
                 <div className={cx('update-node')}>
+                    <input
+                        className={cx('due-time')}
+                        type="text"
+                        value={dueTime}
+                        onFocus={handleDueTimeFocus}
+                        onBlur={handleDueTimeBlur}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (!isNaN(value)) {
+                                setDueTime(value); // Only allow numeric values
+                            }
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                    setDueTime(value); // Only allow numeric values
+                                }
+                                e.target.blur()
+                            }
+                        }}
+                    />
+
                     <FontAwesomeIcon
                         onClick={() => setIsEditing(true)}
                         icon={penRegular}

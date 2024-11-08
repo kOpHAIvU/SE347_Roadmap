@@ -7,7 +7,9 @@ import { useRef, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNode, updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes, hoveredIndex, setHoveredIndex }) {
+function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNode
+    , updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes
+    , hoveredIndex, setHoveredIndex, handleDueTimeChange }) {
     const ticked = children.ticked;
     const [content, setContent] = useState(children.content);
     const [isEditing, setIsEditing] = useState(false);
@@ -45,6 +47,24 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
         updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
+    };
+
+    const [dueTime, setDueTime] = useState(children.due_time + ' days');
+    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
+
+    // Handle due-time input focus and blur
+    const handleDueTimeFocus = () => {
+        setIsDueTimeFocused(true);
+        setDueTime(dueTime.replace(' days', '')); // Remove ' days' on focus
+    };
+
+    const handleDueTimeBlur = () => {
+        setIsDueTimeFocused(false);
+        if (!isNaN(dueTime)) {
+            const newDueTime = `${dueTime} days`; // Add ' days' after blur
+            setDueTime(newDueTime);
+            handleDueTimeChange(index, newDueTime); // Gọi hàm cập nhật due-time
+        }
     };
 
     return (
@@ -88,6 +108,30 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
                 )}
 
                 <div className={cx('update-node')}>
+                    <input
+                        className={cx('due-time')}
+                        type="text"
+                        value={dueTime}
+                        onFocus={handleDueTimeFocus}
+                        onBlur={handleDueTimeBlur}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (!isNaN(value)) {
+                                setDueTime(value); // Only allow numeric values
+                            }
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                const value = e.target.value;
+                                if (!isNaN(value)) {
+                                    setDueTime(value); // Only allow numeric values
+                                }
+                                e.target.blur()
+                            }
+                        }}
+                    />
+
                     <FontAwesomeIcon
                         onClick={() => setIsEditing(true)}
                         icon={penRegular}

@@ -1,5 +1,6 @@
-import { Roadmap } from "src/modules/roadmap/entities/roadmap.entity";
-import { Team } from "src/modules/team/entities/team.entity";
+import { Member } from "../../member/entities/member.entity";
+import { Roadmap } from "../../roadmap/entities/roadmap.entity";
+import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
@@ -13,11 +14,17 @@ export class Timeline {
     @Column({nullable: false})
     content: string;
 
+    @ManyToOne(() => User, leader => leader.team)
+    leader: User;
+
+    @OneToMany(() => Member, member => member.timeline)
+    member: Member[]
+
     @ManyToOne(() => Roadmap, roadmap => roadmap.timeline)
     roadmap: Roadmap;
 
-    @OneToMany(() => Team, team => team.id)
-    team: Team[];
+    // @OneToMany(() => Team, team => team.id)
+    // team: Team[];
 
     @Column({ type: 'boolean', default: true }) 
     isActive: boolean;

@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoadmapService } from '../roadmap/roadmap.service';
 import {ResponseDto} from './common/response.interface'
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class TimelineService {
@@ -14,29 +15,48 @@ export class TimelineService {
     @InjectRepository(Timeline)
     private timelineRepository: Repository<Timeline>,
     private roadmapService: RoadmapService,
+    private userService: UserService,
   ) {}
 
   async create(
     createTimelineDto: CreateTimelineDto
   ): Promise<ResponseDto> {
     try {
+      const leaderResponse = await this.userService.findOneById(createTimelineDto.leader);
+      const leader = Array.isArray(leaderResponse.data)
+                    ? leaderResponse.data[0]
+                    : leaderResponse.data;
+      if (!leader) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+          data: null
+        }
+      }
+
       const roadmapResponse = await this.roadmapService.findOneById(createTimelineDto.roadmap);
       const roadmap = Array.isArray(roadmapResponse.data) 
                       ? roadmapResponse.data[0] 
                       : roadmapResponse.data;
+      
       if (!roadmap) { 
-        throw new Error('Error occurred while finding roadmap');
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+          data: null
+        }
       }
       
       const timeline = await this.timelineRepository.create({
         ...createTimelineDto,
         roadmap: roadmap,
+        leader: leader,
       });
       const result = await this.timelineRepository.save(timeline);
       return {
         statusCode: 201,
         message: 'Create timeline successfully',
-        data: timeline
+        data: result,
       }
     } catch (error) {
       return {
@@ -59,9 +79,16 @@ export class TimelineService {
                         .skip((page - 1) * limit)  
                         .take(limit)                
                         .getMany();
+      if (timelines.length === 0) {
+        return {
+          statusCode: 404,
+          message: 'Timelines not found',
+          data: null
+        }
+      }
       return {
         statusCode: 200,
-        message: 'Get this of roadmap successfully',
+        message: 'Get list of timelines successfully',
         data: timelines,
       }
     } catch(error) {
@@ -87,7 +114,8 @@ export class TimelineService {
       if (!timeline) {
         return {
           statusCode: 404,
-          message: 'Timeline not found'
+          message: 'Timeline not found',
+          data: null,
         }
       }
 
@@ -124,12 +152,26 @@ export class TimelineService {
                       ? roadmapResponse.data[0] 
                       : roadmapResponse.data;
       if (!roadmap) { 
-        throw new Error('Roadmap is not found');
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found'
+        }
+      }
+      const leaderResponse = await this.userService.findOneById(updateTimelineDto.leader);
+      const leader = Array.isArray(leaderResponse.data)
+                    ? leaderResponse.data[0]
+                    : leaderResponse.data;
+      if (!leader) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+        }
       }
 
       const newTimeline = this.timelineRepository.create({
         ...updateTimelineDto,
         roadmap: roadmap,
+        leader: leader,
       });
   
       const result = await this.timelineRepository.save(newTimeline);

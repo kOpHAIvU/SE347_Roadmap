@@ -12,11 +12,11 @@
         height: 1.5px;
         background-color: #9ac3f0; // Đường line dưới cùng
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
-      }
+    }
     
-      &:last-child::after {
+    &:last-child::after {
         display: none; // Bỏ đường line và bóng đổ cho mục cuối cùng
-      }
+    }
 
     .label  {
         font-weight: bold;
@@ -50,7 +50,8 @@
             padding: 8px 16px;
             cursor: pointer;
             width: auto;
-            border-radius: 10px;
+            border-radius: 5px;
+            font-size: 14px;
   
             &:hover {
                 background-color: #cdd6f8;

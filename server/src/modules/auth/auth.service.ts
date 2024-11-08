@@ -1,5 +1,5 @@
 import { UserService } from './../user/user.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { LoginDto } from './dto/login-dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -14,14 +14,17 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<{accessToken: string}> {
     const user = await this.userService.findOne(loginDto);
+
     console.log("User:", user);
     const passwordMatched = await bcrypt.compare(
       loginDto.password, 
       user.password
     );
 
+    Logger.log(loginDto.password + "......" + user.password);
+  
     if (!passwordMatched) {
-      throw new Error('Invalid credentials');
+      throw new Error('Invalid credentials'); 
     } else {
       const payload = {email: user.email, sub: user.id};
       return {
@@ -48,7 +51,14 @@ export class AuthService {
     if (user.statusCode == 500) {
       throw new Error('Server is not OK');
     } else if (user.statusCode == 200) { 
-      throw new Error('User already exists');
+      // throw new Error('User already exists');
+      const userLogin = Array.isArray(user.data)
+                    ? user.data[0]
+                    : user.data;   
+      const payload = {email: userLogin.email, sub: userLogin.id};
+      return {
+        accessToken: this.jwtService.sign(payload)
+      }
     }
 
     const atIndex = email.indexOf('@');
