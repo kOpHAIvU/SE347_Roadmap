@@ -114,7 +114,8 @@ export class TimelineService {
       if (!timeline) {
         return {
           statusCode: 404,
-          message: 'Timeline not found'
+          message: 'Timeline not found',
+          data: null,
         }
       }
 

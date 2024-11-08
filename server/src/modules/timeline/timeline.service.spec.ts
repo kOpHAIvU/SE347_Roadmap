@@ -327,7 +327,8 @@ describe('TimelineService', () => {
                             .mockReturnValue(mockQueryBuilder);
        expect(await service.findOneById(1)).toEqual({
         statusCode: 404,
-        message: 'Timeline not found'
+        message: 'Timeline not found',
+        data: null
       })
     })
 
