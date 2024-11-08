@@ -22,7 +22,6 @@ import { CommentModule } from './modules/comment/comment.module';
       username: 'root',
       password: 'Loantuyetcute',
       database: 'roadmap',
-      entities: [User, Role, Roadmap, Comment],  
       synchronize: true,
     }),
     UserModule,
@@ -32,6 +31,6 @@ import { CommentModule } from './modules/comment/comment.module';
     CommentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, GoogleStrategy],
 })
 export class AppModule {}

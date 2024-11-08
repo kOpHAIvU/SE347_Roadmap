@@ -17,19 +17,18 @@ export class CommentController {
     return this.commentService.findAll();
   }
 
-  @Get('code/:id')
+ @Get('item/:id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.commentService.findOneById(+id);
   }
 
   // Only the content of the comment can be updated
-  @Patch('code/:id')
+  @Patch('item/:id')
   update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
     return this.commentService.update(+id, updateCommentDto);
   }
 
-  @Delete('code/:id')
+@Delete('item/:id')
   remove(@Param('id', ParseIntPipe) id: string) {
     return this.commentService.remove(+id);
   }
-}

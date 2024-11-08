@@ -1,6 +1,7 @@
-import { User } from "src/modules/user/entities/user.entity";
+import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from './../../comment/entities/comment.entity';
+import { Timeline } from "../../timeline/entities/timeline.entity";
 
 @Entity()
 export class Roadmap {
@@ -14,13 +15,19 @@ export class Roadmap {
     title: string;
 
     @Column({nullable: false })
+    avatar: string;
+
+    @Column({nullable: false })
     content: string;
     
-    @ManyToOne(() => User, owner => owner.roadmap)
+    @ManyToOne(() => User, owner => owner.roadmap, { eager: true })
     owner: User
 
     @OneToMany(() => Comment, comment => comment.roadmap)
     comment: Comment[]
+
+    @OneToMany(() => Timeline, timeline => timeline.roadmap)
+    timeline: Timeline[]
 
     @Column({default: 0})
     clone: number;

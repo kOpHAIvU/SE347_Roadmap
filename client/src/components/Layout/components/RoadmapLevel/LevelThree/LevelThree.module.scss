@@ -1,0 +1,99 @@
+.level-three {
+    width: calc(100% - 10px - 56px);
+    border-top: 1px solid var(--gray-color);
+    position: relative;
+    margin-left: 56px;
+    transition: background-color 0.2s ease;
+
+    &.dragging {
+        background-color: var(--gray-color);
+    }
+
+    &::before, &::after {
+        content: '';
+        position: absolute;
+        width: 1px;
+        height: 47px;
+        background-color: var(--gray-color);
+        left: -28px; // Adjusted for the line position
+        top: 0;
+    }
+
+    &::after {
+        left: 0; // Adjusted for the line position
+    }
+}
+
+.show-section {
+    display: flex;
+    width: 100%;
+    padding: 10px 0 10px 20px;
+    cursor: pointer;
+    transition: margin-bottom 0.5s ease;
+
+    &:hover {
+        background-color: var(--gray-color);
+    }
+
+    &:hover .tick, &:hover .content {
+        transform: scale(1.05);
+    }
+
+    &:active .tick, &:active .content {
+        transform: scale(0.9);
+    }
+}
+
+.ticked, .tick {
+    height: var(--icon-size);
+    width: var(--icon-size);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.ticked { color: var(--main-color); }
+
+.content, .content-edited {
+    color: black;
+    margin-left: 10px;
+    font-size: 1.4rem;
+    padding: 0;
+}
+
+.content {
+    font-weight: 500;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        text-decoration: underline;
+        color: var(--main-color);
+    }
+}
+
+.due-time {
+    font-weight: 400;
+    color: #666666;
+    font-size: 1.3rem;
+    text-align: end;
+}
+
+.update-node {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 15px;
+
+    .rewrite-node, .delete-node {
+        margin-left: 7px;
+        padding: 5px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        cursor: pointer;
+
+        &:hover { scale: 1.4; background-color: var(--gray-color); }
+        &:active { scale: 0.9; }
+    }
+
+    .delete-node { color: var(--color-red); }
+}

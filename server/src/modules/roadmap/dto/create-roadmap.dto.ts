@@ -13,6 +13,10 @@ export class CreateRoadmapDto {
 
     @IsString()
     @IsNotEmpty()
+    avatar: string;
+
+    @IsString()
+    @IsNotEmpty()
     content: string;
     
     @IsNumber()

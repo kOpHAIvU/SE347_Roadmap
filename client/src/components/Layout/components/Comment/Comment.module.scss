@@ -1,0 +1,75 @@
+:root {
+    --icon-size: 22px;
+}
+.wrapper {
+    border-top: 1px solid var(--gray-color);
+    left: 10px;
+    right: 10px;
+}
+
+.inner {
+    margin: 0 0 0 20px;
+}
+
+.title {
+    display: flex;
+    font-size: 1rem;
+}
+
+.title-text {
+    font-weight: 500;
+}
+
+.title-count {
+    margin-left: 8px;
+    color: var(--gray-color);
+    font-weight: 500;
+}
+
+.write-cmt-section {
+    margin-top: 10px;
+    display: flex;
+}
+
+.avatar {
+    height: var(--avatar-size);
+    width: var(--avatar-size);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.write-cmt {
+    height: calc(var(--avatar-size) * 2);
+    width: 60%;
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 1.5rem;
+}
+
+.send-icon {
+    height: var(--icon-size);
+    width: var(--icon-size);
+    align-self: center;
+    transition: transform 0.3 ease-in;
+    color: var(--gray-color);
+    border-radius: 50%;
+    padding: 6px;
+
+    &:hover {
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.95);
+        background-color: var(--gray-color);
+    }
+
+    &.active {
+        color: var(--main-color);
+    }
+}
+
+.comment-section {
+    margin-left: 10px;
+}

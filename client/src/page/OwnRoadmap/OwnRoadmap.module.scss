@@ -1,0 +1,179 @@
+.wrapper {
+    background-color: white;
+}
+
+.important-section {
+    display: flex;
+}
+
+.page-title {
+    margin: 5px 0 5px 10px;
+    font-size: 2.5rem;
+    font-weight: 600;
+    text-decoration-color: rgb(145, 145, 145);
+    text-decoration-thickness: 2px;
+    padding: 5px 10px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    width: auto;
+    max-width: 300px; /* Thiết lập chiều dài tối đa là 300px */
+    white-space: nowrap; /* Đảm bảo chữ không xuống dòng */
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.toggle-icon {
+    align-self: center;
+    height: 17px;
+    width: 17px;
+    padding: 8px;
+    border-radius: 50%;
+    color: var(--main-color);
+    border: 1px solid var(--main-color);
+
+    &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 6px 1px var(--main-color);
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+.content-section {
+    margin: 0 15px;
+    padding: 5px;
+    border-radius: 10px;
+    transition: all 0.3s ease; /* Thêm hiệu ứng chuyển đổi mềm mại */
+    display: flex;
+    align-items: center; /* Căn giữa theo chiều dọc */
+
+    &:hover {
+        scale: 1.003;
+        background: var(--gray-color);
+
+        .rewrite-content-btn {
+            opacity: 0.7;
+        }
+    }
+}
+
+.content-input {
+    width: 100%; /* Đặt textarea chiếm hết chiều rộng của phần tử cha */
+    border-radius: 5px;
+    padding: 10px;
+    line-height: 1.5;
+    resize: none; /* Tắt khả năng thay đổi kích thước của textarea */
+}
+
+.content {
+    width: 100%; /* Đặt textarea chiếm hết chiều rộng của phần tử cha */
+    padding: 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Giới hạn số dòng hiển thị */
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden; /* Ẩn phần nội dung thừa */
+    text-overflow: ellipsis; /* Thêm dấu "..." khi bị ẩn */
+    line-height: 1.5; /* Khoảng cách giữa các dòng */
+    max-height: calc(1.6em * 3); /* Giới hạn chiều cao dựa trên số dòng */
+    cursor: pointer;
+
+    &.expanded {
+        -webkit-line-clamp: unset; /* Khi mở rộng, bỏ giới hạn dòng */
+        line-clamp: unset;
+        white-space: normal;
+        overflow: visible;
+        max-height: none; /* Bỏ giới hạn chiều cao */
+        height: auto; /* Đặt chiều cao tự động để ôm hết nội dung */
+    }
+}
+
+.rewrite-content-btn {
+    margin-left: 10px;
+    padding: 5px;
+    scale: 1.2;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    align-items: center;
+    opacity: 0;
+    cursor: pointer;
+
+    &:hover {
+        scale: 1.4;
+        background-color: var(--gray-color);
+    }
+
+    &:active {
+        scale: 0.9;
+    }
+}
+
+.drop-react {
+    display: flex;
+}
+
+.react-love,
+.clone-roadmap {
+    width: auto;
+    display: flex;
+    align-items: center;
+    height: var(--avatar-size);
+    border-radius: var(--search-border-radius);
+    background-color: transparent;
+    transition: var(--transform) !important;
+
+    &:hover {
+        color: white;
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+.react-love {
+    border: 2px solid var(--color-red);
+    color: var(--color-red);
+    margin: 0 8px 10px 20px;
+
+    &:hover {
+        background-color: var(--color-red);
+    }
+
+    &.loved {
+        color: white;
+        background-color: var(--color-red);
+    }
+}
+
+.love-roadmap {
+    height: 20px;
+    width: 20px;
+}
+
+.love-text,
+.clone-text {
+    font-size: 1.6rem;
+    margin-left: 5px;
+}
+
+.clone-roadmap {
+    border: 2px solid var(--main-color);
+    color: var(--main-color);
+
+    &:hover {
+        background-color: var(--main-color);
+    }
+}
+
+.clone-icon {
+    height: 20px;
+    width: 20px;
+}
+
+.clone-text {
+}

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe  } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query  } from '@nestjs/common';
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
@@ -20,7 +20,10 @@ export class RoadmapController {
   // @UseGuards(JwtAuthGuard, RoleGuard)
   // @UseGuards(AuthGuard('jwt'))
   // @Roles('admin') 
-  findAll() {
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 100,
+  ) {
     return this.roadmapService.findAll();
   }
 

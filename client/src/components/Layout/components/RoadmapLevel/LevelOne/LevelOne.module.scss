@@ -1,0 +1,160 @@
+.level-one {
+    width: calc(100% - 10px); /* 20px là tổng khoảng cách từ cả hai phía */
+    border-top: 1px solid var(--gray-color);
+    left: 10px;
+    right: 10px;
+    position: relative;
+    transition: background-color 0.2s ease;
+
+    &.dragging {
+        background-color: var(--gray-color); // Ví dụ: màu nền khi kéo
+    }
+}
+
+.show-section {
+    display: flex;
+    width: 100%;
+    padding: 10px 0 10px 20px;
+    max-width: 100%;
+    cursor: pointer;
+    z-index: 2;
+    transition: margin-bottom 0.5s ease;
+
+    &:hover {
+        background-color: var(--gray-color);
+    }
+
+    &:hover .tick,
+    &:hover .level-one-content {
+        transform: scale(1.05); /* Tăng kích thước nhẹ */
+    }
+
+    &:active .tick,
+    &:active .level-one-content {
+        transform: scale(0.9); /* Thu nhỏ lại khi nhấn */
+    }
+}
+
+.ticked,
+.tick {
+    height: var(--icon-size);
+    width: var(--icon-size);
+    border-radius: 6px;
+    cursor: pointer;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.ticked {
+    color: var(--main-color);
+}
+
+.level-one-content {
+    transition: transform 0.2s ease;
+
+    &:hover {
+        text-decoration: underline;
+        text-decoration-color: var(--main-color);
+        text-decoration-thickness: 2px;
+        color: var(--main-color);
+    }
+}
+
+.level-one-content,
+.level-one-content-edit {
+    color: black;
+    margin-left: 10px;
+    font-size: 1.4rem;
+    padding: 0;
+    width: auto;
+    align-items: center;
+}
+
+.level-one-content-edit {
+    background-color: transparent;
+}
+
+.due-time {
+    font-weight: 400;
+    color: #666666;
+    font-size: 1.3rem;
+    align-self: center;
+    background: transparent;
+    text-align: end;
+}
+
+.update-node {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 15px;
+}
+
+.rewrite-node {
+    &:hover {
+        scale: 1.4;
+    }
+}
+
+.delete-node {
+    color: var(--color-red);
+}
+
+.delete-node,
+.rewrite-node {
+    margin-left: 7px;
+}
+
+.rewrite-node,
+.delete-node {
+    padding: 5px;
+    scale: 1.2;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+        scale: 1.4;
+        background-color: var(--gray-color);
+    }
+
+    &:active {
+        scale: 0.9;
+    }
+}
+
+.hidden-section {
+    left: 0; /* Align to left */
+    right: 0; /* Align to right */
+    padding: 0 0 10px 20px; /* Adjust as needed */
+    padding-top: 5px;
+    background-color: white;
+    max-height: 100px; /* Set a maximum height for the reveal */
+    opacity: 1; /* Make it visible */
+    pointer-events: auto;
+    position: relative;
+    overflow: hidden; /* Hide overflow content */
+    z-index: 1;
+    border-top: 1px solid var(--gray-color);
+}
+
+.same-level,
+.child-level-check,
+.child-level-radio {
+    height: 17px;
+    width: 17px;
+    color: rgba(22, 24, 35, 0.5);
+    transition: transform 0.3s ease-in;
+    padding-right: 2px;
+    transform: Y;
+
+    &:hover {
+        height: 19px;
+        width: 19px;
+        color: var(--main-color);
+    }
+
+    &:active {
+        scale: 0.8;
+    }
+}

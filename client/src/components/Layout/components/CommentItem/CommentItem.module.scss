@@ -1,0 +1,163 @@
+.wrapper {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.inner {
+    box-shadow: 3px 3px 6px var(--gray-color);
+    position: relative;
+    max-width: 873px;
+    display: flex;
+
+    &.child {
+        border-left: 1px solid var(--gray-color);
+        max-width: 828px;
+        margin-left: 45px;
+    }
+}
+.avatar {
+    height: var(--avatar-size);
+    width: var(--avatar-size);
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.cmt-infor {
+    margin-top: 5px;
+    flex: 1;
+    margin-bottom: 5px;
+}
+
+.cmt-status {
+    display: flex;
+}
+
+.cmt-author {
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: var(--main-color);
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.cmt-date {
+    align-self: center;
+    margin-left: 5px;
+    color: #9c9c9c;
+    font-size: 1.4rem;
+}
+
+.more-icon {
+    height: 15px;
+    width: 15px;
+    align-self: center;
+    margin-left: 5px;
+    border-radius: 50%;
+    padding: 6px;
+
+    &:active {
+        background-color: var(--gray-color);
+    }
+}
+.cmt-content {
+    margin-top: 3px;
+    margin-bottom: 5px;
+    font-weight: 400;
+    font-size: 1.4rem;
+    text-align: justify;
+}
+
+.response {
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: #9c9c9c;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.delete-cmt {
+    align-self: center;
+    height: 15px;
+    width: 15px;
+    margin-right: 4px;
+    margin-left: 10px;
+    border-radius: 50%;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--color-red);
+    transition: background-color 0.3s ease-in, transform 0.2s ease-in;
+
+    &:hover {
+        background-color: var(--gray-color);
+        transform: scale(1.2);
+    }
+}
+
+.reply-section {
+    margin-top: 10px;
+    max-width: 828px;
+    margin-left: 45px;
+    display: flex;
+}
+
+.avatar2 {
+    height: var(--avatar-size);
+    width: var(--avatar-size);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.reply-textarea {
+    width: 100%;
+    height: calc(var(--avatar-size) * 2);
+    padding: 5px;
+    font-size: 1.5rem;
+}
+
+.send-icon {
+    color: var(--gray-color);
+    margin-left: 5px;
+    align-self: center;
+    height: 15px;
+    width: 15px;
+    padding: 6px;
+    border-radius: 50%;
+    transition: transform 0.3 ease-in;
+
+    &:hover {
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.95);
+        background-color: var(--gray-color);
+    }
+
+    &.active {
+        color: var(--main-color);
+    }
+}
+
+.see-more {
+    margin-top: 10px;
+    margin-left: 10px;
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.drop-down {
+    margin-right: 5px;
+}
+
+.count {
+    font-weight: 500;
+}
