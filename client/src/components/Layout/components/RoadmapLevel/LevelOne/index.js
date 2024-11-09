@@ -16,8 +16,8 @@ function LevelOne({
     updateNodeTickState,
     updateNodeContent,
     handleDeleteNode,
-    allNodes,
-    handleDueTimeChange 
+    handleDueTimeChange,
+    nodeBelowTypes
 }) {
     const { ticked, content: initialContent, due_time: initialDueTime, level, type, id } = children;
     const [content, setContent] = useState(initialContent);
@@ -38,10 +38,6 @@ function LevelOne({
             handleDueTimeChange(index, newDueTime); // Gọi hàm cập nhật due-time
         }
     };
-
-    const nodeBelowType = index + 1 < allNodes.length && allNodes[index + 1].level > level
-        ? allNodes[index + 1].type
-        : null;
 
     return (
         <div
@@ -129,20 +125,22 @@ function LevelOne({
                         onClick={() => handleSameLevelClick(index, level, type)}
                     />
                     {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
-                    {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+                    {(nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null) && (
                         <FontAwesomeIcon
                             className={cx('child-level-check')}
                             icon={faSquare}
                             onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
                         />
-                    ) : null}
-                    {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
+                    )}
+
+                    {(nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null) && (
                         <FontAwesomeIcon
                             className={cx('child-level-radio')}
                             icon={faCircle}
                             onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
                         />
-                    ) : null}
+                    )}
+
                 </div>
             )}
         </div>

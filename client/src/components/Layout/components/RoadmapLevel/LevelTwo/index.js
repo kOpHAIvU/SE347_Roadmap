@@ -15,15 +15,13 @@ function LevelTwo({ userType,
     updateNodeTickState,
     updateNodeContent,
     handleDeleteNode,
-    allNodes,
-    handleDueTimeChange
+    handleDueTimeChange,
+    nodeBelowTypes
 }) {
     const { ticked, content: initialContent, due_time, level, type, id } = children;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
-
-    const nodeBelowType = index + 1 < allNodes.length && allNodes[index + 1].level > level ? allNodes[index + 1].type : null;
 
     const handleSaveContent = () => {
         setIsEditing(false);
@@ -103,14 +101,14 @@ function LevelTwo({ userType,
                         }}
                     />
                     {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
-                    {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+                    {nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null ? (
                         <FontAwesomeIcon
                             className={cx('child-level-check')}
                             icon={faSquare}
                             onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
                         />
                     ) : null}
-                    {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
+                    {nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null ? (
                         <FontAwesomeIcon
                             className={cx('child-level-radio')}
                             icon={faCircle}

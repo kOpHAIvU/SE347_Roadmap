@@ -19,12 +19,12 @@ function AdvanceRoadmap() {
             const xValues = nodes.map(node => node.x);
             const yValues = nodes.map(node => node.y);
             const widths = nodes.map(node => {
-                const nodeWidth = node.x + Math.max(Math.min(node.content.length * 8, 500), 200) + 85;
+                const nodeWidth = Math.max(Math.min(node.content.length * 8, 300), 200) + 85;
                 return node.x + nodeWidth;
             });
 
-            const maxWidth = Math.max(...widths) + 100;
-            const maxHeight = Math.max(...yValues) + 200; // 200 là khoảng trống cho viền
+            const maxWidth = Math.max(...widths) + 400;
+            const maxHeight = Math.max(...yValues) + 100; // 200 là khoảng trống cho viền
 
             setStageSize({ width: maxWidth, height: maxHeight });
         };
@@ -98,16 +98,95 @@ function AdvanceRoadmap() {
         }
     };
 
-    const renderArrow = (startNode, endNode) => {
-        const points = determineArrowPosition(startNode, endNode);
+    const findTargetNode = (currentNode) => {
+        const currentIndex = nodes.findIndex(node => node.id === currentNode.id);
 
-        return <Arrow
-            points={points}
-            pointerLength={10}
-            pointerWidth={10}
-            stroke="#6580eb"
-            fill="#6580eb" />;
+        if (currentNode.level === 1) {
+            // Tìm node level 1 tiếp theo có id lớn hơn currentNode.id và gần nó nhất
+            const nextLevel1Node = nodes.filter(node => node.level === 1 && node.id > currentNode.id)
+                .sort((a, b) => a.id - b.id)[0];  // Lấy node level 1 có id lớn nhất nhưng gần nhất
+
+            // Tìm tất cả các node level 2 có id lớn hơn currentNode.id và ở dưới nó
+            const level2Nodes = [];
+            for (let i = currentIndex + 1; i < nodes.length; i++) {
+                const node = nodes[i];
+                if (node.level === 1) break;  // Dừng khi gặp node level 1
+                if (node.level === 2 && node.id > currentNode.id) {
+                    level2Nodes.push(node);
+                }
+            }
+
+            // Kết quả trả về bao gồm node level 1 tiếp theo và tất cả các node level 2
+            return nextLevel1Node ? [nextLevel1Node, ...level2Nodes] : level2Nodes;
+        }
+
+        if (currentNode.level === 2) {
+            const level3Nodes = [];
+            for (let i = currentIndex + 1; i < nodes.length; i++) {
+                const node = nodes[i];
+                if (node.level === 1 || node.level === 2) break;  // Dừng khi gặp node level 1, 2
+                if (node.level === 3 && node.id > currentNode.id) {
+                    level3Nodes.push(node);
+                }
+            }
+            return level3Nodes;
+            // // Tìm tất cả các node level 3 có id lớn hơn currentNode.id và ở dưới nó
+            // const level3Nodes = nodes.filter(node => node.level === 3 && node.id > currentNode.id);
+            // return level3Nodes;
+        }
+
+        // Node level 3 không trỏ tới đâu cả
+        return [];
     };
+
+    const renderArrows = () => {
+        const arrows = [];
+        nodes.forEach((node) => {
+            const targetNode = findTargetNode(node);
+            if (Array.isArray(targetNode)) {
+                // Nếu có nhiều target nodes (level 1), nối lần lượt
+                targetNode.forEach((tn) => {
+                    const points = determineArrowPosition(node, tn);
+                    // Kiểm tra xem node và targetNode có cùng level 1 không
+                    const isLevelOneArrow = (node.level === 1 && tn.level === 1);
+                    const arrowColor = isLevelOneArrow ? '#6580eb' : 'black';
+                    const arrowWidth = isLevelOneArrow ? 3 : 1;  // Độ dày khác nhau tùy theo màu
+
+                    arrows.push(
+                        <Arrow
+                            key={`${node.id}-${tn.id}`}
+                            points={points}
+                            pointerLength={10}
+                            pointerWidth={10}
+                            stroke={arrowColor}
+                            fill={arrowColor}
+                            strokeWidth={arrowWidth}
+                        />
+                    );
+                });
+            } else if (targetNode) {
+                // Nếu chỉ có một target node (level 2 hoặc 3), nối với node đó
+                const points = determineArrowPosition(node, targetNode);
+                const isLevelOneArrow = (node.level === 1 && targetNode.level === 1);
+                const arrowColor = isLevelOneArrow ? '#6580eb' : 'black';
+                const arrowWidth = isLevelOneArrow ? 3 : 1;  // Độ dày khác nhau tùy theo màu
+
+                arrows.push(
+                    <Arrow
+                        key={`${node.id}-${targetNode.id}`}
+                        points={points}
+                        pointerLength={10}
+                        pointerWidth={10}
+                        stroke={arrowColor}
+                        fill={arrowColor}
+                        strokeWidth={arrowWidth}
+                    />
+                );
+            }
+        });
+        return arrows;
+    };
+
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
@@ -128,28 +207,71 @@ function AdvanceRoadmap() {
     const handleDeleteNode = (index) => {
         setNodes((prevNodes) => {
             const updatedNodes = [...prevNodes];
+            const targetLevel = updatedNodes[index].level;
+
+            // Xóa node tại vị trí index
             updatedNodes.splice(index, 1);
-            for (let i = index; i < updatedNodes.length;) {
-                if (updatedNodes[i].level > updatedNodes[index].level) updatedNodes.splice(i, 1);
-                else break;
+
+            // Tìm và xóa các node có level lớn hơn targetLevel
+            while (index < updatedNodes.length) {
+                if (updatedNodes[index].level > targetLevel) {
+                    updatedNodes.splice(index, 1);
+                } else {
+                    break; // Dừng khi gặp node có level bằng hoặc thấp hơn targetLevel
+                }
             }
+
             return updatedNodes;
         });
     };
 
+
     const handleSameLevelClick = (index, x, y, level, type) => {
-        const newId = nodes ? nodes.length + 1 : 1;
+        const newId = index + 1;
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...' };
 
         setNodes((prevLevels) => {
             if (prevLevels === null) return [newLevel];
+
+            // Xác định vị trí chèn node mới
             const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
-            return insertIndex === -1
+            const updatedNodes = insertIndex === -1
                 ? [...prevLevels, newLevel]
                 : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
+
+            // Cập nhật id cho các node phía dưới
+            return updatedNodes.map((node, idx) => {
+                return idx > index ? { ...node, id: node.id + 1 } : node;
+            });
         });
-        console.log(nodes);
     };
+
+    const handleAddChildLevelNode = (index, x, y, level, type) => {
+        const newId = index + 1; // Đặt id mới là index + 1
+        const newLevel = { id: newId, x: x + 600, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...' };
+
+        setNodes((prevLevels) => {
+            if (prevLevels === null) return [newLevel];
+
+            // Xác định vị trí chèn node mới
+            const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
+            const updatedNodes = insertIndex === -1
+                ? [...prevLevels, newLevel]
+                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
+
+            // Cập nhật id cho các node phía dưới
+            return updatedNodes.map((node, idx) => {
+                return idx > index ? { ...node, id: node.id + 1 } : node;
+            });
+        });
+    };
+
+    const nodeBelowType = (index) => {
+        console.log("Nodes ",index , " ",index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level
+            ? nodes[index + 1].type : null)
+        return index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level
+            ? nodes[index + 1].type : null;
+    }
 
     return (
         <div style={{
@@ -162,6 +284,7 @@ function AdvanceRoadmap() {
                 <Layer>
                     {nodes.map((node, index) => {
                         return <AdvanceLevelOne
+                            userType='Administrator'
                             key={node.id}
                             node={node}
                             index={index}
@@ -170,12 +293,12 @@ function AdvanceRoadmap() {
                             updateNodeDue={updateNodeDue}
                             handleDeleteNode={handleDeleteNode}
                             handleSameLevelClick={handleSameLevelClick}
+                            handleAddChildLevelNode={handleAddChildLevelNode}
+                            nodeBelowTypes={nodeBelowType(index)}
                         />
                     })}
 
-                    {nodes.slice(0, -1).map((node, index) =>
-                        renderArrow(node, nodes[index + 1]) // Vẽ mũi tên giữa các node liên tiếp
-                    )}
+                    {renderArrows()}
                 </Layer>
             </Stage>
         </div>

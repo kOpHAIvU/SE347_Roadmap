@@ -3,7 +3,7 @@ import styles from './RoadmapSection.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { LevelOne, LevelThree, LevelTwo } from '../RoadmapLevel/index.js';
 import { faSquarePlus } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
@@ -47,11 +47,20 @@ function RoadmapSection() {
     const handleDeleteNode = (index) => {
         setNodes((prevNodes) => {
             const updatedNodes = [...prevNodes];
+            const targetLevel = updatedNodes[index].level;
+
+            // Xóa node tại vị trí index
             updatedNodes.splice(index, 1);
-            for (let i = index; i < updatedNodes.length;) {
-                if (updatedNodes[i].level > updatedNodes[index].level) updatedNodes.splice(i, 1);
-                else break;
+
+            // Tìm và xóa các node có level lớn hơn targetLevel
+            while (index < updatedNodes.length) {
+                if (updatedNodes[index].level > targetLevel) {
+                    updatedNodes.splice(index, 1);
+                } else {
+                    break; // Dừng khi gặp node có level bằng hoặc thấp hơn targetLevel
+                }
             }
+
             return updatedNodes;
         });
     };
@@ -63,9 +72,15 @@ function RoadmapSection() {
             return updatedNodes;
         });
     };
+
+    const nodeBelowType = (index) => {
+        return index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level
+            ? nodes[index + 1].type : null;
+    }
+
     return (
         <div className={cx('wrapper')}>
-            { nodes === null ? (
+            {nodes === null ? (
                 <div className={cx('add-first-node')} onClick={() => handleSameLevelClick(0, 1, 'Checkbox')}>
                     <FontAwesomeIcon className={cx('add-button')} icon={faSquarePlus} />
                     <h1 className={cx('add-text')}>Create your first node now!!!</h1>
@@ -83,8 +98,8 @@ function RoadmapSection() {
                                 handleAddChildLevelNode={handleAddChildLevelNode}
                                 updateNodeContent={updateNodeContent}
                                 handleDeleteNode={handleDeleteNode}
-                                allNodes={nodes}
                                 handleDueTimeChange={handleDueTimeChange}
+                                nodeBelowTypes={nodeBelowType(index)}
                             />
                         </div>
                     );
