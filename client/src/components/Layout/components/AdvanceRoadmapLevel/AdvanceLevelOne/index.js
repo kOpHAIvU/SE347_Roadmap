@@ -3,23 +3,47 @@ import { Circle, Image, Rect, Text } from 'react-konva';
 import TrashCanIcon from '~/assets/images/trash-can-regular.svg'
 import PenRegular from '~/assets/images/pen-to-square-regular.svg'
 
-function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNodeDue }) {
+
+function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNodeDue, handleDeleteNode, handleSameLevelClick }) {
     const textRef = useRef(null);
     const dueTimeRef = useRef(null)
-    const textareaRef = useRef(null); // Thêm ref cho textarea
+    const textareaRef = useRef(null);
     const [isEditing, setIsEditing] = useState(false);
     const [content, setContent] = useState(node.content);
     const [due, setDue] = useState(node.due_time);
     const [textLines, setTextLines] = useState(1);
-    const [textWidth, setTextWidth] = useState(Math.max(Math.min(content.length * 8, 500), 200));
-    const [finalWidth, setFinalWidth] = useState(textWidth + 70); // Thêm state cho finalWidth
+    const [textWidth, setTextWidth] = useState(Math.max(Math.min(content.length * 8, 300), 200));
+    const [finalWidth, setFinalWidth] = useState(textWidth + 85); // Thêm state cho finalWidth
+
+    const getScale = (isActive, isHovered) => isActive ? 0.95 : isHovered ? 1.1 : 1;
+
+    const [isCheckboxHovered, setIsCheckboxHovered] = useState(false);
+    const [isCheckboxActive, setIsCheckboxActive] = useState(false);
+    const [isPenHovered, setIsPenHovered] = useState(false);
+    const [isPenActive, setIsPenActive] = useState(false);
+    const [isTrashHovered, setIsTrashHovered] = useState(false);
+    const [isTrashActive, setIsTrashActive] = useState(false);
+    const [isPlusHovered, setIsPlusHovered] = useState(false);
+    const [isPlusActive, setIsPlusActive] = useState(false);
+    const [isChildCheckboxHovered, setIsChildCheckboxHovered] = useState(false);
+    const [isChildCheckboxActive, setIsChildCheckboxActive] = useState(false);
+    const [isRadioHovered, setIsRadioHovered] = useState(false);
+    const [isRadioActive, setIsRadioActive] = useState(false);
+
+    const checkboxScale = getScale(isCheckboxActive, isCheckboxHovered);
+    const tickScale = getScale(isCheckboxActive, isCheckboxHovered);
+    const penScale = getScale(isPenActive, isPenHovered);
+    const trashScale = getScale(isTrashActive, isTrashHovered);
+    const squarePlusScale = getScale(isPlusActive, isPlusHovered);
+    const childCheckboxScale = getScale(isChildCheckboxActive, isChildCheckboxHovered);
+    const radioScale = getScale(isRadioActive, isRadioHovered);
 
     useEffect(() => {
         // Cập nhật textWidth
-        const newTextWidth = Math.max(Math.min(node.content.length * 8, 500), 200);
+        const newTextWidth = Math.max(Math.min(node.content.length * 8, 400), 200);
         setTextWidth(newTextWidth);
 
-        setFinalWidth(newTextWidth + 70);
+        setFinalWidth(newTextWidth + 85);
 
         // Tính toán số dòng
         const lineCount = Math.ceil(content.length / (newTextWidth / 8));
@@ -35,31 +59,10 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
         setFinalWidth(textWidth + 85);
     }, [textWidth]);
 
-
-    useEffect(() => {
-        const dueTimeWidth = textRef.current.getTextWidth();
-        textRef.current.width(dueTimeWidth + 10); // Thêm một ít padding nếu cần
-    }, [node.due_time]);
-
     // State để theo dõi trạng thái hover và active
-    const [isCheckboxHovered, setIsCheckboxHovered] = useState(false);
-    const [isCheckboxActive, setIsCheckboxActive] = useState(false);
     const [isChecked, setIsChecked] = useState(false); // State cho checkbox
 
-    // State để theo dõi trạng thái hover và active cho square with plus
-    const [isPlusHovered, setIsPlusHovered] = useState(false);
-    const [isPlusActive, setIsPlusActive] = useState(false);
-
-    // State để theo dõi trạng thái hover và active cho checkbox con
-    const [isChildCheckboxHovered, setIsChildCheckboxHovered] = useState(false);
-    const [isChildCheckboxActive, setIsChildCheckboxActive] = useState(false);
-
-    // State để theo dõi trạng thái hover và active cho radio button
-    const [isRadioHovered, setIsRadioHovered] = useState(false);
-    const [isRadioActive, setIsRadioActive] = useState(false);
-
     // Tính toán vị trí cho Checkbox
-    const checkboxScale = isCheckboxActive ? 0.95 : isCheckboxHovered ? 1.1 : 1;
     const checkboxX = node.x - 10 - (20 * (checkboxScale) - 20) / 2; // Điều chỉnh x để giữ tâm cho Checkbox
     const checkboxY = node.y + (finalHeight - 20) / 2 - (20 * (checkboxScale) - 20) / 2; // Điều chỉnh y để giữ tâm cho Checkbox
 
@@ -67,11 +70,6 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
     const handleToggle = () => {
         setIsChecked(prev => !prev); // Đổi trạng thái đã đánh dấu
     };
-
-    const tickScale = isCheckboxActive ? 0.95 : isCheckboxHovered ? 1.1 : 1;
-    const squarePlusScale = isPlusActive ? 0.95 : isPlusHovered ? 1.1 : 1;
-    const childCheckboxScale = isChildCheckboxActive ? 0.95 : isChildCheckboxHovered ? 1.1 : 1;
-    const radioScale = isRadioActive ? 0.95 : isRadioHovered ? 1.1 : 1;
 
     // Khai báo state để lưu hình ảnh
     const [trashImage, setTrashImage] = useState(null);
@@ -88,23 +86,16 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
         penImg.onload = () => setPenImage(penImg); // Khi hình ảnh bút được tải, cập nhật state
     }, []);
 
-    const [isPenHovered, setIsPenHovered] = useState(false);
-    const [isPenActive, setIsPenActive] = useState(false);
-    const [isTrashHovered, setIsTrashHovered] = useState(false);
-    const [isTrashActive, setIsTrashActive] = useState(false);
 
-    const penScale = isPenActive ? 0.95 : isPenHovered ? 1.1 : 1;
-    const trashScale = isTrashActive ? 0.95 : isTrashHovered ? 1.1 : 1;
-
-    const handlePenClick = () => {
+    const handleEditClick = (ref, type) => {
         setIsEditing(true);
-        const newContent = textRef.current;
+        const newContent = ref.current;
         const stageBox = newContent.getClientRect();
         const textarea = document.createElement('textarea');
 
         // Tính toán vị trí và kích thước textarea
         const windowWidth = window.innerWidth;
-        const textareaWidth = 400;
+        const textareaWidth = 300;
 
         const leftPosition = (windowWidth - textareaWidth) / 2;
 
@@ -131,19 +122,31 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
 
         textarea.rows = 2;
         textarea.cols = Math.floor(stageBox.width / 8);
-        textarea.value = node.content;
+        if (type === 'content')
+            textarea.value = node.content;
+        else
+            textarea.value = node.due_time;
 
         document.body.appendChild(textarea);
         textarea.focus();
 
         textarea.onblur = () => {
-            updateNodeContent(index, textarea.value)
+            if (type === 'content') {
+                updateNodeContent(index, textarea.value)
+
+            } else {
+                updateNodeDue(index, textarea.value);
+            }
             document.body.removeChild(textarea);
             setIsEditing(false);
         };
 
         textarea.oninput = (e) => {
-            setContent(e.target.value);
+            if (type === 'content') {
+                setContent(e.target.value);
+            } else {
+                setDue(e.target.value);
+            }
         };
     };
 
@@ -182,7 +185,7 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
             <Rect
                 x={node.x}
                 y={node.y}
-                width={finalWidth}
+                width={finalWidth + 62}
                 height={finalHeight}
                 fill="white"
                 stroke="#6580eb"
@@ -210,21 +213,22 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
             {/* Due time */}
             <Text
                 ref={dueTimeRef}
-                x={node.x + textWidth + 29}
+                x={node.x + textWidth + 29 + 3}
                 y={node.y + (finalHeight - 24) / 2}
-                text={node.due_time + ' days'}
+                text={due + ' days'}
                 fontSize={16}
                 fill="#666666"
-                align="left"
+                align="right"
                 verticalAlign="middle"
-                width={finalWidth - 35}
+                lineHeight={1.5}
+                onClick={() => handleEditClick(dueTimeRef, 'due')}
             />
 
             {/*Pen icon */}
             {penImage && (
                 <Image
                     image={penImage}
-                    x={node.x + textWidth + 55}
+                    x={node.x + textWidth + 55 + 35 + 5}
                     y={node.y + (finalHeight - 24) / 2}
                     width={19}
                     height={19}
@@ -234,7 +238,7 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
                     onMouseLeave={() => setIsPenHovered(false)}
                     onMouseDown={() => setIsPenActive(true)}
                     onMouseUp={() => { setIsPenActive(false); }}
-                    onClick={handlePenClick}
+                    onClick={() => handleEditClick(textRef, 'content')}
 
                 />
             )}
@@ -243,7 +247,7 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
             {trashImage && (
                 <Image
                     image={trashImage}
-                    x={node.x + textWidth + 81}
+                    x={node.x + textWidth + 81 + 35 + 5}
                     y={node.y + (finalHeight - 24) / 2}
                     width={19}
                     height={19}
@@ -253,6 +257,7 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
                     onMouseLeave={() => setIsTrashHovered(false)}
                     onMouseDown={() => setIsTrashActive(true)}
                     onMouseUp={() => setIsTrashActive(false)}
+                    onClick={() => handleDeleteNode(index)}
                 />
             )}
 
@@ -310,12 +315,12 @@ function AdvanceLevelOne({ node, index, onDragMove, updateNodeContent, updateNod
                 fill="rgba(22, 24, 35, 0.22)"
                 scaleX={squarePlusScale}
                 scaleY={squarePlusScale}
+                hitStrokeWidth={10}
                 onMouseEnter={() => setIsPlusHovered(true)}
                 onMouseLeave={() => setIsPlusHovered(false)}
                 onMouseDown={() => setIsPlusActive(true)}
-                onMouseUp={() => {
-                    setIsPlusActive(false);
-                }}
+                onMouseUp={() => setIsPlusActive(false)}
+                onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
             />
             <Text
                 x={node.x + 8}

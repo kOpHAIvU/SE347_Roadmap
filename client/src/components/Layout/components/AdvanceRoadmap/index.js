@@ -8,7 +8,7 @@ const cx = classNames.bind(styles);
 
 function AdvanceRoadmap() {
     const [nodes, setNodes] = useState([
-        { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something...' },
+        { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định' },
         { id: 2, level: 1, x: 150, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Continue here...' },
     ]);
 
@@ -42,7 +42,7 @@ function AdvanceRoadmap() {
 
     const getCenterOfSide = (node, side) => {
         const { x, y } = node;
-        const width = Math.max(Math.min(node.content.length * 8, 500), 200) + 85;
+        const width = Math.max(Math.min(node.content.length * 8, 400), 200) + 62 + 85;
         const lineCount = Math.ceil(node.content.length / (width / 8));
         const height = (16 * 1.5 * lineCount) + 1.5 * (lineCount - 1) + 20;
 
@@ -125,6 +125,32 @@ function AdvanceRoadmap() {
         });
     };
 
+    const handleDeleteNode = (index) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes.splice(index, 1);
+            for (let i = index; i < updatedNodes.length;) {
+                if (updatedNodes[i].level > updatedNodes[index].level) updatedNodes.splice(i, 1);
+                else break;
+            }
+            return updatedNodes;
+        });
+    };
+
+    const handleSameLevelClick = (index, x, y, level, type) => {
+        const newId = nodes ? nodes.length + 1 : 1;
+        const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...' };
+
+        setNodes((prevLevels) => {
+            if (prevLevels === null) return [newLevel];
+            const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
+            return insertIndex === -1
+                ? [...prevLevels, newLevel]
+                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
+        });
+        console.log(nodes);
+    };
+
     return (
         <div style={{
             border: '2px solid black',
@@ -142,6 +168,8 @@ function AdvanceRoadmap() {
                             onDragMove={(e) => handleDragMove(e, node.id)}
                             updateNodeContent={updateNodeContent}
                             updateNodeDue={updateNodeDue}
+                            handleDeleteNode={handleDeleteNode}
+                            handleSameLevelClick={handleSameLevelClick}
                         />
                     })}
 
