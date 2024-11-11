@@ -6,6 +6,7 @@ import { Roadmap } from './entities/roadmap.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/roadmap.interface';
+import { createCanvas, loadImage } from 'canvas';
 
 @Injectable()
 export class RoadmapService {
@@ -24,12 +25,6 @@ export class RoadmapService {
       const owner = Array.isArray(ownerResponse.data)
                     ? ownerResponse.data[0]
                     : ownerResponse.data;
-      // if (!owner) {
-      //     return {
-      //         statusCode: 404,
-      //         message: 'User not found',
-      //     }
-      // }
       const roadmap = this.roadmapRepository.create({
           ...createRoadmapDto,
           owner, 
@@ -312,5 +307,6 @@ export class RoadmapService {
       }
     }
   }
+
   
 }

@@ -21,16 +21,18 @@ import { Member } from './modules/member/entities/member.entity';
 import { TeamModule } from './modules/team/team.module';
 import { Team } from './modules/team/entities/team.entity';
 import { GoogleStrategy } from './modules/auth/common/google.strategy';
+import { GeminiModule } from './modules/gemini/gemini.module';
+import {env} from './configs/env.config';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mysql',  
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'Loantuyetcute',
-      database: 'roadmap',
+      type: 'mysql',
+      host: env.DATABASE.HOST,
+      port: env.DATABASE.PORT,
+      username: env.DATABASE.USER,
+      password: env.DATABASE.PASSWORD,
+      database: env.DATABASE.NAME,
       entities: [User, Role, Roadmap, 
         Comment, Timeline, 
         Member, Team
@@ -46,7 +48,8 @@ import { GoogleStrategy } from './modules/auth/common/google.strategy';
     MessageModule,
     PerformanceModule,
     TimelineModule,
-    TeamModule
+    TeamModule,
+    GeminiModule
   ],
   controllers: [AppController],
   providers: [AppService, GoogleStrategy],
