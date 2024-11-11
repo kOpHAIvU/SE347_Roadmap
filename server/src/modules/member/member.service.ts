@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { TeamService } from '../team/team.service';
 import {ResponseDto} from './common/response.interface';
+import { TimelineService } from '../timeline/timeline.service';
 
 @Injectable()
 export class MemberService {
@@ -15,7 +16,7 @@ export class MemberService {
     @InjectRepository(Member)
     private memberRepository: Repository<Member>,
     private userService: UserService,
-    private teamService: TeamService,
+    private timelineService: TimelineService,
   ) {}
 
   async checkMemberExistInTeam(
@@ -52,7 +53,7 @@ export class MemberService {
     createMemberDto: CreateMemberDto
   ): Promise<ResponseDto> {
      try {
-      const checkMemberExistInTeam = await this.checkMemberExistInTeam(createMemberDto.member, createMemberDto.team);
+      const checkMemberExistInTeam = await this.checkMemberExistInTeam(createMemberDto.member, createMemberDto.timeline);
       if (checkMemberExistInTeam.statusCode === 200) {
         return {
           statusCode: 400,
@@ -61,17 +62,23 @@ export class MemberService {
       }
       const userResponse = await this.userService.findOneById(createMemberDto.member);
       const user = Array.isArray(userResponse)
-                  ? userResponse[0]
-                  : userResponse;
+                  ? userResponse[0].data
+                  : userResponse.data;
       if (!user) {
-        throw new Error('User not found');
+        return {
+          statusCode: 404,
+          message: 'User not found',
+        }
       }
-      const teamResponse = await this.teamService.findOneById(createMemberDto.team);
+      const teamResponse = await this.timelineService.findOneById(createMemberDto.timeline);
       const team = Array.isArray(teamResponse)
-                  ? teamResponse[0]
-                  : teamResponse;
+                  ? teamResponse[0].data
+                  : teamResponse.data;
       if (!team) {
-        throw new Error('Team not found');
+        return {
+          statusCode: 404,
+          message: 'Team not found',
+        }
       }
 
     //   const roadmap = this.roadmapRepository.create({
@@ -82,7 +89,7 @@ export class MemberService {
       const division = await this.memberRepository.create({
         ...createMemberDto,
         member: user,
-        team,
+        timeline: team,
       })
       const result = await this.memberRepository.save(division);
       return {
@@ -137,6 +144,7 @@ export class MemberService {
         return {
           statusCode: 404,
           message: 'Member not found',
+          data: null
         }
       }
       return {
@@ -146,7 +154,6 @@ export class MemberService {
       }
     } catch (error) {
       return {
-        error: error.message,
         statusCode: 500,
         message: 'Failed to find member',
       }
@@ -168,7 +175,7 @@ export class MemberService {
             message: 'User not found',
           }
         }
-        const teamResponse = await this.teamService.findOneById(updateMemberDto.team);
+        const teamResponse = await this.timelineService.findOneById(updateMemberDto.timeline);
         const team = Array.isArray(teamResponse)
                     ? teamResponse[0]
                     : teamResponse;
@@ -191,7 +198,7 @@ export class MemberService {
         const updatedMember = this.memberRepository.merge(member.data, {
           ...updateMemberDto,
           member: user.data,
-          team: team.data,
+          timeline: team.data,
         });
         const result = await this.memberRepository.save(updatedMember);
         return {

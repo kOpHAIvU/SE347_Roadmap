@@ -10,9 +10,11 @@ export class CreateMemberDto {
     member: number;
 
     @IsNotEmpty()
-    team: number;
+    timeline: number;
 
     isActive: boolean;
+
+    permission: number;
 
 }
 

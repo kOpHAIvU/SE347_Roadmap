@@ -36,7 +36,7 @@ export class TeamService {
     try {
       const group = await this.teamRepository.create({
         ...createGroupDto,
-        timeline: timeline, 
+       // timeline: timeline, 
         leader: leader 
       });
   
@@ -141,7 +141,7 @@ export class TeamService {
       const updateTeam = await this.teamRepository.create( {
         ...team,
         leader,
-        timeline,
+        //timeline,
     })
 
       const result = await this.teamRepository.save(updateTeam);

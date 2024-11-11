@@ -13,6 +13,8 @@ export class CreateTimelineDto {
     @IsNotEmpty()
     roadmap: number;
 
+    leader: number;
+
     isActive: boolean;
     
 }

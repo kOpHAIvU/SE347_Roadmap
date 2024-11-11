@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import styles from './Comment.module.scss';
+import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import CommentItem from '../CommentItem/index.js';
@@ -11,43 +14,42 @@ function Comment() {
     let sourceImg = 'https://us-tuna-sounds-images.voicemod.net/b962568b-a0e4-4ccc-b041-2f230293d740-1661361350797.jpg';
     const [titleText, setTitleText] = useState("");
     const [comments, setComments] = useState([
-        {
-            id: 0,
-            poster: 'KoPhaiVu',
-            day: '10/10/2024',
-            avatar: sourceImg,
-            content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
-            parent: null
-        },
-        {
-            id: 1,
-            poster: 'KoPhaiVinh',
-            day: '10/10/2024',
-            avatar: sourceImg,
-            content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
-            parent: null
-        },
-        {
-            id: 2,
-            poster: 'KoPhaiLoan',
-            day: '10/10/2024',
-            avatar: sourceImg,
-            content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
-            parent: 0
-        },
-        {
-            id: 3,
-            poster: 'KoPhaiThu',
-            day: '10/10/2024',
-            avatar: sourceImg,
-            content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
-            parent: 0
-        }
+        // {
+        //     id: 0,
+        //     poster: 'KoPhaiVu',
+        //     day: '10/10/2024',
+        //     avatar: sourceImg,
+        //     content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
+        //     parent: null
+        // },
+        // {
+        //     id: 1,
+        //     poster: 'KoPhaiVinh',
+        //     day: '10/10/2024',
+        //     avatar: sourceImg,
+        //     content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
+        //     parent: null
+        // },
+        // {
+        //     id: 2,
+        //     poster: 'KoPhaiLoan',
+        //     day: '10/10/2024',
+        //     avatar: sourceImg,
+        //     content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
+        //     parent: 0
+        // },
+        // {
+        //     id: 3,
+        //     poster: 'KoPhaiThu',
+        //     day: '10/10/2024',
+        //     avatar: sourceImg,
+        //     content: 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.',
+        //     parent: 0
+        // }
     ])
 
-    const token = 'your-jwt-token'; // Thay bằng JWT token của bạn
-
-    // Hàm fetch để lấy danh sách comments
+   // const token = ""; 
+   
     const fetchComments = async () => {
         try {
             const response = await fetch('http://localhost:3004/comment/all', 
@@ -58,17 +60,18 @@ function Comment() {
                     //'Authorization': `Bearer ${token}`, // Cung cấp JWT token
                 },
             });
+            const data = await response.json(); 
 
-            if (!response.statusCode === 200) {
+            if (data.statusCode !== 200) {
                 throw new Error('Network response was not ok');
             }
 
-            const data = await response.json(); 
-            const comments = data.data[0]; // Lấy danh sách comments từ phần tử đầu tiên
+            console.log(data);
+            const comments = data.data[0]; 
             const modifiedComments = comments.map(comment => {
                 const createdAt = new Date(comment.createdAt);
                 const year = createdAt.getFullYear();
-                const month = String(createdAt.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần +1
+                const month = String(createdAt.getMonth() + 1).padStart(2, '0'); 
                 const day = String(createdAt.getDate()).padStart(2, '0');
                 const formattedDate = `${year}-${month}-${day}`;
                 return {
@@ -80,16 +83,48 @@ function Comment() {
                     parent: comment.parentComment.id,
                 }
         });
-            console.log(modifiedComments);
+            // console.log(modifiedComments);
             setComments(modifiedComments); 
         } catch (error) {
             console.log(error.message); 
         }
     };
-
     useEffect(() => {
         fetchComments();
-    }, []);
+    }, [])
+
+    // Function is used to deleted comment
+
+    const deleteComment = useCallback(async (commentId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    //'Authorization': `Bearer ${token}`, // Cung cấp JWT token
+                },
+            });
+
+            const data = await response.json(); 
+
+            if (data.statusCode === 500) {
+                throw new Error('Something went wrong');
+            }
+            if (data.statusCode === 404) {
+                throw new Error('Comment not found');
+            }
+
+            console.log(data);
+            await fetchComments(); 
+        } catch (error) {
+            console.log(error.message); 
+        }
+    }, []); 
+
+    // useEffect(() => {
+    //     deleteComment(24); 
+    // }, [deleteComment]);
+
 
     function getChildComments(parentId) {
         return comments.filter(comment => comment.parent === parentId);
