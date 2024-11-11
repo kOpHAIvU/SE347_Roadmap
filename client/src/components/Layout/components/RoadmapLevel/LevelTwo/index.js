@@ -7,18 +7,11 @@ import styles from './LevelTwo.module.scss';
 
 const cx = classNames.bind(styles);
 
-function LevelTwo({ userType,
-    children,
-    index,
-    handleSameLevelClick,
-    handleAddChildLevelNode,
-    updateNodeTickState,
-    updateNodeContent,
-    handleDeleteNode,
-    handleDueTimeChange,
-    nodeBelowTypes
+function LevelTwo({ userType, node, index, updateNodeContent
+    , updateNodeDue, handleDeleteNode, handleSameLevelClick
+    , handleAddChildLevelNode, nodeBelowTypes, updateNodeTickState
 }) {
-    const { ticked, content: initialContent, due_time, level, type, id } = children;
+    const { ticked, content: initialContent, due_time, type } = node;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
@@ -32,17 +25,17 @@ function LevelTwo({ userType,
         if (!isNaN(value)) {
             const newDueTime = `${value} days`;
             setDueTime(newDueTime);
-            handleDueTimeChange(index, newDueTime);
+            updateNodeDue(index, newDueTime);
         }
     };
     return (
         <div
             className={cx('level-two')}
-            key={children.id}>
+            key={node.id}>
             <div
                 className={cx('show-section')}>
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
+                    onClick={updateNodeTickState ? () => updateNodeTickState(index, node) : undefined}
                     icon={ticked ? (type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (type === 'Checkbox' ? faSquare : faCircle)}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
@@ -89,7 +82,7 @@ function LevelTwo({ userType,
             </div>
 
             {/* Kiểm tra nếu node là Checkbox thì không render hidden-section */}
-            {userType === 'Administrator' && children.type !== 'RadioButton' && (
+            {userType === 'Administrator' && node.type !== 'RadioButton' && (
                 <div
                     className={cx('hidden-section')}
                 >
@@ -97,7 +90,7 @@ function LevelTwo({ userType,
                         className={cx('same-level')}
                         icon={faSquarePlus}
                         onClick={() => {
-                            handleSameLevelClick(index, children.level, children.type);
+                            handleSameLevelClick(index, node.x, node.y, node.level, node.type);
                         }}
                     />
                     {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
@@ -105,14 +98,20 @@ function LevelTwo({ userType,
                         <FontAwesomeIcon
                             className={cx('child-level-check')}
                             icon={faSquare}
-                            onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                            onClick={() =>
+                                handleAddChildLevelNode(index
+                                    , Math.max(Math.min(node.content.length * 8, 350), 200) + (node.due_time.toString().length + 5) * 8
+                                    , node.x, node.y, node.level, 'Checkbox')}
                         />
                     ) : null}
                     {nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null ? (
                         <FontAwesomeIcon
                             className={cx('child-level-radio')}
                             icon={faCircle}
-                            onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
+                            onClick={() =>
+                                handleAddChildLevelNode(index,
+                                    Math.max(Math.min(node.content.length * 8, 350), 200) + (node.due_time.toString().length + 5) * 8
+                                    , node.x, node.y, node.level, 'RadioButton')}
                         />
                     ) : null}
                 </div>

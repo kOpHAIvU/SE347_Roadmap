@@ -8,14 +8,10 @@ import { faSquareCheck, faCircleCheck } from '@fortawesome/free-solid-svg-icons'
 const cx = classNames.bind(styles);
 
 function LevelThree({
-    children,
-    index,
-    updateNodeTickState,
-    updateNodeContent,
-    handleDeleteNode,
-    handleDueTimeChange
+    node, index, updateNodeContent
+    , updateNodeDue, handleDeleteNode, updateNodeTickState
 }) {
-    const { ticked, content: initialContent, due_time } = children;
+    const { ticked, content: initialContent, due_time } = node;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
@@ -28,11 +24,11 @@ function LevelThree({
     return (
         <div
             className={cx('level-three')}
-            key={children.id}>
+            key={node.id}>
             <div className={cx('show-section')}>
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
-                    icon={ticked ? (children.type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (children.type === 'Checkbox' ? faSquare : faCircle)}
+                    onClick={updateNodeTickState ? () => updateNodeTickState(index, node) : undefined}
+                    icon={ticked ? (node.type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (node.type === 'Checkbox' ? faSquare : faCircle)}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
 
@@ -60,7 +56,7 @@ function LevelThree({
                             if (!isNaN(dueTime)) {
                                 const newDueTime = `${dueTime} days`;
                                 setDueTime(newDueTime);
-                                handleDueTimeChange(index, newDueTime);
+                                updateNodeDue(index, newDueTime);
                             }
                         }}
                         onChange={(e) => !isNaN(e.target.value) && setDueTime(e.target.value)}

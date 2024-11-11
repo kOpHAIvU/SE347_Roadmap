@@ -8,18 +8,11 @@ import { useState } from 'react';
 const cx = classNames.bind(styles);
 
 function LevelOne({
-    userType,
-    children,
-    index,
-    handleSameLevelClick,
-    handleAddChildLevelNode,
-    updateNodeTickState,
-    updateNodeContent,
-    handleDeleteNode,
-    handleDueTimeChange,
-    nodeBelowTypes
+    userType, node, index, updateNodeContent
+    , updateNodeDue, handleDeleteNode, handleSameLevelClick
+    , handleAddChildLevelNode, nodeBelowTypes, updateNodeTickState
 }) {
-    const { ticked, content: initialContent, due_time: initialDueTime, level, type, id } = children;
+    const { ticked, content: initialContent, due_time: initialDueTime, level, type } = node;
     const [content, setContent] = useState(initialContent);
     const [dueTime, setDueTime] = useState(`${initialDueTime} days`);
     const [isEditing, setIsEditing] = useState(false);
@@ -35,18 +28,18 @@ function LevelOne({
         if (!isNaN(dueTime)) {
             const newDueTime = `${dueTime} days`; // Add ' days' after blur
             setDueTime(newDueTime);
-            handleDueTimeChange(index, newDueTime); // Gọi hàm cập nhật due-time
+            updateNodeDue(index, newDueTime); // Gọi hàm cập nhật due-time
         }
     };
 
     return (
         <div
             className={cx('level-one')}
-            key={children.id}>
+            key={node.id}>
             <div className={cx('show-section')}
             >
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
+                    onClick={updateNodeTickState ? () => updateNodeTickState(index, node) : undefined}
                     icon={ticked ? faSquareCheck : faSquare}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
@@ -122,14 +115,17 @@ function LevelOne({
                     <FontAwesomeIcon
                         className={cx('same-level')}
                         icon={faSquarePlus}
-                        onClick={() => handleSameLevelClick(index, level, type)}
+                        onClick={() => handleSameLevelClick(index, node.x, node.y, level, type)}
                     />
                     {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
                     {(nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null) && (
                         <FontAwesomeIcon
                             className={cx('child-level-check')}
                             icon={faSquare}
-                            onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                            onClick={() =>
+                                handleAddChildLevelNode(index
+                                    , Math.max(Math.min(node.content.length * 8, 350), 200) + (node.due_time.toString().length + 5) * 8
+                                    , node.x, node.y, node.level, 'Checkbox')}
                         />
                     )}
 
@@ -137,7 +133,10 @@ function LevelOne({
                         <FontAwesomeIcon
                             className={cx('child-level-radio')}
                             icon={faCircle}
-                            onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
+                            onClick={() =>
+                                handleAddChildLevelNode(index,
+                                    Math.max(Math.min(node.content.length * 8, 350), 200) + (node.due_time.toString().length + 5) * 8
+                                    , node.x, node.y, node.level, 'RadioButton')}
                         />
                     )}
 

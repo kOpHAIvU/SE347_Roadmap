@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faCircleDown, faSitemap, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
+import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './OwnRoadmap.module.scss';
@@ -67,6 +67,94 @@ function OwnRoadmap() {
         }
     };
 
+    const [nodes, setNodes] = useState([
+        { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định' },
+        { id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024' },
+    ]);
+    //const [nodes, setNodes] = useState(null);
+
+    const updateNodeContent = (index, newContent) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes[index] = { ...updatedNodes[index], content: newContent };
+            return updatedNodes;
+        });
+    };
+
+    const updateNodeDue = (index, newDue) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes[index] = { ...updatedNodes[index], due_time: newDue };
+            return updatedNodes;
+        });
+    };
+
+    const handleDeleteNode = (index) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            const targetLevel = updatedNodes[index].level;
+
+            // Xóa node tại vị trí index
+            updatedNodes.splice(index, 1);
+
+            // Tìm và xóa các node có level lớn hơn targetLevel
+            while (index < updatedNodes.length) {
+                if (updatedNodes[index].level > targetLevel) {
+                    updatedNodes.splice(index, 1);
+                } else {
+                    break; // Dừng khi gặp node có level bằng hoặc thấp hơn targetLevel
+                }
+            }
+
+            return updatedNodes;
+        });
+    };
+
+    const handleSameLevelClick = (index, x, y, level, type) => {
+        const newId = index + 1;
+        const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...' };
+
+        setNodes((prevLevels) => {
+            if (prevLevels === null) return [newLevel];
+
+            // Xác định vị trí chèn node mới
+            const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
+            const updatedNodes = insertIndex === -1
+                ? [...prevLevels, newLevel]
+                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
+
+            // Cập nhật id cho các node phía dưới
+            return updatedNodes.map((node, idx) => {
+                return idx > index ? { ...node, id: node.id + 1 } : node;
+            });
+        });
+    };
+
+    const handleAddChildLevelNode = (index, width, x, y, level, type) => {
+        const newId = index + 1; // Đặt id mới là index + 1
+        const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...' };
+
+        setNodes((prevLevels) => {
+            if (prevLevels === null) return [newLevel];
+
+            // Xác định vị trí chèn node mới
+            const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
+            const updatedNodes = insertIndex === -1
+                ? [...prevLevels, newLevel]
+                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
+
+            // Cập nhật id cho các node phía dưới
+            return updatedNodes.map((node, idx) => {
+                return idx > index ? { ...node, id: node.id + 1 } : node;
+            });
+        });
+    };
+
+    const nodeBelowType = (index) => {
+        return index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level
+            ? nodes[index + 1].type : null;
+    }
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('important-section')}>
@@ -103,7 +191,36 @@ function OwnRoadmap() {
                 <FontAwesomeIcon className={cx('rewrite-content-btn')} icon={penSolid} onClick={() => setIsEditing(!isEditing)} />
             </div>
             <div className={cx('roadmap-section')}>
-                {toggle ? <RoadmapSection /> : <AdvanceRoadmap/>}
+                {nodes === null ? (
+                    <div className={cx('add-first-node')} onClick={() => handleSameLevelClick(-1, 50, 0, 1, 'Checkbox')}>
+                        <FontAwesomeIcon className={cx('add-button')} icon={faSquarePlus} />
+                        <h1 className={cx('add-text')}>Create your first node now!!!</h1>
+                    </div>
+                ) : (
+                    toggle ?
+                        <AdvanceRoadmap
+                            nodes={nodes}
+                            setNodes={setNodes}
+                            updateNodeContent={updateNodeContent}
+                            updateNodeDue={updateNodeDue}
+                            handleDeleteNode={handleDeleteNode}
+                            handleSameLevelClick={handleSameLevelClick}
+                            handleAddChildLevelNode={handleAddChildLevelNode}
+                            nodeBelowType={nodeBelowType}
+                        />
+                        :
+                        <RoadmapSection
+                            nodes={nodes}
+                            setNodes={setNodes}
+                            updateNodeContent={updateNodeContent}
+                            updateNodeDue={updateNodeDue}
+                            handleDeleteNode={handleDeleteNode}
+                            handleSameLevelClick={handleSameLevelClick}
+                            handleAddChildLevelNode={handleAddChildLevelNode}
+                            nodeBelowType={nodeBelowType} />
+                )}
+
+
             </div>
             <div className={cx('drop-react')}>
                 <button onClick={() => setLoved(!loved)} className={cx('react-love', { loved })}>

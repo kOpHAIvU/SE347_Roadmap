@@ -1,32 +1,26 @@
 import { Stage, Layer, Arrow } from 'react-konva';
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames/bind';
-import styles from './AdvanceRoadmap.module.scss';
-import { AdvanceLevelOne } from '../AdvanceRoadmapLevel/index.js';
+import React, { useEffect, useRef, useState } from 'react';
+import AdvanceRoadmapLevel from '../AdvanceRoadmapLevel/index.js';
 
-const cx = classNames.bind(styles);
-
-function AdvanceRoadmap() {
-    const [nodes, setNodes] = useState([
-        { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định' },
-        { id: 2, level: 1, x: 150, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Continue here...' },
-    ]);
-
+function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType }) {
     const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: 600 });
 
     useEffect(() => {
         const updateStageSize = () => {
-            const xValues = nodes.map(node => node.x);
             const yValues = nodes.map(node => node.y);
             const widths = nodes.map(node => {
-                const nodeWidth = Math.max(Math.min(node.content.length * 8, 300), 200) + 85;
-                return node.x + nodeWidth;
+                const contentWidth = Math.max(Math.min(node.content.length * 8, 350), 200) + 85;
+                const dueWidth = (node.due_time.toString() + 5) * 8;
+                return node.x + contentWidth + dueWidth;
             });
 
-            const maxWidth = Math.max(...widths) + 400;
-            const maxHeight = Math.max(...yValues) + 100; // 200 là khoảng trống cho viền
+            const maxWidth = Math.max(...widths) + 200;
+            const maxHeight = Math.max(...yValues) + 300; // 200 là khoảng trống cho viền
 
-            setStageSize({ width: maxWidth, height: maxHeight });
+            const stageWidth = Math.max(maxWidth, window.innerWidth);
+            const stageHeight = Math.max(maxHeight, 600);
+
+            setStageSize({ width: stageWidth, height: stageHeight });
         };
 
         updateStageSize();
@@ -39,10 +33,40 @@ function AdvanceRoadmap() {
         setNodes(newNodes);
     };
 
+    const [isPanning, setIsPanning] = useState(false);
+    const panStartPos = useRef({ x: 0, y: 0 });
+    const stageRef = useRef(null);
+
+    const handleMouseDown = (e) => {
+        if (e.evt.button === 2) { // Kiểm tra nếu là chuột phải
+            e.evt.preventDefault(); // Ngăn menu ngữ cảnh xuất hiện
+            setIsPanning(true);
+            const stage = stageRef.current;
+            panStartPos.current = { x: stage.x(), y: stage.y(), mouseX: e.evt.clientX, mouseY: e.evt.clientY };
+            stage.container().style.cursor = 'pointer'; // Đổi con trỏ thành pointer khi vào chế độ kéo
+        }
+    };
+
+    const handleMouseMove = (e) => {
+        if (isPanning) {
+            const stage = stageRef.current;
+            const dx = e.evt.clientX - panStartPos.current.mouseX;
+            const dy = e.evt.clientY - panStartPos.current.mouseY;
+            stage.position({ x: panStartPos.current.x + dx, y: panStartPos.current.y + dy });
+            stage.batchDraw();
+        }
+    };
+
+    const handleMouseUp = (e) => {
+        if (isPanning && e.evt.button === 2) { // Kiểm tra nếu nhả chuột phải
+            setIsPanning(false);
+            stageRef.current.container().style.cursor = 'default'; // Đổi con trỏ về default khi thoát chế độ kéo
+        }
+    };
 
     const getCenterOfSide = (node, side) => {
         const { x, y } = node;
-        const width = Math.max(Math.min(node.content.length * 8, 400), 200) + 62 + 85;
+        const width = Math.max(Math.min(node.content.length * 8, 350), 200) + ((node.due_time.toString() + 5) * 8) - 85;
         const lineCount = Math.ceil(node.content.length / (width / 8));
         const height = (16 * 1.5 * lineCount) + 1.5 * (lineCount - 1) + 20;
 
@@ -81,7 +105,27 @@ function AdvanceRoadmap() {
             rightToLeft: Math.abs(startLeft.x - endRight.x),
         };
 
-        // Xác định mũi tên nối giữa các cạnh gần nhất
+        // Nếu startNode nằm hoàn toàn bên trái của endNode, chỉ sử dụng hướng left-to-right
+        if (startNode.x + (startNode.width || 200) < endNode.x) {
+            return [startRight.x, startRight.y, endLeft.x, endLeft.y];
+        }
+
+        // Nếu startNode nằm hoàn toàn bên phải của endNode, chỉ sử dụng hướng right-to-left
+        if (startNode.x > endNode.x + (endNode.width || 200)) {
+            return [startLeft.x, startLeft.y, endRight.x, endRight.y];
+        }
+
+        // Nếu startNode nằm hoàn toàn bên trên của endNode, chỉ sử dụng hướng top-to-bottom
+        if (startNode.y + (startNode.height || 50) < endNode.y) {
+            return [startBottom.x, startBottom.y, endTop.x, endTop.y];
+        }
+
+        // Nếu startNode nằm hoàn toàn bên dưới của endNode, chỉ sử dụng hướng bottom-to-top
+        if (startNode.y > endNode.y + (endNode.height || 50)) {
+            return [startTop.x, startTop.y, endBottom.x, endBottom.y];
+        }
+
+        // Các trường hợp khác dựa trên khoảng cách
         if (verticalDistances.topToBottom < horizontalDistances.leftToRight && verticalDistances.topToBottom < verticalDistances.bottomToTop) {
             return [startBottom.x, startBottom.y, endTop.x, endTop.y];
         }
@@ -90,13 +134,14 @@ function AdvanceRoadmap() {
             return [startRight.x, startRight.y, endLeft.x, endLeft.y];
         }
 
-        // Mặc định nối giữa cạnh bên trái hoặc phải
+        // Mặc định nối giữa cạnh bên trái hoặc phải nếu không có điều kiện cụ thể nào
         if (startRight.x < endLeft.x) {
             return [startRight.x, startRight.y, endLeft.x, endLeft.y];
         } else {
             return [startLeft.x, startLeft.y, endRight.x, endRight.y];
         }
     };
+
 
     const findTargetNode = (currentNode) => {
         const currentIndex = nodes.findIndex(node => node.id === currentNode.id);
@@ -187,92 +232,6 @@ function AdvanceRoadmap() {
         return arrows;
     };
 
-
-    const updateNodeContent = (index, newContent) => {
-        setNodes((prevNodes) => {
-            const updatedNodes = [...prevNodes];
-            updatedNodes[index] = { ...updatedNodes[index], content: newContent };
-            return updatedNodes;
-        });
-    };
-
-    const updateNodeDue = (index, newDue) => {
-        setNodes((prevNodes) => {
-            const updatedNodes = [...prevNodes];
-            updatedNodes[index] = { ...updatedNodes[index], due_time: newDue };
-            return updatedNodes;
-        });
-    };
-
-    const handleDeleteNode = (index) => {
-        setNodes((prevNodes) => {
-            const updatedNodes = [...prevNodes];
-            const targetLevel = updatedNodes[index].level;
-
-            // Xóa node tại vị trí index
-            updatedNodes.splice(index, 1);
-
-            // Tìm và xóa các node có level lớn hơn targetLevel
-            while (index < updatedNodes.length) {
-                if (updatedNodes[index].level > targetLevel) {
-                    updatedNodes.splice(index, 1);
-                } else {
-                    break; // Dừng khi gặp node có level bằng hoặc thấp hơn targetLevel
-                }
-            }
-
-            return updatedNodes;
-        });
-    };
-
-
-    const handleSameLevelClick = (index, x, y, level, type) => {
-        const newId = index + 1;
-        const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...' };
-
-        setNodes((prevLevels) => {
-            if (prevLevels === null) return [newLevel];
-
-            // Xác định vị trí chèn node mới
-            const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
-            const updatedNodes = insertIndex === -1
-                ? [...prevLevels, newLevel]
-                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
-
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
-        });
-    };
-
-    const handleAddChildLevelNode = (index, x, y, level, type) => {
-        const newId = index + 1; // Đặt id mới là index + 1
-        const newLevel = { id: newId, x: x + 600, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...' };
-
-        setNodes((prevLevels) => {
-            if (prevLevels === null) return [newLevel];
-
-            // Xác định vị trí chèn node mới
-            const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
-            const updatedNodes = insertIndex === -1
-                ? [...prevLevels, newLevel]
-                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
-
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
-        });
-    };
-
-    const nodeBelowType = (index) => {
-        console.log("Nodes ",index , " ",index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level
-            ? nodes[index + 1].type : null)
-        return index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level
-            ? nodes[index + 1].type : null;
-    }
-
     return (
         <div style={{
             border: '2px solid black',
@@ -280,10 +239,18 @@ function AdvanceRoadmap() {
             height: '600px',
             overflow: 'auto' // Cho phép cuộn nếu các node nằm ngoài vùng hiển thị
         }}>
-            <Stage id="canvas-id" width={stageSize.width} height={stageSize.height}>
+            <Stage
+                id="canvas-id"
+                width={stageSize.width}
+                height={stageSize.height}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onContextMenu={(e) => e.evt.preventDefault()}
+                ref={stageRef}>
                 <Layer>
                     {nodes.map((node, index) => {
-                        return <AdvanceLevelOne
+                        return <AdvanceRoadmapLevel
                             userType='Administrator'
                             key={node.id}
                             node={node}
