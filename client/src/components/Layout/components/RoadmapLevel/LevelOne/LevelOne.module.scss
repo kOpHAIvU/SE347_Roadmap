@@ -1,7 +1,14 @@
 .level-one {
+    width: calc(100% - 10px); /* 20px là tổng khoảng cách từ cả hai phía */
     border-top: 1px solid var(--gray-color);
     left: 10px;
+    right: 10px;
     position: relative;
+    transition: background-color 0.2s ease;
+
+    &.dragging {
+        background-color: var(--gray-color); // Ví dụ: màu nền khi kéo
+    }
 }
 
 .show-section {
@@ -12,10 +19,6 @@
     cursor: pointer;
     z-index: 2;
     transition: margin-bottom 0.5s ease;
-
-    &.with-hidden-section {
-        margin-bottom: 10px; /* Đảm bảo nó có khoảng cách đủ khi hidden-section hiển thị */
-    }
 
     &:hover {
         background-color: var(--gray-color);
@@ -121,26 +124,18 @@
 }
 
 .hidden-section {
-    position: absolute; /* Make it absolute */
     left: 0; /* Align to left */
     right: 0; /* Align to right */
-    margin: 0 0 10px 20px; /* Adjust as needed */
+    padding: 0 0 10px 20px; /* Adjust as needed */
     padding-top: 5px;
     background-color: white;
-    max-height: 0; /* Start with max-height 0 */
-    opacity: 0; /* Start hidden */
-    transition: max-height 1s ease-in, opacity 0.3s ease-in; /* Transition for smooth animation */
+    max-height: 100px; /* Set a maximum height for the reveal */
+    opacity: 1; /* Make it visible */
+    pointer-events: auto;
+    position: relative;
     overflow: hidden; /* Hide overflow content */
     z-index: 1;
     border-top: 1px solid var(--gray-color);
-
-    &.visible { /* Class added to control visibility */
-        max-height: 100px; /* Set a maximum height for the reveal */
-        opacity: 1; /* Make it visible */
-        pointer-events: auto;
-        position: relative;
-        transition: max-height 0.3s ease, opacity 0.3s ease-in; /* Ensure smooth transition */
-    }
 }
 
 .same-level,

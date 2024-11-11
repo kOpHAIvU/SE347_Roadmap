@@ -42,11 +42,11 @@
     padding: 0 5px;
 
     /* Thuộc tính cho text overflow */
-    display: -webkit-box;                /* Sử dụng box model */
-    -webkit-box-orient: vertical;        /* Định hướng theo chiều dọc */
-    overflow: hidden;                     /* Ẩn phần bị tràn */
-    -webkit-line-clamp: 2;               /* Giới hạn tối đa 3 dòng */
-    line-clamp: 3;                       /* Cách này chỉ hoạt động trên một số trình duyệt nhất định */
+    display: -webkit-box; /* Sử dụng box model */
+    -webkit-box-orient: vertical; /* Định hướng theo chiều dọc */
+    overflow: hidden; /* Ẩn phần bị tràn */
+    -webkit-line-clamp: 2; /* Giới hạn tối đa 3 dòng */
+    line-clamp: 3; /* Cách này chỉ hoạt động trên một số trình duyệt nhất định */
 }
 .below {
     display: flex;
@@ -60,7 +60,7 @@
     height: var(--icon-size);
     border-radius: 15px;
     display: flex;
-    margin: 5px 5px 5px 10px;
+    margin: 5px 0 5px 10px;
     background-color: transparent;
     border: 1.5px solid #6580eb;
     padding: 0;
@@ -98,17 +98,22 @@
 .clone-title {
     font-weight: 500;
 }
+.love {
+    color: var(--color-red);
+}
 
+.delete,
 .love {
     background-color: transparent;
-    height: var(--icon-size);
-    width: var(--icon-size);
-    color: var(--color-red);
-    align-items: center;
+    height: calc(var(--icon-size) - 2px);
+    width: calc(var(--icon-size) - 2px);
+    align-self: center;
     transition: var(--transform);
+    margin-left: 5px;
 
     &:hover {
-        transform: scale(1.9);
+        transform: scale(1.1);
+        color: var(--color-red);
     }
 
     &:active {
@@ -125,9 +130,128 @@
 }
 
 .bolt-icon {
+    margin-top: 5px;
     margin-right: 8px;
 }
 
 .num {
     margin-right: 3px;
+}
+
+//add-timeline
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    position: relative;
+
+    .close-btn {
+        margin: 10px 10px 0 0;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        width: auto;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1;
+        padding: 0;
+
+        &:hover {
+            color: red;
+        }
+    }
+}
+.form-name {
+    display: block;
+    line-height: 30px;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+
+    label {
+        display: inline-block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        width: auto;
+        line-height: 24px;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    textarea {
+        line-height: 1.5;
+        resize: none;
+        height: calc(3 * 1.6rem * 1.5);
+    }
+}
+
+.description {
+}
+
+.button-group {
+    padding: 10px 10px 0 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancel-btn,
+.create-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: #ccc;
+}
+
+.create-btn {
+    background: var(--main-color);
+    color: white;
+}
+
+.create-btn:disabled {
+    background: #9e9e9e;
+    cursor: not-allowed;
+}
+
+.form-name {
+    margin: 0 10px 10px 10px;
+}
+
+.delete-roadmap {
+    background-color: var(--main-color);
+    color: white;
 }
