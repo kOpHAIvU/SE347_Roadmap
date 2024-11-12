@@ -36,13 +36,11 @@
         background-color: var(--gray-color);
     }
 
-    &:hover .tick,
-    &:hover .content {
+    &:hover .tick {
         transform: scale(1.05);
     }
 
-    &:active .tick,
-    &:active .content {
+    &:active .tick {
         transform: scale(0.9);
     }
 }
