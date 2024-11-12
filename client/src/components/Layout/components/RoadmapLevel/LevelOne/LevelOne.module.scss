@@ -24,13 +24,11 @@
         background-color: var(--gray-color);
     }
 
-    &:hover .tick,
-    &:hover .level-one-content {
+    &:hover .tick {
         transform: scale(1.05); /* Tăng kích thước nhẹ */
     }
 
-    &:active .tick,
-    &:active .level-one-content {
+    &:active .tick {
         transform: scale(0.9); /* Thu nhỏ lại khi nhấn */
     }
 }

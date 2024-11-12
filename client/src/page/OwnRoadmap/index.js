@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
+import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './OwnRoadmap.module.scss';
@@ -155,21 +155,34 @@ function OwnRoadmap() {
             ? nodes[index + 1].type : null;
     }
 
+    const handleSave = () => {
+        console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
+    }
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('important-section')}>
-                <input
-                    className={cx('page-title')}
-                    value={roadName}
-                    onChange={handleRoadNameChange}
-                    onFocus={handleFocus}
-                    onBlur={handleBlur}
-                />
+                <div className={cx('title-container')}>
+                    <input
+                        className={cx('page-title')}
+                        value={roadName}
+                        onChange={handleRoadNameChange}
+                        onFocus={handleFocus}
+                        onBlur={handleBlur}
+                    />
 
-                <FontAwesomeIcon
-                    onClick={() => setToggle(!toggle)}
-                    icon={toggle ? faSitemap : faA}
-                    className={cx('toggle-icon')} />
+                    <FontAwesomeIcon
+                        onClick={() => setToggle(!toggle)}
+                        icon={toggle ? faSitemap : faA}
+                        className={cx('toggle-icon')}
+                        title={toggle ? 'Draw' : 'Collumn'}
+                    />
+                </div>
+
+                <div className={cx('save-setting')}>
+                    <button className={cx('save-btn')} onClick={() => handleSave}>Save</button>
+                    <FontAwesomeIcon icon={faGear} className={cx('setting-btn')} />
+                </div>
             </div>
 
             <div className={cx('content-section')}>
@@ -224,7 +237,7 @@ function OwnRoadmap() {
             </div>
             <div className={cx('drop-react')}>
                 <button onClick={() => setLoved(!loved)} className={cx('react-love', { loved })}>
-                    <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
+                    <FontAwesomeIcon className={cx('love-roadmap')} icon={loved ? faHeartSolid : faHeartRegular} />
                     <h1 className={cx('love-text')}>Love</h1>
                 </button>
                 <button className={cx('clone-roadmap')}>
