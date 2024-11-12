@@ -1,6 +1,6 @@
-// import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useState, useEffect, useCallback } from 'react';
-// import styles from './Comment.module.scss';
+import styles from './Comment.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';

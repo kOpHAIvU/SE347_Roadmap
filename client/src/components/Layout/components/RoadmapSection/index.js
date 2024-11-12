@@ -14,7 +14,7 @@ function RoadmapSection({ nodes, updateNodeContent, updateNodeDue, handleDeleteN
                         <div key={node.id}>
                             <LevelComponent
                                 userType="Administrator"
-                                node={node}  // Ensure this is not undefined
+                                node={node}
                                 index={index}
                                 updateNodeContent={updateNodeContent}
                                 handleDeleteNode={handleDeleteNode}
