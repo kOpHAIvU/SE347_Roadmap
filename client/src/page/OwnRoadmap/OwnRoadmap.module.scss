@@ -61,11 +61,16 @@
     border-radius: 7px;
     align-self: center;
     background-color: var(--gray-color);
+    transition: var(--transform);
     cursor: pointer;
 
     &:hover {
         background-color: var(--main-color);
         color: white;
+    }
+
+    &:active {
+        transform: scale(0.9);
     }
 }
 
@@ -78,6 +83,7 @@
     color: rgba(22, 24, 35, 0.6);
     cursor: pointer;
 }
+
 
 .content-section {
     margin: 0 15px;

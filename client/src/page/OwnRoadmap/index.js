@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './OwnRoadmap.module.scss';
 import classNames from 'classnames/bind';
 import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.js';
 import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.js';
+import SettingRoadmap from '~/components/Layout/components/SettingRoadmap/index.js';
+import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -18,6 +20,9 @@ function OwnRoadmap() {
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [loved, setLoved] = useState(false);
     const [toggle, setToggle] = useState(false);
+    const [showSetting, setShowSetting] = useState(false);
+    const [visibility, setVisibility] = useState("Private");
+    const [createTimelineDialog, setCreateTimelineDialog] = useState(false);
 
     const adjustTextareaHeight = () => {
         if (textareaRef.current) {
@@ -30,26 +35,6 @@ function OwnRoadmap() {
     useEffect(() => {
         if (isEditing) adjustTextareaHeight();
     }, [isEditing, titleText]);
-
-    // Handle focus on road name input
-    const handleFocus = () => {
-        if (roadName === 'Name not given') {
-            setRoadName(''); // Clear the input if it shows "Name not given"
-        }
-    };
-
-    // Handle blur on road name input
-    const handleBlur = () => {
-        if (roadName.trim() === '') {
-            setRoadName('Name not given'); // Reset to "Name not given" if input is empty
-        }
-    };
-
-    // Handle change for road name input
-    const handleRoadNameChange = (e) => {
-        const value = e.target.value;
-        setRoadName(value);
-    };
 
     // Handle focus on title text textarea
     const handleTitleFocus = () => {
@@ -66,6 +51,14 @@ function OwnRoadmap() {
             setTitleText('Make some description'); // Reset to "Make some description" if textarea is empty
         }
     };
+
+    const handleDeleteRoadmap = () => {
+        const confirmDelete = window.confirm(`Do you really want to delete "${roadName}" roadmap?`);
+
+        if (confirmDelete) {
+            window.location.href = "/home";
+        }
+    }
 
     const [nodes, setNodes] = useState([
         { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định' },
@@ -156,7 +149,15 @@ function OwnRoadmap() {
     }
 
     const handleSave = () => {
+        alert("Your changes have been saved!");
         console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
+    }
+
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setShowSetting(false);
+            setCreateTimelineDialog(false);
+        }
     }
 
     return (
@@ -166,9 +167,16 @@ function OwnRoadmap() {
                     <input
                         className={cx('page-title')}
                         value={roadName}
-                        onChange={handleRoadNameChange}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
+                        onChange={(e) => setRoadName(e.target.value)}
+                        onFocus={() => {
+                            if (roadName === 'Name not given')
+                                setRoadName('');
+                        }}
+                        onBlur={() => {
+                            if (roadName.trim() === '') {
+                                setRoadName('Name not given');
+                            }
+                        }}
                     />
 
                     <FontAwesomeIcon
@@ -180,10 +188,21 @@ function OwnRoadmap() {
                 </div>
 
                 <div className={cx('save-setting')}>
-                    <button className={cx('save-btn')} onClick={() => handleSave}>Save</button>
-                    <FontAwesomeIcon icon={faGear} className={cx('setting-btn')} />
+                    <button className={cx('save-btn')} onClick={handleSave}>Save</button>
+                    <FontAwesomeIcon
+                        icon={faGear}
+                        className={cx('setting-btn')}
+                        onClick={() => setShowSetting(true)} />
                 </div>
             </div>
+
+            {showSetting &&
+                <SettingRoadmap
+                    visibility={visibility}
+                    setVisibility={setVisibility}
+                    setShowSetting={setShowSetting}
+                    handleOutsideClick={handleOutsideClick}
+                    handleDeleteRoadmap={handleDeleteRoadmap} />}
 
             <div className={cx('content-section')}>
                 {isEditing ? (
@@ -240,11 +259,21 @@ function OwnRoadmap() {
                     <FontAwesomeIcon className={cx('love-roadmap')} icon={loved ? faHeartSolid : faHeartRegular} />
                     <h1 className={cx('love-text')}>Love</h1>
                 </button>
-                <button className={cx('clone-roadmap')}>
+                <button className={cx('clone-roadmap')} onClick={() => setCreateTimelineDialog(true)}>
                     <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
                     <h1 className={cx('clone-text')}>Clone</h1>
                 </button>
             </div>
+            {createTimelineDialog &&
+                <CreateTimeline
+                    newId="hehe"
+                    title={roadName}
+                    setTitle={setRoadName}
+                    content={titleText}
+                    setContent={setTitleText}
+                    handleOutsideClick={handleOutsideClick}
+                    setShowDialog={setCreateTimelineDialog}
+                />}
             <Comment />
         </div>
     );
