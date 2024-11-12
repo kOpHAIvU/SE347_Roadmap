@@ -1,43 +1,37 @@
 .level-two {
-    left: 10px;
-    right: 10px;
-    position: relative;
+    width: calc(100% - 38px);
+    border-top: 1px solid var(--gray-color);
     margin-left: 28px;
+    transition: background-color 0.2s ease;
+
+    &.dragging {
+        background-color: var(--gray-color);
+    }
 
     &::before {
         content: '';
         position: absolute;
-        width: 1px;
-        height: 47px;
-        background-color: var(--gray-color);
+        width: 2px;
+        height: 45px;
+        background-color: var(--main-color);
     }
 }
 
 .show-section {
     display: flex;
-    width: 100%;
     padding: 10px 0 10px 20px;
-    max-width: 100%;
     cursor: pointer;
-    z-index: 2;
     transition: margin-bottom 0.5s ease;
-
-    &.with-hidden-section {
-        margin-bottom: 10px; /* Đảm bảo nó có khoảng cách đủ khi hidden-section hiển thị */
-    }
 
     &:hover {
         background-color: var(--gray-color);
+        .tick {
+            transform: scale(1.05);
+        }
     }
 
-    &:hover .tick,
-    &:hover .content {
-        transform: scale(1.05); /* Tăng kích thước nhẹ */
-    }
-
-    &:active .tick,
-    &:active .content {
-        transform: scale(0.9); /* Thu nhỏ lại khi nhấn */
+    &:active .tick {
+        transform: scale(0.9);
     }
 }
 
@@ -47,7 +41,6 @@
     width: var(--icon-size);
     border-radius: 6px;
     cursor: pointer;
-    align-items: center;
     transition: transform 0.2s ease;
 }
 
@@ -55,30 +48,11 @@
     color: var(--main-color);
 }
 
-.content {
-    font-weight: 500;
-    transition: transform 0.2s ease;
-
-    &:hover {
-        text-decoration: underline;
-        text-decoration-color: var(--main-color);
-        text-decoration-thickness: 2px;
-        color: var(--main-color);
-    }
-}
-
 .content,
 .content-edited {
     color: black;
     margin-left: 10px;
     font-size: 1.4rem;
-    padding: 0;
-    width: auto;
-    align-items: center;
-}
-
-.content-edited {
-    background-color: transparent;
 }
 
 .due-time {
@@ -131,25 +105,19 @@
 }
 
 .hidden-section {
-    position: absolute; /* Make it absolute */
-    left: 0; /* Align to left */
-    right: 0; /* Align to right */
-    margin: 0 0 10px 20px; /* Adjust as needed */
-    padding-top: 5px;
-    background-color: white;
-    max-height: 0; /* Start with max-height 0 */
-    opacity: 0; /* Start hidden */
-    transition: max-height 0.3s ease, opacity 0.3s ease-in; /* Transition for smooth animation */
-    overflow: hidden; /* Hide overflow content */
-    z-index: 1;
+    position: relative;
+    padding: 5px 20px 10px;
+    max-height: 100px;
     border-top: 1px solid var(--gray-color);
 
-    &.visible { /* Class added to control visibility */
-        max-height: 100px; /* Set a maximum height for the reveal */
-        opacity: 1; /* Make it visible */
-        pointer-events: auto;
-        position: relative;
-        transition: max-height 0.3s ease, opacity 0.3s ease-in; /* Ensure smooth transition */
+    &::before {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 37px;
+        top: 0px;
+        left: 0px;
+        background-color: var(--main-color);
     }
 }
 
@@ -160,15 +128,10 @@
     width: 17px;
     color: rgba(22, 24, 35, 0.5);
     transition: transform 0.3s ease-in;
-    padding-right: 2px;
-    transform: Y;
 
     &:hover {
-        height: 19px;
-        width: 19px;
-        color: var(--main-color);
+        transform: scale(1.1);
     }
-
     &:active {
         scale: 0.8;
     }

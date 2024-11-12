@@ -1,0 +1,52 @@
+.wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.all-message {
+    height: calc(100% - 60px);
+    overflow-y: auto; /* Cho phép cuộn dọc */
+    display: flex;
+    flex-direction: column; /* Để các tin nhắn xếp từ trên xuống */
+}
+
+.make-message {
+    height: 60px;
+    width: 100%;
+    display: flex;
+    border-top: 1px solid var(--gray-color);
+}
+
+.input-message {
+    margin-left: 10px;
+    flex: 1;
+    font-size: 1.4rem;
+    resize: none;
+    overflow-y: auto;
+    border: none;
+    outline: none;
+    padding: 7px 0;
+    display: flex;
+    align-items: center;
+}
+
+.send-btn {
+    height: 20px;
+    width: 20px;
+    color: var(--main-color);
+    align-self: center;
+    margin-right: 8px;
+    padding: 7px;
+    border-radius: 50%;
+    transition: var(--transform);
+
+    &:hover {
+        transform: scale(1.05);
+        background-color: var(--gray-color);
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}

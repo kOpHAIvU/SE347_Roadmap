@@ -1,4 +1,44 @@
 .wrapper {
-    width: 100vh;
+    width: 100vw;
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #313982;
+}
+
+.error {
+    font-size: 10rem;
+    color: #000000;
+    line-height: 1.2; 
+}
+
+.text404 {
+    font-size: 10rem;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.textNotFound {
+    font-size: 8rem;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.btnGoHome {
+    padding: 18px 38px;
+    font-size: 2rem;
+    color: #000000;
+    background-color: #ffffff;
+    border: none;
+    width: auto;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: #a29cd8;
+    }
 }

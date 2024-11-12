@@ -3,59 +3,138 @@
     margin: 0;
     padding: 24px;
     background-color: #fff;
+    position: relative;
 
     h2, h3 {
         margin-bottom: 10px;
     }
-    &.blurred {
-        filter: blur(4px); // Làm mờ phần còn lại
-        pointer-events: none; // Ngăn người dùng tương tác với phần còn lại
+    &.blur-background {
+        filter: blur(4px); 
+        pointer-events: none; 
+    }
+}    
+
+.inviteForm {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    width: 36%;
+    border-radius: 8px;  
+}
+
+.header-form {
+    padding: 14px 18px 6px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; 
+    background-color: #f0f0f0;
+}
+
+.footer-form {
+    padding: 10px;
+    display: flex;
+    background-color: #f0f0f0;
+}
+
+.closeIcon {
+    font-size: 2rem;
+    color: #333;
+    cursor: pointer;
+
+    &:hover {
+        color: red; 
+    }
+}
+
+.contentForm {
+    padding: 18px;
+
+    label {
+        display: block;
+        margin-bottom: 10px;
     }
     
-    .inviteForm {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: white;
-        padding: 20px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        z-index: 10;
-        width: 300px;
-        border-radius: 8px;
-    
-        input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-    
-        .formButtons {
-            display: flex;
-            justify-content: space-between;
-        }
-    
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-    }
-    
-    .overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
+    input[type="text"], input[type="email"], textarea {
         width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 9;
-        cursor: pointer;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fcfcfc;
+
+        &:focus {
+            border-color: #6580EB; 
+            box-shadow: 0 0 4px rgba(101, 128, 235, 0.5); // Hiệu ứng bóng cho viền
+            outline: none;
+        }
     }
-    
-      
+
+    textarea {
+        height: 100px;
+    }
+
+    .roleRadioGroup {
+        display: flex;
+        gap: 15px;  
+        margin-top: 5px;
+
+        input[type="radio"] {
+            margin-right: 5px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+        }
+    }
+}
+
+.btnCancel, .btnSubmit {
+    border: 1.2px solid rgba(24, 24, 25, 0.7);
+    padding: 8px 12px;
+    cursor: pointer;
+    width: auto;
+    border-radius: 5px;
+    &:hover {
+        border-color: rgba(24, 24, 25, 0.9);
+    }
+
+    &:active {
+        transform: translateY(2px); 
+    }
+}
+.btnCancel {    
+    margin-left: auto;
+    margin-right: 10px;
+    background-color: white;
+
+    &:hover {
+        background-color: #f0f0f0;
+        border-color: rgba(24, 24, 25, 1);
+    }
+
+    &:active {
+        background-color: #e0e0e0;
+    }
+}
+
+.btnSubmit {
+    background-color: #6580EB;
+    color: white;
+
+    &:hover {
+        background-color: #4b6bcb;
+        border-color: rgba(24, 24, 25, 0.9);
+    }
+
+    &:active {
+        background-color: #3f5bbf;
+        border-color: rgba(24, 24, 25, 1);
+    }
 }
 
 .user-header {
