@@ -19,11 +19,29 @@ function Timeline() {
     const [showSetting, setShowSetting] = useState(false);
     const [hoveredIndex, setHoveredIndex] = useState(null);
 
+    const nodeDetail = `
+    <h2>What is GitHub?</h2>
+    <p><span style="background-color: rgb(246, 249, 252); color: rgb(33, 51, 67);">GitHub is an online software development platform. It's used for storing, tracking, and collaborating on software projects. </span></p>
+    <p>It makes it easy for developers to share code files and collaborate with fellow developers on open-source projects. GitHub also serves as a social networking site where developers can openly network, collaborate, and pitch their work.</p>
+    <p>Since its founding in 2008, GitHub has acquired millions of users and established itself as a go-to platform for collaborative software projects. This free service comes with several helpful features for sharing code and working with others in real time.</p>
+    <p>On top of its code-related functions, GitHub encourages users to build a personal profile and brand for themselves. You can visit anyone’s profile and see what projects they own and contribute to. This makes GitHub a type of social network for programmers and fosters a collaborative approach to software and <a href="https://blog.hubspot.com/website/website-development?hubs_content=blog.hubspot.com/website/what-is-github-used-for&amp;hubs_content-cta=website%20development" rel="noopener noreferrer" target="_blank" style="color: var(--cl-anchor-color,#0068b1);"><strong>website development</strong></a>.</p>
+    <h3>How does GitHub work?</h3>
+    <p>GitHub users create accounts, upload files, and create coding projects. But the real work of GitHub happens when users begin to collaborate.</p>
+    <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
+    `;
+
     // State for the list of levels
     const [nodes, setNodes] = useState([
-        { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định' },
-        { id: 2, level: 2, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024' },
-        { id: 2, level: 3, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024' }
+        {
+            id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2,
+            content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
+            nodeDetail: nodeDetail
+        },
+        {
+            id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
+            content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
+            nodeDetail: ''
+        },
     ]);
 
     const updateNodeContent = (index, newContent) => {
@@ -38,6 +56,14 @@ function Timeline() {
         setNodes((prevNodes) => {
             const updatedNodes = [...prevNodes];
             updatedNodes[index] = { ...updatedNodes[index], due_time: newDue };
+            return updatedNodes;
+        });
+    };
+
+    const updateNodeDetail = (index, newDetail) => {
+        setNodes((prevNodes) => {
+            const updatedNodes = [...prevNodes];
+            updatedNodes[index] = { ...updatedNodes[index], nodeDetail: newDetail };
             return updatedNodes;
         });
     };
@@ -195,6 +221,7 @@ function Timeline() {
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}
                             updateNodeDue={updateNodeDue}
+                            updateNodeDetail={updateNodeDetail}
                             handleDeleteNode={handleDeleteNode}
                             handleSameLevelClick={handleSameLevelClick}
                             handleAddChildLevelNode={handleAddChildLevelNode}
@@ -208,6 +235,7 @@ function Timeline() {
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}
                             updateNodeDue={updateNodeDue}
+                            updateNodeDetail={updateNodeDetail}
                             handleDeleteNode={handleDeleteNode}
                             handleSameLevelClick={handleSameLevelClick}
                             handleAddChildLevelNode={handleAddChildLevelNode}

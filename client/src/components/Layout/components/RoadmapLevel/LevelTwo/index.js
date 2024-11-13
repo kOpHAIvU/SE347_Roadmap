@@ -4,17 +4,19 @@ import { faCircleCheck, faSquareCheck } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './LevelTwo.module.scss';
+import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
 
 function LevelTwo({ userType, node, index, updateNodeContent
-    , updateNodeDue, handleDeleteNode, handleSameLevelClick
+    , updateNodeDue, updateNodeDetail, handleDeleteNode, handleSameLevelClick
     , handleAddChildLevelNode, nodeBelowTypes, updateTickState
 }) {
     const { ticked, content: initialContent, due_time, type } = node;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
 
     const handleSaveContent = () => {
         setIsEditing(false);
@@ -28,6 +30,13 @@ function LevelTwo({ userType, node, index, updateNodeContent
             updateNodeDue(index, newDueTime);
         }
     };
+
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false)
+        }
+    }
+
     return (
         <div
             className={cx('level-two')}
@@ -54,8 +63,17 @@ function LevelTwo({ userType, node, index, updateNodeContent
                         autoFocus
                     />
                 ) : (
-                    <h1 className={cx('content')}>{content}</h1>
+                    <h1 className={cx('content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
+
+                {openNodeDetail &&
+                    <NodeDetail
+                        userType={userType}
+                        index={index}
+                        nodeDetail={node.nodeDetail}
+                        updateNodeDetail={updateNodeDetail}
+                        handleOutsideClick={handleOutsideClick}
+                    />}
 
                 <div className={cx('update-node')}>
                     <input

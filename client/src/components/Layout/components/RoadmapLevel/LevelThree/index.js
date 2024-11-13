@@ -4,22 +4,30 @@ import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
 
 function LevelThree({
     userType, node, index, updateNodeContent
-    , updateNodeDue, handleDeleteNode, updateTickState
+    , updateNodeDue, updateNodeDetail, handleDeleteNode, updateTickState
 }) {
     const { ticked, content: initialContent, due_time } = node;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
         updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
     };
+
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false)
+        }
+    }
 
     return (
         <div
@@ -46,8 +54,17 @@ function LevelThree({
                         autoFocus
                     />
                 ) : (
-                    <h1 className={cx('content')}>{content}</h1>
+                    <h1 className={cx('content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
+
+                {openNodeDetail &&
+                    <NodeDetail
+                        userType={userType}
+                        index={index}
+                        nodeDetail={node.nodeDetail}
+                        updateNodeDetail={updateNodeDetail}
+                        handleOutsideClick={handleOutsideClick}
+                    />}
 
                 <div className={cx('update-node')}>
                     <input

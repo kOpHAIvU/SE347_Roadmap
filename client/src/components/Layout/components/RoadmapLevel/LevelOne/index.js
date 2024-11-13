@@ -4,12 +4,13 @@ import classNames from 'classnames/bind';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
+import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
 
 function LevelOne({
     userType, node, index, updateNodeContent
-    , updateNodeDue, handleDeleteNode, handleSameLevelClick
+    , updateNodeDue, handleDeleteNode, updateNodeDetail, handleSameLevelClick
     , handleAddChildLevelNode, nodeBelowTypes, updateTickState
 }) {
     const { ticked, content: initialContent, due_time: initialDueTime, level, type } = node;
@@ -17,6 +18,7 @@ function LevelOne({
     const [dueTime, setDueTime] = useState(`${initialDueTime} days`);
     const [isEditing, setIsEditing] = useState(false);
     const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
@@ -31,6 +33,12 @@ function LevelOne({
             updateNodeDue(index, newDueTime); // Gọi hàm cập nhật due-time
         }
     };
+
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false)
+        }
+    }
 
     return (
         <div
@@ -63,8 +71,17 @@ function LevelOne({
                     />
 
                 ) : (
-                    <h1 className={cx('level-one-content')}>{content}</h1>
+                    <h1 className={cx('level-one-content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
+
+                {openNodeDetail &&
+                    <NodeDetail
+                        userType={userType}
+                        index={index}
+                        nodeDetail={node.nodeDetail}
+                        updateNodeDetail={updateNodeDetail}
+                        handleOutsideClick={handleOutsideClick}
+                    />}
 
                 <div className={cx('update-node')}>
                     {userType === 'Reviewer' ? (

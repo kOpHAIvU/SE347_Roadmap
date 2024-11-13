@@ -1,9 +1,13 @@
 import { Stage, Layer, Arrow } from 'react-konva';
 import React, { useEffect, useRef, useState } from 'react';
 import AdvanceRoadmapLevel from '../AdvanceRoadmapLevel/index.js';
+import NodeDetail from '../NodeDetail/index.js';
 
-function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType }) {
+function AdvanceRoadmap({ userType, nodes, setNodes
+    , updateNodeContent, updateNodeDue, updateNodeDetail
+    , handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType }) {
     const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: 600 });
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
 
     useEffect(() => {
         const updateStageSize = () => {
@@ -251,13 +255,14 @@ function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, han
                 <Layer>
                     {nodes.map((node, index) => {
                         return <AdvanceRoadmapLevel
-                            userType='Administrator'
+                            userType={userType}
                             key={node.id}
                             node={node}
                             index={index}
                             onDragMove={(e) => handleDragMove(e, node.id)}
                             updateNodeContent={updateNodeContent}
                             updateNodeDue={updateNodeDue}
+                            updateNodeDetail={updateNodeDetail}
                             handleDeleteNode={handleDeleteNode}
                             handleSameLevelClick={handleSameLevelClick}
                             handleAddChildLevelNode={handleAddChildLevelNode}
@@ -268,6 +273,15 @@ function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, han
                     {renderArrows()}
                 </Layer>
             </Stage>
+
+            {/* {openNodeDetail &&
+                <NodeDetail
+                    userType={userType}
+                    index={index}
+                    nodeDetail={node.nodeDetail}
+                    updateNodeDetail={updateNodeDetail}
+                    handleOutsideClick={handleOutsideClick}
+                />} */}
         </div>
     );
 }

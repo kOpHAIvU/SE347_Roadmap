@@ -55,6 +55,16 @@
     font-size: 1.4rem;
 }
 
+.content {
+    font-weight: 600;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        text-decoration: underline;
+        color: var(--main-color);
+    }
+}
+
 .due-time {
     font-weight: 400;
     color: #666666;
