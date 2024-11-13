@@ -231,6 +231,7 @@ function OwnRoadmap() {
                 ) : (
                     toggle ?
                         <AdvanceRoadmap
+                            userType={'Administrator'}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}
@@ -242,6 +243,7 @@ function OwnRoadmap() {
                         />
                         :
                         <RoadmapSection
+                            userType={'Administrator'}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}

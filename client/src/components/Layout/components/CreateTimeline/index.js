@@ -1,8 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import styles from './CreateTimeline.module.scss';
-import classNames from 'classnames/bind';
 import { useNavigate } from 'react-router-dom';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import styles from './CreateTimeline.module.scss';
+import classNames from 'classnames/bind';
 
 const cx = classNames.bind(styles);
 

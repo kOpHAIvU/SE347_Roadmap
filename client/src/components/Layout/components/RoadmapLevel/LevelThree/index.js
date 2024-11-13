@@ -8,8 +8,8 @@ import { faSquareCheck, faCircleCheck } from '@fortawesome/free-solid-svg-icons'
 const cx = classNames.bind(styles);
 
 function LevelThree({
-    node, index, updateNodeContent
-    , updateNodeDue, handleDeleteNode, updateNodeTickState
+    userType, node, index, updateNodeContent
+    , updateNodeDue, handleDeleteNode, updateTickState
 }) {
     const { ticked, content: initialContent, due_time } = node;
     const [content, setContent] = useState(initialContent);
@@ -27,7 +27,10 @@ function LevelThree({
             key={node.id}>
             <div className={cx('show-section')}>
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, node) : undefined}
+                    onClick={
+                        updateTickState && userType !== "Viewer"
+                            ? () => updateTickState(index, node)
+                            : undefined}
                     icon={ticked ? (node.type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (node.type === 'Checkbox' ? faSquare : faCircle)}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
@@ -69,19 +72,24 @@ function LevelThree({
                         }}
                     />
 
-                    <FontAwesomeIcon
-                        onClick={() => setIsEditing(true)}
-                        icon={penRegular}
-                        className={cx('rewrite-node')}
-                    />
+                    {(userType === 'Administrator' || userType === 'Editor') && (
+                        <>
+                            <FontAwesomeIcon
+                                onClick={() => setIsEditing(true)}
+                                icon={penRegular}
+                                className={cx('rewrite-node')}
+                            />
 
-                    <FontAwesomeIcon
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteNode(index)
-                        }}
-                        icon={faTrashCan}
-                        className={cx('delete-node')} />
+                            <FontAwesomeIcon
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteNode(index);
+                                }}
+                                icon={faTrashCan}
+                                className={cx('delete-node')}
+                            />
+                        </>
+                    )}
                 </div>
             </div>
         </div>

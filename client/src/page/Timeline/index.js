@@ -1,7 +1,4 @@
-import { useRef, useState } from 'react';
-import LevelOne from '~/components/Layout/components/RoadmapLevel/LevelOne/index.js';
-import LevelTwo from '~/components/Layout/components/RoadmapLevel/LevelTwo/index.js';
-import LevelThree from '~/components/Layout/components/RoadmapLevel/LevelThree/index.js';
+import { useState } from 'react';
 import ChatSection from '~/components/Layout/components/ChatSection/index.js';
 import classNames from 'classnames/bind';
 import styles from './Timeline.module.scss';
@@ -13,24 +10,21 @@ import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.
 const cx = classNames.bind(styles);
 
 function Timeline() {
-    const authority = 'Administrator'
+    const authority = 'Viewer'
     let roadmapName = 'Name not given';
     let title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
-
-
-    // New state to track the hovered index
     const [hoveredIndex, setHoveredIndex] = useState(null);
 
     // State for the list of levels
     const [nodes, setNodes] = useState([
         { id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2, content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định' },
-        { id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024' },
+        { id: 2, level: 2, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024' },
+        { id: 2, level: 3, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024' }
     ]);
-    const [activeContentIndex, setActiveContentIndex] = useState(null); // To track which node is active
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
@@ -196,6 +190,7 @@ function Timeline() {
                 <div className={cx('timeline-section')}>
                     {toggle ?
                         <AdvanceRoadmap
+                            userType={authority}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}
@@ -208,6 +203,7 @@ function Timeline() {
                         />
                         :
                         <RoadmapSection
+                            userType={authority}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}

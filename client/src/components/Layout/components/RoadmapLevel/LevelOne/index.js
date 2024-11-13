@@ -10,7 +10,7 @@ const cx = classNames.bind(styles);
 function LevelOne({
     userType, node, index, updateNodeContent
     , updateNodeDue, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes, updateNodeTickState
+    , handleAddChildLevelNode, nodeBelowTypes, updateTickState
 }) {
     const { ticked, content: initialContent, due_time: initialDueTime, level, type } = node;
     const [content, setContent] = useState(initialContent);
@@ -36,10 +36,12 @@ function LevelOne({
         <div
             className={cx('level-one')}
             key={node.id}>
-            <div className={cx('show-section')}
-            >
+            <div className={cx('show-section')}>
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, node) : undefined}
+                    onClick={
+                        updateTickState && userType !== "Viewer"
+                            ? () => updateTickState(index, node)
+                            : undefined}
                     icon={ticked ? faSquareCheck : faSquare}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
