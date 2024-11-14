@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import { join } from 'path';
 
 // Load .env file
-dotenv.config({ path: join(__dirname, '../../.env') });
+dotenv.config({ path: join(__dirname, "../../.env") });
 
 export const env = {
   APP: {
@@ -19,4 +19,11 @@ export const env = {
   API_KEYS: {
     GEMINI: process.env.GEMINI_API_KEY || '',
   },
+
+  RABBITMQ: {
+    NAME: process.env.NAME|| 'rabbitmq',
+    URL: process.env.URL || 'amqp://localhost:5672',
+    QUEUE: process.env.QUEUE || 'queue',
+  }
+
 };

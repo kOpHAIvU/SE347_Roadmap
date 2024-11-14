@@ -1,4 +1,4 @@
-import { Injectable, Logger, Query } from '@nestjs/common';
+import { Inject, Injectable, Logger, Query } from '@nestjs/common';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,12 +6,14 @@ import { Roadmap } from './entities/roadmap.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/roadmap.interface';
-import { createCanvas, loadImage } from 'canvas';
+import { ClientProxy } from '@nestjs/microservices';
+import {env} from '../../configs/env.config';
 
 @Injectable()
 export class RoadmapService {
 
   constructor(
+    @Inject(env.RABBITMQ.NAME) private rabbitClient: ClientProxy,
     @InjectRepository(Roadmap)
     private roadmapRepository: Repository<Roadmap>,
     private userService: UserService,
@@ -38,6 +40,15 @@ export class RoadmapService {
       }
 
       const result = await this.roadmapRepository.save(roadmap); 
+      if (result.owner.role.id === 1) {
+        console.log(env.RABBITMQ.NAME);
+        try {
+          await this.rabbitClient.connect();
+        } catch (error) {
+          console.log("Error connect rabbitmq: ", error);
+        }
+        this.rabbitClient.emit("Create_new_roadmap", result);
+      }
       return {
         statusCode: 201,
         message: 'Create roadmap successfully',
@@ -294,6 +305,8 @@ export class RoadmapService {
       roadmap.isActive = false;
       roadmap.deletedAt = new Date();
       const result = await this.roadmapRepository.save(roadmap);
+
+
 
       return {
         statusCode: 200,

@@ -23,6 +23,12 @@ import { Team } from './modules/team/entities/team.entity';
 import { GoogleStrategy } from './modules/auth/common/google.strategy';
 import { GeminiModule } from './modules/gemini/gemini.module';
 import {env} from './configs/env.config';
+import { Report } from './modules/report/entities/report.entity';
+import { ReportModule } from './modules/report/report.module';
+import { Notification } from './modules/notification/entities/notification.entity';
+import { NotificationModule } from './modules/notification/notification.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import e from 'cors';
 
 @Module({
   imports: [
@@ -35,10 +41,24 @@ import {env} from './configs/env.config';
       database: env.DATABASE.NAME,
       entities: [User, Role, Roadmap, 
         Comment, Timeline, 
-        Member, Team
+        Member, Team, Report,
+        Notification
       ],  
       synchronize: true,
     }),
+    // ClientsModule.register([
+    //   {
+    //     name: env.RABBITMQ.NAME,
+    //     transport: Transport.RMQ,
+    //     options: {
+    //       urls: [env.RABBITMQ.URL],
+    //       queue: env.RABBITMQ.QUEUE,
+    //       queueOptions: {
+    //         durable: true,
+    //       },
+    //     },
+    //   },
+    // ]),
     UserModule,
     RoleModule,
     AuthModule,
@@ -49,7 +69,9 @@ import {env} from './configs/env.config';
     PerformanceModule,
     TimelineModule,
     TeamModule,
-    GeminiModule
+    GeminiModule,
+    ReportModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService, GoogleStrategy],

@@ -7,7 +7,7 @@ import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
-  @Post('new')
+  @Post('new_roadmap')
   create(@Body() createRoadmapDto: CreateRoadmapDto) {
     return this.roadmapService.create(createRoadmapDto);
   }
