@@ -14,7 +14,7 @@ import { CantClone } from '~/components/Layout/components/MiniNotification/index
 const cx = classNames.bind(styles);
 
 function OwnRoadmap() {
-    const userType = 'Administrator'
+    const userType = 'Viewer'
     const [roadName, setRoadName] = useState('Name not given');
     const [titleText, setTitleText] = useState('Make some description');
     const [isEditing, setIsEditing] = useState(false);

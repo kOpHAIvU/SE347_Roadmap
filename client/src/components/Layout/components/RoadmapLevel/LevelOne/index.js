@@ -3,7 +3,7 @@ import styles from './LevelOne.module.scss';
 import classNames from 'classnames/bind';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
@@ -19,6 +19,12 @@ function LevelOne({
     const [isEditing, setIsEditing] = useState(false);
     const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
     const [openNodeDetail, setOpenNodeDetail] = useState(false);
+
+    useEffect(() => {
+        setContent(node.content);
+        setDueTime(node.due_time);
+    }, [node.content, node.due_time]);
+    
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa

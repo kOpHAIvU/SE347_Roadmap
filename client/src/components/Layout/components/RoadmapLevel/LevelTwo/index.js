@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleCheck, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './LevelTwo.module.scss';
 import NodeDetail from '../../NodeDetail/index.js';
@@ -17,6 +17,11 @@ function LevelTwo({ userType, node, index, updateNodeContent
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
     const [openNodeDetail, setOpenNodeDetail] = useState(false);
+
+    useEffect(() => {
+        setContent(node.content);
+        setDueTime(node.due_time);
+    }, [node.content, node.due_time]);
 
     const handleSaveContent = () => {
         setIsEditing(false);

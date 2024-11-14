@@ -2,26 +2,27 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Circle, Image, Rect, Text } from 'react-konva';
 import TrashCanIcon from '~/assets/images/trash-can-regular.svg'
 import PenRegular from '~/assets/images/pen-to-square-regular.svg'
-import NodeDetail from '../NodeDetail/index.js';
 
+const calculateTextWidth = (text, fontWeight) => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    context.font = `${fontWeight} 16px 'Montserrat', sans-serif`;
+    return context.measureText(text).width;
+}
 
 function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeContent
-    , updateNodeDue, updateNodeDetail, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes }) {
+    , updateNodeDue, handleDeleteNode, handleSameLevelClick
+    , handleAddChildLevelNode, nodeBelowTypes, handleOpenNodeDetail }) {
     const textRef = useRef(null);
     const dueTimeRef = useRef(null)
     const textareaRef = useRef(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [content, setContent] = useState(node.content);
-    const [due, setDue] = useState(node.due_time);
-    const [dueWidth, setDueWidth] = useState((due.toString().length + 5) * 8)
-    const [textLines, setTextLines] = useState(1);
-    const [textWidth, setTextWidth] = useState(Math.max(Math.min(content.length * 8, 350), 200));
-    const [finalWidth, setFinalWidth] = useState(textWidth + dueWidth + 55); // Thêm state cho finalWidth
 
+    const fontWeight = node.level === 1 ? 600 : node.level === 2 ? 500 : 400;
+    const [contentHovered, setContentHovered] = useState(false);
+
+    //Các trạng thái hover và active của các item
     const getScale = (isActive, isHovered) => isActive ? 0.95 : isHovered ? 1.1 : 1;
-    console.log("Due: ", dueWidth)
-
     const [isCheckboxHovered, setIsCheckboxHovered] = useState(false);
     const [isCheckboxActive, setIsCheckboxActive] = useState(false);
     const [isPenHovered, setIsPenHovered] = useState(false);
@@ -43,27 +44,36 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
     const childCheckboxScale = getScale(isChildCheckboxActive, isChildCheckboxHovered);
     const radioScale = getScale(isRadioActive, isRadioHovered);
 
+    const [content, setContent] = useState(node.content);
+    const [due, setDue] = useState(node.due_time);
+    const [dueWidth, setDueWidth] = useState(calculateTextWidth(due.toString() + ' days', 500))
+    const [textWidth, setTextWidth] = useState(Math.max(200, Math.min(calculateTextWidth(node.content, fontWeight), 350)));
+    const [finalWidth, setFinalWidth] = useState(dueWidth + textWidth);
+    const [textLines, setTextLines] = useState(Math.ceil(calculateTextWidth(content, fontWeight) / textWidth));
+    const [finalHeight, setFinalHeight] = useState((16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20);
+
     useEffect(() => {
+        setContent(node.content);
+        setDue(node.due_time);
         // Cập nhật textWidth
-        const newTextWidth = Math.max(Math.min(node.content.length * 8, 350), 200);
-        const newDueWidth = (due.toString().length + 5) * 8;
+        const newTextWidth = Math.max(200, Math.min(calculateTextWidth(node.content, fontWeight), 350));
+        const newDueWidth = calculateTextWidth(node.due_time.toString() + ' days', 500);
+        console.log('Text width: ', newTextWidth);
+        console.log('Due width: ', newDueWidth);
         setTextWidth(newTextWidth);
         setDueWidth(newDueWidth)
 
-        setFinalWidth(newTextWidth + newDueWidth + 55);
+        setFinalWidth(newTextWidth + newDueWidth);
 
-        // Tính toán số dòng
-        const lineCount = Math.ceil(content.length / (newTextWidth / 8));
-        setTextLines(lineCount);
-    }, [content, due]);
-
-    // Tính toán finalHeight
-    const finalHeight = (16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20;
+        setTextLines(Math.ceil(calculateTextWidth(node.content, fontWeight) / newTextWidth));
+        setFinalHeight((16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20)
+        console.log(node.content, " : ", textLines)
+    }, [content, due, node.content, node.due_time]);
 
     // Sử dụng useEffect để theo dõi sự thay đổi của textWidth và finalWidth nếu cần
     useEffect(() => {
         // Cập nhật finalWidth mỗi khi textWidth thay đổi
-        setFinalWidth(textWidth + dueWidth + 55);
+        setFinalWidth(textWidth + dueWidth);
     }, [textWidth, dueWidth]);
 
     // State để theo dõi trạng thái hover và active
@@ -92,7 +102,6 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
         penImg.src = PenRegular; // Thay đổi đường dẫn đến biểu tượng bút
         penImg.onload = () => setPenImage(penImg); // Khi hình ảnh bút được tải, cập nhật state
     }, []);
-
 
     const handleEditClick = (ref, type) => {
         setIsEditing(true);
@@ -143,6 +152,9 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
 
             } else {
                 updateNodeDue(index, textarea.value);
+                textarea.setAttribute('type', 'number');
+                textarea.setAttribute('inputmode', 'numeric');
+                textarea.setAttribute('pattern', '[0-9]*');
             }
             document.body.removeChild(textarea);
             setIsEditing(false);
@@ -151,12 +163,11 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
         textarea.oninput = (e) => {
             if (type === 'content') {
                 setContent(e.target.value);
-            } else {
+            } else if (type === 'due' && userType !== 'Viewer') {
                 setDue(e.target.value);
             }
         };
     };
-
 
     const handleOutsideClick = (e) => {
         if (textareaRef.current && typeof textareaRef.current.contains === "function" && !textareaRef.current.contains(e.target)) {
@@ -175,254 +186,254 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
         };
     }, [isEditing]);
 
-
-
     return (
-        <div>
-            <React.Fragment>
-                {(userType === 'Administrator' || userType === 'Editor') && (node.level === 1 || node.level === 2) && (
-                    //Add node background
-                    <Rect
-                        x={node.x}
-                        y={node.y + finalHeight - 2}
-                        width={45 + (nodeBelowTypes != null ? 0 : 20)}
-                        height={25}
-                        stroke="rgba(22, 24, 35, 0.12)"
-                        strokeWidth={1}
-                        draggable
-                        onDragMove={onDragMove}
-                    />
-                )}
-
-                {/* Node background */}
+        <React.Fragment>
+            {(userType === 'Administrator' || userType === 'Editor') && (node.level === 1 || node.level === 2) && (
+                //Add node background
                 <Rect
                     x={node.x}
-                    y={node.y}
-                    width={finalWidth + 10}
-                    height={finalHeight}
-                    fill="white"
-                    stroke="#6580eb"
-                    strokeWidth={2}
-                    cornerRadius={5}
+                    y={node.y + finalHeight - 2}
+                    width={45 + (nodeBelowTypes != null ? 0 : 20)}
+                    height={25}
+                    stroke="rgba(22, 24, 35, 0.12)"
+                    strokeWidth={1}
                     draggable
                     onDragMove={onDragMove}
                 />
+            )}
 
-                {/* Content */}
-                <Text
-                    ref={textRef}
-                    x={node.x + 20}
-                    y={node.y + 11}
-                    text={content}
-                    fontSize={16}
-                    fill="black"
-                    align="left"
-                    verticalAlign="middle"
-                    width={finalWidth - dueWidth - 70}
-                    wrap="word"
-                    lineHeight={1.5}
+            {/* Node background */}
+            <Rect
+                x={node.x}
+                y={node.y}
+                width={finalWidth + (userType !== 'Viewer' ? (2 * (19 + 5)) : 0) + 25 + 7}
+                height={finalHeight}
+                fill="white"
+                stroke="#6580eb"
+                strokeWidth={2}
+                cornerRadius={5}
+                draggable
+                onDragMove={onDragMove}
+            />
+
+            {/* Content */}
+            <Text
+                ref={textRef}
+                x={node.x + 20}
+                y={node.y + 11}
+                text={content}
+                fontSize={16}
+                fill={contentHovered ? "#6580eb" : "black"}
+                align="left"
+                verticalAlign="middle"
+                width={textWidth}
+                wrap="word"
+                lineHeight={1.5}
+                fontStyle={fontWeight}
+                textDecoration={contentHovered ? "underline" : ""}
+                onMouseEnter={() => setContentHovered(true)} // Change state to true on hover
+                onMouseLeave={() => setContentHovered(false)} // Revert state on mouse leave
+                onClick={handleOpenNodeDetail}
+            />
+
+            {/* Due time */}
+            <Text
+                ref={dueTimeRef}
+                x={node.x + textWidth + 25}
+                y={node.y + (finalHeight - 24) / 2}
+                text={due + ' days'}
+                fontSize={16}
+                fill="#666666"
+                align="right"
+                verticalAlign="middle"
+                lineHeight={1.5}
+                onClick={() => handleEditClick(dueTimeRef, 'due')}
+            />
+
+            {userType !== 'Viewer' && (
+                <>
+                    {penImage && (
+                        <Image
+                            image={penImage}
+                            x={node.x + textWidth + dueWidth + (25 + 5)}
+                            y={node.y + (finalHeight - 24) / 2}
+                            width={19}
+                            height={19}
+                            scaleX={penScale}
+                            scaleY={penScale}
+                            onMouseEnter={() => setIsPenHovered(true)}
+                            onMouseLeave={() => setIsPenHovered(false)}
+                            onMouseDown={() => setIsPenActive(true)}
+                            onMouseUp={() => setIsPenActive(false)}
+                            onClick={() => handleEditClick(textRef, 'content')}
+                        />
+                    )}
+                    {trashImage && (
+                        <Image
+                            image={trashImage}
+                            x={node.x + textWidth + dueWidth + (25 + 5) + (19 + 5)}
+                            y={node.y + (finalHeight - 24) / 2}
+                            width={19}
+                            height={19}
+                            scaleX={trashScale}
+                            scaleY={trashScale}
+                            onMouseEnter={() => setIsTrashHovered(true)}
+                            onMouseLeave={() => setIsTrashHovered(false)}
+                            onMouseDown={() => setIsTrashActive(true)}
+                            onMouseUp={() => setIsTrashActive(false)}
+                            onClick={() => handleDeleteNode(index)}
+                        />
+                    )}
+                </>
+            )}
+
+
+            {/* Checkbox */}
+            {node.type === 'RadioButton' ? (
+                <Circle
+                    x={checkboxX + 10}
+                    y={checkboxY + 10}
+                    radius={10}
+                    fill={isChecked ? '#6580eb' : 'white'}
+                    stroke="#6580eb"
+                    strokeWidth={2}
+                    cornerRadius={3}
+                    onMouseEnter={() => setIsCheckboxHovered(true)}
+                    onMouseLeave={() => setIsCheckboxHovered(false)}
+                    onMouseDown={() => setIsCheckboxActive(true)}
+                    onMouseUp={() => {
+                        setIsCheckboxActive(false);
+                        handleToggle();
+                    }}
+                    scaleX={checkboxScale}
+                    scaleY={checkboxScale}
                 />
-
-                {/* Due time */}
-                <Text
-                    ref={dueTimeRef}
-                    x={node.x + textWidth + 3}
-                    y={node.y + (finalHeight - 24) / 2}
-                    text={due + ' days'}
-                    fontSize={16}
-                    fill="#666666"
-                    align="right"
-                    verticalAlign="middle"
-                    lineHeight={1.5}
-                    onClick={() => handleEditClick(dueTimeRef, 'due')}
-                />
-
-                {/*Pen icon */}
-                {penImage && (
-                    <Image
-                        image={penImage}
-                        x={node.x + textWidth + dueWidth + 10}
-                        y={node.y + (finalHeight - 24) / 2}
-                        width={19}
-                        height={19}
-                        scaleX={penScale}
-                        scaleY={penScale}
-                        onMouseEnter={() => setIsPenHovered(true)}
-                        onMouseLeave={() => setIsPenHovered(false)}
-                        onMouseDown={() => setIsPenActive(true)}
-                        onMouseUp={() => { setIsPenActive(false); }}
-                        onClick={() => handleEditClick(textRef, 'content')}
-
-                    />
-                )}
-
-                {/* TrashCan icon */}
-                {trashImage && (
-                    <Image
-                        image={trashImage}
-                        x={node.x + textWidth + dueWidth + 35}
-                        y={node.y + (finalHeight - 24) / 2}
-                        width={19}
-                        height={19}
-                        scaleX={trashScale}
-                        scaleY={trashScale}
-                        onMouseEnter={() => setIsTrashHovered(true)}
-                        onMouseLeave={() => setIsTrashHovered(false)}
-                        onMouseDown={() => setIsTrashActive(true)}
-                        onMouseUp={() => setIsTrashActive(false)}
-                        onClick={() => handleDeleteNode(index)}
-                    />
-                )}
-
-                {/* Checkbox */}
-                {node.type === 'RadioButton' ? (
-                    <Circle
-                        x={checkboxX + 10}
-                        y={checkboxY + 10}
-                        radius={10}
-                        fill={isChecked ? '#6580eb' : 'white'}
-                        stroke="#6580eb"
-                        strokeWidth={2}
-                        cornerRadius={3}
-                        onMouseEnter={() => setIsCheckboxHovered(true)}
-                        onMouseLeave={() => setIsCheckboxHovered(false)}
-                        onMouseDown={() => setIsCheckboxActive(true)}
-                        onMouseUp={() => {
+            ) : (
+                <Rect
+                    x={checkboxX}
+                    y={checkboxY}
+                    width={20}
+                    height={20}
+                    fill={isChecked ? '#6580eb' : 'white'}
+                    stroke="#6580eb"
+                    strokeWidth={2}
+                    cornerRadius={3}
+                    onMouseEnter={() => setIsCheckboxHovered(true)}
+                    onMouseLeave={() => setIsCheckboxHovered(false)}
+                    onMouseDown={() => setIsCheckboxActive(true)}
+                    onMouseUp={
+                        () => {
                             setIsCheckboxActive(false);
                             handleToggle();
-                        }}
-                        scaleX={checkboxScale}
-                        scaleY={checkboxScale}
-                    />
-                ) : (
-                    <Rect
-                        x={checkboxX}
-                        y={checkboxY}
-                        width={20}
-                        height={20}
-                        fill={isChecked ? '#6580eb' : 'white'}
-                        stroke="#6580eb"
-                        strokeWidth={2}
-                        cornerRadius={3}
-                        onMouseEnter={() => setIsCheckboxHovered(true)}
-                        onMouseLeave={() => setIsCheckboxHovered(false)}
-                        onMouseDown={() => setIsCheckboxActive(true)}
-                        onMouseUp={
-                            () => {
-                                setIsCheckboxActive(false);
-                                handleToggle();
-                            }
                         }
-                        scaleX={checkboxScale}
-                        scaleY={checkboxScale}
+                    }
+                    scaleX={checkboxScale}
+                    scaleY={checkboxScale}
+                />
+            )}
+
+
+            {/* Tick */}
+            {isChecked && (
+                <Text
+                    x={checkboxX + 4}
+                    y={checkboxY + 3}
+                    text="✔"
+                    fontStyle="bold"
+                    fontSize={15}
+                    fill="white"
+                    scaleX={tickScale}
+                    scaleY={tickScale}
+                    onMouseEnter={() => {
+                        setIsCheckboxHovered(true);
+                    }}
+                    onMouseLeave={() => {
+                        setIsCheckboxHovered(false);
+                    }}
+                    onMouseDown={() => setIsCheckboxActive(true)}
+                    onMouseUp={() => {
+                        setIsCheckboxActive(false);
+                        handleToggle();
+                    }}
+                />
+            )}
+            {(userType === 'Administrator' || userType === 'Editor') && (node.level === 1 || node.level === 2) && (
+                <>
+                    {/* Add same level node */}
+                    <Rect
+                        x={node.x + 5}
+                        y={node.y + finalHeight + 4}
+                        width={15}
+                        height={15}
+                        cornerRadius={3}
+                        fill="rgba(22, 24, 35, 0.22)"
+                        scaleX={squarePlusScale}
+                        scaleY={squarePlusScale}
+                        hitStrokeWidth={10}
+                        onMouseEnter={() => setIsPlusHovered(true)}
+                        onMouseLeave={() => setIsPlusHovered(false)}
+                        onMouseDown={() => setIsPlusActive(true)}
+                        onMouseUp={() => setIsPlusActive(false)}
+                        onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
                     />
-                )}
-
-
-                {/* Tick */}
-                {isChecked && (
                     <Text
-                        x={checkboxX + 4}
-                        y={checkboxY + 3}
-                        text="✔"
-                        fontStyle="bold"
+                        x={node.x + 8}
+                        y={node.y + finalHeight + 5}
+                        width={10}
+                        height={10}
+                        text="+"
+                        fill="#ffffff"
                         fontSize={15}
-                        fill="white"
-                        scaleX={tickScale}
-                        scaleY={tickScale}
-                        onMouseEnter={() => {
-                            setIsCheckboxHovered(true);
-                        }}
-                        onMouseLeave={() => {
-                            setIsCheckboxHovered(false);
-                        }}
-                        onMouseDown={() => setIsCheckboxActive(true)}
-                        onMouseUp={() => {
-                            setIsCheckboxActive(false);
-                            handleToggle();
-                        }}
+                        scaleX={squarePlusScale}
+                        scaleY={squarePlusScale}
+                        onMouseEnter={() => setIsPlusHovered(true)}
+                        onMouseLeave={() => setIsPlusHovered(false)}
+                        onMouseDown={() => setIsPlusActive(true)}
+                        onMouseUp={() => setIsPlusActive(false)}
+                        onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
                     />
-                )}
-                {(userType === 'Administrator' || userType === 'Editor') && (node.level === 1 || node.level === 2) && (
-                    <>
-                        {/* Add same level node */}
+
+                    {(nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null) && (
+                        // Add checkbox child level
                         <Rect
-                            x={node.x + 5}
+                            x={node.x + 25}
                             y={node.y + finalHeight + 4}
                             width={15}
                             height={15}
                             cornerRadius={3}
-                            fill="rgba(22, 24, 35, 0.22)"
-                            scaleX={squarePlusScale}
-                            scaleY={squarePlusScale}
-                            hitStrokeWidth={10}
-                            onMouseEnter={() => setIsPlusHovered(true)}
-                            onMouseLeave={() => setIsPlusHovered(false)}
-                            onMouseDown={() => setIsPlusActive(true)}
-                            onMouseUp={() => setIsPlusActive(false)}
-                            onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
+                            stroke="rgba(22, 24, 35, 0.22)"
+                            strokeWidth={1}
+                            scaleX={childCheckboxScale}
+                            scaleY={childCheckboxScale}
+                            onMouseEnter={() => setIsChildCheckboxHovered(true)}
+                            onMouseLeave={() => setIsChildCheckboxHovered(false)}
+                            onMouseDown={() => setIsChildCheckboxActive(true)}
+                            onMouseUp={() => setIsChildCheckboxActive(false)}
+                            onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'Checkbox')}
                         />
-                        <Text
-                            x={node.x + 8}
-                            y={node.y + finalHeight + 5}
-                            width={10}
-                            height={10}
-                            text="+"
-                            fill="#ffffff"
-                            fontSize={15}
-                            scaleX={squarePlusScale}
-                            scaleY={squarePlusScale}
-                            onMouseEnter={() => setIsPlusHovered(true)}
-                            onMouseLeave={() => setIsPlusHovered(false)}
-                            onMouseDown={() => setIsPlusActive(true)}
-                            onMouseUp={() => setIsPlusActive(false)}
-                            onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
+                    )}
+
+                    {(nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null) && (
+                        // Add radiobutton child level
+                        <Circle
+                            x={node.x + (nodeBelowTypes === 'RadioButton' ? 32.5 : 52.5)}
+                            y={node.y + finalHeight + 4 + 7.5}
+                            radius={8}
+                            stroke="rgba(22, 24, 35, 0.22)"
+                            strokeWidth={1}
+                            fill="white"
+                            scaleX={radioScale}
+                            scaleY={radioScale}
+                            onMouseEnter={() => setIsRadioHovered(true)}
+                            onMouseLeave={() => setIsRadioHovered(false)}
+                            onMouseDown={() => setIsRadioActive(true)}
+                            onMouseUp={() => setIsRadioActive(false)}
+                            onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'RadioButton')}
                         />
-
-                        {(nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null) && (
-                            // Add checkbox child level
-                            <Rect
-                                x={node.x + 25}
-                                y={node.y + finalHeight + 4}
-                                width={15}
-                                height={15}
-                                cornerRadius={3}
-                                stroke="rgba(22, 24, 35, 0.22)"
-                                strokeWidth={1}
-                                scaleX={childCheckboxScale}
-                                scaleY={childCheckboxScale}
-                                onMouseEnter={() => setIsChildCheckboxHovered(true)}
-                                onMouseLeave={() => setIsChildCheckboxHovered(false)}
-                                onMouseDown={() => setIsChildCheckboxActive(true)}
-                                onMouseUp={() => setIsChildCheckboxActive(false)}
-                                onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'Checkbox')}
-                            />
-                        )}
-
-                        {(nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null) && (
-                            // Add radiobutton child level
-                            <Circle
-                                x={node.x + (nodeBelowTypes === 'RadioButton' ? 32.5 : 52.5)}
-                                y={node.y + finalHeight + 4 + 7.5}
-                                radius={8}
-                                stroke="rgba(22, 24, 35, 0.22)"
-                                strokeWidth={1}
-                                fill="white"
-                                scaleX={radioScale}
-                                scaleY={radioScale}
-                                onMouseEnter={() => setIsRadioHovered(true)}
-                                onMouseLeave={() => setIsRadioHovered(false)}
-                                onMouseDown={() => setIsRadioActive(true)}
-                                onMouseUp={() => setIsRadioActive(false)}
-                                onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'RadioButton')}
-                            />
-                        )}
-                    </>
-                )}
-            </React.Fragment>
-
-            
-        </div>
+                    )}
+                </>
+            )}
+        </React.Fragment>
     );
 }
 
