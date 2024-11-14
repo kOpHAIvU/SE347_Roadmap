@@ -1,5 +1,5 @@
 .level-two {
-    width: calc(100% - 38px);
+    width: calc(100% - 28px);
     border-top: 1px solid var(--gray-color);
     margin-left: 28px;
     transition: background-color 0.2s ease;
@@ -53,6 +53,16 @@
     color: black;
     margin-left: 10px;
     font-size: 1.4rem;
+}
+
+.content {
+    font-weight: 600;
+    transition: transform 0.2s ease;
+
+    &:hover {
+        text-decoration: underline;
+        color: var(--main-color);
+    }
 }
 
 .due-time {

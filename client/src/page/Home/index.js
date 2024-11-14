@@ -86,10 +86,6 @@ function Home() {
         navigate(`/roadmap/${id}`); // Điều hướng tới /roadmap/{id}
     };
 
-    const handleDeleteRoadmap = (id) => {
-        setRoadmaps((prevRoadmaps) => prevRoadmaps.filter((roadmap) => roadmap.id !== id));
-    };
-
     return (
         <div className={cx('wrapper')}>
             <h1 className={cx('page-title')}>Recommended Roadmaps</h1>
@@ -100,7 +96,6 @@ function Home() {
                         children={roadmap}
                         onLoveChange={() => handleLoveChange(roadmap.id)}
                         onClick={() => handleClickRoadmap(roadmap.id)}
-                        onDelete={() => handleDeleteRoadmap(roadmap.id)}
                     />
                 })}
             </div>

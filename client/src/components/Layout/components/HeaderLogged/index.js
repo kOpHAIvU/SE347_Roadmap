@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './HeaderLogged.module.scss';
 import classNames from 'classnames/bind';
+import NotificationModal from '~/components/Layout/components/NotificationModal';
+
 import {
     faCircleQuestion,
     faFlag,
@@ -12,6 +14,7 @@ import {
     faRightFromBracket,
     faUser,
     faTimes,
+    faBell,
 } from '@fortawesome/free-solid-svg-icons';
 import Search from '../Search/index.js';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
@@ -61,6 +64,33 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const navigate = useNavigate();
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const notificationRef = useRef(null);
+    const bellRef = useRef(null);
+
+    const toggleNotification = () => {
+        setIsNotificationOpen((prev) => !prev);
+    };
+
+    const handleClickOutside = (event) => {
+        // Kiểm tra xem click có nằm ngoài bellRef và notificationRef không
+        if (
+            isNotificationOpen && // Kiểm tra nếu modal đang mở
+            bellRef.current &&
+            notificationRef.current &&
+            !bellRef.current.contains(event.target) &&
+            !notificationRef.current.contains(event.target)
+        ) {
+            setIsNotificationOpen(false); // Đóng modal
+        }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isNotificationOpen]);
 
     const handleCreate = () => {
         if (name && description) {
@@ -95,6 +125,19 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                         <FontAwesomeIcon className={cx('plus-icon')} icon={faPlus} />
                         <h1 className={cx('create-text')}>Create your own map</h1>
                     </button>
+                    <FontAwesomeIcon
+                        ref={bellRef}
+                        className={cx('bell-icon', { active: isNotificationOpen })}
+                        onClick={toggleNotification}
+                        icon={faBell}
+                    />
+
+                    {isNotificationOpen && (
+                        <div ref={notificationRef}>
+                            <NotificationModal onClose={() => setIsNotificationOpen(false)} />
+                        </div>
+                    )}
+
                     <MenuAvatar items={MENU_ITEMS}>
                         <img
                             className={cx('avatar')}

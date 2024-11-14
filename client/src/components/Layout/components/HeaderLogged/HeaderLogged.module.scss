@@ -75,6 +75,34 @@
     padding: 7px 0;
 }
 
+.bell-icon {
+    width: 20px; 
+    height: 18px;
+    font-size: 16px; 
+    
+    background-color: #e2e5e9;
+    padding: 10px;
+    border-radius: 50%; 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    position: relative; 
+    cursor: pointer; 
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+.bell-icon:hover {
+    background-color: #d0d4da;
+}
+.bell-icon.active {
+    background-color: #ebf5ff; 
+    color:#0866ff;
+}
+
+
 .avatar {
     height: var(--avatar-size);
     width: var(--avatar-size);
