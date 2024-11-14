@@ -109,16 +109,6 @@ describe('RoadmapService', () => {
     owner: 1,
   }
 
-  const createUserDto = {
-    username: 'loantuyetcute123', 
-    password: 'loantuyetcute',
-    fullName: "Nguyen Thi Tuyet Loan",
-    gender: "Nu",
-    email: "nguyenloancute@gmail.com",
-    role: 3,
-    avatar: "",
-  }
-
   const updateRoadmapDto = {
     "code": "1222222",
     "title": "Roadmap",
@@ -127,35 +117,6 @@ describe('RoadmapService', () => {
     "clone": 0,
     "react": 0,
   }
-
-  const updateRoadmap = {
-    "id": 3,
-    "code": "1222222",
-    "title": "Roadmap",
-    "avatar": "",
-    "content": "Description for first roadmap",
-    "clone": 0,
-    "react": 0,
-    "isActive": true,
-    "createdAt": "2024-10-05T06:40:53.964Z",
-    "deletedAt": null,
-    "owner": {
-        "id": 1,
-        "username": "loantuyetcute123",
-        "password": "$2a$10$42WQ117KnbllmKxnR31xou2ebJiGJ8Ov6v0tfeDTggh5AToVKMjhG",
-        "fullName": "Nguyen Thi Tuyet Loan",
-        "gender": "Nu",
-        "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKdODLlenePnZHFTWMfGJaidHoKjRiXpipJgQPSsBVb8TsS6IgN=s96-c",
-        "email": "nguyenloan@gmail.com",
-        "isActive": false,
-        "createdAt": "2024-09-22T08:08:08.446Z",
-        "deletedAt": null,
-        "role": {
-            "id": 1,
-            "name": "admin"
-        }
-      }
-    }
 
   describe ('Create roadmap', () => {
     const returnUserResponse = {
@@ -460,11 +421,9 @@ describe('RoadmapService', () => {
     
       const result = await service.updateById(3, updateRoadmapDto);
     
-      // Kiểm tra các lời gọi hàm
       expect(service.findOneById).toHaveBeenCalledWith(3);
       expect(mockUserService.findOneById).toHaveBeenCalledWith(1);
     
-      // Kiểm tra các lời gọi hàm create và save với object đầy đủ
       expect(mockRoadmapRepository.create).toHaveBeenCalledWith(expect.objectContaining({
         ...updateRoadmapDto,
         owner: user,
@@ -634,7 +593,7 @@ describe('RoadmapService', () => {
       const retrieveRoadmapFromDatabase = {
         statusCode: 404,
         message: 'Roadmap not found',
-        data: roadmap
+        data: null
       }
       const deleteRoadmap = roadmap;
       deleteRoadmap.deletedAt = new Date();

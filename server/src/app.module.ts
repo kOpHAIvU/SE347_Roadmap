@@ -27,8 +27,6 @@ import { Report } from './modules/report/entities/report.entity';
 import { ReportModule } from './modules/report/report.module';
 import { Notification } from './modules/notification/entities/notification.entity';
 import { NotificationModule } from './modules/notification/notification.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import e from 'cors';
 
 @Module({
   imports: [

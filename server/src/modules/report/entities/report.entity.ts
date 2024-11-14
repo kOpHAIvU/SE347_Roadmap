@@ -7,9 +7,12 @@ export class Report {
     id: number;
 
     @Column({nullable: false})
+    title: string;
+
+    @Column({nullable: false})
     content: string;
 
-    @ManyToOne(() => User, reporter => reporter.report)
+    @ManyToOne(() => User, reporter => reporter.report, { eager: true })
     reporter: User;
 
     @CreateDateColumn()  
@@ -17,4 +20,7 @@ export class Report {
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
+
+    @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
+    isActive: boolean;
 }

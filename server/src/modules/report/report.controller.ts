@@ -7,27 +7,27 @@ import { UpdateReportDto } from './dto/update-report.dto';
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
-  @Post()
+  @Post('new')
   create(@Body() createReportDto: CreateReportDto) {
     return this.reportService.create(createReportDto);
   }
 
-  @Get()
+  @Get('all')
   findAll() {
     return this.reportService.findAll();
   }
 
-  @Get(':id')
+  @Get('item/:id')
   findOne(@Param('id') id: string) {
     return this.reportService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch('item/:id')
   update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto) {
     return this.reportService.update(+id, updateReportDto);
   }
 
-  @Delete(':id')
+  @Delete('item/:id')
   remove(@Param('id') id: string) {
     return this.reportService.remove(+id);
   }
