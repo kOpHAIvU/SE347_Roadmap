@@ -1,17 +1,29 @@
 import { Stage, Layer, Arrow } from 'react-konva';
 import React, { useEffect, useRef, useState } from 'react';
 import AdvanceRoadmapLevel from '../AdvanceRoadmapLevel/index.js';
+import NodeDetail from '../NodeDetail/index.js';
 
-function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType }) {
+const calculateTextWidth = (text, fontWeight) => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    context.font = `${fontWeight} 16px 'Montserrat', sans-serif`;
+    return context.measureText(text).width;
+}
+
+function AdvanceRoadmap({ userType, nodes, setNodes
+    , updateNodeContent, updateNodeDue, updateNodeDetail
+    , handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType }) {
     const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: 600 });
 
     useEffect(() => {
         const updateStageSize = () => {
             const yValues = nodes.map(node => node.y);
             const widths = nodes.map(node => {
-                const contentWidth = Math.max(Math.min(node.content.length * 8, 350), 200) + 85;
-                const dueWidth = (node.due_time.toString() + 5) * 8;
-                return node.x + contentWidth + dueWidth;
+                const fontWeight = node.level === 1 ? 600 : node.level === 2 ? 500 : 400;
+
+                const contentWidth = Math.max(200, Math.min(calculateTextWidth(node.content, fontWeight), 350));
+                const dueWidth = calculateTextWidth(node.due_time.toString() + ' days', 500);
+                return node.x + contentWidth + dueWidth + 25 + 2 * (19 + 5) + 7;
             });
 
             const maxWidth = Math.max(...widths) + 200;
@@ -66,15 +78,19 @@ function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, han
 
     const getCenterOfSide = (node, side) => {
         const { x, y } = node;
-        const width = Math.max(Math.min(node.content.length * 8, 350), 200) + ((node.due_time.toString() + 5) * 8) - 85;
-        const lineCount = Math.ceil(node.content.length / (width / 8));
+        const fontWeight = node.level === 1 ? 600 : node.level === 2 ? 500 : 400;
+
+        const contentWidth = Math.max(200, Math.min(calculateTextWidth(node.content, fontWeight), 350));
+        const dueWidth = calculateTextWidth(node.due_time.toString() + ' days', 500);
+        const width = contentWidth + dueWidth + 25 + 2 * (19 + 5) + 7;
+        const lineCount = Math.ceil(calculateTextWidth(node.content, fontWeight) / contentWidth);
         const height = (16 * 1.5 * lineCount) + 1.5 * (lineCount - 1) + 20;
 
         switch (side) {
             case 'top':
-                return { x: x + width / 2, y };
+                return { x: x + (width / 2), y };
             case 'bottom':
-                return { x: x + width / 2, y: y + height };
+                return { x: x + (width / 2), y: y + height };
             case 'left':
                 return { x: x - 10, y: y + height / 2 };
             case 'right':
@@ -232,6 +248,25 @@ function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, han
         return arrows;
     };
 
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
+
+    const handleOutsideModalClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false);
+        }
+    }
+
+    const [indexNodeDetail, setIndexNodeDetail] = useState(null)
+    const [nodeDetailClick, setNodeDetailClick] = useState(null)
+
+    const handleOpenNodeDetail = (index, nodeDetail) => {
+        setIndexNodeDetail(index)
+        setNodeDetailClick(nodeDetail)
+        setOpenNodeDetail(true)
+    }
+
+    console.log(nodes);
+
     return (
         <div style={{
             border: '2px solid black',
@@ -251,7 +286,7 @@ function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, han
                 <Layer>
                     {nodes.map((node, index) => {
                         return <AdvanceRoadmapLevel
-                            userType='Administrator'
+                            userType={userType}
                             key={node.id}
                             node={node}
                             index={index}
@@ -262,12 +297,22 @@ function AdvanceRoadmap({ nodes, setNodes, updateNodeContent, updateNodeDue, han
                             handleSameLevelClick={handleSameLevelClick}
                             handleAddChildLevelNode={handleAddChildLevelNode}
                             nodeBelowTypes={nodeBelowType(index)}
+                            handleOpenNodeDetail={() => handleOpenNodeDetail(index, node.nodeDetail)}
                         />
                     })}
 
                     {renderArrows()}
                 </Layer>
             </Stage>
+
+            {openNodeDetail &&
+                <NodeDetail
+                    userType={userType}
+                    index={indexNodeDetail}
+                    nodeDetail={nodeDetailClick}
+                    updateNodeDetail={updateNodeDetail}
+                    handleOutsideClick={handleOutsideModalClick}
+                />}
         </div>
     );
 }

@@ -1,20 +1,27 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleCheck, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './LevelTwo.module.scss';
+import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
 
 function LevelTwo({ userType, node, index, updateNodeContent
-    , updateNodeDue, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes, updateNodeTickState
+    , updateNodeDue, updateNodeDetail, handleDeleteNode, handleSameLevelClick
+    , handleAddChildLevelNode, nodeBelowTypes, updateTickState
 }) {
     const { ticked, content: initialContent, due_time, type } = node;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
+
+    useEffect(() => {
+        setContent(node.content);
+        setDueTime(node.due_time);
+    }, [node.content, node.due_time]);
 
     const handleSaveContent = () => {
         setIsEditing(false);
@@ -28,6 +35,13 @@ function LevelTwo({ userType, node, index, updateNodeContent
             updateNodeDue(index, newDueTime);
         }
     };
+
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false)
+        }
+    }
+
     return (
         <div
             className={cx('level-two')}
@@ -35,7 +49,10 @@ function LevelTwo({ userType, node, index, updateNodeContent
             <div
                 className={cx('show-section')}>
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, node) : undefined}
+                    onClick={
+                        updateTickState && userType !== "Viewer"
+                            ? () => updateTickState(index, node)
+                            : undefined}
                     icon={ticked ? (type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (type === 'Checkbox' ? faSquare : faCircle)}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
@@ -51,8 +68,17 @@ function LevelTwo({ userType, node, index, updateNodeContent
                         autoFocus
                     />
                 ) : (
-                    <h1 className={cx('content')}>{content}</h1>
+                    <h1 className={cx('content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
+
+                {openNodeDetail &&
+                    <NodeDetail
+                        userType={userType}
+                        index={index}
+                        nodeDetail={node.nodeDetail}
+                        updateNodeDetail={updateNodeDetail}
+                        handleOutsideClick={handleOutsideClick}
+                    />}
 
                 <div className={cx('update-node')}>
                     <input
@@ -65,19 +91,24 @@ function LevelTwo({ userType, node, index, updateNodeContent
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleDueTimeChangeBlur(e.target.value); } }}
                     />
 
-                    <FontAwesomeIcon
-                        onClick={() => setIsEditing(true)}
-                        icon={penRegular}
-                        className={cx('rewrite-node')}
-                    />
+                    {(userType === 'Administrator' || userType === 'Editor') && (
+                        <>
+                            <FontAwesomeIcon
+                                onClick={() => setIsEditing(true)}
+                                icon={penRegular}
+                                className={cx('rewrite-node')}
+                            />
 
-                    <FontAwesomeIcon
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteNode(index)
-                        }}
-                        icon={faTrashCan}
-                        className={cx('delete-node')} />
+                            <FontAwesomeIcon
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteNode(index);
+                                }}
+                                icon={faTrashCan}
+                                className={cx('delete-node')}
+                            />
+                        </>
+                    )}
                 </div>
             </div>
 

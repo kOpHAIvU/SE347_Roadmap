@@ -3,20 +3,28 @@ import styles from './LevelOne.module.scss';
 import classNames from 'classnames/bind';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
 
 function LevelOne({
     userType, node, index, updateNodeContent
-    , updateNodeDue, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes, updateNodeTickState
+    , updateNodeDue, handleDeleteNode, updateNodeDetail, handleSameLevelClick
+    , handleAddChildLevelNode, nodeBelowTypes, updateTickState
 }) {
     const { ticked, content: initialContent, due_time: initialDueTime, level, type } = node;
     const [content, setContent] = useState(initialContent);
     const [dueTime, setDueTime] = useState(`${initialDueTime} days`);
     const [isEditing, setIsEditing] = useState(false);
     const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
+
+    useEffect(() => {
+        setContent(node.content);
+        setDueTime(node.due_time);
+    }, [node.content, node.due_time]);
+    
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
@@ -32,14 +40,22 @@ function LevelOne({
         }
     };
 
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false)
+        }
+    }
+
     return (
         <div
             className={cx('level-one')}
             key={node.id}>
-            <div className={cx('show-section')}
-            >
+            <div className={cx('show-section')}>
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, node) : undefined}
+                    onClick={
+                        updateTickState && userType !== "Viewer"
+                            ? () => updateTickState(index, node)
+                            : undefined}
                     icon={ticked ? faSquareCheck : faSquare}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
@@ -61,8 +77,17 @@ function LevelOne({
                     />
 
                 ) : (
-                    <h1 className={cx('level-one-content')}>{content}</h1>
+                    <h1 className={cx('level-one-content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
+
+                {openNodeDetail &&
+                    <NodeDetail
+                        userType={userType}
+                        index={index}
+                        nodeDetail={node.nodeDetail}
+                        updateNodeDetail={updateNodeDetail}
+                        handleOutsideClick={handleOutsideClick}
+                    />}
 
                 <div className={cx('update-node')}>
                     {userType === 'Reviewer' ? (

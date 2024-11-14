@@ -1,0 +1,87 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 600px;
+    max-width: 90%;
+    position: relative;
+
+    .close-btn {
+        margin: 10px 10px 0 0;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        width: auto;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1;
+        padding: 0;
+
+        &:hover {
+            color: var(--color-red);
+        }
+    }
+}
+
+.form-name {
+    display: block;
+    line-height: 30px;
+    margin-bottom: 20px;
+}
+
+.release-status,
+.delete-status {
+    margin: 10px 0 0 0;
+    display: flex;
+}
+
+.visibility,
+.delete {
+    flex: 1;
+}
+
+.visibility-title,
+.delete-title {
+    font-size: 1.6rem;
+}
+
+.visibility-content,
+.delete-content {
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+
+.visibility-select {
+    width: 100px;
+    height: 20px;
+    align-self: center;
+}
+
+.delete-btn {
+    align-self: center;
+    height: 20px;
+    width: 20px;
+    color: var(--color-red);
+    cursor: pointer;
+    transition: var(--transform);
+
+    &:active {
+        transform: scale(0.8);
+    }
+}
