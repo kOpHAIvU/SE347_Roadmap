@@ -1,5 +1,5 @@
 import HeaderGuest from '../components/HeaderGuest/index.js';
-
+import Footer from '../components/Footer/index.js';
 import styles from './MainScreenLayout.module.scss';
 import classNames from 'classnames/bind';
 
@@ -10,13 +10,9 @@ function MainScreenLayout({ children }) {
         <div className={cx('wrapper')}>
             <div className={cx('wrapper')}>
                 <HeaderGuest />
+                <main className={cx('main')}>{children}</main>
 
-                <main className={cx('main')}>
-                    {children}
-                </main>
-
-                <footer className={cx('footer')}>
-                </footer>
+                <Footer />
             </div>
         </div>
     );

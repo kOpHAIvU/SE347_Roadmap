@@ -6,15 +6,29 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { RoleGuard } from '../role/common/role.guard';
 import { RoleModule } from '../role/role.module';
-import { TimelineModule } from '../timeline/timeline.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import {env} from '../../configs/env.config'
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Roadmap]),
+    ClientsModule.register([
+      {
+        name: env.RABBITMQ.NAME,
+        transport: Transport.RMQ,
+        options: {
+          urls: [env.RABBITMQ.URL],
+          queue: env.RABBITMQ.QUEUE,
+          queueOptions: {
+            durable: false
+          },
+        },
+      }
+    ]),
     UserModule,
     RoleModule,
   ],
-  controllers: [RoadmapController],
+  controllers: [RoadmapController],  
   providers: [RoadmapService],
   exports: [RoadmapService]
 })

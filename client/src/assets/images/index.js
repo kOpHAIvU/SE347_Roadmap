@@ -6,6 +6,7 @@ const images = {
     road1: require('~/assets/images/road01.png').default,
     road2: require('~/assets/images/road02.png').default,
     google: require('~/assets/images/google.svg').default,
+    trash: require('~/assets/images/trash-can-regular.svg').default
 };
 
 export default images;

@@ -2,66 +2,71 @@ import RoadmapItem from '~/components/Layout/components/RoadmapItem/index.js';
 import styles from './Home.module.scss';
 import classNames from 'classnames/bind';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function Home() {
-    console.log('Rendering HomeContent');
+    const navigate = useNavigate();
 
     let source = "https://i.ebayimg.com/images/g/XI0AAOSw~HJker7R/s-l1200.jpg"
     // Đặt roadmaps trong state để có thể cập nhật
     const [roadmaps, setRoadmaps] = useState([
-        // {
-        //     id: 0,
-        //     title: 'CSS cơ bản',
-        //     content: 'CSS là chữ viết tắt của Cascading Style Sheets là ngôn ngữ để tìm và định dạng lại các phần tử được tạo ra bởi các ngôn ngữ đánh dấu (HTML)',
-        //     clones: 123,
-        //     avatar: source,
-        //     loved: true
-        // },
-        // {
-        //     id: 1,
-        //     title: 'HTML cơ bản',
-        //     content: 'HTML là một ngôn ngữ đánh dấu được thiết kế ra để tạo nên các trang web trên World Wide Web. Nó có thể được trợ giúp bởi các công nghệ như CSS và các ngôn ngữ kịch bản giống như JavaScript. ',
-        //     clones: 123,
-        //     avatar: source,
-        //     loved: true
-        // },
-        // {
-        //     id: 2,
-        //     title: 'Javascript cơ bản',
-        //     content: 'JavaScript là ngôn ngữ lập trình được nhà phát triển sử dụng để tạo trang web tương tác.',
-        //     clones: 123,
-        //     avatar: source,
-        //     loved: false
-        // },
-        // {
-        //     id: 3,
-        //     title: 'Github cơ bản',
-        //     content: 'KoPhaiVu',
-        //     clones: 123,
-        //     avatar: source,
-        //     loved: false
-        // },
+        {
+            id: 0,
+            title: 'CSS cơ bản',
+            content: 'CSS là chữ viết tắt của Cascading Style Sheets là ngôn ngữ để tìm và định dạng lại các phần tử được tạo ra bởi các ngôn ngữ đánh dấu (HTML)',
+            clones: 123,
+            avatar: source,
+            authentication: 'Owner',
+            loved: true
+        },
+        {
+            id: 1,
+            title: 'HTML cơ bản',
+            content: 'HTML là một ngôn ngữ đánh dấu được thiết kế ra để tạo nên các trang web trên World Wide Web. Nó có thể được trợ giúp bởi các công nghệ như CSS và các ngôn ngữ kịch bản giống như JavaScript. ',
+            clones: 123,
+            avatar: source,
+            authentication: 'Owner',
+            loved: true
+        },
+        {
+            id: 2,
+            title: 'Javascript cơ bản',
+            content: 'JavaScript là ngôn ngữ lập trình được nhà phát triển sử dụng để tạo trang web tương tác.',
+            clones: 123,
+            avatar: source,
+            authentication: 'User',
+            loved: false
+        },
+        {
+            id: 3,
+            title: 'Github cơ bản',
+            content: 'KoPhaiVu',
+            clones: 123,
+            avatar: source,
+            authentication: 'Owner',
+            loved: false
+        },
     ]);
 
 
     const fetchRoadmaps = async () => {
         try {
-        const response = await fetch('http://localhost:3004/roadmap/all');
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const result = await response.json();
-        console.log(result.data);
-        if (Array.isArray(result.data)) {
-            setRoadmaps(result.data);
-          } else {
-            console.error("API did not return an array");
-            setRoadmaps([]); 
-          }
+            const response = await fetch('http://localhost:3004/roadmap/all');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const result = await response.json();
+            console.log(result.data);
+            if (Array.isArray(result.data)) {
+                setRoadmaps(result.data);
+            } else {
+                console.error("API did not return an array");
+                setRoadmaps([]);
+            }
         } catch (error) {
-        console.log("Server is not OK");
+            console.log("Server is not OK");
         }
     };
 
@@ -69,13 +74,16 @@ function Home() {
         fetchRoadmaps();
     }, []);
 
-
     const handleLoveChange = (id) => {
         setRoadmaps((prevRoadmaps) =>
             prevRoadmaps.map((roadmap) =>
                 roadmap.id === id ? { ...roadmap, loved: !roadmap.loved } : roadmap
             )
         );
+    };
+
+    const handleClickRoadmap = (id) => {
+        navigate(`/roadmap/${id}`); // Điều hướng tới /roadmap/{id}
     };
 
     return (
@@ -87,6 +95,7 @@ function Home() {
                         key={roadmap.id}
                         children={roadmap}
                         onLoveChange={() => handleLoveChange(roadmap.id)}
+                        onClick={() => handleClickRoadmap(roadmap.id)}
                     />
                 })}
             </div>

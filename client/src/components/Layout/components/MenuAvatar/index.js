@@ -1,16 +1,14 @@
-import { Button } from 'antd';
 import classNames from 'classnames/bind';
 import Tippy from '@tippyjs/react/headless';
-import { Wrapper as PopperWrapper } from '~/components/Popper';
-import styles from './MenuAvatar.module.scss'; 
-import { faChevronCircleLeft, faChevronLeft, faFileCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import styles from './MenuAvatar.module.scss';
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
-function Header({title , onBack}) {
+function Header({ title, onBack }) {
     return (
         <header className={cx('header')}>
             <button className={cx('back-btn')} onClick={onBack}>
@@ -18,7 +16,7 @@ function Header({title , onBack}) {
             </button>
             <h4 className={cx('header-title')}>{title}</h4>
         </header>
-    )
+    );
 }
 
 // MenuItem
@@ -33,17 +31,16 @@ function MenuItem({ data, onClick }) {
 
 // MenuAvatar
 function MenuAvatar({ children, items = [] }) {
-
-    const [history, setHistory] = useState([{data: items}]);
+    const [history, setHistory] = useState([{ data: items }]);
     const current = history[history.length - 1];
 
-    const navigate = useNavigate();  
+    const navigate = useNavigate();
 
     const handleMenuItemClick = (item) => {
         if (item.to) {
-            navigate(item.to);  
+            navigate(item.to);
         } else if (item.children) {
-            setHistory((prev) => [...prev, item.children]);  // Chuyển sang menu con
+            setHistory((prev) => [...prev, item.children]); // Chuyển sang menu con
         }
     };
 
@@ -60,15 +57,13 @@ function MenuAvatar({ children, items = [] }) {
     return (
         <Tippy
             interactive
-            // visible 
-            delay ={[0, 500]}
+            // visible
+            delay={[0, 500]}
             placement="bottom-end"
             render={(attrs) => (
                 <div className={cx('avatar-dropdown')} tabIndex="-1" {...attrs}>
                     <div className={cx('custom-dropdown')}>
-                        {history.length > 1 && (
-                            <Header title={current.title} onBack={handleBack} />
-                        )}
+                        {history.length > 1 && <Header title={current.title} onBack={handleBack} />}
                         {renderItems()}
                     </div>
                 </div>

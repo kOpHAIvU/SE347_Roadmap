@@ -1,4 +1,4 @@
-import { Injectable, Logger, Query } from '@nestjs/common';
+import { Inject, Injectable, Logger, Query } from '@nestjs/common';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,11 +6,14 @@ import { Roadmap } from './entities/roadmap.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/roadmap.interface';
+import { ClientProxy } from '@nestjs/microservices';
+import {env} from '../../configs/env.config';
 
 @Injectable()
 export class RoadmapService {
 
   constructor(
+    @Inject(env.RABBITMQ.NAME) private rabbitClient: ClientProxy,
     @InjectRepository(Roadmap)
     private roadmapRepository: Repository<Roadmap>,
     private userService: UserService,
@@ -24,14 +27,28 @@ export class RoadmapService {
       const owner = Array.isArray(ownerResponse.data)
                     ? ownerResponse.data[0]
                     : ownerResponse.data;
-      if (!owner) {
-          throw new Error('User not found'); 
-      }
       const roadmap = this.roadmapRepository.create({
           ...createRoadmapDto,
           owner, 
       });
+
+      if (!roadmap) {
+        return {
+          statusCode: 500,
+          message: 'Failed to create roadmap'
+        }
+      }
+
       const result = await this.roadmapRepository.save(roadmap); 
+      if (result.owner.role.id === 1) {
+        console.log(env.RABBITMQ.NAME);
+        try {
+          await this.rabbitClient.connect();
+        } catch (error) {
+          console.log("Error connect rabbitmq: ", error);
+        }
+        this.rabbitClient.emit("Create_new_roadmap", result);
+      }
       return {
         statusCode: 201,
         message: 'Create roadmap successfully',
@@ -58,6 +75,13 @@ export class RoadmapService {
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
+      
+      if (!roadmap) {
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+        }
+      }
 
       return {
         statusCode: 200,
@@ -102,8 +126,6 @@ export class RoadmapService {
     }
   }
 
-  
-
   async findOneByCode(
     code: string
   ): Promise<ResponseDto> {
@@ -116,7 +138,8 @@ export class RoadmapService {
       if (!roadmap) {
         return {
           statusCode: 404,
-          message: 'Roadmap not found'
+          message: 'Roadmap not found',
+          data: null
         }
       }
 
@@ -149,10 +172,25 @@ export class RoadmapService {
           message: 'Roadmap not found'
         }
       }
+      const ownerResponse = await this.userService.findOneById(updateRoadmapDto.owner);
+      const owner = Array.isArray(ownerResponse.data)
+                    ? ownerResponse.data[0]
+                    : ownerResponse.data;
+      if (!owner) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+        }
+      }
       Logger.log(roadmap);
 
-      Object.assign(roadmap, updateRoadmapDto);
-      const result = await this.roadmapRepository.save(roadmap);
+      //Object.assign(roadmap, updateRoadmapDto);
+      const roadmapCreate = this.roadmapRepository.create({
+        ...roadmap,
+        ...updateRoadmapDto,
+        owner,
+      })
+      const result = await this.roadmapRepository.save(roadmapCreate);
       Logger.log(roadmap);
 
       return {
@@ -185,10 +223,24 @@ export class RoadmapService {
           message: 'Roadmap not found'
         }
       }
-      updateRoadmapDto.code = roadmap.code;
 
-      Object.assign(roadmap, updateRoadmapDto);
-      const result = await this.roadmapRepository.save(roadmap);
+      const ownerResponse = await this.userService.findOneById(updateRoadmapDto.owner);
+      const owner = Array.isArray(ownerResponse.data)
+                    ? ownerResponse.data[0]
+                    : ownerResponse.data;
+      if (!owner) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+        }
+      }
+
+      const roadmapCreate = this.roadmapRepository.create({
+        ...roadmap,
+        ...updateRoadmapDto,
+        owner,
+      })
+      const result = await this.roadmapRepository.save(roadmapCreate);
 
       return {
         statusCode: 201,
@@ -254,6 +306,8 @@ export class RoadmapService {
       roadmap.deletedAt = new Date();
       const result = await this.roadmapRepository.save(roadmap);
 
+
+
       return {
         statusCode: 200,
         message: 'Delete roadmap successfully',
@@ -266,5 +320,6 @@ export class RoadmapService {
       }
     }
   }
+
   
 }

@@ -21,22 +21,42 @@ import { Member } from './modules/member/entities/member.entity';
 import { TeamModule } from './modules/team/team.module';
 import { Team } from './modules/team/entities/team.entity';
 import { GoogleStrategy } from './modules/auth/common/google.strategy';
+import { GeminiModule } from './modules/gemini/gemini.module';
+import {env} from './configs/env.config';
+import { Report } from './modules/report/entities/report.entity';
+import { ReportModule } from './modules/report/report.module';
+import { Notification } from './modules/notification/entities/notification.entity';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mysql',  
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'Loantuyetcute',
-      database: 'roadmap',
+      type: 'mysql',
+      host: env.DATABASE.HOST,
+      port: env.DATABASE.PORT,
+      username: env.DATABASE.USER,
+      password: env.DATABASE.PASSWORD,
+      database: env.DATABASE.NAME,
       entities: [User, Role, Roadmap, 
         Comment, Timeline, 
-        Member, Team
+        Member, Team, Report,
+        Notification
       ],  
       synchronize: true,
     }),
+    // ClientsModule.register([
+    //   {
+    //     name: env.RABBITMQ.NAME,
+    //     transport: Transport.RMQ,
+    //     options: {
+    //       urls: [env.RABBITMQ.URL],
+    //       queue: env.RABBITMQ.QUEUE,
+    //       queueOptions: {
+    //         durable: true,
+    //       },
+    //     },
+    //   },
+    // ]),
     UserModule,
     RoleModule,
     AuthModule,
@@ -46,7 +66,10 @@ import { GoogleStrategy } from './modules/auth/common/google.strategy';
     MessageModule,
     PerformanceModule,
     TimelineModule,
-    TeamModule
+    TeamModule,
+    GeminiModule,
+    ReportModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService, GoogleStrategy],

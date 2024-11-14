@@ -1,95 +1,61 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faSquarePlus, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faCircleCheck, faSquareCheck } from '@fortawesome/free-solid-svg-icons';
-import styles from './LevelTwo.module.scss';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames/bind';
-import { useRef, useState } from 'react';
+import styles from './LevelTwo.module.scss';
+import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
 
-function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNode
-    , updateNodeTickState, updateNodeContent, handleDeleteNode, allNodes
-    , hoveredIndex, setHoveredIndex, handleDueTimeChange }) {
-    const ticked = children.ticked;
-    const [content, setContent] = useState(children.content);
+function LevelTwo({ userType, node, index, updateNodeContent
+    , updateNodeDue, updateNodeDetail, handleDeleteNode, handleSameLevelClick
+    , handleAddChildLevelNode, nodeBelowTypes, updateTickState
+}) {
+    const { ticked, content: initialContent, due_time, type } = node;
+    const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
-    const timeoutRef = useRef(null);
+    const [dueTime, setDueTime] = useState(`${due_time} days`);
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
 
-    // Handle mouse enter
-    const handleMouseEnter = () => {
-        // Clear any existing timeout when mouse enters
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-        setHoveredIndex(index); // Update the hovered index
-    };
-
-    const handleMouseLeave = () => {
-        // Set a timeout of 1.5 seconds to hide the section
-        timeoutRef.current = setTimeout(() => {
-            setHoveredIndex(null); // Reset hovered index after delay
-        }, 1500);
-    };
-
-    // Kiểm tra loại node ngay dưới node hiện tại
-    const getNodeBelowTypeAndLevel = () => {
-        if (index + 1 < allNodes.length) {
-            const belowNode = allNodes[index + 1];
-            if (belowNode.level > children.level) {
-                return belowNode.type; // Trả về loại node ngay dưới nếu có level cao hơn
-            }
-        }
-        return null; // Nếu không có node dưới hoặc không có level cao hơn
-    };
-
-    const nodeBelowType = getNodeBelowTypeAndLevel();
+    useEffect(() => {
+        setContent(node.content);
+        setDueTime(node.due_time);
+    }, [node.content, node.due_time]);
 
     const handleSaveContent = () => {
-        setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
-        updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
+        setIsEditing(false);
+        updateNodeContent(index, content);
     };
 
-    const [dueTime, setDueTime] = useState(children.due_time + ' days');
-    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
-
-    // Handle due-time input focus and blur
-    const handleDueTimeFocus = () => {
-        setIsDueTimeFocused(true);
-        setDueTime(dueTime.replace(' days', '')); // Remove ' days' on focus
-    };
-
-    const handleDueTimeBlur = () => {
-        setIsDueTimeFocused(false);
-        if (!isNaN(dueTime)) {
-            const newDueTime = `${dueTime} days`; // Add ' days' after blur
+    const handleDueTimeChangeBlur = (value) => {
+        if (!isNaN(value)) {
+            const newDueTime = `${value} days`;
             setDueTime(newDueTime);
-            handleDueTimeChange(index, newDueTime); // Gọi hàm cập nhật due-time
+            updateNodeDue(index, newDueTime);
         }
     };
 
-    return (
-        <div className={cx('level-two')} key={children.id}>
-            <div className={cx('show-section', { 'with-hidden-section': hoveredIndex === index })}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}>
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false)
+        }
+    }
 
-                {ticked ? (
-                    <FontAwesomeIcon
-                        onClick={() => {
-                            updateNodeTickState(index, children);
-                        }}
-                        icon={children.type === 'Checkbox' ? faSquareCheck : faCircleCheck}
-                        className={cx('ticked')}
-                    />
-                ) : (
-                    <FontAwesomeIcon
-                        onClick={() => {
-                            updateNodeTickState(index, children);
-                        }}
-                        icon={children.type === 'Checkbox' ? faSquare : faCircle}
-                        className={cx('tick')}
-                    />
-                )}
+    return (
+        <div
+            className={cx('level-two')}
+            key={node.id}>
+            <div
+                className={cx('show-section')}>
+                <FontAwesomeIcon
+                    onClick={
+                        updateTickState && userType !== "Viewer"
+                            ? () => updateTickState(index, node)
+                            : undefined}
+                    icon={ticked ? (type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (type === 'Checkbox' ? faSquare : faCircle)}
+                    className={cx(ticked ? 'ticked' : 'tick')}
+                />
 
                 {isEditing ? (
                     <input
@@ -97,86 +63,86 @@ function LevelTwo({ children, index, handleSameLevelClick, handleAddChildLevelNo
                         type="text"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        onBlur={handleSaveContent} // Gọi hàm cập nhật content khi mất focus
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleSaveContent(); // Cập nhật khi nhấn Enter
-                        }}
+                        onBlur={handleSaveContent}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleSaveContent(); }}
                         autoFocus
                     />
                 ) : (
-                    <h1 className={cx('content')}>{content}</h1>
+                    <h1 className={cx('content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
+
+                {openNodeDetail &&
+                    <NodeDetail
+                        userType={userType}
+                        index={index}
+                        nodeDetail={node.nodeDetail}
+                        updateNodeDetail={updateNodeDetail}
+                        handleOutsideClick={handleOutsideClick}
+                    />}
 
                 <div className={cx('update-node')}>
                     <input
                         className={cx('due-time')}
                         type="text"
                         value={dueTime}
-                        onFocus={handleDueTimeFocus}
-                        onBlur={handleDueTimeBlur}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            if (!isNaN(value)) {
-                                setDueTime(value); // Only allow numeric values
-                            }
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                e.preventDefault();
-                                const value = e.target.value;
-                                if (!isNaN(value)) {
-                                    setDueTime(value); // Only allow numeric values
-                                }
-                                e.target.blur()
-                            }
-                        }}
+                        onFocus={() => setDueTime(dueTime.replace(' days', ''))}
+                        onBlur={(e) => handleDueTimeChangeBlur(e.target.value)}
+                        onChange={(e) => { if (!isNaN(e.target.value)) setDueTime(e.target.value); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleDueTimeChangeBlur(e.target.value); } }}
                     />
 
-                    <FontAwesomeIcon
-                        onClick={() => setIsEditing(true)}
-                        icon={penRegular}
-                        className={cx('rewrite-node')}
-                    />
+                    {(userType === 'Administrator' || userType === 'Editor') && (
+                        <>
+                            <FontAwesomeIcon
+                                onClick={() => setIsEditing(true)}
+                                icon={penRegular}
+                                className={cx('rewrite-node')}
+                            />
 
-                    <FontAwesomeIcon
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteNode(index)
-                        }}
-                        icon={faTrashCan}
-                        className={cx('delete-node')} />
+                            <FontAwesomeIcon
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteNode(index);
+                                }}
+                                icon={faTrashCan}
+                                className={cx('delete-node')}
+                            />
+                        </>
+                    )}
                 </div>
             </div>
 
             {/* Kiểm tra nếu node là Checkbox thì không render hidden-section */}
-            {children.type !== 'RadioButton' && (
+            {userType === 'Administrator' && node.type !== 'RadioButton' && (
                 <div
-                    className={cx('hidden-section', {
-                        visible: hoveredIndex === index,
-                    })}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
+                    className={cx('hidden-section')}
                 >
                     <FontAwesomeIcon
                         className={cx('same-level')}
                         icon={faSquarePlus}
                         onClick={() => {
-                            handleSameLevelClick(index, children.level, children.type);
+                            handleSameLevelClick(index, node.x, node.y, node.level, node.type);
                         }}
                     />
                     {/* Ẩn child-level-check nếu node bên dưới có level cao hơn và là Checkbox */}
-                    {nodeBelowType === 'Checkbox' || nodeBelowType === null ? (
+                    {nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null ? (
                         <FontAwesomeIcon
                             className={cx('child-level-check')}
                             icon={faSquare}
-                            onClick={() => handleAddChildLevelNode(index, children.level, 'Checkbox')}
+                            onClick={() =>
+                                handleAddChildLevelNode(index
+                                    , Math.max(Math.min(node.content.length * 8, 350), 200) + (node.due_time.toString().length + 5) * 8
+                                    , node.x, node.y, node.level, 'Checkbox')}
                         />
                     ) : null}
-                    {nodeBelowType === 'RadioButton' || nodeBelowType === null ? (
+                    {nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null ? (
                         <FontAwesomeIcon
                             className={cx('child-level-radio')}
                             icon={faCircle}
-                            onClick={() => handleAddChildLevelNode(index, children.level, 'RadioButton')}
+                            onClick={() =>
+                                handleAddChildLevelNode(index,
+                                    Math.max(Math.min(node.content.length * 8, 350), 200) + (node.due_time.toString().length + 5) * 8
+                                    , node.x, node.y, node.level, 'RadioButton')}
                         />
                     ) : null}
                 </div>

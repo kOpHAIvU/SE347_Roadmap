@@ -5,6 +5,8 @@ import { Comment } from './../../comment/entities/comment.entity';
 import { Member } from '../../member/entities/member.entity';
 import { Team } from '../../team/entities/team.entity';
 import { Timeline } from '../../timeline/entities/timeline.entity';
+import { Report } from '../../report/entities/report.entity';
+import { Notification } from '../../notification/entities/notification.entity';
 
 @Entity()
 export class User {
@@ -54,4 +56,10 @@ export class User {
 
     @OneToMany(() => Member, member => member.member)
     member: Member[]
+
+    @OneToMany( () => Report, report => report.reporter)
+    report: Report[]
+
+    @OneToMany( () => Notification, poster => poster.postNotification)
+    poster: Report[]
 }

@@ -17,7 +17,7 @@ export class CommentController {
     return this.commentService.findAll();
   }
 
-  @Get('item/:id')
+ @Get('item/:id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.commentService.findOneById(+id);
   }
@@ -28,7 +28,7 @@ export class CommentController {
     return this.commentService.update(+id, updateCommentDto);
   }
 
-  @Delete('item/:id')
+@Delete('item/:id')
   remove(@Param('id', ParseIntPipe) id: string) {
     return this.commentService.remove(+id);
   }
