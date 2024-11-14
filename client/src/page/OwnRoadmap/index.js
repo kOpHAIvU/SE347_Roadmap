@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './OwnRoadmap.module.scss';
@@ -72,6 +72,29 @@ function OwnRoadmap() {
         { id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2, content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024' },
     ]);
     //const [nodes, setNodes] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const response = await fetch('http://localhost:3004/roadmap/all', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                }
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const result = await response.json();
+            setNodes(result);
+          } catch (error) {
+            console.log(error.message);
+          } 
+        };
+    
+        fetchData();
+      }, []);
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
@@ -155,34 +178,21 @@ function OwnRoadmap() {
             ? nodes[index + 1].type : null;
     }
 
-    const handleSave = () => {
-        console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
-    }
-
     return (
         <div className={cx('wrapper')}>
             <div className={cx('important-section')}>
-                <div className={cx('title-container')}>
-                    <input
-                        className={cx('page-title')}
-                        value={roadName}
-                        onChange={handleRoadNameChange}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
-                    />
+                <input
+                    className={cx('page-title')}
+                    value={roadName}
+                    onChange={handleRoadNameChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                />
 
-                    <FontAwesomeIcon
-                        onClick={() => setToggle(!toggle)}
-                        icon={toggle ? faSitemap : faA}
-                        className={cx('toggle-icon')}
-                        title={toggle ? 'Draw' : 'Collumn'}
-                    />
-                </div>
-
-                <div className={cx('save-setting')}>
-                    <button className={cx('save-btn')} onClick={() => handleSave}>Save</button>
-                    <FontAwesomeIcon icon={faGear} className={cx('setting-btn')} />
-                </div>
+                <FontAwesomeIcon
+                    onClick={() => setToggle(!toggle)}
+                    icon={toggle ? faSitemap : faA}
+                    className={cx('toggle-icon')} />
             </div>
 
             <div className={cx('content-section')}>
@@ -237,7 +247,7 @@ function OwnRoadmap() {
             </div>
             <div className={cx('drop-react')}>
                 <button onClick={() => setLoved(!loved)} className={cx('react-love', { loved })}>
-                    <FontAwesomeIcon className={cx('love-roadmap')} icon={loved ? faHeartSolid : faHeartRegular} />
+                    <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
                     <h1 className={cx('love-text')}>Love</h1>
                 </button>
                 <button className={cx('clone-roadmap')}>
