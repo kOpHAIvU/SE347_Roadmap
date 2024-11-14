@@ -88,6 +88,29 @@ function OwnRoadmap() {
     ]);
     //const [nodes, setNodes] = useState(null);
 
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            const response = await fetch('http://localhost:3004/roadmap/all', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                }
+            });
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const result = await response.json();
+            setNodes(result);
+          } catch (error) {
+            console.log(error.message);
+          } 
+        };
+    
+        fetchData();
+      }, []);
+
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
             const updatedNodes = [...prevNodes];
@@ -323,7 +346,7 @@ function OwnRoadmap() {
             </div>
             <div className={cx('drop-react')}>
                 <button onClick={() => setLoved(!loved)} className={cx('react-love', { loved })}>
-                    <FontAwesomeIcon className={cx('love-roadmap')} icon={loved ? faHeartSolid : faHeartRegular} />
+                    <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
                     <h1 className={cx('love-text')}>Love</h1>
                 </button>
                 <button className={cx('clone-roadmap')} onClick={handleCloneClick} >
