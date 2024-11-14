@@ -4,7 +4,9 @@ import { LevelOne, LevelThree, LevelTwo } from '../RoadmapLevel/index.js';
 
 const cx = classNames.bind(styles);
 
-function RoadmapSection({ nodes, updateNodeContent, updateNodeDue, handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType }) {
+function RoadmapSection({ userType, nodes, updateNodeContent
+    , updateNodeDue, handleDeleteNode, updateNodeDetail, handleSameLevelClick
+    , handleAddChildLevelNode, nodeBelowType, updateTickState }) {
     return (
         <div className={cx('wrapper')}>
             {nodes && nodes.length > 0 && (
@@ -13,15 +15,17 @@ function RoadmapSection({ nodes, updateNodeContent, updateNodeDue, handleDeleteN
                     return (
                         <div key={node.id}>
                             <LevelComponent
-                                userType="Administrator"
+                                userType={userType}
                                 node={node}
                                 index={index}
                                 updateNodeContent={updateNodeContent}
-                                handleDeleteNode={handleDeleteNode}
                                 updateNodeDue={updateNodeDue}
+                                updateNodeDetail={updateNodeDetail}
+                                handleDeleteNode={handleDeleteNode}
                                 handleSameLevelClick={handleSameLevelClick}
                                 handleAddChildLevelNode={handleAddChildLevelNode}
                                 nodeBelowTypes={nodeBelowType(index)}
+                                updateTickState={updateTickState}
                             />
                         </div>
                     );

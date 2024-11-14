@@ -61,11 +61,16 @@
     border-radius: 7px;
     align-self: center;
     background-color: var(--gray-color);
+    transition: var(--transform);
     cursor: pointer;
 
     &:hover {
         background-color: var(--main-color);
         color: white;
+    }
+
+    &:active {
+        transform: scale(0.9);
     }
 }
 
@@ -79,8 +84,9 @@
     cursor: pointer;
 }
 
+
 .content-section {
-    margin: 0 15px;
+    margin: 0 15px 10px 15px;
     padding: 5px;
     border-radius: 10px;
     transition: all 0.3s ease; /* Thêm hiệu ứng chuyển đổi mềm mại */
@@ -244,5 +250,12 @@
     width: 20px;
 }
 
-.clone-text {
+.mini-notify {
+    width: 300px;
+    margin: 60px 15px 0 0;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    background-color: transparent;
 }

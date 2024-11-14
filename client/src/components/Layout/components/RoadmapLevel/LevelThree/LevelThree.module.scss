@@ -1,5 +1,5 @@
 .level-three {
-    width: calc(100% - 10px - 56px);
+    width: calc(100% - 56px);
     border-top: 1px solid var(--gray-color);
     position: relative;
     margin-left: 56px;
@@ -67,7 +67,7 @@
 }
 
 .content {
-    font-weight: 500;
+    font-weight: 400;
     transition: transform 0.2s ease;
 
     &:hover {

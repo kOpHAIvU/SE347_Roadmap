@@ -3,24 +3,26 @@ import { Circle, Image, Rect, Text } from 'react-konva';
 import TrashCanIcon from '~/assets/images/trash-can-regular.svg'
 import PenRegular from '~/assets/images/pen-to-square-regular.svg'
 
+const calculateTextWidth = (text, fontWeight) => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    context.font = `${fontWeight} 16px 'Montserrat', sans-serif`;
+    return context.measureText(text).width;
+}
 
 function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeContent
     , updateNodeDue, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes }) {
+    , handleAddChildLevelNode, nodeBelowTypes, handleOpenNodeDetail }) {
     const textRef = useRef(null);
     const dueTimeRef = useRef(null)
     const textareaRef = useRef(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [content, setContent] = useState(node.content);
-    const [due, setDue] = useState(node.due_time);
-    const [dueWidth, setDueWidth] = useState((due.toString().length + 5) * 8)
-    const [textLines, setTextLines] = useState(1);
-    const [textWidth, setTextWidth] = useState(Math.max(Math.min(content.length * 8, 350), 200));
-    const [finalWidth, setFinalWidth] = useState(textWidth + dueWidth + 55); // Thêm state cho finalWidth
 
+    const fontWeight = node.level === 1 ? 600 : node.level === 2 ? 500 : 400;
+    const [contentHovered, setContentHovered] = useState(false);
+
+    //Các trạng thái hover và active của các item
     const getScale = (isActive, isHovered) => isActive ? 0.95 : isHovered ? 1.1 : 1;
-    console.log("Due: ", dueWidth)
-
     const [isCheckboxHovered, setIsCheckboxHovered] = useState(false);
     const [isCheckboxActive, setIsCheckboxActive] = useState(false);
     const [isPenHovered, setIsPenHovered] = useState(false);
@@ -42,27 +44,36 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
     const childCheckboxScale = getScale(isChildCheckboxActive, isChildCheckboxHovered);
     const radioScale = getScale(isRadioActive, isRadioHovered);
 
+    const [content, setContent] = useState(node.content);
+    const [due, setDue] = useState(node.due_time);
+    const [dueWidth, setDueWidth] = useState(calculateTextWidth(due.toString() + ' days', 500))
+    const [textWidth, setTextWidth] = useState(Math.max(200, Math.min(calculateTextWidth(node.content, fontWeight), 350)));
+    const [finalWidth, setFinalWidth] = useState(dueWidth + textWidth);
+    const [textLines, setTextLines] = useState(Math.ceil(calculateTextWidth(content, fontWeight) / textWidth));
+    const [finalHeight, setFinalHeight] = useState((16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20);
+
     useEffect(() => {
+        setContent(node.content);
+        setDue(node.due_time);
         // Cập nhật textWidth
-        const newTextWidth = Math.max(Math.min(node.content.length * 8, 350), 200);
-        const newDueWidth = (due.toString().length + 5) * 8;
+        const newTextWidth = Math.max(200, Math.min(calculateTextWidth(node.content, fontWeight), 350));
+        const newDueWidth = calculateTextWidth(node.due_time.toString() + ' days', 500);
+        console.log('Text width: ', newTextWidth);
+        console.log('Due width: ', newDueWidth);
         setTextWidth(newTextWidth);
         setDueWidth(newDueWidth)
 
-        setFinalWidth(newTextWidth + newDueWidth + 55);
+        setFinalWidth(newTextWidth + newDueWidth);
 
-        // Tính toán số dòng
-        const lineCount = Math.ceil(content.length / (newTextWidth / 8));
-        setTextLines(lineCount);
-    }, [content, due]);
-
-    // Tính toán finalHeight
-    const finalHeight = (16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20;
+        setTextLines(Math.ceil(calculateTextWidth(node.content, fontWeight) / newTextWidth));
+        setFinalHeight((16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20)
+        console.log(node.content, " : ", textLines)
+    }, [content, due, node.content, node.due_time]);
 
     // Sử dụng useEffect để theo dõi sự thay đổi của textWidth và finalWidth nếu cần
     useEffect(() => {
         // Cập nhật finalWidth mỗi khi textWidth thay đổi
-        setFinalWidth(textWidth + dueWidth + 55);
+        setFinalWidth(textWidth + dueWidth);
     }, [textWidth, dueWidth]);
 
     // State để theo dõi trạng thái hover và active
@@ -91,7 +102,6 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
         penImg.src = PenRegular; // Thay đổi đường dẫn đến biểu tượng bút
         penImg.onload = () => setPenImage(penImg); // Khi hình ảnh bút được tải, cập nhật state
     }, []);
-
 
     const handleEditClick = (ref, type) => {
         setIsEditing(true);
@@ -142,6 +152,9 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
 
             } else {
                 updateNodeDue(index, textarea.value);
+                textarea.setAttribute('type', 'number');
+                textarea.setAttribute('inputmode', 'numeric');
+                textarea.setAttribute('pattern', '[0-9]*');
             }
             document.body.removeChild(textarea);
             setIsEditing(false);
@@ -150,12 +163,11 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
         textarea.oninput = (e) => {
             if (type === 'content') {
                 setContent(e.target.value);
-            } else {
+            } else if (type === 'due' && userType !== 'Viewer') {
                 setDue(e.target.value);
             }
         };
     };
-
 
     const handleOutsideClick = (e) => {
         if (textareaRef.current && typeof textareaRef.current.contains === "function" && !textareaRef.current.contains(e.target)) {
@@ -194,7 +206,7 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
             <Rect
                 x={node.x}
                 y={node.y}
-                width={finalWidth + 10}
+                width={finalWidth + (userType !== 'Viewer' ? (2 * (19 + 5)) : 0) + 25 + 7}
                 height={finalHeight}
                 fill="white"
                 stroke="#6580eb"
@@ -211,18 +223,23 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
                 y={node.y + 11}
                 text={content}
                 fontSize={16}
-                fill="black"
+                fill={contentHovered ? "#6580eb" : "black"}
                 align="left"
                 verticalAlign="middle"
-                width={finalWidth - dueWidth - 70}
+                width={textWidth}
                 wrap="word"
                 lineHeight={1.5}
+                fontStyle={fontWeight}
+                textDecoration={contentHovered ? "underline" : ""}
+                onMouseEnter={() => setContentHovered(true)} // Change state to true on hover
+                onMouseLeave={() => setContentHovered(false)} // Revert state on mouse leave
+                onClick={handleOpenNodeDetail}
             />
 
             {/* Due time */}
             <Text
                 ref={dueTimeRef}
-                x={node.x + textWidth + 3}
+                x={node.x + textWidth + 25}
                 y={node.y + (finalHeight - 24) / 2}
                 text={due + ' days'}
                 fontSize={16}
@@ -233,42 +250,43 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
                 onClick={() => handleEditClick(dueTimeRef, 'due')}
             />
 
-            {/*Pen icon */}
-            {penImage && (
-                <Image
-                    image={penImage}
-                    x={node.x + textWidth + dueWidth + 10}
-                    y={node.y + (finalHeight - 24) / 2}
-                    width={19}
-                    height={19}
-                    scaleX={penScale}
-                    scaleY={penScale}
-                    onMouseEnter={() => setIsPenHovered(true)}
-                    onMouseLeave={() => setIsPenHovered(false)}
-                    onMouseDown={() => setIsPenActive(true)}
-                    onMouseUp={() => { setIsPenActive(false); }}
-                    onClick={() => handleEditClick(textRef, 'content')}
-
-                />
+            {userType !== 'Viewer' && (
+                <>
+                    {penImage && (
+                        <Image
+                            image={penImage}
+                            x={node.x + textWidth + dueWidth + (25 + 5)}
+                            y={node.y + (finalHeight - 24) / 2}
+                            width={19}
+                            height={19}
+                            scaleX={penScale}
+                            scaleY={penScale}
+                            onMouseEnter={() => setIsPenHovered(true)}
+                            onMouseLeave={() => setIsPenHovered(false)}
+                            onMouseDown={() => setIsPenActive(true)}
+                            onMouseUp={() => setIsPenActive(false)}
+                            onClick={() => handleEditClick(textRef, 'content')}
+                        />
+                    )}
+                    {trashImage && (
+                        <Image
+                            image={trashImage}
+                            x={node.x + textWidth + dueWidth + (25 + 5) + (19 + 5)}
+                            y={node.y + (finalHeight - 24) / 2}
+                            width={19}
+                            height={19}
+                            scaleX={trashScale}
+                            scaleY={trashScale}
+                            onMouseEnter={() => setIsTrashHovered(true)}
+                            onMouseLeave={() => setIsTrashHovered(false)}
+                            onMouseDown={() => setIsTrashActive(true)}
+                            onMouseUp={() => setIsTrashActive(false)}
+                            onClick={() => handleDeleteNode(index)}
+                        />
+                    )}
+                </>
             )}
 
-            {/* TrashCan icon */}
-            {trashImage && (
-                <Image
-                    image={trashImage}
-                    x={node.x + textWidth + dueWidth + 35}
-                    y={node.y + (finalHeight - 24) / 2}
-                    width={19}
-                    height={19}
-                    scaleX={trashScale}
-                    scaleY={trashScale}
-                    onMouseEnter={() => setIsTrashHovered(true)}
-                    onMouseLeave={() => setIsTrashHovered(false)}
-                    onMouseDown={() => setIsTrashActive(true)}
-                    onMouseUp={() => setIsTrashActive(false)}
-                    onClick={() => handleDeleteNode(index)}
-                />
-            )}
 
             {/* Checkbox */}
             {node.type === 'RadioButton' ? (
