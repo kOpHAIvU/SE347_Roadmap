@@ -12,7 +12,7 @@ const calculateTextWidth = (text, fontWeight) => {
 
 function AdvanceRoadmap({ userType, nodes, setNodes
     , updateNodeContent, updateNodeDue, updateNodeDetail
-    , handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType }) {
+    , handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType, updateTickState }) {
     const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: 600 });
 
     useEffect(() => {
@@ -265,7 +265,6 @@ function AdvanceRoadmap({ userType, nodes, setNodes
         setOpenNodeDetail(true)
     }
 
-    console.log(nodes);
 
     return (
         <div style={{
@@ -298,6 +297,7 @@ function AdvanceRoadmap({ userType, nodes, setNodes
                             handleAddChildLevelNode={handleAddChildLevelNode}
                             nodeBelowTypes={nodeBelowType(index)}
                             handleOpenNodeDetail={() => handleOpenNodeDetail(index, node.nodeDetail)}
+                            updateTickState={updateTickState}
                         />
                     })}
 

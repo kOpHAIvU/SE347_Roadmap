@@ -5,6 +5,7 @@ import { faBolt, faCircleDown, faHeart as faSolidHeart, faTimes } from '@fortawe
 import { faHeart, faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { useState } from 'react';
 import CreateTimeline from '../CreateTimeline/index.js';
+import { CantClone } from '../MiniNotification/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -20,6 +21,29 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     };
 
 
+    const [errorDialogs, setErrorDialogs] = useState([]); // Array to manage multiple CantClone dialogs
+
+    const handleClose = (id) => {
+        setErrorDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
+    };
+
+    let nodeCount = 1;
+
+    const handleCloneClick = () => {
+        if (nodeCount < 5) {
+            const newDialog = { id: Date.now() }; // Unique ID for each CantClone
+            setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+
+            // Automatically remove the CantClone after 3 seconds
+            setTimeout(() => {
+                setErrorDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+            }, 3000);
+
+            return;
+        }
+        setShowDialog(true);
+    };
+
     return (
         <div className={cx('wrapper')} onClick={onClick}>
             <div className={cx('container')}>
@@ -33,7 +57,7 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
                         className={cx('clone-btn')}
                         onClick={(e) => {
                             e.stopPropagation();
-                            setShowDialog(true)
+                            handleCloneClick()
                         }}>
                         <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
                         <span className={cx('clone-title')}>Clone</span>
@@ -62,6 +86,12 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
                     setContent={setContent}
                     handleOutsideClick={handleOutsideClick}
                     setShowDialog={setShowDialog} />}
+
+            <div className={cx('mini-notify')}>
+                {errorDialogs.map((dialog) => (
+                    <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                ))}
+            </div>
             {/* Dialog xác nhận xóa */}
             {/* {showDeleteDialog && (
                 <div
