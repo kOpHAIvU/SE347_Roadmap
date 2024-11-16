@@ -17,6 +17,8 @@ function LevelThree({
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
     const [openNodeDetail, setOpenNodeDetail] = useState(false);
+    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
+
 
     useEffect(() => {
         setContent(node.content);
@@ -26,6 +28,15 @@ function LevelThree({
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
         updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
+    };
+
+    const handleDueTimeBlur = () => {
+        setIsDueTimeFocused(false);
+        if (!isNaN(dueTime)) {
+            const newDueTime = `${dueTime}`; // Add ' days' after blur
+            setDueTime(newDueTime);
+            updateNodeDue(index, newDueTime); // Gọi hàm cập nhật due-time
+        }
     };
 
     const handleOutsideClick = (e) => {
@@ -75,20 +86,22 @@ function LevelThree({
                     <input
                         className={cx('due-time')}
                         type="text"
-                        value={dueTime}
-                        onFocus={() => setDueTime(dueTime.replace(' days', ''))}
-                        onBlur={() => {
-                            if (!isNaN(dueTime)) {
-                                const newDueTime = `${dueTime} days`;
-                                setDueTime(newDueTime);
-                                updateNodeDue(index, newDueTime);
+                        value={
+                            isDueTimeFocused
+                                ? String(dueTime).replace(' days', '') // Chuyển `dueTime` thành chuỗi trước
+                                : `${dueTime} days` // Sử dụng template literals
+                        }
+                        onFocus={() => setIsDueTimeFocused(true)}
+                        onBlur={handleDueTimeBlur}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (!isNaN(value)) {
+                                setDueTime(value);
                             }
                         }}
-                        onChange={(e) => !isNaN(e.target.value) && setDueTime(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                                 e.preventDefault();
-                                if (!isNaN(e.target.value)) setDueTime(e.target.value);
                                 e.target.blur();
                             }
                         }}

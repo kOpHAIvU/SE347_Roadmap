@@ -10,7 +10,7 @@ import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.
 const cx = classNames.bind(styles);
 
 function Timeline() {
-    const authority = 'Viewer'
+    const authority = 'Administrator'
     let roadmapName = 'Name not given';
     let title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
     const [roadName, setRoadName] = useState(roadmapName);
@@ -90,7 +90,7 @@ function Timeline() {
     };
 
     const handleSameLevelClick = (index, x, y, level, type) => {
-        const newId = index + 1;
+        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...' };
 
         setNodes((prevLevels) => {
@@ -110,7 +110,7 @@ function Timeline() {
     };
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
-        const newId = index + 1; // Đặt id mới là index + 1
+        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
         const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...' };
 
         setNodes((prevLevels) => {
@@ -155,6 +155,7 @@ function Timeline() {
             newNodes[index] = updatedNode;
             return newNodes;
         });
+        console.log(nodes)
         setTimeout(() => setHoveredIndex(null), 0);
     };
 
