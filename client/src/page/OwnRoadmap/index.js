@@ -14,14 +14,14 @@ import { CantClone } from '~/components/Layout/components/MiniNotification/index
 const cx = classNames.bind(styles);
 
 function OwnRoadmap() {
-    const userType = 'Viewer'
+    const userType = 'Administrator'
     const [roadName, setRoadName] = useState('Name not given');
     const [titleText, setTitleText] = useState('Make some description');
     const [isEditing, setIsEditing] = useState(false);
     const textareaRef = useRef(null);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [loved, setLoved] = useState(false);
-    const [toggle, setToggle] = useState(false);
+    const [toggle, setToggle] = useState(true);
     const [showSetting, setShowSetting] = useState(false);
     const [visibility, setVisibility] = useState("Private");
     const [createTimelineDialog, setCreateTimelineDialog] = useState(false);
@@ -90,17 +90,23 @@ function OwnRoadmap() {
 
     useEffect(() => {
         const fetchData = async () => {
-          try {
-            const response = await fetch('http://localhost:3004/roadmap/all', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+            try {
+                const response = await fetch('http://localhost:3004/roadmap/all', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            });
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                setNodes(result);
+            } catch (error) {
+                console.log(error.message);
             }
+<<<<<<< HEAD
             const result = await response.json();
             console.log(result)
             let roadmapContent;
@@ -120,10 +126,12 @@ function OwnRoadmap() {
           } catch (error) {
             console.log(error.message);
           } 
+=======
+>>>>>>> e2269b3d05dcf00cea7d2ddd0c120d355f3f3391
         };
-    
+
         fetchData();
-      }, []);
+    }, []);
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
@@ -171,7 +179,8 @@ function OwnRoadmap() {
     };
 
     const handleSameLevelClick = (index, x, y, level, type) => {
-        const newId = index + 1;
+        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log(newId)
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -183,15 +192,12 @@ function OwnRoadmap() {
                 ? [...prevLevels, newLevel]
                 : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
         });
     };
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
-        const newId = index + 1; // Đặt id mới là index + 1
+        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
         const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -203,10 +209,7 @@ function OwnRoadmap() {
                 ? [...prevLevels, newLevel]
                 : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
         });
     };
 

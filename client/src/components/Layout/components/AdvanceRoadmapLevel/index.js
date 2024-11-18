@@ -12,7 +12,7 @@ const calculateTextWidth = (text, fontWeight) => {
 
 function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeContent
     , updateNodeDue, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes, handleOpenNodeDetail }) {
+    , handleAddChildLevelNode, nodeBelowTypes, handleOpenNodeDetail, updateTickState }) {
     const textRef = useRef(null);
     const dueTimeRef = useRef(null)
     const textareaRef = useRef(null);
@@ -52,14 +52,14 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
     const [textLines, setTextLines] = useState(Math.ceil(calculateTextWidth(content, fontWeight) / textWidth));
     const [finalHeight, setFinalHeight] = useState((16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20);
 
+    const { ticked } = node;
+
     useEffect(() => {
         setContent(node.content);
         setDue(node.due_time);
         // Cập nhật textWidth
         const newTextWidth = Math.max(200, Math.min(calculateTextWidth(node.content, fontWeight), 350));
         const newDueWidth = calculateTextWidth(node.due_time.toString() + ' days', 500);
-        console.log('Text width: ', newTextWidth);
-        console.log('Due width: ', newDueWidth);
         setTextWidth(newTextWidth);
         setDueWidth(newDueWidth)
 
@@ -67,7 +67,6 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
 
         setTextLines(Math.ceil(calculateTextWidth(node.content, fontWeight) / newTextWidth));
         setFinalHeight((16 * 1.5 * textLines) + 1.5 * (textLines - 1) + 20)
-        console.log(node.content, " : ", textLines)
     }, [content, due, node.content, node.due_time]);
 
     // Sử dụng useEffect để theo dõi sự thay đổi của textWidth và finalWidth nếu cần
@@ -77,7 +76,6 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
     }, [textWidth, dueWidth]);
 
     // State để theo dõi trạng thái hover và active
-    const [isChecked, setIsChecked] = useState(false); // State cho checkbox
 
     // Tính toán vị trí cho Checkbox
     const checkboxX = node.x - 10 - (20 * (checkboxScale) - 20) / 2; // Điều chỉnh x để giữ tâm cho Checkbox
@@ -85,7 +83,9 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
 
     // Hàm xử lý nhấn vào checkbox hoặc tick
     const handleToggle = () => {
-        setIsChecked(prev => !prev); // Đổi trạng thái đã đánh dấu
+        if (typeof updateTickState === 'function' && userType !== "Viewer") {
+            updateTickState(index, node);
+        }
     };
 
     // Khai báo state để lưu hình ảnh
@@ -294,7 +294,7 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
                     x={checkboxX + 10}
                     y={checkboxY + 10}
                     radius={10}
-                    fill={isChecked ? '#6580eb' : 'white'}
+                    fill={ticked ? '#6580eb' : 'white'}
                     stroke="#6580eb"
                     strokeWidth={2}
                     cornerRadius={3}
@@ -314,7 +314,7 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
                     y={checkboxY}
                     width={20}
                     height={20}
-                    fill={isChecked ? '#6580eb' : 'white'}
+                    fill={ticked ? '#6580eb' : 'white'}
                     stroke="#6580eb"
                     strokeWidth={2}
                     cornerRadius={3}
@@ -334,7 +334,7 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
 
 
             {/* Tick */}
-            {isChecked && (
+            {ticked && (
                 <Text
                     x={checkboxX + 4}
                     y={checkboxY + 3}
@@ -357,6 +357,7 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
                     }}
                 />
             )}
+
             {(userType === 'Administrator' || userType === 'Editor') && (node.level === 1 || node.level === 2) && (
                 <>
                     {/* Add same level node */}

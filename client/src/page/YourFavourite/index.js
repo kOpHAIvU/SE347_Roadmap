@@ -51,11 +51,14 @@ function YourFavourite() {
     ]);
 
     const handleLoveChange = (id) => {
-        setRoadmaps((prevRoadmaps) =>
-            prevRoadmaps.map((roadmap) =>
+        setRoadmaps((prevRoadmaps) => {
+            const updatedRoadmaps = prevRoadmaps.map((roadmap) =>
                 roadmap.id === id ? { ...roadmap, loved: !roadmap.loved } : roadmap
-            )
-        );
+            );
+
+            // Xóa các roadmap có loved === false
+            return updatedRoadmaps.filter((roadmap) => roadmap.loved);
+        });
     };
 
     const handleClickRoadmap = (id) => {

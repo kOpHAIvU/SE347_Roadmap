@@ -24,7 +24,7 @@ function LevelOne({
         setContent(node.content);
         setDueTime(node.due_time);
     }, [node.content, node.due_time]);
-    
+
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
@@ -34,7 +34,7 @@ function LevelOne({
     const handleDueTimeBlur = () => {
         setIsDueTimeFocused(false);
         if (!isNaN(dueTime)) {
-            const newDueTime = `${dueTime} days`; // Add ' days' after blur
+            const newDueTime = `${dueTime}`; // Add ' days' after blur
             setDueTime(newDueTime);
             updateNodeDue(index, newDueTime); // Gọi hàm cập nhật due-time
         }
@@ -75,7 +75,6 @@ function LevelOne({
                         }}
                         autoFocus
                     />
-
                 ) : (
                     <h1 className={cx('level-one-content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
@@ -91,12 +90,16 @@ function LevelOne({
 
                 <div className={cx('update-node')}>
                     {userType === 'Reviewer' ? (
-                        <h1 className={cx('due-time')}>{dueTime}</h1>
+                        <h1 className={cx('due-time')}>{dueTime} + ' days'</h1>
                     ) : (
                         <input
                             className={cx('due-time')}
                             type="text"
-                            value={isDueTimeFocused ? dueTime.replace(' days', '') : dueTime}
+                            value={
+                                isDueTimeFocused
+                                    ? String(dueTime).replace(' days', '') // Chuyển `dueTime` thành chuỗi trước
+                                    : `${dueTime} days` // Sử dụng template literals
+                            }
                             onFocus={() => setIsDueTimeFocused(true)}
                             onBlur={handleDueTimeBlur}
                             onChange={(e) => {
