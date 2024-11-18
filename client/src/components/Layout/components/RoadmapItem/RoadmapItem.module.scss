@@ -255,3 +255,13 @@
     background-color: var(--main-color);
     color: white;
 }
+
+.mini-notify {
+    width: 300px;
+    margin: 60px 15px 0 0;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    background-color: transparent;
+}
