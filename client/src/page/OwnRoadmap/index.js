@@ -84,7 +84,7 @@ function OwnRoadmap() {
             id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
             content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
             nodeDetail: ''
-        },
+        },  
     ]);
     //const [nodes, setNodes] = useState(null);
 
@@ -102,6 +102,20 @@ function OwnRoadmap() {
               throw new Error(`HTTP error! status: ${response.status}`);
             }
             const result = await response.json();
+            console.log(result)
+            let roadmapContent;
+            // if (result.content) {
+            //     roadmapContent = result.map((node, index) => {
+            //         node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+            //         console.log(node)
+            //         return node
+            //     })
+            // }
+            roadmapContent = result.data.map((node, index) => {
+                node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+                console.log(node)
+                return node
+            })
             setNodes(result);
           } catch (error) {
             console.log(error.message);
