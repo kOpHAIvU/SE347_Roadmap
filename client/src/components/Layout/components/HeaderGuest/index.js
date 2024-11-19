@@ -23,7 +23,6 @@ function HeaderGuest() {
                     <div className={cx('logo')} onClick={handleLogoClick}>
                         <img src={images.logo} alt="VertexOps" />
                     </div>
-
                     <h1 className={cx('web-name')}>VertexOps</h1>
                 </div>
 
