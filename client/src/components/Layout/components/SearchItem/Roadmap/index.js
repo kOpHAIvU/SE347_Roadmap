@@ -1,12 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBoltLightning } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames/bind';
-import styles from './AccountItem.module.scss';
+import styles from './Roadmap.module.scss';
 
 const cx = classNames.bind(styles);
 
 
-function AccountItem({ key, children }) {
+function Roadmap({ children }) {
     return (
         <div className={cx('wrapper')}>
             <img
@@ -29,4 +29,4 @@ function AccountItem({ key, children }) {
     );
 }
 
-export default AccountItem;
+export default Roadmap;
