@@ -33,12 +33,14 @@ function MenuItem({ data, onClick }) {
 function MenuAvatar({ children, items = [] }) {
     const [history, setHistory] = useState([{ data: items }]);
     const current = history[history.length - 1];
+    const [isVisible, setIsVisible] = useState(false);
 
     const navigate = useNavigate();
 
     const handleMenuItemClick = (item) => {
         if (item.to) {
             navigate(item.to);
+            setIsVisible(false);
         } else if (item.children) {
             setHistory((prev) => [...prev, item.children]); // Chuyển sang menu con
         }
@@ -57,9 +59,10 @@ function MenuAvatar({ children, items = [] }) {
     return (
         <Tippy
             interactive
-            // visible
+            visible={isVisible}
             delay={[0, 500]}
             placement="bottom-end"
+            offset={[0, 1]}
             render={(attrs) => (
                 <div className={cx('avatar-dropdown')} tabIndex="-1" {...attrs}>
                     <div className={cx('custom-dropdown')}>
@@ -69,7 +72,10 @@ function MenuAvatar({ children, items = [] }) {
                 </div>
             )}
         >
-            {children}
+            {/* {children} */}
+            <div className={cx('avatar-wrapper')} onClick={() => setIsVisible((prev) => !prev)}>
+                {children}
+            </div>
         </Tippy>
     );
 }

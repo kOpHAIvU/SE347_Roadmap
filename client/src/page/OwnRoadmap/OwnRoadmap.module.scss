@@ -155,9 +155,9 @@
 }
 
 .add-first-node {
+    min-height: 300px;
     margin-left: 10px;
     display: flex;
-    align-items: center;
     transition: all 0.3s ease;
     cursor: pointer;
     transform-origin: left center;

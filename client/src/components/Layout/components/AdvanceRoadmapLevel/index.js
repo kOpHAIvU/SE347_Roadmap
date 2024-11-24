@@ -188,19 +188,21 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
 
     return (
         <React.Fragment>
-            {(userType === 'Administrator' || userType === 'Editor') && (node.level === 1 || node.level === 2) && (
-                //Add node background
-                <Rect
-                    x={node.x}
-                    y={node.y + finalHeight - 2}
-                    width={45 + (nodeBelowTypes != null ? 0 : 20)}
-                    height={25}
-                    stroke="rgba(22, 24, 35, 0.12)"
-                    strokeWidth={1}
-                    draggable
-                    onDragMove={onDragMove}
-                />
-            )}
+            {(userType === 'Administrator' || userType === 'Editor')
+                && (node.level === 1 || node.level === 2)
+                && !(node.level === 2 && node.type === 'RadioButton') && (
+                    //Add node background
+                    <Rect
+                        x={node.x}
+                        y={node.y + finalHeight - 2}
+                        width={45 + (nodeBelowTypes != null ? 0 : 20)}
+                        height={25}
+                        stroke="rgba(22, 24, 35, 0.12)"
+                        strokeWidth={1}
+                        draggable
+                        onDragMove={onDragMove}
+                    />
+                )}
 
             {/* Node background */}
             <Rect
@@ -358,82 +360,84 @@ function AdvanceRoadmapLevel({ userType, node, index, onDragMove, updateNodeCont
                 />
             )}
 
-            {(userType === 'Administrator' || userType === 'Editor') && (node.level === 1 || node.level === 2) && (
-                <>
-                    {/* Add same level node */}
-                    <Rect
-                        x={node.x + 5}
-                        y={node.y + finalHeight + 4}
-                        width={15}
-                        height={15}
-                        cornerRadius={3}
-                        fill="rgba(22, 24, 35, 0.22)"
-                        scaleX={squarePlusScale}
-                        scaleY={squarePlusScale}
-                        hitStrokeWidth={10}
-                        onMouseEnter={() => setIsPlusHovered(true)}
-                        onMouseLeave={() => setIsPlusHovered(false)}
-                        onMouseDown={() => setIsPlusActive(true)}
-                        onMouseUp={() => setIsPlusActive(false)}
-                        onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
-                    />
-                    <Text
-                        x={node.x + 8}
-                        y={node.y + finalHeight + 5}
-                        width={10}
-                        height={10}
-                        text="+"
-                        fill="#ffffff"
-                        fontSize={15}
-                        scaleX={squarePlusScale}
-                        scaleY={squarePlusScale}
-                        onMouseEnter={() => setIsPlusHovered(true)}
-                        onMouseLeave={() => setIsPlusHovered(false)}
-                        onMouseDown={() => setIsPlusActive(true)}
-                        onMouseUp={() => setIsPlusActive(false)}
-                        onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
-                    />
-
-                    {(nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null) && (
-                        // Add checkbox child level
+            {(userType === 'Administrator' || userType === 'Editor')
+                && (node.level === 1 || node.level === 2)
+                && !(node.level === 2 && node.type === 'RadioButton') && (
+                    <>
+                        {/* Add same level node */}
                         <Rect
-                            x={node.x + 25}
+                            x={node.x + 5}
                             y={node.y + finalHeight + 4}
                             width={15}
                             height={15}
                             cornerRadius={3}
-                            stroke="rgba(22, 24, 35, 0.22)"
-                            strokeWidth={1}
-                            scaleX={childCheckboxScale}
-                            scaleY={childCheckboxScale}
-                            onMouseEnter={() => setIsChildCheckboxHovered(true)}
-                            onMouseLeave={() => setIsChildCheckboxHovered(false)}
-                            onMouseDown={() => setIsChildCheckboxActive(true)}
-                            onMouseUp={() => setIsChildCheckboxActive(false)}
-                            onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'Checkbox')}
+                            fill="rgba(22, 24, 35, 0.22)"
+                            scaleX={squarePlusScale}
+                            scaleY={squarePlusScale}
+                            hitStrokeWidth={10}
+                            onMouseEnter={() => setIsPlusHovered(true)}
+                            onMouseLeave={() => setIsPlusHovered(false)}
+                            onMouseDown={() => setIsPlusActive(true)}
+                            onMouseUp={() => setIsPlusActive(false)}
+                            onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
                         />
-                    )}
+                        <Text
+                            x={node.x + 8}
+                            y={node.y + finalHeight + 5}
+                            width={10}
+                            height={10}
+                            text="+"
+                            fill="#ffffff"
+                            fontSize={15}
+                            scaleX={squarePlusScale}
+                            scaleY={squarePlusScale}
+                            onMouseEnter={() => setIsPlusHovered(true)}
+                            onMouseLeave={() => setIsPlusHovered(false)}
+                            onMouseDown={() => setIsPlusActive(true)}
+                            onMouseUp={() => setIsPlusActive(false)}
+                            onClick={() => handleSameLevelClick(index, node.x, node.y, node.level, node.type)}
+                        />
 
-                    {(nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null) && (
-                        // Add radiobutton child level
-                        <Circle
-                            x={node.x + (nodeBelowTypes === 'RadioButton' ? 32.5 : 52.5)}
-                            y={node.y + finalHeight + 4 + 7.5}
-                            radius={8}
-                            stroke="rgba(22, 24, 35, 0.22)"
-                            strokeWidth={1}
-                            fill="white"
-                            scaleX={radioScale}
-                            scaleY={radioScale}
-                            onMouseEnter={() => setIsRadioHovered(true)}
-                            onMouseLeave={() => setIsRadioHovered(false)}
-                            onMouseDown={() => setIsRadioActive(true)}
-                            onMouseUp={() => setIsRadioActive(false)}
-                            onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'RadioButton')}
-                        />
-                    )}
-                </>
-            )}
+                        {(nodeBelowTypes === 'Checkbox' || nodeBelowTypes === null) && (
+                            // Add checkbox child level
+                            <Rect
+                                x={node.x + 25}
+                                y={node.y + finalHeight + 4}
+                                width={15}
+                                height={15}
+                                cornerRadius={3}
+                                stroke="rgba(22, 24, 35, 0.22)"
+                                strokeWidth={1}
+                                scaleX={childCheckboxScale}
+                                scaleY={childCheckboxScale}
+                                onMouseEnter={() => setIsChildCheckboxHovered(true)}
+                                onMouseLeave={() => setIsChildCheckboxHovered(false)}
+                                onMouseDown={() => setIsChildCheckboxActive(true)}
+                                onMouseUp={() => setIsChildCheckboxActive(false)}
+                                onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'Checkbox')}
+                            />
+                        )}
+
+                        {(nodeBelowTypes === 'RadioButton' || nodeBelowTypes === null) && (
+                            // Add radiobutton child level
+                            <Circle
+                                x={node.x + (nodeBelowTypes === 'RadioButton' ? 32.5 : 52.5)}
+                                y={node.y + finalHeight + 4 + 7.5}
+                                radius={8}
+                                stroke="rgba(22, 24, 35, 0.22)"
+                                strokeWidth={1}
+                                fill="white"
+                                scaleX={radioScale}
+                                scaleY={radioScale}
+                                onMouseEnter={() => setIsRadioHovered(true)}
+                                onMouseLeave={() => setIsRadioHovered(false)}
+                                onMouseDown={() => setIsRadioActive(true)}
+                                onMouseUp={() => setIsRadioActive(false)}
+                                onClick={() => handleAddChildLevelNode(index, dueWidth + textWidth, node.x, node.y, node.level, 'RadioButton')}
+                            />
+                        )}
+                    </>
+                )}
         </React.Fragment>
     );
 }

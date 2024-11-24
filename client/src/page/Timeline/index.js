@@ -4,8 +4,10 @@ import classNames from 'classnames/bind';
 import styles from './Timeline.module.scss';
 import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faGear, faSitemap } from '@fortawesome/free-solid-svg-icons';
+import { faA, faChevronLeft, faChevronRight, faGear, faSitemap } from '@fortawesome/free-solid-svg-icons';
 import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.js';
+import { Saved } from '~/components/Layout/components/MiniNotification/index.js';
+import { SettingTimeline } from '~/components/Layout/components/Dialog/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -16,8 +18,9 @@ function Timeline() {
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
-    const [showSetting, setShowSetting] = useState(false);
+    const [showSetting, setShowSetting] = useState(true);
     const [hoveredIndex, setHoveredIndex] = useState(null);
+    const [chatExtended, setChatExtended] = useState(true);
 
     const nodeDetail = `
     <h2>What is GitHub?</h2>
@@ -160,8 +163,40 @@ function Timeline() {
     };
 
     const handleSave = () => {
-        alert("Your changes have been saved!");
+        handleMakeDialog()
         console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
+    }
+
+    const [dialogs, setDialogs] = useState([]); // Array to manage multiple CantClone dialogs
+
+    const handleClose = (id) => {
+        setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
+    };
+
+    const handleMakeDialog = () => {
+        const newDialog = { id: Date.now() };
+        setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+
+        // Automatically remove the CantClone after 3 seconds
+        setTimeout(() => {
+            setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+        }, 3000);
+
+        return;
+    };
+
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setShowSetting(false);
+        }
+    }
+
+    const handleDeleteTimeline = () => {
+        const confirmDelete = window.confirm(`Do you really want to delete "${roadName}" roadmap?`);
+
+        if (confirmDelete) {
+            window.location.href = "/home";
+        }
     }
 
     return (
@@ -203,8 +238,24 @@ function Timeline() {
                                 icon={faGear}
                                 className={cx('setting-btn')}
                                 onClick={() => setShowSetting(true)} />
+                            <FontAwesomeIcon
+                                className={cx('extend-chat')}
+                                icon={chatExtended ? faChevronRight : faChevronLeft}
+                                onClick={() => setChatExtended(!chatExtended)} />
                         </div>
                     )}
+
+                    {showSetting &&
+                        <SettingTimeline
+                            setShowSetting={setShowSetting}
+                            handleOutsideClick={handleOutsideClick}
+                            handleDeleteTimeline={handleDeleteTimeline} />}
+                </div>
+
+                <div className={cx('mini-notify')}>
+                    {dialogs.map((dialog) => (
+                        <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ))}
                 </div>
 
                 <span
@@ -245,9 +296,10 @@ function Timeline() {
                         />}
                 </div>
             </div>
-            <div className={cx('chat-section')}>
+
+            {chatExtended && !toggle && <div className={cx('chat-section', { show: chatExtended })}>
                 <ChatSection />
-            </div>
+            </div>}
         </div>
     );
 }
