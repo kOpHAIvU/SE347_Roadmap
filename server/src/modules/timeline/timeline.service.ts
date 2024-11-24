@@ -50,7 +50,7 @@ export class TimelineService {
       const timeline = await this.timelineRepository.create({
         ...createTimelineDto,
         roadmap: roadmap,
-        leader: leader,
+        creator: leader,
       });
       const result = await this.timelineRepository.save(timeline);
       return {
@@ -171,7 +171,7 @@ export class TimelineService {
       const newTimeline = this.timelineRepository.create({
         ...updateTimelineDto,
         roadmap: roadmap,
-        leader: leader,
+        creator: leader,
       });
   
       const result = await this.timelineRepository.save(newTimeline);

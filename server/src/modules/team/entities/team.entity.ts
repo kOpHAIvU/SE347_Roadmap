@@ -1,5 +1,7 @@
+import { GroupDivision } from "src/modules/group-division/entities/group-division.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Message } from "../../message/entities/message.entity";
 
 @Entity()
 export class Team {
@@ -12,14 +14,8 @@ export class Team {
     @Column()
     avatar: string;
 
-    // @ManyToOne(() => Timeline, timeline => timeline.team)
-    // timeline: Timeline;
-
-    @ManyToOne(() => User, leader => leader.team)
-    leader: User;
-
-    // @OneToMany(() => Member, member => member.team)
-    // team: Member[]
+    @ManyToOne(() => User, leader => leader.team, { eager: true })
+    leader: User;   
 
     @Column({ type: 'boolean', default: true }) 
     isActive: boolean;
@@ -29,4 +25,10 @@ export class Team {
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
+
+    @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
+    groupDivision: GroupDivision;
+
+    @OneToMany(() => Message, message => message.sender)
+    message: Message[];
 }

@@ -2,6 +2,7 @@ import { Exclude } from "class-transformer";
 import { Roadmap } from "../../roadmap/entities/roadmap.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {Node} from '../../node/entities/node.entity'
 
 @Entity()
 export class Comment {
@@ -11,13 +12,13 @@ export class Comment {
     @Column({nullable: false})
     content: string;
 
-    @ManyToOne(() => User, poster => poster.comment)
+    @ManyToOne(() => User, poster => poster.comment, { eager: true })
     poster: User;
 
-    @ManyToOne(() => Roadmap, roadmap => roadmap.id)
+    @ManyToOne(() => Roadmap, roadmap => roadmap.id, { eager: true })
     roadmap: Roadmap;
 
-    @ManyToOne(() => Comment, comment => comment.childComments)
+    @ManyToOne(() => Comment, comment => comment.childComments, { eager: true })
     @JoinColumn({ name: 'parentCommentId' })  
     parentComment: Comment;
 
@@ -34,5 +35,8 @@ export class Comment {
     @DeleteDateColumn({ nullable: true })  
     @Exclude()
     deletedAt: Date | null;
+
+    @ManyToOne(() => Node,  node => node.comment, { eager: true })
+    node: Node
 
 }

@@ -98,38 +98,33 @@ function OwnRoadmap() {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     }
                 });
+    
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
+    
                 const result = await response.json();
-                setNodes(result);
+                console.log(result);
+    
+                if (result.data) {
+                    const roadmapContent = result.data.map((node, index) => {
+                        node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+                        console.log(node);
+                        return node;
+                    });
+                    setNodes(roadmapContent); 
+                } else {
+                    console.log("Data is not found");
+                }
+    
             } catch (error) {
                 console.log(error.message);
             }
-          
-            const result = await response.json();
-            console.log(result)
-            let roadmapContent;
-            // if (result.content) {
-            //     roadmapContent = result.map((node, index) => {
-            //         node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
-            //         console.log(node)
-            //         return node
-            //     })
-            // }
-            roadmapContent = result.data.map((node, index) => {
-                node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
-                console.log(node)
-                return node
-            })
-            setNodes(result);
-          } catch (error) {
-            console.log(error.message);
-          } 
         };
-
+    
         fetchData();
     }, []);
+    
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {

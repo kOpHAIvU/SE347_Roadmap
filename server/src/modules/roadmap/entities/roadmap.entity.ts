@@ -2,6 +2,7 @@ import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from './../../comment/entities/comment.entity';
 import { Timeline } from "../../timeline/entities/timeline.entity";
+import {Node} from "../../node/entities/node.entity"
 
 @Entity()
 export class Roadmap {
@@ -22,6 +23,9 @@ export class Roadmap {
     
     @ManyToOne(() => User, owner => owner.roadmap, { eager: true })
     owner: User
+
+    @OneToMany(() => Node, node => node.roadmap)
+    node: Node[]
 
     @OneToMany(() => Comment, comment => comment.roadmap)
     comment: Comment[]

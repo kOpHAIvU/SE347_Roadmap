@@ -2,11 +2,12 @@ import { Roadmap } from './../../roadmap/entities/roadmap.entity';
 import { Role } from '../../role/entities/role.entity';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, OneToMany, ManyToMany, ManyToOne, OneToOne } from 'typeorm';
 import { Comment } from './../../comment/entities/comment.entity';
-import { Member } from '../../member/entities/member.entity';
 import { Team } from '../../team/entities/team.entity';
 import { Timeline } from '../../timeline/entities/timeline.entity';
 import { Report } from '../../report/entities/report.entity';
 import { Notification } from '../../notification/entities/notification.entity';
+import { GroupDivision } from '../../group-division/entities/group-division.entity';
+import { Message } from '../../message/entities/message.entity';
 
 @Entity()
 export class User {
@@ -44,6 +45,9 @@ export class User {
 
     @ManyToOne(() => Role, role => role.user, { eager: true })
     role: Role
+
+    @OneToMany(() => Team, team => team.leader)
+    team: Team[]
     
     @OneToMany(() => Roadmap, roadmap => roadmap.owner)
     roadmap: Roadmap[]
@@ -51,15 +55,18 @@ export class User {
     @OneToMany(() => Comment, comment => comment.poster)
     comment: Comment[]
 
-    @OneToMany(() => Timeline, team => team.leader)
-    team: Team[]
-
-    @OneToMany(() => Member, member => member.member)
-    member: Member[]
+    @OneToMany(() => Timeline, timeline => timeline.creator)
+    timeline: Team[]
 
     @OneToMany( () => Report, report => report.reporter)
     report: Report[]
 
     @OneToMany( () => Notification, poster => poster.postNotification)
     poster: Report[]
+
+    @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
+    groupDivision: GroupDivision;
+
+    @OneToMany(() => Message, messages => messages.sender)
+    messages: Message[] 
 }
