@@ -7,9 +7,10 @@ import styles from './OwnRoadmap.module.scss';
 import classNames from 'classnames/bind';
 import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.js';
 import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.js';
-import SettingRoadmap from '~/components/Layout/components/SettingRoadmap/index.js';
+import SettingRoadmap from '~/components/Layout/components/Dialog/SettingRoadmap/index.js';
 import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.js';
 import { CantClone } from '~/components/Layout/components/MiniNotification/index.js';
+import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -21,7 +22,7 @@ function OwnRoadmap() {
     const textareaRef = useRef(null);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [loved, setLoved] = useState(false);
-    const [toggle, setToggle] = useState(true);
+    const [toggle, setToggle] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
     const [visibility, setVisibility] = useState("Private");
     const [createTimelineDialog, setCreateTimelineDialog] = useState(false);
@@ -73,7 +74,6 @@ function OwnRoadmap() {
     <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
     `;
 
-
     const [nodes, setNodes] = useState([
         {
             id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2,
@@ -106,7 +106,7 @@ function OwnRoadmap() {
             } catch (error) {
                 console.log(error.message);
             }
-<<<<<<< HEAD
+          
             const result = await response.json();
             console.log(result)
             let roadmapContent;
@@ -126,8 +126,6 @@ function OwnRoadmap() {
           } catch (error) {
             console.log(error.message);
           } 
-=======
->>>>>>> e2269b3d05dcf00cea7d2ddd0c120d355f3f3391
         };
 
         fetchData();
@@ -219,7 +217,7 @@ function OwnRoadmap() {
     }
 
     const handleSave = () => {
-        alert("Your changes have been saved!");
+        handleMakeDialog('Saved')
         console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
     }
 
@@ -230,25 +228,37 @@ function OwnRoadmap() {
         }
     }
 
-    const [errorDialogs, setErrorDialogs] = useState([]); // Array to manage multiple CantClone dialogs
+    const [dialogs, setDialogs] = useState([]); // Array to manage multiple CantClone dialogs
 
     const handleClose = (id) => {
-        setErrorDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
+        setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
     };
 
-    const handleCloneClick = () => {
-        if (nodes.length < 5) {
-            const newDialog = { id: Date.now() }; // Unique ID for each CantClone
-            setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+    const handleMakeDialog = (type) => {
+        if (type === 'Clone') {
+            if (nodes.length < 5) {
+                const newDialog = { id: Date.now(), type: type }; // Unique ID for each CantClone
+                setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+
+                // Automatically remove the CantClone after 3 seconds
+                setTimeout(() => {
+                    setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+                }, 3000);
+
+                return;
+            }
+            setCreateTimelineDialog(true);
+        } else if (type === 'Saved') {
+            const newDialog = { id: Date.now(), type: type };
+            setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 
             // Automatically remove the CantClone after 3 seconds
             setTimeout(() => {
-                setErrorDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+                setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
             }, 3000);
 
             return;
         }
-        setCreateTimelineDialog(true);
     };
 
     return (
@@ -366,17 +376,22 @@ function OwnRoadmap() {
                     <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
                     <h1 className={cx('love-text')}>Love</h1>
                 </button>
-                <button className={cx('clone-roadmap')} onClick={handleCloneClick} >
+                <button className={cx('clone-roadmap')} onClick={() => handleMakeDialog('Clone')} >
                     <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
                     <h1 className={cx('clone-text')}>Clone</h1>
                 </button>
             </div>
 
             <div className={cx('mini-notify')}>
-                {errorDialogs.map((dialog) => (
-                    <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                {dialogs.map((dialog) => (
+                    dialog.type === 'Clone' ? (
+                        <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ) : dialog.type === 'Saved' ? (
+                        <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ) : null
                 ))}
             </div>
+            
             {createTimelineDialog &&
                 <CreateTimeline
                     newId="hehe"

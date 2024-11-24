@@ -16,10 +16,10 @@ import {
     faTimes,
     faBell,
 } from '@fortawesome/free-solid-svg-icons';
-import Search from '../Search/index.js';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import MenuAvatar from '../MenuAvatar/index.js';
+import { SearchRoadmap } from '../Search/index.js';
 
 const cx = classNames.bind(styles);
 const MENU_ITEMS = [
@@ -118,7 +118,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                     className={cx('navigation-btn')}
                 ></Button>
 
-                <Search />
+                <SearchRoadmap />
 
                 <div className={cx('right-header')}>
                     <button className={cx('add-roadmap')} onClick={() => setShowForm(true)}>

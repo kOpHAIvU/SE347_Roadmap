@@ -7,6 +7,7 @@
     justify-content: center;
     background-color: #FFFFFF;
     box-shadow: rgb(0 0 0 /12%) 0px 2px 12px;
+    transition: background-color 0.3s ease;
 }
 .inner {
     height: 100%;
@@ -15,9 +16,14 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--default-layout-horizontal-spacer);
+
+    @media (max-width: 768px) {
+        padding: 0 15px; 
+    }
 }
 .link {
     display: flex;
+    align-items: center;
 }
 .logo {
     display: flex;
@@ -27,6 +33,17 @@
     margin-left: 90px;
     &:hover {
         cursor: pointer;
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+        height: 60px;
+        width: 60px;
+        margin-left: 15px; 
+    }
+    img {
+        height: 100%;
+        width: auto;
     }
 }
 .web-name {
@@ -35,24 +52,34 @@
     align-items: center;
     font-size: 3.5rem;
     margin-left: 15px;
+    white-space: nowrap;
+
+    @media (min-width: 768px) {
+        font-size: 3.5rem;
+    }
 }
 .right-header {
     display: flex;
     margin-right: 90px;
+    align-items: center;
+
+    @media (max-width: 768px) {
+        margin-right: 15px;
+    }
 }
 .login-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 6px 20px;
-    font-size: 3rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: #ffffff;
     background-color: #727996; 
-    // border: 2px solid black;
     border-radius: 8px;
     transition: background-color 0.3s ease, transform 0.2s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
     &:hover {
         background-color: #3e4562; 
         cursor: pointer;
@@ -67,5 +94,9 @@
         font-size: 2.5rem;
         margin: 0;
         padding: 5px;
+
+        @media (max-width: 768px) {
+            font-size: 2rem; 
+        }
     }
 }
