@@ -29,6 +29,7 @@ export class NotificationService {
         return {
           statusCode: 404,
           message: 'Poster not found',
+          data: null
         };
       }
 
@@ -52,7 +53,7 @@ export class NotificationService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: error.message,
+        message: "Server is not OK",
         data: null
       }
     }
@@ -72,7 +73,7 @@ export class NotificationService {
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
-      if (notifications.length == 0) {
+      if (!notifications) {
         return {
           statusCode: 404,
           message: 'Notification not found',

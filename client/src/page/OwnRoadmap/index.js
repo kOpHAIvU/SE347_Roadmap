@@ -74,8 +74,18 @@ function OwnRoadmap() {
     <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
     `;
 
-
-    const [nodes, setNodes] = useState(null);
+    const [nodes, setNodes] = useState([
+        {
+            id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2,
+            content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
+            nodeDetail: nodeDetail
+        },
+        {
+            id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
+            content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
+            nodeDetail: ''
+        },  
+    ]);
     //const [nodes, setNodes] = useState(null);
 
     useEffect(() => {
@@ -96,6 +106,26 @@ function OwnRoadmap() {
             } catch (error) {
                 console.log(error.message);
             }
+          
+            const result = await response.json();
+            console.log(result)
+            let roadmapContent;
+            // if (result.content) {
+            //     roadmapContent = result.map((node, index) => {
+            //         node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+            //         console.log(node)
+            //         return node
+            //     })
+            // }
+            roadmapContent = result.data.map((node, index) => {
+                node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+                console.log(node)
+                return node
+            })
+            setNodes(result);
+          } catch (error) {
+            console.log(error.message);
+          } 
         };
 
         fetchData();
