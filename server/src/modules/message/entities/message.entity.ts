@@ -10,9 +10,6 @@ export class Message {
     @Column({nullable: false})
     content: string;
 
-    @Column({nullable: false})
-    sendTime: Date;
-
     @Column({ type: 'boolean', default: false })
     check: boolean;
 

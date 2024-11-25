@@ -8,9 +8,9 @@ async function bootstrap() {
   console.log('server is running');
   //app.useGlobalFilters(new AllExceptionsFilter());
   app.enableCors({
-    origin: 'http://localhost:3000', // Cho phép domain cụ thể
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // Phương thức HTTP được phép
-    credentials: true, // Cho phép gửi cookies với request
+    origin: 'http://localhost:3000', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', 
+    credentials: true, 
   });
   await app.listen(3004);
 

@@ -13,6 +13,4 @@ export class CreateGroupDivisionDto {
     @IsNumber()
     timelineId: number;
 
-    @IsNotEmpty()
-    timeOfParticipation: Date;
 }

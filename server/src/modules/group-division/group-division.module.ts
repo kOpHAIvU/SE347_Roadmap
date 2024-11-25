@@ -16,5 +16,6 @@ import { TeamModule } from '../team/team.module';
   ],
   controllers: [GroupDivisionController],
   providers: [GroupDivisionService],
+  exports: [GroupDivisionService],
 })
 export class GroupDivisionModule {}

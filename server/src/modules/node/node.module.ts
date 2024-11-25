@@ -12,5 +12,6 @@ import { RoadmapModule } from '../roadmap/roadmap.module';
   ],
   controllers: [NodeController],
   providers: [NodeService],
+  exports: [NodeService],
 })
 export class NodeModule {}

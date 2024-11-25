@@ -7,17 +7,14 @@ export class CreateMessageDto {
     content: string;
 
     @IsNotEmpty()
-    sendTime: Date;
-
-    @IsNotEmpty()
     @IsBoolean()
     check: boolean;
 
     @IsNotEmpty()
     @IsNumber()
-    sender: number;
+    senderId: number;
 
     @IsNotEmpty()
     @IsNumber()
-    team: number;
+    teamId: number;
 }

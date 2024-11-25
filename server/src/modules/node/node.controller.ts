@@ -7,27 +7,27 @@ import { UpdateNodeDto } from './dto/update-node.dto';
 export class NodeController {
   constructor(private readonly nodeService: NodeService) {}
 
-  @Post()
+  @Post('new')
   create(@Body() createNodeDto: CreateNodeDto) {
     return this.nodeService.create(createNodeDto);
   }
 
-  @Get()
+  @Get('item/:id')
   findAll() {
     return this.nodeService.findAll();
   }
 
-  @Get(':id')
+  @Get('item/:id')
   findOne(@Param('id') id: string) {
-    return this.nodeService.findOne(+id);
+    return this.nodeService.findOneById(+id);
   }
 
-  @Patch(':id')
+  @Patch('item/:id')
   update(@Param('id') id: string, @Body() updateNodeDto: UpdateNodeDto) {
     return this.nodeService.update(+id, updateNodeDto);
   }
 
-  @Delete(':id')
+  @Delete('item/:id')
   remove(@Param('id') id: string) {
     return this.nodeService.remove(+id);
   }

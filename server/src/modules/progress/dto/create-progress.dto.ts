@@ -8,7 +8,15 @@ export class CreateProgressDto {
 
     @IsNumber()
     @IsNotEmpty()
-    groupDivision: number;
+    timelineId: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    teamId: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    memberId: number;
 
     createdAt: Date;
 

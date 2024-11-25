@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { GroupDivisionService } from './group-division.service';
 import { CreateGroupDivisionDto } from './dto/create-group-division.dto';
 import { UpdateGroupDivisionDto } from './dto/update-group-division.dto';
@@ -7,27 +7,30 @@ import { UpdateGroupDivisionDto } from './dto/update-group-division.dto';
 export class GroupDivisionController {
   constructor(private readonly groupDivisionService: GroupDivisionService) {}
 
-  @Post()
+  @Post('new')
   create(@Body() createGroupDivisionDto: CreateGroupDivisionDto) {
     return this.groupDivisionService.create(createGroupDivisionDto);
   }
 
-  @Get()
-  findAll() {
+  @Get("all")
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
     return this.groupDivisionService.findAll();
   }
 
-  @Get(':id')
+  @Get('item/:id')
   findOne(@Param('id') id: string) {
-    return this.groupDivisionService.findOne(+id);
-  }
+    return this.groupDivisionService.findOneById(+id);
+  } 
 
-  @Patch(':id')
+  @Patch('item/:id')
   update(@Param('id') id: string, @Body() updateGroupDivisionDto: UpdateGroupDivisionDto) {
     return this.groupDivisionService.update(+id, updateGroupDivisionDto);
   }
 
-  @Delete(':id')
+  @Delete('item/:id')
   remove(@Param('id') id: string) {
     return this.groupDivisionService.remove(+id);
   }

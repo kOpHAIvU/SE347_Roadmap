@@ -18,13 +18,6 @@ export class TeamService {
   ) {}
 
   async create(createGroupDto: CreateTeamDto): Promise<ResponseDto> {
-    const timelineResponse = await this.timelineService.findOneById(createGroupDto.timeline);
-    const timeline = Array.isArray(timelineResponse.data)
-                    ? timelineResponse.data[0]
-                    : timelineResponse.data
-    if (!timeline) {
-      throw new Error('Error occurred while finding timeline');
-    }
     const leaderResponse = await this.userService.findOneById(createGroupDto.leader);
     const leader = Array.isArray(leaderResponse.data)
                   ? leaderResponse.data[0]
@@ -36,7 +29,6 @@ export class TeamService {
     try {
       const group = await this.teamRepository.create({
         ...createGroupDto,
-       // timeline: timeline, 
         leader: leader 
       });
   
@@ -51,6 +43,7 @@ export class TeamService {
       return {
         statusCode: 500,
         message: 'Server error when creating group',
+        data: null,
       };
     }
   }
@@ -77,6 +70,7 @@ export class TeamService {
       return {
         statusCode: 500,
         message: 'Server error when finding groups',
+        data: null
       };
     }
   }
@@ -93,6 +87,7 @@ export class TeamService {
         return {
           statusCode: 404,
           message: 'Team not found',
+          data: null
         }
       }
       return {
@@ -104,6 +99,7 @@ export class TeamService {
       return {
         statusCode: 500,
         message: 'Server error when finding group',
+        data: null
       };
     }
   }
@@ -120,13 +116,6 @@ export class TeamService {
       if (!leader) {
         throw new Error('User not found');
       }
-      const timelineResponse = await this.timelineService.findOneById(updateTeamDto.timeline);
-      const timeline = Array.isArray(timelineResponse.data)
-                      ? timelineResponse.data[0]
-                      : timelineResponse.data;
-      if (!timeline) {
-        throw new Error('Error occurred while finding timeline');
-      }
       const teamResponse = await this.findOneById(id);
       const team = Array.isArray(teamResponse.data) 
                   ? teamResponse.data[0] 
@@ -135,13 +124,13 @@ export class TeamService {
         return {
           statusCode: 404,
           message: 'Group not found',
+          data: null
         }
       }
 
       const updateTeam = await this.teamRepository.create( {
         ...team,
         leader,
-        //timeline,
     })
 
       const result = await this.teamRepository.save(updateTeam);
@@ -154,6 +143,7 @@ export class TeamService {
       return {
         statusCode: 500,
         message: 'Failed to update group',
+        data: null
       }
     }
   }
@@ -170,6 +160,7 @@ export class TeamService {
         return {
           statusCode: 404,
           message: 'Group not found',
+          data: null
         }
       }
 
@@ -185,6 +176,7 @@ export class TeamService {
       return {
         statusCode: 500,
         message: 'Failed to delete group',
+        data: null
       }
     }
   }
