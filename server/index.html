@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+</head>
+<body>
+    <div>
+        <ul id="messages"></ul>
+    </div>
+    <div>
+        <input id="message" type="text" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
+    <script> 
+        const socket = io('http://localhost:3004', {
+            withCredentials: true, // Đảm bảo gửi kèm cookie
+            query: {
+                teamId: '1234', // Gửi teamId khi kết nối
+                userId: '5678', // Truyền userId
+            }
+        });
+
+        // Xử lý khi kết nối thành công
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket server:', socket.id);
+        });
+
+        // Lắng nghe sự kiện 'message' từ server
+        socket.on('message', function (data) {
+            const messageList = document.getElementById('messages');
+            const newMessage = document.createElement('li');
+            newMessage.textContent = `${data.sender} (${data.timestamp}): ${data.message}`;
+            messageList.appendChild(newMessage);
+        });
+
+        // Gửi tin nhắn tới server
+        function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+
+            if (!message) {
+                alert('Message cannot be empty!');
+                return;
+            }
+
+            // Kiểm tra trạng thái kết nối
+            if (socket.connected) {
+                socket.emit('send_message', { message });
+                messageInput.value = ''; // Xóa nội dung sau khi gửi
+            } else {
+                alert('Unable to send message: WebSocket not connected.');
+            }
+        }
+    </script>
+</body>
+</html>
