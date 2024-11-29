@@ -13,14 +13,19 @@ import { MessageService } from './message.service';
 @WebSocketGateway({
   cors: {
     origin: 'http://127.0.0.1:5500',
-    methods: ['GET', 'POST'],
-    credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'PATCH', 'PUT'],
   },
 })
 export class MessageGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  constructor(private readonly messageService: MessageService) {}
+
+  private userId: number;
+  private teamId: number;
+
+  constructor(
+    private readonly messageService: MessageService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -28,37 +33,32 @@ export class MessageGateway
   afterInit(server: Server) {
     this.server = server;
     console.log('WebSocket Gateway Initialized');
-    console.log('Server is ready to accept connections');
   }
 
   handleConnection(client: Socket) {
-    const teamId = client.handshake.query.teamId as string;
-    const userId = client.handshake.query.userId as string;
+    this.teamId = Number(client.handshake.query.teamId as string);
+    this.userId = Number(client.handshake.query.userId as string);
 
     console.log('Client connected:', {
       clientId: client.id,
-      teamId,
-      userId,
+      teamId: this.teamId,
+      userId: this.userId,
     });
 
-    if (!teamId || !userId) {
+    if (!this.teamId || !this.userId) {
       console.error('Connection rejected: Missing teamId or userId', client.id);
       client.disconnect();
       return;
     }
+    client.join(this.teamId.toString());
 
-    client.join(teamId);
-    client.data.teamId = teamId;
-    client.data.userId = userId;
-
-    console.log(`Client ${client.id} joined team ${teamId}`);
   }
 
   handleDisconnect(client: Socket) {
     console.log('Client disconnected:', {
       clientId: client.id,
-      teamId: client.data?.teamId,
-      userId: client.data?.userId,
+      teamId: client.data.teamId,
+      userId: client.data.userId,
     });
   }
 
@@ -67,17 +67,11 @@ export class MessageGateway
     client: Socket,
     @MessageBody() payload: { message: string }
   ): Promise<void> {
-    if (!client.data || !client.data.teamId || !client.data.userId) {
-      console.error('Invalid client data:', client.id, client.data);
-      client.emit('error', 'Missing teamId or userId');
-      return;
-    }
-
-    const { teamId, userId } = client.data;
+  
 
     console.log('Received message:', {
-      teamId,
-      userId,
+      teamId: this.teamId,
+      userId :this.userId,
       message: payload.message,
     });
 
@@ -89,16 +83,15 @@ export class MessageGateway
 
     try {
       const newMessage = await this.messageService.create({
-        senderId: Number(userId),
-        teamId: teamId,
+        senderId: this.userId,
+        teamId: this.teamId,
         check: false,
         content: payload.message,
       });
+      //console.log('Message saved to database:', newMessage);
 
-      console.log('Message saved to database:', newMessage);
-
-      this.server.to(teamId).emit('message', {
-        sender: userId,
+      this.server.to(this.teamId.toString()).emit('message', {
+        sender: this.userId, 
         message: payload.message,
         timestamp: new Date(),
       });
