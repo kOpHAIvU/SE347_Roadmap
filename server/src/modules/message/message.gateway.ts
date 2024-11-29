@@ -9,6 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from './message.service';
+import { UpdateMessageDto } from './dto/update-message.dto';
 
 @WebSocketGateway({
   cors: {
@@ -88,16 +89,67 @@ export class MessageGateway
         check: false,
         content: payload.message,
       });
-      //console.log('Message saved to database:', newMessage);
+      // this.server.to(this.teamId.toString()).emit('message', {
+      //   sender: this.userId, 
+      //   message: payload.message,
+      //   timestamp: new Date(),
+      // });
 
-      this.server.to(this.teamId.toString()).emit('message', {
-        sender: this.userId, 
-        message: payload.message,
-        timestamp: new Date(),
-      });
+      this.server.to(this.teamId.toString())
+                .emit('message', newMessage);
+
     } catch (error) {
-      console.error('Failed to save message:', error);
-      client.emit('error', 'Failed to save message');
+      console.log('Failed to delete message:', error.message);
+      this.server.to(this.teamId.toString()).emit('error', {
+        message: error.message,
+        statusCode: 500,
+        data: null
+      });
     }
   }
+
+  @SubscribeMessage('delete_message')
+  async handleDeleteMessage(
+    client: Socket,
+    @MessageBody() payload: { message: string }
+  ): Promise<void> {
+    const messageId = Number(payload.message);
+    try {
+      const deletedMessage = await this.messageService.remove(messageId);
+      this.server.to(this.teamId.toString()).emit('message', deletedMessage);
+      console.log('Message deleted:', deletedMessage);
+    } catch(error) {
+      console.log('Failed to delete message:', error.message);
+      this.server.to(this.teamId.toString()).emit('error', {
+        message: error.message,
+        statusCode: 500,
+        data: null
+      });
+    }
+  }
+
+  @SubscribeMessage('update_message')
+  async handleUpdateMessage(
+    client: Socket,
+    @MessageBody() payload: { 
+      id: number, 
+      updateMessage: UpdateMessageDto
+    }
+  ): Promise<void> {
+    try {
+      const updateResponse = await this.messageService.update(payload.id, payload.updateMessage);
+      if (updateResponse.statusCode !== 200) {
+        this.server.to(this.teamId.toString()).emit('error', 'Failed to save message');
+      }
+      this.server.to(this.teamId.toString()).emit('message', updateResponse);
+    } catch(error) {
+      console.log('Failed to delete message:', error.message);
+      this.server.to(this.teamId.toString()).emit('error', {
+        message: error.message,
+        statusCode: 500,
+        data: null
+      });
+    }
+  }
+
 }
