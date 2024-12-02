@@ -57,7 +57,10 @@ function SearchUser({ onChooseNewCollab }) {
                                 return <User
                                     key={collaborator.id}
                                     children={collaborator}
-                                    onChooseNewCollab={onChooseNewCollab}
+                                    onChooseNewCollab={(id, username) => {
+                                        onChooseNewCollab(id, username);
+                                        setVisible(false);
+                                    }}
                                 />;
                             })}
                         </PopperWrapper>
@@ -68,8 +71,7 @@ function SearchUser({ onChooseNewCollab }) {
                     <input placeholder='Find roadmap'
                         value={search}
                         onChange={handleInputChange}
-                        onBlur={() => setVisible(false)}  // Ẩn khi mất focus
-                        onFocus={() => search && setVisible(true)}  // Hiển thị lại khi có từ khóa và focus
+                        onFocus={() => search && setVisible(true)}
                     />
 
                     <button className={cx('search-btn')}>
