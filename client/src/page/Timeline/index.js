@@ -6,19 +6,20 @@ import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faA, faChevronLeft, faChevronRight, faGear, faSitemap } from '@fortawesome/free-solid-svg-icons';
 import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.js';
-import { Saved } from '~/components/Layout/components/MiniNotification/index.js';
+import { DeleteCollab, NewCollab, Saved } from '~/components/Layout/components/MiniNotification/index.js';
 import { SettingTimeline } from '~/components/Layout/components/Dialog/index.js';
 
 const cx = classNames.bind(styles);
 
 function Timeline() {
-    const authority = 'Administrator'
+    const authority = 'Administrator';
+    const username = 'KoPhaiVu'
     let roadmapName = 'Name not given';
     let title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
-    const [showSetting, setShowSetting] = useState(true);
+    const [showSetting, setShowSetting] = useState(false);
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [chatExtended, setChatExtended] = useState(true);
 
@@ -27,7 +28,7 @@ function Timeline() {
     <p><span style="background-color: rgb(246, 249, 252); color: rgb(33, 51, 67);">GitHub is an online software development platform. It's used for storing, tracking, and collaborating on software projects. </span></p>
     <p>It makes it easy for developers to share code files and collaborate with fellow developers on open-source projects. GitHub also serves as a social networking site where developers can openly network, collaborate, and pitch their work.</p>
     <p>Since its founding in 2008, GitHub has acquired millions of users and established itself as a go-to platform for collaborative software projects. This free service comes with several helpful features for sharing code and working with others in real time.</p>
-    <p>On top of its code-related functions, GitHub encourages users to build a personal profile and brand for themselves. You can visit anyone’s profile and see what projects they own and contribute to. This makes GitHub a type of social network for programmers and fosters a collaborative approach to software and <a href="https://blog.hubspot.com/website/website-development?hubs_content=blog.hubspot.com/website/what-is-github-used-for&amp;hubs_content-cta=website%20development" rel="noopener noreferrer" target="_blank" style="color: var(--cl-anchor-color,#0068b1);"><strong>website development</strong></a>.</p>
+    <p>On top of its code-Srelated functions, GitHub encourages users to build a personal profile and brand for themselves. You can visit anyone’s profile and see what projects they own and contribute to. This makes GitHub a type of social network for programmers and fosters a collaborative approach to software and <a href="https://blog.hubspot.com/website/website-development?hubs_content=blog.hubspot.com/website/what-is-github-used-for&amp;hubs_content-cta=website%20development" rel="noopener noreferrer" target="_blank" style="color: var(--cl-anchor-color,#0068b1);"><strong>website development</strong></a>.</p>
     <h3>How does GitHub work?</h3>
     <p>GitHub users create accounts, upload files, and create coding projects. But the real work of GitHub happens when users begin to collaborate.</p>
     <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
@@ -36,15 +37,23 @@ function Timeline() {
     // State for the list of levels
     const [nodes, setNodes] = useState([
         {
-            id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2,
+            id: 1, level: 1,
+            x: 50, y: 50,
+            type: 'Checkbox',
+            due_time: 2,
             content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
-            nodeDetail: nodeDetail
+            ticked: false,
+            nodeDetail: nodeDetail,
         },
         {
-            id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
+            id: 2, level: 1,
+            x: 50, y: 150,
+            type: 'Checkbox',
+            due_time: 2,
             content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
+            ticked: true,
             nodeDetail: ''
-        },
+        }
     ]);
 
     const updateNodeContent = (index, newContent) => {
@@ -162,19 +171,14 @@ function Timeline() {
         setTimeout(() => setHoveredIndex(null), 0);
     };
 
-    const handleSave = () => {
-        handleMakeDialog()
-        console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
-    }
-
     const [dialogs, setDialogs] = useState([]); // Array to manage multiple CantClone dialogs
 
     const handleClose = (id) => {
         setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
     };
 
-    const handleMakeDialog = () => {
-        const newDialog = { id: Date.now() };
+    const handleMakeDialog = (type, username) => {
+        const newDialog = { id: Date.now(), type: type, username: username };
         setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 
         // Automatically remove the CantClone after 3 seconds
@@ -233,7 +237,7 @@ function Timeline() {
 
                     {authority !== 'Viewer' && (
                         <div className={cx('save-setting')}>
-                            <button className={cx('save-btn')} onClick={handleSave}>Save</button>
+                            <button className={cx('save-btn')} onClick={() => handleMakeDialog('Save', null)}>Save</button>
                             <FontAwesomeIcon
                                 icon={faGear}
                                 className={cx('setting-btn')}
@@ -249,13 +253,40 @@ function Timeline() {
                         <SettingTimeline
                             setShowSetting={setShowSetting}
                             handleOutsideClick={handleOutsideClick}
-                            handleDeleteTimeline={handleDeleteTimeline} />}
+                            handleDeleteTimeline={handleDeleteTimeline}
+                            handleMakeDialog={handleMakeDialog} />}
                 </div>
 
                 <div className={cx('mini-notify')}>
-                    {dialogs.map((dialog) => (
-                        <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />
-                    ))}
+                    {dialogs.map((dialog) => {
+                        switch (dialog.type) {
+                            case 'Save':
+                                return (
+                                    <Saved
+                                        key={dialog.id}
+                                        handleClose={() => handleClose(dialog.id)}
+                                    />
+                                );
+                            case 'Add':
+                                return (
+                                    <NewCollab
+                                        key={dialog.id}
+                                        handleClose={() => handleClose(dialog.id)}
+                                        username={dialog.username}
+                                    />
+                                );
+                            case 'Delete':
+                                return (
+                                    <DeleteCollab
+                                        key={dialog.id}
+                                        handleClose={() => handleClose(dialog.id)}
+                                        username={dialog.username}
+                                    />
+                                );
+                            default:
+                                return null; // Trả về null nếu không khớp type nào
+                        }
+                    })}
                 </div>
 
                 <span

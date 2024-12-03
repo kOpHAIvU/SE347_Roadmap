@@ -1,0 +1,54 @@
+.container {
+    width: 100%;
+    height: 65px;
+    background-color: white;
+    border-radius: 10px;
+    display: flex;
+    margin: 10px 0;
+    border: 1px solid var(--gray-color);
+    transform: translateX(100%); /* Bắt đầu ở ngoài khung nhìn */
+    animation: slideIn 0.3s ease forwards; /* Thêm hiệu ứng chuyển động */
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%); /* Vị trí bắt đầu ở ngoài khung nhìn */
+    }
+    to {
+        transform: translateX(0); /* Vị trí cuối cùng ở trong khung nhìn */
+    }
+}
+
+.user-added {
+    color: #10e71b;
+    align-self: center;
+    height: 30px;
+    width: 30px;
+    margin: 0 7px;
+}
+.text-container {
+    display: flex;
+    flex-direction: column; /* Sắp xếp các thẻ h1 theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    margin-right: 5px;
+    flex: 1;
+}
+.error-title {
+    font-size: 1.7rem;
+}
+.error-content {
+    font-size: 1.2rem;
+    font-weight: 400;
+}
+.close-error {
+    height: 100%;
+    width: 15px;
+    border-radius: 0 10px 10px 0;
+    padding: 0 5px;
+    align-self: center;
+    color: rgba(22, 24, 35, 0.3);
+    cursor: pointer;
+    &:hover {
+        background-color: var(--gray-color);
+    }
+}

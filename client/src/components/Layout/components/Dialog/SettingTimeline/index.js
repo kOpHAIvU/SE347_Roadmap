@@ -9,12 +9,12 @@ import SearchUser from '../../Search/SearchUser/index.js';
 
 const cx = classNames.bind(styles);
 
-function SettingTimeline({ setShowSetting, handleOutsideClick, handleDeleteTimeline }) {
+function SettingTimeline({ setShowSetting, handleOutsideClick, handleDeleteTimeline, handleMakeDialog }) {
     const onWatchType = "Editor";
     const [collaborators, setCollaborators] = useState([
-        { idUser: 0, username: "KoPhaiVu", userType: "Administrator", pending: false },
-        { idUser: 1, username: "KoPhaiLoan", userType: "Editor", pending: false },
-        { idUser: 2, username: "KoPhaiVinh", userType: null, pending: true },
+        { idUser: 0, username: "KoPhaiVu", userType: "Administrator" },
+        { idUser: 1, username: "KoPhaiLoan", userType: "Editor" },
+        { idUser: 2, username: "KoPhaiVinh", userType: null },
     ]);
 
     const updateUserType = (index, newUserType) => {
@@ -32,11 +32,18 @@ function SettingTimeline({ setShowSetting, handleOutsideClick, handleDeleteTimel
                 idUser,
                 username,
                 userType: null,
-                pending: true,
             },
         ]);
-        console.log(collaborators)
+        handleMakeDialog('Add', username)
     }
+
+    const onRemoveUser = (username) => {
+        setCollaborators((prevState) =>
+            prevState.filter((collaborator) => collaborator.username !== username)
+        );
+        handleMakeDialog('Delete', username);
+    };
+
 
     return (
         <div
@@ -57,16 +64,18 @@ function SettingTimeline({ setShowSetting, handleOutsideClick, handleDeleteTimel
                 <div className={cx('member-container')}>
                     {collaborators.map((collaborator, index) => (
                         <div key={index}>
-                            {collaborator.pending ? (
+                            {collaborator.userType === null ? (
                                 <PendingInvite
                                     userType={onWatchType}
-                                    collaborator={collaborator} />
+                                    collaborator={collaborator}
+                                    removeUser={() => onRemoveUser(collaborator.username)} />
                             ) : (
                                 <Collaborator
                                     index={index}
                                     userType={onWatchType}
                                     collaborator={collaborator}
                                     updateUserType={updateUserType}
+                                    removeUser={() => onRemoveUser(collaborator.username)}
                                 />
                             )}
                         </div>

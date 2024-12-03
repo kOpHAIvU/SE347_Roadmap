@@ -13,7 +13,7 @@ function CantCloneDialog({ handleClose }) {
                 <h1 className={cx('error-title')}>Can't clone</h1>
                 <h1 className={cx('error-content')}>Need more than 5 nodes to clone.</h1>
             </div>
-            <FontAwesomeIcon className={cx('close-error')} icon={faXmark} onClick={handleClose} />
+            <FontAwesomeIcon className={cx('close-error')} icon={faXmark} onClick={() => handleClose} />
         </div>
     );
 }

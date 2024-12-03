@@ -1,11 +1,16 @@
 import classNames from 'classnames/bind';
 import styles from './User.module.scss';
+import { useEffect } from 'react';
 
 const cx = classNames.bind(styles);
 
 function User({ children, onChooseNewCollab }) {
+    useEffect(() => {
+        console.log('Children updated:', children);
+    }, [children]);
     return (
-        <div className={cx('wrapper')} onClick={() => {
+        <div className={cx('wrapper')} onClick={(event) => {
+            event.stopPropagation();
             console.log('onChooseNewCollab triggered');
             onChooseNewCollab(children.idUser, children.username);
         }}>
