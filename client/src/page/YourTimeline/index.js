@@ -43,25 +43,6 @@ function YourTimeline() {
         },
     ]);
 
-    const fetchTimelines = async () => {
-        try {
-            const response = await fetch('http://localhost:3004/roadmap/all');
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const result = await response.json();
-            console.log(result.data);
-            if (Array.isArray(result.data)) {
-                setRoadmaps(result.data);
-            } else {
-                console.error("API did not return an array");
-                setRoadmaps([]);
-            }
-        } catch (error) {
-            console.log("Server is not OK");
-        }
-    };
-
     const handleClickTimeline = (id) => {
         navigate(`/timeline/${id}`);
     };
