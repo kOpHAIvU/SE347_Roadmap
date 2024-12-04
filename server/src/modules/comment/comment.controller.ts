@@ -32,3 +32,4 @@ export class CommentController {
   remove(@Param('id', ParseIntPipe) id: string) {
     return this.commentService.remove(+id);
   }
+}

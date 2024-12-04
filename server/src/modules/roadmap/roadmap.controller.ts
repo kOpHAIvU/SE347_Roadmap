@@ -1,17 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query  } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query, UseInterceptors, UploadedFile  } from '@nestjs/common';
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
-import { JwtAuthGuard } from '../auth/common/jwt-guard';
-import { AuthGuard } from '@nestjs/passport';
-import { RoleGuard } from '../role/common/role.guard';
-import { Roles } from '../role/common/role.decorator';
 
 @Controller('roadmap')
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
-  @Post('new')
+  @Post('new_roadmap')
   create(@Body() createRoadmapDto: CreateRoadmapDto) {
     return this.roadmapService.create(createRoadmapDto);
   }

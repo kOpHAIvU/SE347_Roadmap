@@ -63,8 +63,9 @@
     z-index: 3;
     background-color: #B2C1FD;
     padding: 2rem;
-    // border: 1px solid #410079;
+    max-width: 450px; 
     border-radius: 10px;
+    margin: auto;
     box-shadow: 0 4px 20px rgba(87, 62, 229, 0.4) ;
     width: 70vh;
     text-align: center;

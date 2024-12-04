@@ -1,38 +1,50 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './LevelThree.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSquare, faTrashCan, faPenToSquare as penRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import { faSquareCheck, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import NodeDetail from '../../NodeDetail/index.js';
 
 const cx = classNames.bind(styles);
 
 function LevelThree({
-    children,
-    index,
-    updateNodeTickState,
-    updateNodeContent,
-    handleDeleteNode,
-    handleDueTimeChange
+    userType, node, index, updateNodeContent
+    , updateNodeDue, updateNodeDetail, handleDeleteNode, updateTickState
 }) {
-    const { ticked, content: initialContent, due_time } = children;
+    const { ticked, content: initialContent, due_time } = node;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
+    const [openNodeDetail, setOpenNodeDetail] = useState(false);
+
+    useEffect(() => {
+        setContent(node.content);
+        setDueTime(node.due_time);
+    }, [node.content, node.due_time]);
 
     const handleSaveContent = () => {
         setIsEditing(false); // Thoát khỏi chế độ chỉnh sửa
         updateNodeContent(index, content); // Gọi hàm để cập nhật content mới
     };
 
+    const handleOutsideClick = (e) => {
+        if (String(e.target.className).includes('modal-overlay')) {
+            setOpenNodeDetail(false)
+        }
+    }
+
     return (
         <div
             className={cx('level-three')}
-            key={children.id}>
+            key={node.id}>
             <div className={cx('show-section')}>
                 <FontAwesomeIcon
-                    onClick={updateNodeTickState ? () => updateNodeTickState(index, children) : undefined}
-                    icon={ticked ? (children.type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (children.type === 'Checkbox' ? faSquare : faCircle)}
+                    onClick={
+                        updateTickState && userType !== "Viewer"
+                            ? () => updateTickState(index, node)
+                            : undefined}
+                    icon={ticked ? (node.type === 'Checkbox' ? faSquareCheck : faCircleCheck) : (node.type === 'Checkbox' ? faSquare : faCircle)}
                     className={cx(ticked ? 'ticked' : 'tick')}
                 />
 
@@ -47,8 +59,17 @@ function LevelThree({
                         autoFocus
                     />
                 ) : (
-                    <h1 className={cx('content')}>{content}</h1>
+                    <h1 className={cx('content')} onClick={() => setOpenNodeDetail(true)}>{content}</h1>
                 )}
+
+                {openNodeDetail &&
+                    <NodeDetail
+                        userType={userType}
+                        index={index}
+                        nodeDetail={node.nodeDetail}
+                        updateNodeDetail={updateNodeDetail}
+                        handleOutsideClick={handleOutsideClick}
+                    />}
 
                 <div className={cx('update-node')}>
                     <input
@@ -60,7 +81,7 @@ function LevelThree({
                             if (!isNaN(dueTime)) {
                                 const newDueTime = `${dueTime} days`;
                                 setDueTime(newDueTime);
-                                handleDueTimeChange(index, newDueTime);
+                                updateNodeDue(index, newDueTime);
                             }
                         }}
                         onChange={(e) => !isNaN(e.target.value) && setDueTime(e.target.value)}
@@ -73,19 +94,24 @@ function LevelThree({
                         }}
                     />
 
-                    <FontAwesomeIcon
-                        onClick={() => setIsEditing(true)}
-                        icon={penRegular}
-                        className={cx('rewrite-node')}
-                    />
+                    {(userType === 'Administrator' || userType === 'Editor') && (
+                        <>
+                            <FontAwesomeIcon
+                                onClick={() => setIsEditing(true)}
+                                icon={penRegular}
+                                className={cx('rewrite-node')}
+                            />
 
-                    <FontAwesomeIcon
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteNode(index)
-                        }}
-                        icon={faTrashCan}
-                        className={cx('delete-node')} />
+                            <FontAwesomeIcon
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteNode(index);
+                                }}
+                                icon={faTrashCan}
+                                className={cx('delete-node')}
+                            />
+                        </>
+                    )}
                 </div>
             </div>
         </div>

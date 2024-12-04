@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import {env} from './configs/env.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,6 +13,22 @@ async function bootstrap() {
     credentials: true, // Cho phép gửi cookies với request
   });
   await app.listen(3004);
+
+  const microserviceApp = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.RMQ,
+      options: {
+        urls: [env.RABBITMQ.URL],
+        queue: env.RABBITMQ.QUEUE,
+        queueOptions: {
+          durable: false,  
+        },
+      },
+    },
+  );
+
+  microserviceApp.listen();
 
 }
 bootstrap();
