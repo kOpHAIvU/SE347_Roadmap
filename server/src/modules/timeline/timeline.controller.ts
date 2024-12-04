@@ -4,6 +4,7 @@ import { CreateTimelineDto } from './dto/create-timeline.dto';
 import { UpdateTimelineDto } from './dto/update-timeline.dto';
 
 @Controller('timeline')
+
 export class TimelineController {
   constructor(private readonly timelineService: TimelineService) {}
 

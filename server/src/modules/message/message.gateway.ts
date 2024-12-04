@@ -12,6 +12,7 @@ import { MessageService } from './message.service';
 import { UpdateMessageDto } from './dto/update-message.dto';
 
 @WebSocketGateway({
+  namespace: '/message',
   cors: {
     origin: 'http://127.0.0.1:5500',
     methods: ['GET', 'POST', 'DELETE', 'PATCH', 'PUT'],

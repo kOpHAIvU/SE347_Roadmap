@@ -23,7 +23,7 @@ export const env = {
   RABBITMQ: {
     NAME: process.env.NAME|| 'rabbitmq',
     URL: process.env.URL || 'amqp://localhost:5672',
-    QUEUE: process.env.QUEUE || 'queue',
+    QUEUE_ROADMAP_NOTIFICATION: process.env.QUEUE_ROADMAP_NOTIFICATION || 'queue',
   }
 
 };

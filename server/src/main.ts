@@ -23,7 +23,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [env.RABBITMQ.URL],
-        queue: env.RABBITMQ.QUEUE,
+        queue: env.RABBITMQ.QUEUE_ROADMAP_NOTIFICATION,
         queueOptions: {
           durable: false,  
         },

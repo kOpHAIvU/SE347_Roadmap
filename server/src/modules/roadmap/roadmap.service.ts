@@ -57,7 +57,7 @@ export class RoadmapService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Failed to create roadmap'
+        message: error.message,
       }
     }
   }

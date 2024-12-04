@@ -7,6 +7,8 @@ import { Type } from 'class-transformer';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
 import { UserModule } from '../user/user.module';
+import { NotificationGateway } from './notification.gateway';
+import { NotificationWorker } from './notification.worker';
 
 @Module({
   imports:
@@ -18,7 +20,7 @@ import { UserModule } from '../user/user.module';
           transport: Transport.RMQ,
           options: {
             urls: [env.RABBITMQ.URL],
-            queue: env.RABBITMQ.QUEUE,
+            queue: env.RABBITMQ.QUEUE_ROADMAP_NOTIFICATION,
             queueOptions: {
               durable: false,
             },
@@ -28,6 +30,9 @@ import { UserModule } from '../user/user.module';
       UserModule,
     ],
   controllers: [NotificationController],
-  providers: [NotificationService],
+  providers: [NotificationService, 
+    NotificationGateway,
+    NotificationWorker],
+  exports: [NotificationService],
 })
 export class NotificationModule {}

@@ -1,5 +1,5 @@
-import { create } from 'domain';
-import { Injectable } from '@nestjs/common';
+ import { create } from 'domain';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,14 +7,20 @@ import { IsNull, Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { ResponseDto } from './common/response.interface';
 import { UserService } from '../user/user.service';
+import {Server} from 'socket.io';
+import { Subject } from 'rxjs';
+import { NotificationGateway } from './notification.gateway';
  
 @Injectable()
 export class NotificationService {
 
+  private notificationSubject = new Subject<MessageEvent>();
+
   constructor (
     @InjectRepository(Notification)
-    private notificationRepository: Repository<Notification>,
-    private userService: UserService,
+    private readonly notificationRepository: Repository<Notification>,
+    private readonly userService: UserService,
+   // private readonly notificationGateway: NotificationGateway,
   ) {}
 
   async create(
@@ -45,6 +51,8 @@ export class NotificationService {
           data: null
         }
       }
+      
+      //this.notificationGateway.handleSendNotificationWhenHavingNewRoadmap(result);
       return {
         statusCode: 201,
         message: 'Create notification successfully',
@@ -57,6 +65,18 @@ export class NotificationService {
         data: null
       }
     }
+  }
+
+  getNotifications() {
+    return this.notificationSubject.asObservable();
+  }
+
+  // Gửi thông báo qua SSE
+  sendNotification(notification: any): void {
+    this.notificationSubject.next({
+      data: notification,
+    } as MessageEvent);
+    console.log('Notification sent:', notification);
   }
 
   async findAll(
