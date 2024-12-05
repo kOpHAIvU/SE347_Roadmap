@@ -88,48 +88,48 @@ function OwnRoadmap() {
     ]);
     //const [nodes, setNodes] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('http://localhost:3004/roadmap/all', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const result = await response.json();
-                setNodes(result);
-            } catch (error) {
-                console.log(error.message);
-            }
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const response = await fetch('http://localhost:3004/roadmap/all', {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     Authorization: `Bearer ${localStorage.getItem('token')}`,
+    //                 }
+    //             });
+    //             if (!response.ok) {
+    //                 throw new Error(`HTTP error! status: ${response.status}`);
+    //             }
+    //             const result = await response.json();
+    //             setNodes(result);
+    //         } catch (error) {
+    //             console.log(error.message);
+    //         }
           
-            const result = await response.json();
-            console.log(result)
-            let roadmapContent;
-            // if (result.content) {
-            //     roadmapContent = result.map((node, index) => {
-            //         node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
-            //         console.log(node)
-            //         return node
-            //     })
-            // }
-            roadmapContent = result.data.map((node, index) => {
-                node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
-                console.log(node)
-                return node
-            })
-            setNodes(result);
-          } catch (error) {
-            console.log(error.message);
-          } 
-        };
+    //         const result = await response.json();
+    //         console.log(result)
+    //         let roadmapContent;
+    //         // if (result.content) {
+    //         //     roadmapContent = result.map((node, index) => {
+    //         //         node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+    //         //         console.log(node)
+    //         //         return node
+    //         //     })
+    //         // }
+    //         roadmapContent = result.data.map((node, index) => {
+    //             node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+    //             console.log(node)
+    //             return node
+    //         })
+    //         setNodes(result);
+    //       } catch (error) {
+    //         console.log(error.message);
+    //       } 
+    //     };
 
-        fetchData();
-    }, []);
+    //     fetchData();
+    // }, []);
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
