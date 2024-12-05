@@ -19,6 +19,7 @@ export class UserController {
   // We use public_id to delete the image in Cloudinary
   @Post('signup')
   @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createUserDto: CreateUserDto,
     @UploadedFile() file?: Express.Multer.File,
@@ -28,17 +29,9 @@ export class UserController {
   }
   
   @Get("id/:id")
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @UseGuards(AuthGuard('jwt'))
-  @Roles('admin')  
+  @UseGuards(JwtAuthGuard)
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findOneById(+id);
-  }
- 
-  @Get("hi")
-  async findOne(@Body() loginDto: LoginDto)
-  {
-    return await this.userService.findOne(loginDto);
   }
 
   @Patch('item/:id')

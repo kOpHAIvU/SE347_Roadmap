@@ -8,6 +8,7 @@ import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/roadmap.interface';
 import { ClientProxy } from '@nestjs/microservices';
 import {env} from '../../configs/env.config';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RoadmapService {
@@ -17,6 +18,7 @@ export class RoadmapService {
     @InjectRepository(Roadmap)
     private roadmapRepository: Repository<Roadmap>,
     private userService: UserService,
+    private configService: ConfigService
   ) {}
 
   async create(
@@ -38,6 +40,9 @@ export class RoadmapService {
           message: 'Failed to create roadmap'
         }
       }
+
+      console.log("Connection is");
+      console.log(this.configService.get<string>('RABBITMQ_URL'));
 
       const result = await this.roadmapRepository.save(roadmap); 
       if (result.owner.role.id === 1) {

@@ -2,20 +2,23 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntP
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
+import { JwtAuthGuard } from '../auth/common/jwt-guard';
+import { RoleGuard } from '../role/common/role.guard';
+import { Roles } from '../role/common/role.decorator';
 
 @Controller('roadmap')
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
   @Post('new_roadmap')
+  @UseGuards(JwtAuthGuard)
   async create(@Body() createRoadmapDto: CreateRoadmapDto) {
     return await this.roadmapService.create(createRoadmapDto);
   }
 
   @Get('all')
-  // @UseGuards(JwtAuthGuard, RoleGuard)
-  // @UseGuards(AuthGuard('jwt'))
-  // @Roles('admin') 
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('admin') 
   async findAll(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 100,
@@ -24,16 +27,19 @@ export class RoadmapController {
   }
 
   @Get('id/:id')
+  @UseGuards(JwtAuthGuard)
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return await this.roadmapService.findOneById(+id);
   }
 
   @Get('code/:code')
+  @UseGuards(JwtAuthGuard)
   async findOneByCode(@Param('code') code: string) {
     return await this.roadmapService.findOneByCode(code);
   }
 
   @Get('type/:type')
+  @UseGuards(JwtAuthGuard)
   async findRoadmapByType(
     @Param('type', ParseIntPipe) type: string,
     @Query('page', ParseIntPipe) page: number = 1,
@@ -43,6 +49,7 @@ export class RoadmapController {
   }
 
   @Get('owner/:owner')
+  @UseGuards(JwtAuthGuard)
   async findRoadmapByOwner(
     @Param('owner', ParseIntPipe) owner: string,
     @Query('page', ParseIntPipe) page: number = 1,
@@ -52,21 +59,25 @@ export class RoadmapController {
   }
 
   @Patch('id/:id')
+  @UseGuards(JwtAuthGuard)
   async updateById(@Param('id', ParseIntPipe) id: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
     return await this.roadmapService.updateById(+id, updateRoadmapDto);
   }
 
   @Patch('code/:code')
+  @UseGuards(JwtAuthGuard)
   async updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
     return await this.roadmapService.updateByCode(code, updateRoadmapDto);  
   }
 
   @Delete('id/:id')
+  @UseGuards(JwtAuthGuard)
   async removeById(@Param('id', ParseIntPipe) id: number) {
     return await this.roadmapService.removeById(+id);
   }
 
   @Delete('code/:code')
+  @UseGuards(JwtAuthGuard)
   async removeByCode(@Param('code') code: string) {
     return await this.roadmapService.removeByCode(code);
   }

@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Timeline } from './entities/timeline.entity';
 import { RoadmapModule } from '../roadmap/roadmap.module';
 import { UserModule } from '../user/user.module';
+import { RoleModule } from '../role/role.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Timeline]),
     RoadmapModule,
-    UserModule
+    UserModule,
+    RoleModule
   ],
   controllers: [TimelineController],
   providers: [TimelineService],

@@ -10,6 +10,7 @@ import { UserModule } from '../user/user.module';
 import { NotificationGateway } from './notification.gateway';
 import { NotificationWorker } from './notification.worker';
 import { ConfigService } from '@nestjs/config';
+import { RoleModule } from '../role/role.module';
 
 @Module({
   imports:
@@ -32,6 +33,7 @@ import { ConfigService } from '@nestjs/config';
         }
       ]),
       UserModule,
+      RoleModule
     ],
   controllers: [NotificationController],
   providers: [NotificationService, 

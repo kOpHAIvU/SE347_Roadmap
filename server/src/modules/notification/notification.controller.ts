@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject, Sse, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject, Sse, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -7,6 +7,9 @@ import { Roadmap } from '../roadmap/entities/roadmap.entity';
 import { Server } from 'socket.io';
 import { Observable, of } from 'rxjs';
 import { NotificationWorker } from './notification.worker';
+import { RoleGuard } from '../role/common/role.guard';
+import { Roles } from '../role/common/role.decorator';
+import { JwtAuthGuard } from '../auth/common/jwt-guard';
 
 @Controller('notification')
 export class NotificationController {
@@ -62,11 +65,15 @@ export class NotificationController {
   // }
 
   @Post('new')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('admin')
   async create(@Body() createNotificationDto: CreateNotificationDto) {
     return await this.notificationService.create(createNotificationDto);
   }
 
   @Get('all')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('admin')
   async findAll(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
@@ -75,6 +82,7 @@ export class NotificationController {
   }
 
   @Get('all/user/:id')
+  @UseGuards(JwtAuthGuard)
   async findNotificationsByUserId(
     @Param('id', ParseIntPipe) id: number,
     @Query('page', ParseIntPipe) page: number = 1,
@@ -84,6 +92,7 @@ export class NotificationController {
   }
 
   @Patch('item/:id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id', ParseIntPipe) id: number, 
     @Body() updateNotificationDto: UpdateNotificationDto
@@ -92,6 +101,7 @@ export class NotificationController {
   }
 
   @Delete('item/:id')
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.notificationService.remove(id);
   }

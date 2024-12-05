@@ -55,8 +55,8 @@ export class ReportService {
   }
 
   async findAll(
-    page = 1,
-    limit = 10,
+    page: number = 1,
+    limit: number = 10,
   ): Promise<ResponseDto> {
     try {
       const reports = await this.reportRepository

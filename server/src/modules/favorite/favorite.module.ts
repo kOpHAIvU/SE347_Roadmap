@@ -5,12 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Favorite } from './entities/favorite.entity';
 import { RoadmapModule } from '../roadmap/roadmap.module';
 import { UserModule } from '../user/user.module';
+import { RoleModule } from '../role/role.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Favorite]),
     RoadmapModule,
-    UserModule
+    UserModule,
+    RoleModule
   ],
   controllers: [FavoriteController],
   providers: [FavoriteService],

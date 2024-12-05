@@ -6,12 +6,14 @@ import { Message } from './entities/message.entity';
 import { TeamModule } from '../team/team.module';
 import { UserModule } from '../user/user.module';
 import { MessageGateway } from './message.gateway';
+import { RoleModule } from '../role/role.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Message]),
     TeamModule,
-    UserModule
+    UserModule,
+    RoleModule
   ],
   controllers: [MessageController],
   providers: [MessageService, MessageGateway],

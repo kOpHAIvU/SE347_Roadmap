@@ -24,11 +24,6 @@ export class CloudinaryController {
     return await this.cloudinaryService.deleteImage(publicId);
   }
 
-  @Get()
-  findAll() {
-    return this.cloudinaryService.findAll();
-  }
-
   @Get('item/:id')
   async findOne(@Param('id') id: string) {
     return await this.cloudinaryService.findOne(+id);
@@ -38,6 +33,4 @@ export class CloudinaryController {
   async update(@Param('id') id: string, @Body() updateCloudinaryDto: UpdateCloudinaryDto) {
     return  await this.cloudinaryService.update(+id, updateCloudinaryDto);
   }
-
-
 }

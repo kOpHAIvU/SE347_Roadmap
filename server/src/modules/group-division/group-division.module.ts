@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { TimelineModule } from '../timeline/timeline.module';
 import { TeamModule } from '../team/team.module';
+import { RoleModule } from '../role/role.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TeamModule } from '../team/team.module';
     UserModule,
     TimelineModule,
     TeamModule,
+    RoleModule
   ],
   controllers: [GroupDivisionController],
   providers: [GroupDivisionService],
