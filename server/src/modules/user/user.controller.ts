@@ -1,9 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginDto } from '../auth/dto/login-dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from '../auth/common/jwt-guard';
+import { AuthGuard } from '@nestjs/passport';
+import { RoleGuard } from '../role/common/role.guard';
+import { Roles } from '../role/common/role.decorator';
 
 @Controller('user')
 export class UserController {
@@ -24,10 +28,13 @@ export class UserController {
   }
   
   @Get("id/:id")
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @UseGuards(AuthGuard('jwt'))
+  @Roles('admin')  
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findOneById(+id);
   }
-
+ 
   @Get("hi")
   async findOne(@Body() loginDto: LoginDto)
   {
@@ -35,6 +42,7 @@ export class UserController {
   }
 
   @Patch('item/:id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string, 
     @Body() updateUserDto: UpdateUserDto,
@@ -44,6 +52,7 @@ export class UserController {
   }
 
   @Delete('item/:id')
+  @UseGuards(JwtAuthGuard)
   async remove(@Param('id') id: string) {
     return  await this.userService.remove(+id);
   }
