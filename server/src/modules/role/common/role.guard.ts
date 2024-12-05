@@ -26,7 +26,7 @@ export class RoleGuard implements CanActivate {
     
     const { user } =  context.switchToHttp().getRequest();
 
-    console.log("User", user);
+    console.log("User Log ing", user);
 
     let roleString;
     //console.log(`User roles endpoint: ${requiredRoles}`);
@@ -39,7 +39,6 @@ export class RoleGuard implements CanActivate {
       throw new Error("User not found");
     } else {
       roleString = userLogin.role.name; 
-
     } 
    const allow = requiredRoles.some(
     (role) => role.trim().toLowerCase() == roleString.trim().toLowerCase()
