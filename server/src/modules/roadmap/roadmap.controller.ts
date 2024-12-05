@@ -8,48 +8,66 @@ export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
   @Post('new_roadmap')
-  create(@Body() createRoadmapDto: CreateRoadmapDto) {
-    return this.roadmapService.create(createRoadmapDto);
+  async create(@Body() createRoadmapDto: CreateRoadmapDto) {
+    return await this.roadmapService.create(createRoadmapDto);
   }
 
   @Get('all')
   // @UseGuards(JwtAuthGuard, RoleGuard)
   // @UseGuards(AuthGuard('jwt'))
   // @Roles('admin') 
-  findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 100,
+  async findAll(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 100,
   ) {
-    return this.roadmapService.findAll();
+    return await this.roadmapService.findAll(page, limit);
   }
 
   @Get('id/:id')
-  findOneById(@Param('id', ParseIntPipe) id: number) {
-    return this.roadmapService.findOneById(+id);
+  async findOneById(@Param('id', ParseIntPipe) id: number) {
+    return await this.roadmapService.findOneById(+id);
   }
 
   @Get('code/:code')
-  findOneByCode(@Param('code') code: string) {
-    return this.roadmapService.findOneByCode(code);
+  async findOneByCode(@Param('code') code: string) {
+    return await this.roadmapService.findOneByCode(code);
+  }
+
+  @Get('type/:type')
+  async findRoadmapByType(
+    @Param('type', ParseIntPipe) type: string,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 100,
+  ) {
+    return await this.roadmapService.findRoadmapsByType(type, page, limit);
+  }
+
+  @Get('owner/:owner')
+  async findRoadmapByOwner(
+    @Param('owner', ParseIntPipe) owner: string,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 100,
+  ) {
+    return await this.roadmapService.findRoadmapsByOwner(owner, page, limit);
   }
 
   @Patch('id/:id')
-  updateById(@Param('id', ParseIntPipe) id: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
-    return this.roadmapService.updateById(+id, updateRoadmapDto);
+  async updateById(@Param('id', ParseIntPipe) id: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
+    return await this.roadmapService.updateById(+id, updateRoadmapDto);
   }
 
   @Patch('code/:code')
-  updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
-    return this.roadmapService.updateByCode(code, updateRoadmapDto);  
+  async updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
+    return await this.roadmapService.updateByCode(code, updateRoadmapDto);  
   }
 
   @Delete('id/:id')
-  removeById(@Param('id', ParseIntPipe) id: number) {
-    return this.roadmapService.removeById(+id);
+  async removeById(@Param('id', ParseIntPipe) id: number) {
+    return await this.roadmapService.removeById(+id);
   }
 
   @Delete('code/:code')
-  removeByCode(@Param('code') code: string) {
-    return this.roadmapService.removeByCode(code);
+  async removeByCode(@Param('code') code: string) {
+    return await this.roadmapService.removeByCode(code);
   }
 }

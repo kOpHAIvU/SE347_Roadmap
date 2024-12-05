@@ -12,12 +12,9 @@ import { RoadmapModule } from './modules/roadmap/roadmap.module';
 import { Roadmap } from './modules/roadmap/entities/roadmap.entity';
 import { Comment } from './modules/comment/entities/comment.entity';
 import { CommentModule } from './modules/comment/comment.module';
-import { MemberModule } from './modules/member/member.module';
 import { MessageModule } from './modules/message/message.module';
-import { PerformanceModule } from './modules/performance/performance.module';
 import { TimelineModule } from './modules/timeline/timeline.module';
 import { Timeline } from './modules/timeline/entities/timeline.entity';
-import { Member } from './modules/member/entities/member.entity';
 import { TeamModule } from './modules/team/team.module';
 import { Team } from './modules/team/entities/team.entity';
 import { GoogleStrategy } from './modules/auth/common/google.strategy';
@@ -27,51 +24,70 @@ import { Report } from './modules/report/entities/report.entity';
 import { ReportModule } from './modules/report/report.module';
 import { Notification } from './modules/notification/entities/notification.entity';
 import { NotificationModule } from './modules/notification/notification.module';
+import { NodeModule } from './modules/node/node.module';
+import {Node} from './modules/node/entities/node.entity'
+import { GroupDivision } from './modules/group-division/entities/group-division.entity';
+import { GroupDivisionModule } from './modules/group-division/group-division.module';
+import { ProgressModule } from './modules/progress/progress.module';
+import { Progress } from './modules/progress/entities/progress.entity';
+import { Message } from './modules/message/entities/message.entity';
+import { Favorite } from './modules/favorite/entities/favorite.entity';
+import { FavoriteModule } from './modules/favorite/favorite.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { CloudinaryService } from './modules/cloudinary/cloudinary.service';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: env.DATABASE.HOST,
-      port: env.DATABASE.PORT,
-      username: env.DATABASE.USER,
-      password: env.DATABASE.PASSWORD,
-      database: env.DATABASE.NAME,
-      entities: [User, Role, Roadmap, 
-        Comment, Timeline, 
-        Member, Team, Report,
-        Notification
-      ],  
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
     }),
-    // ClientsModule.register([
-    //   {
-    //     name: env.RABBITMQ.NAME,
-    //     transport: Transport.RMQ,
-    //     options: {
-    //       urls: [env.RABBITMQ.URL],
-    //       queue: env.RABBITMQ.QUEUE,
-    //       queueOptions: {
-    //         durable: true,
-    //       },
-    //     },
-    //   },
-    // ]),
+    // TypeOrmModule.forRoot({
+    //   type: 'mysql',
+    //   host: env.DATABASE.HOST,
+    //   port: env.DATABASE.PORT,
+    //   username: env.DATABASE.USER,
+    //   password: env.DATABASE.PASSWORD,
+    //   database: env.DATABASE.NAME,
+    //   entities: [User, Role, Roadmap, 
+    //     Comment, Timeline, 
+    //     Team, Report,
+    //     Notification, Node,
+    //     GroupDivision,
+    //     Progress,
+    //     Message, 
+    //     Favorite
+    //   ],  
+    //   synchronize: true,
+    // }),
+    DatabaseModule,
     UserModule,
     RoleModule,
     AuthModule,
     RoadmapModule,
     CommentModule,
-    MemberModule,
     MessageModule,
-    PerformanceModule,
     TimelineModule,
     TeamModule,
     GeminiModule,
     ReportModule,
     NotificationModule,
+    NodeModule,
+    GroupDivisionModule,
+    ProgressModule,
+    FavoriteModule,
+    CloudinaryModule,
+
+    MulterModule.register({
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, GoogleStrategy],
+  providers: [AppService, GoogleStrategy, CloudinaryService],
 })
 export class AppModule {}
