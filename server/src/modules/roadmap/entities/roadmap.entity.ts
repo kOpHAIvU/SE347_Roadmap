@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToO
 import { Comment } from './../../comment/entities/comment.entity';
 import { Timeline } from "../../timeline/entities/timeline.entity";
 import {Node} from "../../node/entities/node.entity"
+import { Favorite } from "src/modules/favorite/entities/favorite.entity";
 
 @Entity()
 export class Roadmap {
@@ -14,6 +15,9 @@ export class Roadmap {
 
     @Column({nullable: false })
     title: string;
+
+    @Column({nullable: false })
+    type: string;
 
     @Column({nullable: false })
     avatar: string;
@@ -47,5 +51,8 @@ export class Roadmap {
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
+
+    @OneToMany(() => Favorite, favorite => favorite.roadmap)
+    favorite: Favorite[]
 
 }

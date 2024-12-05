@@ -8,38 +8,38 @@ export class ProgressController {
   constructor(private readonly progressService: ProgressService) {}
 
   @Post('new')
-  create(@Body() createProgressDto: CreateProgressDto) {
-    return this.progressService.create(createProgressDto);
+  async create(@Body() createProgressDto: CreateProgressDto) {
+    return await this.progressService.create(createProgressDto);
   }
 
   @Get('all/userProgress/:userId')
-  findAll(
+  async findAll(
     @Param('userId', ParseIntPipe) userId: number,
     @Body('timelineId', ParseIntPipe) timelineId: number,
     @Body('teamId', ParseIntPipe) groupId: number,
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
-    return this.progressService.findAllByUser(userId, timelineId, groupId, page, limit);
+    return await this.progressService.findAllByUser(userId, timelineId, groupId, page, limit);
   }
 
   @Get('nodeItem/:nodeId')
-  findOne(
+  async findOne(
     @Body('userId', ParseIntPipe) userId: number,
     @Body('timelineId', ParseIntPipe) timelineId: number,
     @Body('teamId', ParseIntPipe) groupId: number,
     @Param('nodeId', ParseIntPipe) nodeId: number,
   ) {
-    return this.progressService.findOne(userId, timelineId, groupId, nodeId);
+    return await this.progressService.findOne(userId, timelineId, groupId, nodeId);
   }
 
   @Delete('nodeItem/:nodeId')
-  remove(
+  async remove(
     @Body('userId', ParseIntPipe) userId: number,
     @Body('timelineId', ParseIntPipe) timelineId: number,
     @Body('teamId', ParseIntPipe) groupId: number,
     @Param('nodeId', ParseIntPipe) nodeId: number,
   ) {
-    return this.progressService.remove(userId, timelineId, groupId, nodeId);
+    return await this.progressService.remove(userId, timelineId, groupId, nodeId);
   }
 }

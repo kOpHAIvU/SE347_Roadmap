@@ -1,3 +1,4 @@
+import { mock } from 'node:test';
  import { create } from 'domain';
 import { Inject, Injectable } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -113,6 +114,42 @@ export class NotificationService {
       }
     }
   }
+
+  async findNotificationsByUser(
+    id: number, 
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<ResponseDto> {
+    try {
+      const notifications = await this.notificationRepository
+                                    .createQueryBuilder('notification')
+                                    .leftJoinAndSelect('notification.postNotification', 'postNotification')
+                                    .leftJoinAndSelect('notification.receiver', 'receiver')
+                                    .where("notification.isActive = :isActive", { isActive: 1 })
+                                    .andWhere('notification.deletedAt is null')
+                                    .skip((page - 1) * limit)
+                                    .take(limit)
+                                    .getMany();
+      if (!notifications) {
+        return {
+          statusCode: 404,
+          message: 'Notification not found',
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Get all notifications successfully',
+        data: notifications
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  } 
 
   async findOne(id: number): Promise<ResponseDto> {
     try {

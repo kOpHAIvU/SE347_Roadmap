@@ -8,30 +8,30 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post('new')
-  create(@Body() createMessageDto: CreateMessageDto) {
-    return this.messageService.create(createMessageDto);
+  async create(@Body() createMessageDto: CreateMessageDto) {
+    return await this.messageService.create(createMessageDto);
   }
 
   @Get('all')
-  findAll(
+  async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    return this.messageService.findAll();
+    return await this.messageService.findAll();
   }
 
   @Get('item/:id')
-  findOne(@Param('id') id: string) {
-    return this.messageService.findOneById(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.messageService.findOneById(+id);
   }
 
   @Patch('item/:id')
-  update(@Param('id') id: string, @Body() updateMessageDto: UpdateMessageDto) {
-    return this.messageService.update(+id, updateMessageDto);
+  async update(@Param('id') id: string, @Body() updateMessageDto: UpdateMessageDto) {
+    return await this.messageService.update(+id, updateMessageDto);
   }
 
   @Delete('item/:id')
-  remove(@Param('id') id: string) {
-    return this.messageService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.messageService.remove(+id);
   }
 }

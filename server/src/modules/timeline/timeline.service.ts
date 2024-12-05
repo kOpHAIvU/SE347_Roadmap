@@ -132,6 +132,42 @@ export class TimelineService {
     }
   }
 
+  async findTimelinesByUserId(
+    userId: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<ResponseDto> {
+    try {
+      const timelines = await this.timelineRepository
+                                  .createQueryBuilder("timeline")
+                                  .leftJoinAndSelect('timeline.roadmap', 'roadmap')
+                                  .where('timeline.creatorId = :userId', {userId: userId})
+                                  .andWhere('timeline.isActive = :isActive', { isActive: true })
+                                  .andWhere('timeline.deletedAt is null') 
+                                  .skip((page - 1) * limit)  
+                                  .take(limit)
+                                  .getMany()
+      if (timelines.length === 0) {
+        return {
+          statusCode: 404,
+          message: "The list of timeline of this person is not found",
+          data: null
+        }
+      }  
+      return {
+        statusCode: 200,
+        message: "Get list of timelines of this person successfully",
+        data: timelines
+      }                            
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: "The list timelines of this user is not found",
+        data: null
+      }
+    }
+  }
+ 
   async update(
     id: number, 
     updateTimelineDto: UpdateTimelineDto

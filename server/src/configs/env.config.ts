@@ -24,6 +24,12 @@ export const env = {
     NAME: process.env.NAME|| 'rabbitmq',
     URL: process.env.URL || 'amqp://localhost:5672',
     QUEUE_ROADMAP_NOTIFICATION: process.env.QUEUE_ROADMAP_NOTIFICATION || 'queue',
+  },
+
+  CLOUDINARY: {
+    CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ,
+    API_KEY: process.env.CLOUDINARY_API_KEY ,
+    API_SECRET: process.env.CLOUDINARY_API_SECRET ,
   }
 
 };

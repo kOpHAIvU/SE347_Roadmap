@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject, Sse } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject, Sse, ParseIntPipe } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -62,25 +62,37 @@ export class NotificationController {
   // }
 
   @Post('new')
-  create(@Body() createNotificationDto: CreateNotificationDto) {
-    return this.notificationService.create(createNotificationDto);
+  async create(@Body() createNotificationDto: CreateNotificationDto) {
+    return await this.notificationService.create(createNotificationDto);
   }
 
   @Get('all')
-  findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
+  async findAll(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
-    return this.notificationService.findAll(page, limit);
+    return await this.notificationService.findAll(page, limit);
+  }
+
+  @Get('all/user/:id')
+  async findNotificationsByUserId(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return await this.notificationService.findNotificationsByUser(id, page, limit);
   }
 
   @Patch('item/:id')
-  update(@Param('id') id: string, @Body() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationService.update(+id, updateNotificationDto);
+  async update(
+    @Param('id', ParseIntPipe) id: number, 
+    @Body() updateNotificationDto: UpdateNotificationDto
+  ) {
+    return await this.notificationService.update(id, updateNotificationDto);
   }
 
   @Delete('item/:id')
-  remove(@Param('id') id: string) {
-    return this.notificationService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.notificationService.remove(id);
   }
 }

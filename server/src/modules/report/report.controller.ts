@@ -8,27 +8,27 @@ export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @Post('new')
-  create(@Body() createReportDto: CreateReportDto) {
-    return this.reportService.create(createReportDto);
+  async create(@Body() createReportDto: CreateReportDto) {
+    return await this.reportService.create(createReportDto);
   }
 
   @Get('all')
-  findAll() {
-    return this.reportService.findAll();
+  async findAll() {
+    return await this.reportService.findAll();
   }
 
   @Get('item/:id')
-  findOne(@Param('id') id: string) {
-    return this.reportService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.reportService.findOne(+id);
   }
 
   @Patch('item/:id')
-  update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto) {
-    return this.reportService.update(+id, updateReportDto);
+  async update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto) {
+    return await this.reportService.update(+id, updateReportDto);
   }
 
   @Delete('item/:id')
-  remove(@Param('id') id: string) {
-    return this.reportService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.reportService.remove(+id);
   }
 }

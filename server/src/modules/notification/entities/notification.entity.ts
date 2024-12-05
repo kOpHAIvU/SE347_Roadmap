@@ -23,4 +23,7 @@ export class Notification {
 
     @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
     isActive: boolean;
+
+    @ManyToOne(() => User, receiver => receiver.notification)
+    receiver: User;
 }

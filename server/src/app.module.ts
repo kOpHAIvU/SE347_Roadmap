@@ -31,39 +31,39 @@ import { GroupDivisionModule } from './modules/group-division/group-division.mod
 import { ProgressModule } from './modules/progress/progress.module';
 import { Progress } from './modules/progress/entities/progress.entity';
 import { Message } from './modules/message/entities/message.entity';
+import { Favorite } from './modules/favorite/entities/favorite.entity';
+import { FavoriteModule } from './modules/favorite/favorite.module';
+import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { CloudinaryService } from './modules/cloudinary/cloudinary.service';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: env.DATABASE.HOST,
-      port: env.DATABASE.PORT,
-      username: env.DATABASE.USER,
-      password: env.DATABASE.PASSWORD,
-      database: env.DATABASE.NAME,
-      entities: [User, Role, Roadmap, 
-        Comment, Timeline, 
-        Team, Report,
-        Notification, Node,
-        GroupDivision,
-        Progress,
-        Message
-      ],  
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
     }),
-    // ClientsModule.register([
-    //   {
-    //     name: env.RABBITMQ.NAME,
-    //     transport: Transport.RMQ,
-    //     options: {
-    //       urls: [env.RABBITMQ.URL],
-    //       queue: env.RABBITMQ.QUEUE,
-    //       queueOptions: {
-    //         durable: true,
-    //       },
-    //     },
-    //   },
-    // ]),
+    // TypeOrmModule.forRoot({
+    //   type: 'mysql',
+    //   host: env.DATABASE.HOST,
+    //   port: env.DATABASE.PORT,
+    //   username: env.DATABASE.USER,
+    //   password: env.DATABASE.PASSWORD,
+    //   database: env.DATABASE.NAME,
+    //   entities: [User, Role, Roadmap, 
+    //     Comment, Timeline, 
+    //     Team, Report,
+    //     Notification, Node,
+    //     GroupDivision,
+    //     Progress,
+    //     Message, 
+    //     Favorite
+    //   ],  
+    //   synchronize: true,
+    // }),
+    DatabaseModule,
     UserModule,
     RoleModule,
     AuthModule,
@@ -78,8 +78,16 @@ import { Message } from './modules/message/entities/message.entity';
     NodeModule,
     GroupDivisionModule,
     ProgressModule,
+    FavoriteModule,
+    CloudinaryModule,
+
+    MulterModule.register({
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService, GoogleStrategy],
+  providers: [AppService, GoogleStrategy, CloudinaryService],
 })
 export class AppModule {}

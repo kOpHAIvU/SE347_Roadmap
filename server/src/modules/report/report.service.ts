@@ -89,6 +89,42 @@ export class ReportService {
     }
   }
 
+  async findReportsByUser(
+    idUser: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<ResponseDto> {
+    try {
+      const reports = await this.reportRepository
+                                .createQueryBuilder('report')
+                                .leftJoinAndSelect('report.user', "user")
+                                .where('report.poster = :posterId')
+                                .andWhere('report.deletedAt is null') 
+                                .orderBy('report.createdAt', 'DESC')
+                                .skip((page - 1) * limit)  
+                                .take(limit)                
+                                .getMany();
+      if (reports.length === 0) {
+        return {
+          statusCode: 404,
+          message: "The list of reports of this user is not found",
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: "Get the list of reports of this user successfully",
+        data: reports
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
   async findOne(id: number): Promise<ResponseDto> {
     try {
       const report = await this.reportRepository.findOneBy({ 

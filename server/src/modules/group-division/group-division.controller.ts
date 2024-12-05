@@ -8,30 +8,30 @@ export class GroupDivisionController {
   constructor(private readonly groupDivisionService: GroupDivisionService) {}
 
   @Post('new')
-  create(@Body() createGroupDivisionDto: CreateGroupDivisionDto) {
-    return this.groupDivisionService.create(createGroupDivisionDto);
+  async create(@Body() createGroupDivisionDto: CreateGroupDivisionDto) {
+    return await this.groupDivisionService.create(createGroupDivisionDto);
   }
 
   @Get("all")
-  findAll(
+  async findAll(
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
-    return this.groupDivisionService.findAll();
+    return await this.groupDivisionService.findAll();
   }
 
   @Get('item/:id')
-  findOne(@Param('id') id: string) {
-    return this.groupDivisionService.findOneById(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.groupDivisionService.findOneById(+id);
   } 
 
   @Patch('item/:id')
-  update(@Param('id') id: string, @Body() updateGroupDivisionDto: UpdateGroupDivisionDto) {
-    return this.groupDivisionService.update(+id, updateGroupDivisionDto);
+  async update(@Param('id') id: string, @Body() updateGroupDivisionDto: UpdateGroupDivisionDto) {
+    return await this.groupDivisionService.update(+id, updateGroupDivisionDto);
   }
 
   @Delete('item/:id')
-  remove(@Param('id') id: string) {
-    return this.groupDivisionService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.groupDivisionService.remove(+id);
   }
 }

@@ -8,27 +8,27 @@ export class NodeController {
   constructor(private readonly nodeService: NodeService) {}
 
   @Post('new')
-  create(@Body() createNodeDto: CreateNodeDto) {
-    return this.nodeService.create(createNodeDto);
+  async create(@Body() createNodeDto: CreateNodeDto) {
+    return await this.nodeService.create(createNodeDto);
   }
 
   @Get('item/:id')
-  findAll() {
-    return this.nodeService.findAll();
+  async findAll() {
+    return await this.nodeService.findAll();
   }
 
   @Get('item/:id')
-  findOne(@Param('id') id: string) {
-    return this.nodeService.findOneById(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.nodeService.findOneById(+id);
   }
 
   @Patch('item/:id')
-  update(@Param('id') id: string, @Body() updateNodeDto: UpdateNodeDto) {
-    return this.nodeService.update(+id, updateNodeDto);
+  async update(@Param('id') id: string, @Body() updateNodeDto: UpdateNodeDto) {
+    return await this.nodeService.update(+id, updateNodeDto);
   }
 
   @Delete('item/:id')
-  remove(@Param('id') id: string) {
-    return this.nodeService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.nodeService.remove(+id);
   }
 }
