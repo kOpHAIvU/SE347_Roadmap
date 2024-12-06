@@ -1,5 +1,5 @@
 import { UserService } from './../user/user.service';
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { LoginDto } from './dto/login-dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -24,8 +24,8 @@ export class AuthService {
     Logger.log(loginDto.password + "......" + user.password);
   
     if (!passwordMatched) {
-      throw new Error('Invalid credentials'); 
-    } else {
+      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    } else { 
       const payload = {email: user.email, sub: user.id};
       return {
         accessToken: this.jwtService.sign(payload)

@@ -1,5 +1,6 @@
-import { create } from 'domain';
-import { Injectable } from '@nestjs/common';
+import { mock } from 'node:test';
+ import { create } from 'domain';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,14 +8,20 @@ import { IsNull, Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 import { ResponseDto } from './common/response.interface';
 import { UserService } from '../user/user.service';
+import {Server} from 'socket.io';
+import { Subject } from 'rxjs';
+import { NotificationGateway } from './notification.gateway';
  
 @Injectable()
 export class NotificationService {
 
+  private notificationSubject = new Subject<MessageEvent>();
+
   constructor (
     @InjectRepository(Notification)
-    private notificationRepository: Repository<Notification>,
-    private userService: UserService,
+    private readonly notificationRepository: Repository<Notification>,
+    private readonly userService: UserService,
+   // private readonly notificationGateway: NotificationGateway,
   ) {}
 
   async create(
@@ -45,6 +52,8 @@ export class NotificationService {
           data: null
         }
       }
+      
+      //this.notificationGateway.handleSendNotificationWhenHavingNewRoadmap(result);
       return {
         statusCode: 201,
         message: 'Create notification successfully',
@@ -57,6 +66,18 @@ export class NotificationService {
         data: null
       }
     }
+  }
+
+  getNotifications() {
+    return this.notificationSubject.asObservable();
+  }
+
+  // Gửi thông báo qua SSE
+  sendNotification(notification: any): void {
+    this.notificationSubject.next({
+      data: notification,
+    } as MessageEvent);
+    console.log('Notification sent:', notification);
   }
 
   async findAll(
@@ -93,6 +114,42 @@ export class NotificationService {
       }
     }
   }
+
+  async findNotificationsByUser(
+    id: number, 
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<ResponseDto> {
+    try {
+      const notifications = await this.notificationRepository
+                                    .createQueryBuilder('notification')
+                                    .leftJoinAndSelect('notification.postNotification', 'postNotification')
+                                    .leftJoinAndSelect('notification.receiver', 'receiver')
+                                    .where("notification.isActive = :isActive", { isActive: 1 })
+                                    .andWhere('notification.deletedAt is null')
+                                    .skip((page - 1) * limit)
+                                    .take(limit)
+                                    .getMany();
+      if (!notifications) {
+        return {
+          statusCode: 404,
+          message: 'Notification not found',
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Get all notifications successfully',
+        data: notifications
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  } 
 
   async findOne(id: number): Promise<ResponseDto> {
     try {

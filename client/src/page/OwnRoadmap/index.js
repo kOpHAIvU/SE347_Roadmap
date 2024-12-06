@@ -88,49 +88,43 @@ function OwnRoadmap() {
     ]);
     //const [nodes, setNodes] = useState(null);
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const response = await fetch('http://localhost:3004/roadmap/all', {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     Authorization: `Bearer ${localStorage.getItem('token')}`,
-    //                 }
-    //             });
-    //             if (!response.ok) {
-    //                 throw new Error(`HTTP error! status: ${response.status}`);
-    //             }
-    //             const result = await response.json();
-    //             setNodes(result);
-    //         } catch (error) {
-    //             console.log(error.message);
-    //         }
-          
-    //         const result = await response.json();
-    //         console.log(result)
-    //         let roadmapContent;
-    //         // if (result.content) {
-    //         //     roadmapContent = result.map((node, index) => {
-    //         //         node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
-    //         //         console.log(node)
-    //         //         return node
-    //         //     })
-    //         // }
-    //         roadmapContent = result.data.map((node, index) => {
-    //             node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
-    //             console.log(node)
-    //             return node
-    //         })
-    //         setNodes(result);
-    //       } catch (error) {
-    //         console.log(error.message);
-    //       } 
-    //     };
-
-    //     fetchData();
-    // }, []);
-
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch('http://localhost:3004/roadmap/all', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    }
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+    
+                const result = await response.json();
+                console.log(result);
+    
+                if (result.data) {
+                    const roadmapContent = result.data.map((node, index) => {
+                        node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
+                        console.log(node);
+                        return node;
+                    });
+                    setNodes(roadmapContent); 
+                } else {
+                    console.log("Data is not found");
+                }
+    
+            } catch (error) {
+                console.log(error.message);
+            }
+        };
+    
+        fetchData();
+    }, []);
+    
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
             const updatedNodes = [...prevNodes];
@@ -235,30 +229,15 @@ function OwnRoadmap() {
     };
 
     const handleMakeDialog = (type) => {
-        if (type === 'Clone') {
-            if (nodes.length < 5) {
-                const newDialog = { id: Date.now(), type: type }; // Unique ID for each CantClone
-                setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+        const newDialog = { id: Date.now(), type: type };
+        setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 
-                // Automatically remove the CantClone after 3 seconds
-                setTimeout(() => {
-                    setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
-                }, 3000);
+        // Automatically remove the CantClone after 3 seconds
+        setTimeout(() => {
+            setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+        }, 3000);
 
-                return;
-            }
-            setCreateTimelineDialog(true);
-        } else if (type === 'Saved') {
-            const newDialog = { id: Date.now(), type: type };
-            setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
-
-            // Automatically remove the CantClone after 3 seconds
-            setTimeout(() => {
-                setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
-            }, 3000);
-
-            return;
-        }
+        return;
     };
 
     return (
@@ -391,7 +370,7 @@ function OwnRoadmap() {
                     ) : null
                 ))}
             </div>
-            
+
             {createTimelineDialog &&
                 <CreateTimeline
                     newId="hehe"

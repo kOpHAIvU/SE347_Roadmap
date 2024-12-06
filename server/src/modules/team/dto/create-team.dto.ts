@@ -9,9 +9,6 @@ export class CreateTeamDto {
     avatar: string;
 
     @IsNotEmpty()
-    timeline: number;
-
-    @IsNotEmpty()
     leader: number;
 
     isActive: boolean;

@@ -15,19 +15,19 @@ export class AuthController {
   ) {}
 
   @Post('signup')
-  signup(
+  async signup(
     @Body() 
     userDto: CreateUserDto
   ): Promise<User> {
-    return this.userService.create(userDto);
+    return await this.userService.create(userDto);
   }
-
+// string 
   @Post('login')
-  login(
+  async login(
     @Body()
     loginDTO: LoginDto,
   ) {
-    return this.authService.login(loginDTO);
+    return await this.authService.login(loginDTO);
   }
 
   @Get('googleAuth')
@@ -38,9 +38,7 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() req) {
-    return this.authService.googleLogin(req);
+  async googleAuthRedirect(@Req() req) {
+    return await this.authService.googleLogin(req);
   }
-
-  
 }
