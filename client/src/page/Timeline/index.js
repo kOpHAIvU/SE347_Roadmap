@@ -13,7 +13,6 @@ const cx = classNames.bind(styles);
 
 function Timeline() {
     const authority = 'Administrator';
-    const username = 'KoPhaiVu'
     let roadmapName = 'Name not given';
     let title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
     const [roadName, setRoadName] = useState(roadmapName);
@@ -37,22 +36,37 @@ function Timeline() {
     // State for the list of levels
     const [nodes, setNodes] = useState([
         {
-            id: 1, level: 1,
+            id: 0, level: 1,
             x: 50, y: 50,
             type: 'Checkbox',
             due_time: 2,
             content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
             ticked: false,
             nodeDetail: nodeDetail,
+            nodeComment: [
+                {
+                    userId: '1',
+                    username: 'KoPhaiVu',
+                    text: "haha",
+                    comment: "whao"
+                },
+                {
+                    userId: '2',
+                    username: 'KoPhaiThien',
+                    text: "mcc",
+                    comment: "whao"
+                },
+            ]
         },
         {
-            id: 2, level: 1,
+            id: 1, level: 1,
             x: 50, y: 150,
             type: 'Checkbox',
             due_time: 2,
             content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
             ticked: true,
-            nodeDetail: ''
+            nodeDetail: '',
+            nodeComment: null
         }
     ]);
 
@@ -103,7 +117,7 @@ function Timeline() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
-        const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...' };
+        const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeComment: null };
 
         setNodes((prevLevels) => {
             if (prevLevels === null) return [newLevel];
@@ -123,7 +137,7 @@ function Timeline() {
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
-        const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...' };
+        const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...', nodeComment: null };
 
         setNodes((prevLevels) => {
             if (prevLevels === null) return [newLevel];
@@ -170,6 +184,48 @@ function Timeline() {
         console.log(nodes)
         setTimeout(() => setHoveredIndex(null), 0);
     };
+
+    const updateNodeComment = (nodeId, action, commentData = null, commentIndex = null) => {
+        setNodes((prevNodes) => {
+            return prevNodes.map((node) => {
+                if (node.id === nodeId) {
+                    let updatedComments = node.nodeComment ? [...node.nodeComment] : [];
+
+                    switch (action) {
+                        case 'add':
+                            console.log('add')
+                            if (commentData) {
+                                updatedComments.push(commentData);
+                            }
+                            break;
+
+                        case 'edit':
+                            if (commentIndex !== null && commentData) {
+                                updatedComments[commentIndex] = {
+                                    ...updatedComments[commentIndex],
+                                    ...commentData,
+                                };
+                            }
+                            break;
+
+                        case 'delete':
+                            if (commentIndex !== null) {
+                                updatedComments.splice(commentIndex, 1);
+                            }
+                            break;
+
+                        default:
+                            console.error('Invalid action:', action);
+                            return node;
+                    }
+                    console.log(node)
+                    return { ...node, nodeComment: updatedComments.length > 0 ? updatedComments : null };
+                }
+                return node;
+            });
+        });
+    };
+
 
     const [dialogs, setDialogs] = useState([]); // Array to manage multiple CantClone dialogs
 
@@ -310,6 +366,7 @@ function Timeline() {
                             handleAddChildLevelNode={handleAddChildLevelNode}
                             nodeBelowType={nodeBelowType}
                             updateTickState={updateTickState}
+                            updateNodeComment={updateNodeComment}
                         />
                         :
                         <RoadmapSection
@@ -324,6 +381,7 @@ function Timeline() {
                             handleAddChildLevelNode={handleAddChildLevelNode}
                             nodeBelowType={nodeBelowType}
                             updateTickState={updateTickState}
+                            updateNodeComment={updateNodeComment}
                         />}
                 </div>
             </div>

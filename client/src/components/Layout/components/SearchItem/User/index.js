@@ -8,12 +8,14 @@ function User({ children, onChooseNewCollab }) {
     useEffect(() => {
         console.log('Children updated:', children);
     }, [children]);
+
     return (
-        <div className={cx('wrapper')} onClick={(event) => {
-            event.stopPropagation();
-            console.log('onChooseNewCollab triggered');
-            onChooseNewCollab(children.idUser, children.username);
-        }}>
+        <div className={cx('wrapper')}
+            onClick={(event) => {
+                event.stopPropagation();
+                onChooseNewCollab(children.idUser, children.username);
+            }}
+        >
             <img
                 className={cx('roadmap-pic')}
                 src={children.avatar}
