@@ -2,7 +2,7 @@
     position: absolute;
     top: 50px;
     right: 10px;
-    width: 300px;
+    width: 320px;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -52,8 +52,82 @@
 }
 
 .notification-content {
+    max-height: 400px;
+    overflow-y: auto; 
+    padding-right: 8px; 
+    scrollbar-width: thin;
+    scrollbar-color: #ccc #f9f9f9; 
+
+    .notification-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .notification-content::-webkit-scrollbar-track {
+        background: #f9f9f9; 
+    }
+    
+    .notification-content::-webkit-scrollbar-thumb {
+        background: #ccc; 
+        border-radius: 4px;
+    }
+    
+    .notification-content::-webkit-scrollbar-thumb:hover {
+        background: #b3b3b3; /* Màu khi di chuột vào thanh cuộn */
+    }
+
     .notification-item {
-        padding: 8px 0;
+        padding: 16px 0;
         border-bottom: 1px solid #eee;
+        line-height: 2rem;
+    }
+
+    .title-notifi {
+        display: flex;
+    }
+
+    .avatar {
+        width: 45px; 
+        height: 45px;
+        border-radius: 50%; 
+        margin-right: 12px; 
+        object-fit: cover;
+        background-color: #e3e3e3;
+    }
+
+
+    .actions {
+        padding-top: 12px;
+        display: flex;
+        gap: 8px;
+        margin-left: 57px;
+
+        .accept-btn {
+            background-color: #0866ff;
+            color: #fff;
+
+            &:hover {
+                background-color: #075de7;
+            }
+        }
+
+        .decline-btn {
+            background-color: #e2e5e9;
+            color: #000;
+
+            &:hover {
+                background-color: #e2e5e9;
+            }
+        }
+
+        .accept-btn, .decline-btn {
+            padding: 10px 14px;
+            border-radius: 5px;
+            width: auto;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
     }
 }
