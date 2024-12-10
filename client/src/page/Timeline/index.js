@@ -8,13 +8,18 @@ import { faA, faChevronLeft, faChevronRight, faGear, faSitemap } from '@fortawes
 import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.js';
 import { DeleteCollab, NewCollab, Saved } from '~/components/Layout/components/MiniNotification/index.js';
 import { SettingTimeline } from '~/components/Layout/components/Dialog/index.js';
+import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function Timeline() {
+    const { id } = useParams();
+    const navigate = useNavigate();
     const authority = 'Administrator';
     let roadmapName = 'Name not given';
-    let title = 'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
+    let title =
+        'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
     const [roadName, setRoadName] = useState(roadmapName);
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
@@ -36,8 +41,10 @@ function Timeline() {
     // State for the list of levels
     const [nodes, setNodes] = useState([
         {
-            id: 0, level: 1,
-            x: 50, y: 50,
+            id: 0,
+            level: 1,
+            x: 50,
+            y: 50,
             type: 'Checkbox',
             due_time: 2,
             content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
@@ -47,27 +54,30 @@ function Timeline() {
                 {
                     userId: '1',
                     username: 'KoPhaiVu',
-                    text: "haha",
-                    comment: "whao"
+                    text: 'haha',
+                    comment: 'whao',
                 },
                 {
                     userId: '2',
                     username: 'KoPhaiThien',
-                    text: "mcc",
-                    comment: "whao"
+                    text: 'mcc',
+                    comment: 'whao',
                 },
-            ]
+            ],
         },
         {
-            id: 1, level: 1,
-            x: 50, y: 150,
+            id: 1,
+            level: 1,
+            x: 50,
+            y: 150,
             type: 'Checkbox',
             due_time: 2,
-            content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
+            content:
+                'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
             ticked: true,
             nodeDetail: '',
-            nodeComment: null
-        }
+            nodeComment: null,
+        },
     ]);
 
     const updateNodeContent = (index, newContent) => {
@@ -116,17 +126,28 @@ function Timeline() {
     };
 
     const handleSameLevelClick = (index, x, y, level, type) => {
-        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
-        const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeComment: null };
+        const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
+        const newLevel = {
+            id: newId,
+            x: x,
+            y: y + 100,
+            level,
+            type,
+            ticked: false,
+            due_time: 2,
+            content: 'Write something...',
+            nodeComment: null,
+        };
 
         setNodes((prevLevels) => {
             if (prevLevels === null) return [newLevel];
 
             // Xác định vị trí chèn node mới
             const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
-            const updatedNodes = insertIndex === -1
-                ? [...prevLevels, newLevel]
-                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
+            const updatedNodes =
+                insertIndex === -1
+                    ? [...prevLevels, newLevel]
+                    : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
             // Cập nhật id cho các node phía dưới
             return updatedNodes.map((node, idx) => {
@@ -136,17 +157,28 @@ function Timeline() {
     };
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
-        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
-        const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...', nodeComment: null };
+        const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
+        const newLevel = {
+            id: newId,
+            x: x + width + 200,
+            y: y,
+            level: level + 1,
+            type,
+            ticked: false,
+            due_time: 2,
+            content: 'Write something...',
+            nodeComment: null,
+        };
 
         setNodes((prevLevels) => {
             if (prevLevels === null) return [newLevel];
 
             // Xác định vị trí chèn node mới
             const insertIndex = prevLevels.findIndex((node, i) => i > index && node.level <= level);
-            const updatedNodes = insertIndex === -1
-                ? [...prevLevels, newLevel]
-                : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
+            const updatedNodes =
+                insertIndex === -1
+                    ? [...prevLevels, newLevel]
+                    : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
             // Cập nhật id cho các node phía dưới
             return updatedNodes.map((node, idx) => {
@@ -156,13 +188,12 @@ function Timeline() {
     };
 
     const nodeBelowType = (index) => {
-        return index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level
-            ? nodes[index + 1].type : null;
-    }
+        return index + 1 < nodes.length && nodes[index + 1].level > nodes[index].level ? nodes[index + 1].type : null;
+    };
 
     // Cập nhật lại addNodeSameLevel để không cần phải gọi hàm này thủ công.
     const updateTickState = (index, updatedNode) => {
-        setNodes(prevNodes => {
+        setNodes((prevNodes) => {
             const newNodes = [...prevNodes];
             const isCheckbox = updatedNode.type === 'Checkbox';
 
@@ -181,7 +212,7 @@ function Timeline() {
             newNodes[index] = updatedNode;
             return newNodes;
         });
-        console.log(nodes)
+        console.log(nodes);
         setTimeout(() => setHoveredIndex(null), 0);
     };
 
@@ -193,7 +224,7 @@ function Timeline() {
 
                     switch (action) {
                         case 'add':
-                            console.log('add')
+                            console.log('add');
                             if (commentData) {
                                 updatedComments.push(commentData);
                             }
@@ -218,7 +249,7 @@ function Timeline() {
                             console.error('Invalid action:', action);
                             return node;
                     }
-                    console.log(node)
+                    console.log(node);
                     return { ...node, nodeComment: updatedComments.length > 0 ? updatedComments : null };
                 }
                 return node;
@@ -248,15 +279,15 @@ function Timeline() {
         if (String(e.target.className).includes('modal-overlay')) {
             setShowSetting(false);
         }
-    }
+    };
 
     const handleDeleteTimeline = () => {
         const confirmDelete = window.confirm(`Do you really want to delete "${roadName}" roadmap?`);
 
         if (confirmDelete) {
-            window.location.href = "/home";
+            window.location.href = '/home';
         }
-    }
+    };
 
     return (
         <div className={cx('wrapper')}>
@@ -269,8 +300,7 @@ function Timeline() {
                                 value={roadName}
                                 onChange={(e) => setRoadName(e.target.value)}
                                 onFocus={() => {
-                                    if (roadName === 'Name not given')
-                                        setRoadName('');
+                                    if (roadName === 'Name not given') setRoadName('');
                                 }}
                                 onBlur={() => {
                                     if (roadName.trim() === '') {
@@ -292,36 +322,37 @@ function Timeline() {
 
                     {authority !== 'Viewer' && (
                         <div className={cx('save-setting')}>
-                            <button className={cx('save-btn')} onClick={() => handleMakeDialog('Save', null)}>Save</button>
+                            <button className={cx('save-btn')} onClick={() => handleMakeDialog('Save', null)}>
+                                Save
+                            </button>
                             <FontAwesomeIcon
                                 icon={faGear}
                                 className={cx('setting-btn')}
-                                onClick={() => setShowSetting(true)} />
+                                onClick={() => navigate(`/timeline/${id}/setting`)}
+                            />
                             <FontAwesomeIcon
                                 className={cx('extend-chat')}
                                 icon={chatExtended ? faChevronRight : faChevronLeft}
-                                onClick={() => setChatExtended(!chatExtended)} />
+                                onClick={() => setChatExtended(!chatExtended)}
+                            />
                         </div>
                     )}
 
-                    {showSetting &&
+                    {showSetting && (
                         <SettingTimeline
                             setShowSetting={setShowSetting}
                             handleOutsideClick={handleOutsideClick}
                             handleDeleteTimeline={handleDeleteTimeline}
-                            handleMakeDialog={handleMakeDialog} />}
+                            handleMakeDialog={handleMakeDialog}
+                        />
+                    )}
                 </div>
 
                 <div className={cx('mini-notify')}>
                     {dialogs.map((dialog) => {
                         switch (dialog.type) {
                             case 'Save':
-                                return (
-                                    <Saved
-                                        key={dialog.id}
-                                        handleClose={() => handleClose(dialog.id)}
-                                    />
-                                );
+                                return <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />;
                             case 'Add':
                                 return (
                                     <NewCollab
@@ -352,7 +383,7 @@ function Timeline() {
                 </span>
 
                 <div className={cx('timeline-section')}>
-                    {toggle ?
+                    {toggle ? (
                         <AdvanceRoadmap
                             userType={authority}
                             nodes={nodes}
@@ -367,7 +398,7 @@ function Timeline() {
                             updateTickState={updateTickState}
                             updateNodeComment={updateNodeComment}
                         />
-                        :
+                    ) : (
                         <RoadmapSection
                             userType={authority}
                             nodes={nodes}
@@ -381,13 +412,16 @@ function Timeline() {
                             nodeBelowType={nodeBelowType}
                             updateTickState={updateTickState}
                             updateNodeComment={updateNodeComment}
-                        />}
+                        />
+                    )}
                 </div>
             </div>
 
-            {chatExtended && !toggle && <div className={cx('chat-section', { show: chatExtended })}>
-                <ChatSection />
-            </div>}
+            {chatExtended && !toggle && (
+                <div className={cx('chat-section', { show: chatExtended })}>
+                    <ChatSection />
+                </div>
+            )}
         </div>
     );
 }
