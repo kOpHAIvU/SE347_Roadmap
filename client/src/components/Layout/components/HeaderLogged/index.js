@@ -16,10 +16,10 @@ import {
     faTimes,
     faBell,
 } from '@fortawesome/free-solid-svg-icons';
-import Search from '../Search/index.js';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import MenuAvatar from '../MenuAvatar/index.js';
+import { SearchRoadmap } from '../Search/index.js';
 
 const cx = classNames.bind(styles);
 const MENU_ITEMS = [
@@ -67,6 +67,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const notificationRef = useRef(null);
     const bellRef = useRef(null);
+    const [image, setImage] = useState(null);
 
     const toggleNotification = () => {
         setIsNotificationOpen((prev) => !prev);
@@ -118,7 +119,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                     className={cx('navigation-btn')}
                 ></Button>
 
-                <Search />
+                <SearchRoadmap />
 
                 <div className={cx('right-header')}>
                     <button className={cx('add-roadmap')} onClick={() => setShowForm(true)}>
@@ -167,6 +168,15 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                             <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
                         </div>
 
+                        <div className={cx('form-group')}>
+                            <label>Attach Image</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setImage(e.target.files[0])} // setImage là state chứa file ảnh
+                            />
+                        </div>
+
                         <div className={cx('button-group')}>
                             <button className={cx('cancel-btn')} onClick={() => setShowForm(false)}>
                                 Cancel
@@ -175,7 +185,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                             <button
                                 className={cx('create-btn')}
                                 onClick={handleCreate}
-                                disabled={!name || !description}
+                                disabled={!name || !description || !image}
                             >
                                 Create
                             </button>

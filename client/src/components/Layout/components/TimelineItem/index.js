@@ -1,10 +1,8 @@
 import styles from './TimelineItem.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBolt, faCircleDown, faHeart as faSolidHeart, faTimes, faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import { faHeart } from '@fortawesome/free-regular-svg-icons'
+import { faBolt, faUserGroup } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 

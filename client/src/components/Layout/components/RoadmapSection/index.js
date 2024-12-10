@@ -6,7 +6,8 @@ const cx = classNames.bind(styles);
 
 function RoadmapSection({ userType, nodes, updateNodeContent
     , updateNodeDue, handleDeleteNode, updateNodeDetail, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowType, updateTickState }) {
+    , handleAddChildLevelNode, nodeBelowType, updateTickState, updateNodeComment
+}) {
     return (
         <div className={cx('wrapper')}>
             {nodes && nodes.length > 0 && (
@@ -26,6 +27,7 @@ function RoadmapSection({ userType, nodes, updateNodeContent
                                 handleAddChildLevelNode={handleAddChildLevelNode}
                                 nodeBelowTypes={nodeBelowType(index)}
                                 updateTickState={updateTickState}
+                                updateNodeComment={updateNodeComment}
                             />
                         </div>
                     );

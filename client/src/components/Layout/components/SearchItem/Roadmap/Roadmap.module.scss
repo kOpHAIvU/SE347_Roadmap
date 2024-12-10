@@ -1,11 +1,11 @@
 .wrapper {
     display: flex;
     align-items: center;
-    padding: 0 16px 8px 16px;
+    padding: 0 6px 8px 16px;
     cursor: pointer;
 
     &:hover {
-        background: rgba(22, 24, 35, 0.03);
+        background: rgba(22, 24, 35, 0.1);
     }
 }
 .roadmap-pic {

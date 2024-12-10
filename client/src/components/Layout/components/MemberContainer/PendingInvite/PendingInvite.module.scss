@@ -1,0 +1,45 @@
+.wrapper {
+    height: 50px;
+    width: 100%;
+    display: flex;
+    margin: 0 5px;
+    align-items: center;
+    
+}
+
+.avatar {
+    width: var(--search-avatar-size);
+    height: var(--search-avatar-size);
+    border-radius: 50%;
+    object-fit: cover;
+    align-self: center;
+}
+
+.username-and-pending {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
+.username {
+    margin-top: 5px;
+    font-size: 1.5rem;
+}
+.pending {
+    font-size: 1.3rem;
+}
+
+.delete {
+    align-self: center;
+    height: 20px;
+    width: 20px;
+    margin-right: 15px;
+    color: var(--color-red);
+    cursor: pointer;
+    transition: var(--transform);
+    
+    &:active {
+        transform: scale(0.9);
+    }
+}

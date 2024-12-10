@@ -10,13 +10,14 @@ const cx = classNames.bind(styles);
 
 function LevelTwo({ userType, node, index, updateNodeContent
     , updateNodeDue, updateNodeDetail, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes, updateTickState
+    , handleAddChildLevelNode, nodeBelowTypes, updateTickState, updateNodeComment
 }) {
     const { ticked, content: initialContent, due_time, type } = node;
     const [content, setContent] = useState(initialContent);
     const [isEditing, setIsEditing] = useState(false);
     const [dueTime, setDueTime] = useState(`${due_time} days`);
     const [openNodeDetail, setOpenNodeDetail] = useState(false);
+    const [isDueTimeFocused, setIsDueTimeFocused] = useState(false);
 
     useEffect(() => {
         setContent(node.content);
@@ -28,11 +29,12 @@ function LevelTwo({ userType, node, index, updateNodeContent
         updateNodeContent(index, content);
     };
 
-    const handleDueTimeChangeBlur = (value) => {
-        if (!isNaN(value)) {
-            const newDueTime = `${value} days`;
+    const handleDueTimeBlur = () => {
+        setIsDueTimeFocused(false);
+        if (!isNaN(dueTime)) {
+            const newDueTime = `${dueTime}`; // Add ' days' after blur
             setDueTime(newDueTime);
-            updateNodeDue(index, newDueTime);
+            updateNodeDue(index, newDueTime); // Gọi hàm cập nhật due-time
         }
     };
 
@@ -75,20 +77,36 @@ function LevelTwo({ userType, node, index, updateNodeContent
                     <NodeDetail
                         userType={userType}
                         index={index}
+                        nodeComment={node.nodeComment}
                         nodeDetail={node.nodeDetail}
                         updateNodeDetail={updateNodeDetail}
                         handleOutsideClick={handleOutsideClick}
+                        updateNodeComment={updateNodeComment}
                     />}
 
                 <div className={cx('update-node')}>
                     <input
                         className={cx('due-time')}
                         type="text"
-                        value={dueTime}
-                        onFocus={() => setDueTime(dueTime.replace(' days', ''))}
-                        onBlur={(e) => handleDueTimeChangeBlur(e.target.value)}
-                        onChange={(e) => { if (!isNaN(e.target.value)) setDueTime(e.target.value); }}
-                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleDueTimeChangeBlur(e.target.value); } }}
+                        value={
+                            isDueTimeFocused
+                                ? String(dueTime).replace(' days', '') // Chuyển `dueTime` thành chuỗi trước
+                                : `${dueTime} days` // Sử dụng template literals
+                        }
+                        onFocus={() => setIsDueTimeFocused(true)}
+                        onBlur={handleDueTimeBlur}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            if (!isNaN(value)) {
+                                setDueTime(value);
+                            }
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                e.target.blur();
+                            }
+                        }}
                     />
 
                     {(userType === 'Administrator' || userType === 'Editor') && (

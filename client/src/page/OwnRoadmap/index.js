@@ -7,14 +7,15 @@ import styles from './OwnRoadmap.module.scss';
 import classNames from 'classnames/bind';
 import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.js';
 import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.js';
-import SettingRoadmap from '~/components/Layout/components/SettingRoadmap/index.js';
+import SettingRoadmap from '~/components/Layout/components/Dialog/SettingRoadmap/index.js';
 import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.js';
 import { CantClone } from '~/components/Layout/components/MiniNotification/index.js';
+import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
 
 const cx = classNames.bind(styles);
 
 function OwnRoadmap() {
-    const userType = 'Viewer'
+    const userType = 'Administrator'
     const [roadName, setRoadName] = useState('Name not given');
     const [titleText, setTitleText] = useState('Make some description');
     const [isEditing, setIsEditing] = useState(false);
@@ -74,42 +75,31 @@ function OwnRoadmap() {
     `;
 
 
-    const [nodes, setNodes] = useState([
-        {
-            id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2,
-            content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
-            nodeDetail: nodeDetail
-        },
-        {
-            id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
-            content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
-            nodeDetail: ''
-        },
-    ]);
+    const [nodes, setNodes] = useState(null);
     //const [nodes, setNodes] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
-          try {
-            const response = await fetch('http://localhost:3004/roadmap/all', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+            try {
+                const response = await fetch('http://localhost:3004/roadmap/all', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            });
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                setNodes(result);
+            } catch (error) {
+                console.log(error.message);
             }
-            const result = await response.json();
-            setNodes(result);
-          } catch (error) {
-            console.log(error.message);
-          } 
         };
-    
+
         fetchData();
-      }, []);
+    }, []);
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
@@ -157,7 +147,8 @@ function OwnRoadmap() {
     };
 
     const handleSameLevelClick = (index, x, y, level, type) => {
-        const newId = index + 1;
+        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log(newId)
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -169,15 +160,12 @@ function OwnRoadmap() {
                 ? [...prevLevels, newLevel]
                 : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
         });
     };
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
-        const newId = index + 1; // Đặt id mới là index + 1
+        const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
         const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -189,10 +177,7 @@ function OwnRoadmap() {
                 ? [...prevLevels, newLevel]
                 : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
         });
     };
 
@@ -202,7 +187,7 @@ function OwnRoadmap() {
     }
 
     const handleSave = () => {
-        alert("Your changes have been saved!");
+        handleMakeDialog('Saved')
         console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
     }
 
@@ -213,25 +198,22 @@ function OwnRoadmap() {
         }
     }
 
-    const [errorDialogs, setErrorDialogs] = useState([]); // Array to manage multiple CantClone dialogs
+    const [dialogs, setDialogs] = useState([]); // Array to manage multiple CantClone dialogs
 
     const handleClose = (id) => {
-        setErrorDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
+        setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
     };
 
-    const handleCloneClick = () => {
-        if (nodes.length < 5) {
-            const newDialog = { id: Date.now() }; // Unique ID for each CantClone
-            setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+    const handleMakeDialog = (type) => {
+        const newDialog = { id: Date.now(), type: type };
+        setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 
-            // Automatically remove the CantClone after 3 seconds
-            setTimeout(() => {
-                setErrorDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
-            }, 3000);
+        // Automatically remove the CantClone after 3 seconds
+        setTimeout(() => {
+            setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+        }, 3000);
 
-            return;
-        }
-        setCreateTimelineDialog(true);
+        return;
     };
 
     return (
@@ -349,17 +331,22 @@ function OwnRoadmap() {
                     <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
                     <h1 className={cx('love-text')}>Love</h1>
                 </button>
-                <button className={cx('clone-roadmap')} onClick={handleCloneClick} >
+                <button className={cx('clone-roadmap')} onClick={() => handleMakeDialog('Clone')} >
                     <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
                     <h1 className={cx('clone-text')}>Clone</h1>
                 </button>
             </div>
 
             <div className={cx('mini-notify')}>
-                {errorDialogs.map((dialog) => (
-                    <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                {dialogs.map((dialog) => (
+                    dialog.type === 'Clone' ? (
+                        <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ) : dialog.type === 'Saved' ? (
+                        <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ) : null
                 ))}
             </div>
+
             {createTimelineDialog &&
                 <CreateTimeline
                     newId="hehe"

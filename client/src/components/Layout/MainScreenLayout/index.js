@@ -8,12 +8,10 @@ const cx = classNames.bind(styles);
 function MainScreenLayout({ children }) {
     return (
         <div className={cx('wrapper')}>
-            <div className={cx('wrapper')}>
-                <HeaderGuest />
-                <main className={cx('main')}>{children}</main>
+            <HeaderGuest />
+            <main className={cx('main')}>{children}</main>
 
-                <Footer />
-            </div>
+            <Footer />
         </div>
     );
 }
