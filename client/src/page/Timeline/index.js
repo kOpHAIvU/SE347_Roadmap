@@ -226,7 +226,6 @@ function Timeline() {
         });
     };
 
-
     const [dialogs, setDialogs] = useState([]); // Array to manage multiple CantClone dialogs
 
     const handleClose = (id) => {

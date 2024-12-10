@@ -36,21 +36,13 @@ function NodeDetailComment({ idx, nodeIndex, item, userType, currentUserId, curr
                     placeholder="Add comment..."
                     onBlur={() => {
                         setIsEditing(false);
-                        updateNodeComment(nodeIndex, 'edit',
-                            {
-                                userId: currentUserId,
-                                username: currentUsername,
-                                text: item.text,
-                                comment: comments
-                            },
-                            idx);
-
+                        updateNodeComment(nodeIndex, 'edit', { comment: comments }, idx);
                     }}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             setIsEditing(false);
-                            updateNodeComment(idx, 'edit', { comment: comments }, idx);
+                            updateNodeComment(nodeIndex, 'edit', { comment: comments }, idx);
                         }
                     }} />
                 ) : (
