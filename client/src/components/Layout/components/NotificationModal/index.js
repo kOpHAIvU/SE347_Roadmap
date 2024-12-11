@@ -10,7 +10,7 @@ const newav =
     'https://scontent.fsgn2-5.fna.fbcdn.net/v/t39.30808-6/376194887_1504946626576665_3116387707499991413_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=B5tnevj9eI4Q7kNvgFla1sp&_nc_zt=23&_nc_ht=scontent.fsgn2-5.fna&_nc_gid=At6eYUITeknKof22d27Qhxv&oh=00_AYAzzQ8eKca4FU-_nhgcAOcwP4rnd9Covk3x3zKJv4WxRA&oe=675B353D';
 
 function NotificationModal() {
-    const [activeTab, setActiveTab] = useState('all');
+    const [activeTab, setActiveTab] = useState('unread');
     const [notifications, setNotifications] = useState([
         { id: 1, type: 'system', text: 'System Notification 1', unread: true, avatar: images.logo, username: 'System' },
         {
