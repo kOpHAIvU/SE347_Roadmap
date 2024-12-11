@@ -46,12 +46,17 @@
 }
 
 .add-comment-btn {
-    margin-top: 20px;
-    padding: 10px;
     background-color: #6580eb;
     color: white;
     border: none;
+    padding: 10px 0;
+    border-radius: 10px;
+    transition: var(--transform);
     cursor: pointer;
+
+    &:active {
+        transform: scale(0.9);
+    }
 }
 
 @keyframes slideIn {
