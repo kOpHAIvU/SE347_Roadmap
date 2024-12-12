@@ -28,9 +28,8 @@ function SearchUser({ onChooseNewCollab }) {
     };
 
     const handleClickOutside = (event) => {
-        // Kiểm tra nếu click bên ngoài vùng search
         if (searchRef.current && !searchRef.current.contains(event.target)) {
-            setVisible(false);  // Ẩn kết quả
+            setVisible(false);
         }
     };
 
@@ -68,7 +67,7 @@ function SearchUser({ onChooseNewCollab }) {
                 )}
             >
                 <div className={cx('search')}>
-                    <input placeholder='Find roadmap'
+                    <input placeholder='Find collaborator'
                         value={search}
                         onChange={handleInputChange}
                         onFocus={() => search && setVisible(true)}

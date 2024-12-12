@@ -1,8 +1,8 @@
 import styles from './RoadmapItem.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBolt, faCircleDown, faHeart as faSolidHeart, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { faHeart, faTrashCan } from '@fortawesome/free-regular-svg-icons'
+import { faBolt, faCircleDown, faHeart as faSolidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart } from '@fortawesome/free-regular-svg-icons'
 import { useState } from 'react';
 import CreateTimeline from '../CreateTimeline/index.js';
 import { CantClone } from '../MiniNotification/index.js';

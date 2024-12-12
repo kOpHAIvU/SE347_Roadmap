@@ -10,7 +10,7 @@ const cx = classNames.bind(styles);
 
 function LevelTwo({ userType, node, index, updateNodeContent
     , updateNodeDue, updateNodeDetail, handleDeleteNode, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes, updateTickState
+    , handleAddChildLevelNode, nodeBelowTypes, updateTickState, updateNodeComment
 }) {
     const { ticked, content: initialContent, due_time, type } = node;
     const [content, setContent] = useState(initialContent);
@@ -77,9 +77,11 @@ function LevelTwo({ userType, node, index, updateNodeContent
                     <NodeDetail
                         userType={userType}
                         index={index}
+                        nodeComment={node.nodeComment}
                         nodeDetail={node.nodeDetail}
                         updateNodeDetail={updateNodeDetail}
                         handleOutsideClick={handleOutsideClick}
+                        updateNodeComment={updateNodeComment}
                     />}
 
                 <div className={cx('update-node')}>

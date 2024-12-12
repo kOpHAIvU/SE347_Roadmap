@@ -11,7 +11,7 @@ const cx = classNames.bind(styles);
 function LevelOne({
     userType, node, index, updateNodeContent
     , updateNodeDue, handleDeleteNode, updateNodeDetail, handleSameLevelClick
-    , handleAddChildLevelNode, nodeBelowTypes, updateTickState
+    , handleAddChildLevelNode, nodeBelowTypes, updateTickState, updateNodeComment
 }) {
     const { ticked, content: initialContent, due_time: initialDueTime, level, type } = node;
     const [content, setContent] = useState(initialContent);
@@ -84,8 +84,10 @@ function LevelOne({
                         userType={userType}
                         index={index}
                         nodeDetail={node.nodeDetail}
+                        nodeComment={node.nodeComment}
                         updateNodeDetail={updateNodeDetail}
                         handleOutsideClick={handleOutsideClick}
+                        updateNodeComment={updateNodeComment}
                     />}
 
                 <div className={cx('update-node')}>

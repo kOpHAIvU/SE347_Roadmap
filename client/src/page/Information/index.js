@@ -31,14 +31,14 @@ function Information() {
             </section>
 
             <section className={cx('features')}>
-                <p className={cx('introduce-logo')}>lô gô các nguồn tham khảo gì đó trong web</p>
+                <p className={cx('introduce-logo')}>A collection of trusted resources powering your project roadmap</p>
                 <div className={cx('logos')}>
-                    <span className={cx('logo')}>Dell</span>
-                    <span className={cx('logo')}>Zendesk</span>
-                    <span className={cx('logo')}>Dell</span>
-                    <span className={cx('logo')}>Zendesk</span>
-                    <span className={cx('logo')}>Dell</span>
-                    <span className={cx('logo')}>Zendesk</span>
+                    <span className={cx('logo')}>roadmap.sh</span>
+                    <span className={cx('logo')}>github.com</span>
+                    <span className={cx('logo')}>facebook.com</span>
+                    <span className={cx('logo')}>docs.google.com</span>
+                    <span className={cx('logo')}>taskde.ai</span>
+                    <span className={cx('logo')}>figma.com</span>
                 </div>
                 <h2 className={cx('featureTitle')}>Essential Features for Every Project Stage</h2>
                 <p className={cx('featureSubtitle')}>
