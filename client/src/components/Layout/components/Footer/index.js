@@ -13,9 +13,7 @@ function Footer() {
                     <div className={cx('footer-left')}>
                         <h3>VertexOps</h3>
                         <p>
-                            At Roadmap, we’re dedicated to guiding you every step of the way toward achieving your
-                            goals. With our support, you can confidently navigate your journey, overcome challenges, and
-                            build a successful path that’s uniquely yours.
+                            The milestone creation support website made by the bare hands of UIT University's K17 will help you create the most appropriate learning path for yourself and your teammates.
                         </p>
                     </div>
                 </div>

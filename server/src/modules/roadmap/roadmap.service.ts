@@ -13,7 +13,7 @@ import {env} from '../../configs/env.config';
 export class RoadmapService {
 
   constructor(
-    @Inject(env.RABBITMQ.NAME) private rabbitClient: ClientProxy,
+    @Inject("RoadmapConfiguration") private rabbitClient: ClientProxy,
     @InjectRepository(Roadmap)
     private roadmapRepository: Repository<Roadmap>,
     private userService: UserService,
@@ -57,7 +57,7 @@ export class RoadmapService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Failed to create roadmap'
+        message: error.message,
       }
     }
   }
@@ -306,8 +306,6 @@ export class RoadmapService {
       roadmap.deletedAt = new Date();
       const result = await this.roadmapRepository.save(roadmap);
 
-
-
       return {
         statusCode: 200,
         message: 'Delete roadmap successfully',
@@ -321,5 +319,80 @@ export class RoadmapService {
     }
   }
 
+  async findRoadmapsByOwner(
+    owner: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<ResponseDto> {
+    try {
+      const roadmaps = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.node', 'node')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.owner = :owner', { owner })
+                      .orderBy('roadmap.createdAt', 'DESC')
+                      .skip((page - 1) * limit)  
+                      .take(limit)                
+                      .getMany();
+      if (roadmaps.length === 0) {
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+          data: null,
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Get roadmap by owner successfully',
+        data: roadmaps,
+      }
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: 'Failed to get roadmap by owner',
+        data: null,
+      }
+    }
+  }
+
+  async findRoadmapsByType(
+    type: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<ResponseDto> {
+    try {
+      const roadmap = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.node', 'node')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.type = :type', { type })
+                      .orderBy('roadmap.createdAt', 'DESC')
+                      .skip((page - 1) * limit)  
+                      .take(limit)                
+                      .getMany();
+      
+      if (!roadmap) {
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+          data: null,
+        }
+      }
+
+      return {
+        statusCode: 200,
+        message: 'Get roadmap by type successfully',
+        data: roadmap,
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: 'Failed to get roadmap by type',
+        data: null,
+      }
+    }
+  }
   
 }

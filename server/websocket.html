@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
+    <script>
+        const socketGateway2 = io( 'http://localhost:3004/notification_roadmap', {
+            transports: ['websocket'], // Sử dụng WebSocket
+            reconnect: true,
+        });
+
+        socketGateway2.on('connect', () => {
+            console.log("Connected to notification socket successfully");
+            // socketGateway2.emit("new_roadmap_notification", { roadmapId: 1 });
+        
+            socketGateway2.on('newRoadmap', function(data) {
+                console.log("New roadmap notification received:");
+            });
+            
+            socketGateway2.on('disconnect', () => {
+                console.log("Disconnected from notification socket");
+            });
+
+            socketGateway2.on('connect_error', (err) => {
+                console.log("Connection error:", err);
+            });
+        });
+    </script>
+</body>
+</html>

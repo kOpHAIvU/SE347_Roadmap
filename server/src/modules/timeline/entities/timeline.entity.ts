@@ -1,4 +1,4 @@
-import { Member } from "../../member/entities/member.entity";
+import { GroupDivision } from "src/modules/group-division/entities/group-division.entity";
 import { Roadmap } from "../../roadmap/entities/roadmap.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -14,13 +14,10 @@ export class Timeline {
     @Column({nullable: false})
     content: string;
 
-    @ManyToOne(() => User, leader => leader.team)
-    leader: User;
+    @ManyToOne(() => User, creator => creator.timeline, { eager: true })
+    creator: User;
 
-    @OneToMany(() => Member, member => member.timeline)
-    member: Member[]
-
-    @ManyToOne(() => Roadmap, roadmap => roadmap.timeline)
+    @ManyToOne(() => Roadmap, roadmap => roadmap.timeline, { eager: true })
     roadmap: Roadmap;
 
     // @OneToMany(() => Team, team => team.id)
@@ -34,4 +31,8 @@ export class Timeline {
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
+
+    @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
+    groupDivision: GroupDivision;
+    
 }

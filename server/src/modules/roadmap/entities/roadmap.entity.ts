@@ -2,6 +2,8 @@ import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Comment } from './../../comment/entities/comment.entity';
 import { Timeline } from "../../timeline/entities/timeline.entity";
+import {Node} from "../../node/entities/node.entity"
+import { Favorite } from "src/modules/favorite/entities/favorite.entity";
 
 @Entity()
 export class Roadmap {
@@ -15,6 +17,9 @@ export class Roadmap {
     title: string;
 
     @Column({nullable: false })
+    type: string;
+
+    @Column({nullable: false })
     avatar: string;
 
     @Column({nullable: false })
@@ -22,6 +27,9 @@ export class Roadmap {
     
     @ManyToOne(() => User, owner => owner.roadmap, { eager: true })
     owner: User
+
+    @OneToMany(() => Node, node => node.roadmap)
+    node: Node[]
 
     @OneToMany(() => Comment, comment => comment.roadmap)
     comment: Comment[]
@@ -43,5 +51,8 @@ export class Roadmap {
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
+
+    @OneToMany(() => Favorite, favorite => favorite.roadmap)
+    favorite: Favorite[]
 
 }

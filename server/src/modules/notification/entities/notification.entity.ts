@@ -7,9 +7,12 @@ export class Notification {
     id: number;
 
     @Column({nullable: false})
+    title: string;
+
+    @Column({nullable: false})
     content: string;
 
-    @ManyToOne(() => User, postNotification => postNotification.poster)
+    @ManyToOne(() => User, postNotification => postNotification.poster, { eager: true })
     postNotification: User;
 
     @CreateDateColumn()  
@@ -17,4 +20,10 @@ export class Notification {
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
+
+    @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
+    isActive: boolean;
+
+    @ManyToOne(() => User, receiver => receiver.notification)
+    receiver: User;
 }

@@ -13,23 +13,23 @@ export class CommentController {
   }
 
   @Get('all')
-  findAll() {
-    return this.commentService.findAll();
+  async findAll() {
+    return await this.commentService.findAll();
   }
 
  @Get('item/:id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.commentService.findOneById(+id);
+ async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.commentService.findOneById(+id);
   }
 
   // Only the content of the comment can be updated
   @Patch('item/:id')
-  update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentService.update(+id, updateCommentDto);
+  async  update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
+    return await this.commentService.update(+id, updateCommentDto);
   }
 
-@Delete('item/:id')
-  remove(@Param('id', ParseIntPipe) id: string) {
-    return this.commentService.remove(+id);
+  @Delete('item/:id')
+  async remove(@Param('id', ParseIntPipe) id: string) {
+    return await this.commentService.remove(+id);
   }
 }
