@@ -34,11 +34,10 @@ export class UserService {
     try {
       if (createUserDto.avatar) {
         const uploadResponse = await this.cloudinaryService.uploadImage(file);
-        avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString(); 
-        
+        avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
       }
     } catch(error) {
-      return null
+      throw new Error(error);
     }
 
     console.log("Role response:", roleResponse);
@@ -52,12 +51,14 @@ export class UserService {
         password: hashedPassword,  
         avatar: avatarUrl || null,
       });
+
     } else {
       user = await this.usersRepository.create({
         ...createUserDto,
         role: roleResponse.data,
       });
     }
+    console.log('User:', user);
     
     const userSaved = await this.usersRepository.save(user);
     delete userSaved.password;

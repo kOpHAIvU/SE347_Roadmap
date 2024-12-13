@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login-dto';
 import { UserService } from '../user/user.service';
@@ -6,6 +6,7 @@ import { User } from '../user/entities/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')
 export class AuthController {
@@ -15,12 +16,16 @@ export class AuthController {
   ) {}
 
   @Post('signup')
+  @UseInterceptors(FileInterceptor('file'))
   async signup(
     @Body() 
-    userDto: CreateUserDto
+    userDto: CreateUserDto,
+    @UploadedFile() file?: Express.Multer.File,
+
   ): Promise<User> {
     return await this.userService.create(userDto);
   }
+
   @Post('login')
   async login(
     @Body()
@@ -32,7 +37,6 @@ export class AuthController {
   @Get('googleAuth')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Req() req) {
-
   }
 
   @Get('google/callback')

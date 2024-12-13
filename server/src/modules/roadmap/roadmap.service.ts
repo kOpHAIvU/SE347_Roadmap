@@ -42,7 +42,7 @@ export class RoadmapService {
       }
 
       console.log("Connection is");
-      console.log(this.configService.get<string>('RABBITMQ_URL'));
+      console.log(this.configService.get<string>('URL'));
 
       const result = await this.roadmapRepository.save(roadmap); 
       if (result.owner.role.id === 1) {

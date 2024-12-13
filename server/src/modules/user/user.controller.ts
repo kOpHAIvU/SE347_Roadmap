@@ -19,12 +19,12 @@ export class UserController {
   // We use public_id to delete the image in Cloudinary
   @Post('signup')
   @UseInterceptors(FileInterceptor('file'))
-  @UseGuards(JwtAuthGuard)
   async create(
     @Body() createUserDto: CreateUserDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    // const fileBuffer = file?.buffer.toString('base64') || null;
+    console.log("File in controller:", file);
+    //const fileBuffer = file?.buffer.toString('base64') || null;
     return await this.userService.create(createUserDto, file);
   }
   

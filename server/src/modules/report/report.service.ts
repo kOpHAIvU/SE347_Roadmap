@@ -1,19 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { IsNull, Repository } from 'typeorm';
-import { Report } from './entities/report.entity';
 import { UserService } from '../user/user.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ResponseDto } from './common/response.interface';
+import { ClientProxy } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import { ReportGateway } from './report.gateway';
+import {Report} from './entities/report.entity'
 
 @Injectable()
 export class ReportService {
 
   constructor(
+    @Inject("RoadmapConfigurationReport") private rabbitClient: ClientProxy,
     @InjectRepository(Report)
     private reportRepository: Repository<Report>,
     private userService: UserService,
+    private configService: ConfigService,
+    private reportGateway: ReportGateway
   ) {}
 
   async create(createReportDto: CreateReportDto): Promise<ResponseDto> {
@@ -40,6 +46,14 @@ export class ReportService {
           message: 'Failed to create report'
         }
       }
+      console.log("URL with rabbitMQ", this.configService.get<string>('URL'));
+      try {
+        await this.rabbitClient.connect();
+      } catch (error) {
+        console.log("Error connect rabbitmq: ", error);
+      }
+      this.rabbitClient.emit("Create_new_report", result);
+      
       return {
         statusCode: 201,
         message: 'Create report successfully',
@@ -52,6 +66,13 @@ export class ReportService {
         data: null
       }
     }
+  }
+
+  async handleNotificationFromRabbitMQ(
+    data: Report
+  ): Promise<void> {
+   console.log('Notification received from RabbitMQ:', data);
+    this.reportGateway.sendNotificationToClients(data.content);
   }
 
   async findAll(
@@ -97,8 +118,8 @@ export class ReportService {
     try {
       const reports = await this.reportRepository
                                 .createQueryBuilder('report')
-                                .leftJoinAndSelect('report.user', "user")
-                                .where('report.poster = :posterId')
+                               // .leftJoinAndSelect('report.user', "user")
+                                .where('report.reporter= :posterId', {posterId: idUser})
                                 .andWhere('report.deletedAt is null') 
                                 .orderBy('report.createdAt', 'DESC')
                                 .skip((page - 1) * limit)  

@@ -26,4 +26,8 @@ export class Notification {
 
     @ManyToOne(() => User, receiver => receiver.notification)
     receiver: User;
+
+    // sms, email, push
+    @Column()
+    type: string;
 }

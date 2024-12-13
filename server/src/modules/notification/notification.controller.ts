@@ -10,13 +10,14 @@ import { NotificationWorker } from './notification.worker';
 import { RoleGuard } from '../role/common/role.guard';
 import { Roles } from '../role/common/role.decorator';
 import { JwtAuthGuard } from '../auth/common/jwt-guard';
+import { GmailNotificationStrategy } from './strategy/gmail-notification.service';
 
 @Controller('notification')
 export class NotificationController {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly notificationWorker: NotificationWorker,
-    
+    private readonly gmailService: GmailNotificationStrategy,
   ) {}
 
   @EventPattern('Create_new_roadmap')
@@ -63,6 +64,9 @@ export class NotificationController {
   //   const response = this.notificationGateway.handleSendNotificationWhenHavingNewRoadmap("Hi roadmap");
   //   return this.notificationService.findOne(+id);
   // }
+
+  @Post('gmail')
+  async sendGmail() {}
 
   @Post('new')
   @UseGuards(JwtAuthGuard, RoleGuard)

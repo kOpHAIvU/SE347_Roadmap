@@ -7,6 +7,9 @@ import { Comment } from './entities/comment.entity';
 import { UserModule } from '../user/user.module';
 import { RoleGuard } from '../role/common/role.guard';
 import { RoleModule } from '../role/role.module';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
 
 @Module({
   imports: [
@@ -16,7 +19,10 @@ import { RoleModule } from '../role/role.module';
     RoleModule
   ],
   controllers: [CommentController],
-  providers: [CommentService, RoleGuard],
+  providers: [
+    CommentService, 
+    RoleGuard,
+  ],
   exports: [CommentService],
 })
 export class CommentModule {}

@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {Node} from '../node/entities/node.entity'
 import { RoadmapModule } from '../roadmap/roadmap.module';
 import { RoleModule } from '../role/role.module';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
 
 @Module({
   imports: [
@@ -13,7 +16,17 @@ import { RoleModule } from '../role/role.module';
     RoleModule
   ],
   controllers: [NodeController],
-  providers: [NodeService],
+  providers: [
+    NodeService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard
+    // },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: ThrottlerExceptionFilter,
+    // },
+  ],
   exports: [NodeService],
 })
 export class NodeModule {}
