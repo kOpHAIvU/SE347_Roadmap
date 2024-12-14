@@ -7,9 +7,9 @@
 </head>
 <body>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
-    <script>
-        const socketGateway2 = io( 'http://localhost:3004/notification_roadmap', {
-            transports: ['websocket'], // Sử dụng WebSocket
+    <!-- <script>
+        const socketGateway2 = io( 'http://localhost:3004/newReport', {
+            transports: ['websocket'],
             reconnect: true,
         });
 
@@ -19,6 +19,28 @@
         
             socketGateway2.on('newRoadmap', function(data) {
                 console.log("New roadmap notification received:");
+            });
+            
+            socketGateway2.on('disconnect', () => {
+                console.log("Disconnected from notification socket");
+            });
+
+            socketGateway2.on('connect_error', (err) => {
+                console.log("Connection error:", err);
+            });
+        });
+    </script> -->
+
+    <script>
+        const socketGateway2 = io( 'http://localhost:3004/newReport', {
+            transports: ['websocket'],
+            reconnect: true,
+        });
+        socketGateway2.on('connect', () => {
+            console.log("Connected to report socket successfully");
+        
+            socketGateway2.on('SendReport', function(data) {
+                console.log("New roadmap notification received:", data);
             });
             
             socketGateway2.on('disconnect', () => {

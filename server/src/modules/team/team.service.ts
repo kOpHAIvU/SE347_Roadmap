@@ -7,17 +7,21 @@ import { Repository } from 'typeorm';
 import { TimelineService } from '../timeline/timeline.service';
 import { UserService } from '../user/user.service';
 import {ResponseDto} from './common/response.interface';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class TeamService {
   constructor(
     @InjectRepository(Team) 
     private readonly teamRepository: Repository<Team>,
-    private readonly timelineService: TimelineService,
-    private readonly userService: UserService,
+    private readonly userService: UserService, 
+    private readonly cloudinary: CloudinaryService,
   ) {}
 
-  async create(createGroupDto: CreateTeamDto): Promise<ResponseDto> {
+  async create(
+    createGroupDto: CreateTeamDto,
+    file?: Express.Multer.File,
+  ): Promise<ResponseDto> {
     const leaderResponse = await this.userService.findOneById(createGroupDto.leader);
     const leader = Array.isArray(leaderResponse.data)
                   ? leaderResponse.data[0]
@@ -26,10 +30,21 @@ export class TeamService {
       throw new Error('User not found');
     }
 
+    let avatarUrl: string;
+    try {
+      if (file) {
+        const uploadResponse = await this.cloudinary.uploadImage(file);
+        avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
+      }
+    } catch(error) {
+      throw new Error(error);
+    }
+
     try {
       const group = await this.teamRepository.create({
         ...createGroupDto,
-        leader: leader 
+        leader: leader,
+        avatar: avatarUrl || null, 
       });
   
       const savedGroup = await this.teamRepository.save(group); 
@@ -55,6 +70,7 @@ export class TeamService {
     try {
       const groups = await this.teamRepository
                       .createQueryBuilder('team')
+                      .leftJoinAndSelect('team.leader', 'leader')
                       .where('team.isActive = :isActive', { isActive: 1 })
                       .andWhere('team.deletedAt is null')
                       .orderBy('team.createdAt', 'DESC')
@@ -79,6 +95,7 @@ export class TeamService {
     try {
       const group = await this.teamRepository
                       .createQueryBuilder('team')
+                      .leftJoinAndSelect('team.leader', 'leader')
                       .where('team.id = :id', { id })
                       .andWhere('team.isActive = :isActive', { isActive: 1 })
                       .andWhere('team.deletedAt is null')
@@ -106,7 +123,8 @@ export class TeamService {
 
   async update(
     id: number, 
-    updateTeamDto: UpdateTeamDto
+    updateTeamDto: UpdateTeamDto,
+    file?: Express.Multer.File,
   ): Promise<ResponseDto> {
     try {
       const leaderResponse = await this.userService.findOneById(updateTeamDto.leader);
@@ -128,10 +146,38 @@ export class TeamService {
         }
       }
 
-      const updateTeam = await this.teamRepository.create( {
-        ...team,
-        leader,
-    })
+      let public_id: string, secure_url: string ;
+      let avatarUrl: string = null;
+      if (file) {
+        console.log("Come here");
+        const url = team.avatar.split(' ');
+        public_id = url[1];
+        secure_url = url[0];
+        console.log("The split avatar: ", public_id + "   " + secure_url);
+        try {
+          const deleteResponse = await this.cloudinary.deleteImage(public_id);
+        } catch(error) {
+          throw new Error(error);
+        }
+        const uploadResponse = await this.cloudinary.uploadImage(file);
+        avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
+      }
+
+      let  updateTeam;
+      if (avatarUrl !== null) { 
+        updateTeam = await this.teamRepository.create( {
+          ...team,
+          ...updateTeamDto,
+          leader,
+          avatar: avatarUrl || null,
+        })
+      } else {
+        updateTeam = await this.teamRepository.create({
+          ...team,
+          ...updateTeamDto,
+          leader
+        });
+      }
 
       const result = await this.teamRepository.save(updateTeam);
       return {
@@ -149,7 +195,8 @@ export class TeamService {
   }
 
   async remove(
-    id: number
+    id: number,
+    file?: Express.Multer.File,
   ): Promise<ResponseDto> {
     try {
       const teamResponse = await this.findOneById(id);
@@ -162,6 +209,13 @@ export class TeamService {
           message: 'Group not found',
           data: null
         }
+      }
+      const url = team.avatar.split(' ');
+      const public_id = url[1];
+      try {
+        const deleteResponse = await this.cloudinary.deleteImage(public_id);
+      } catch(error) {
+        throw new Error(error);
       }
 
       team.isActive = false;

@@ -14,3 +14,4 @@ export class GeminiService {
     return result.response.text();
   }
 }
+

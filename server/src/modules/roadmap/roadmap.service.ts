@@ -8,6 +8,8 @@ import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/roadmap.interface';
 import { ClientProxy } from '@nestjs/microservices';
 import {env} from '../../configs/env.config';
+import { ConfigService } from '@nestjs/config';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class RoadmapService {
@@ -17,19 +19,33 @@ export class RoadmapService {
     @InjectRepository(Roadmap)
     private roadmapRepository: Repository<Roadmap>,
     private userService: UserService,
+    private configService: ConfigService,
+    private cloudinary: CloudinaryService
   ) {}
 
   async create(
-    createRoadmapDto: CreateRoadmapDto
+    createRoadmapDto: CreateRoadmapDto,
+    file: Express.Multer.File,
   ): Promise<ResponseDto>{
     try {
       const ownerResponse = await this.userService.findOneById(createRoadmapDto.owner); 
       const owner = Array.isArray(ownerResponse.data)
                     ? ownerResponse.data[0]
                     : ownerResponse.data;
+      console.log("Avatar of roadmap", file);
+      let avatarUrl: string;
+      try {
+        if (file) {
+          const uploadResponse = await this.cloudinary.uploadImage(file);
+          avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
+        }
+      } catch(error) {
+        throw new Error(error);
+      }
       const roadmap = this.roadmapRepository.create({
           ...createRoadmapDto,
           owner, 
+          avatar: avatarUrl || null,
       });
 
       if (!roadmap) {
@@ -38,6 +54,13 @@ export class RoadmapService {
           message: 'Failed to create roadmap'
         }
       }
+
+      const lastCode = await this.findTheLastCodeOfRoadmap();
+      const newCode = `RMIT${lastCode + 1}`;
+      roadmap.code = newCode;
+
+      console.log("Connection is");
+      console.log(this.configService.get<string>('URL'));
 
       const result = await this.roadmapRepository.save(roadmap); 
       if (result.owner.role.id === 1) {
@@ -69,6 +92,7 @@ export class RoadmapService {
     try {
       const roadmap = await this.roadmapRepository
                       .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.owner', 'owner')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .orderBy('roadmap.createdAt', 'DESC')
@@ -93,6 +117,26 @@ export class RoadmapService {
         statusCode: 500,
         message: 'Failed to get all road maps'
       }
+    }
+  }
+
+  async findTheLastCodeOfRoadmap(): Promise<number> {
+    try {
+      const roadmap = await this.roadmapRepository 
+                      .createQueryBuilder('roadmap')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .orderBy('roadmap.id', 'DESC')
+                      .getOne();
+      if (!roadmap) {
+        return 0;
+      }
+      const code = roadmap.code;
+      const numberPart = parseInt(code.slice(4), 10); 
+      return +numberPart;
+
+    } catch (error) {
+      return -1;
     }
   }
 
@@ -158,14 +202,15 @@ export class RoadmapService {
 
   async updateById(
     id: number, 
-    updateRoadmapDto: UpdateRoadmapDto
+    updateRoadmapDto: UpdateRoadmapDto,
+    file?: Express.Multer.File
   ): Promise<ResponseDto> {
     try {
       const getData = await this.findOneById(id);
       const roadmap = Array.isArray(getData.data) 
         ? getData.data[0] 
         : getData.data;
-      //const roadmap = getData.data;
+
       if (!roadmap) {
         return {
           statusCode: 404,
@@ -176,20 +221,51 @@ export class RoadmapService {
       const owner = Array.isArray(ownerResponse.data)
                     ? ownerResponse.data[0]
                     : ownerResponse.data;
+
       if (!owner) {
         return {
           statusCode: 404,
           message: 'User not found',
         }
       }
-      Logger.log(roadmap);
 
-      //Object.assign(roadmap, updateRoadmapDto);
-      const roadmapCreate = this.roadmapRepository.create({
-        ...roadmap,
-        ...updateRoadmapDto,
-        owner,
-      })
+      let public_id: string, secure_url: string ;
+      let avatarUrl: string = null;
+      if (file) {
+        console.log("Come here");
+        const url = roadmap.avatar.split(' ');
+        public_id = url[1];
+        secure_url = url[0];
+        console.log("The split avatar: ", public_id + "   " + secure_url);
+        try {
+          const deleteResponse = await this.cloudinary.deleteImage(public_id);
+        } catch(error) {
+          throw new Error(error);
+        }
+        const uploadResponse = await this.cloudinary.uploadImage(file);
+        avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
+      }
+
+      console.log("Avatar of roadmap is: ", avatarUrl);
+      let roadmapCreate;
+
+      if (avatarUrl !== null) {
+        console.log("Avatar of roadmap is: ", avatarUrl);
+        roadmapCreate = this.roadmapRepository.create({
+          ...roadmap,
+          ...updateRoadmapDto,
+          owner,
+          avatar: avatarUrl || null,
+        })
+      } else {
+        roadmapCreate = this.roadmapRepository.create({
+          ...roadmap,
+          ...updateRoadmapDto,
+          owner,
+        })
+      }
+      console.log("Roadmap create: ", roadmapCreate);
+      
       const result = await this.roadmapRepository.save(roadmapCreate);
       Logger.log(roadmap);
 
@@ -201,7 +277,8 @@ export class RoadmapService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Failed to update roadmap'
+        message: error.message,
+        data:null
       }
     }
   }
@@ -255,7 +332,9 @@ export class RoadmapService {
     }
   }
 
-  async removeById(id: number) {
+  async removeById(
+    id: number
+  ): Promise<ResponseDto> {
     try {
       const getData = await this.findOneById(id);
       const roadmap = Array.isArray(getData.data) 
@@ -265,8 +344,17 @@ export class RoadmapService {
       if (!roadmap) {
         return {
           statusCode: 404,
-          message: 'Roadmap not found'
+          message: 'Roadmap not found',
+          data: null,
         }
+      }
+
+      const url = roadmap.avatar.split(' ');
+      const public_id = url[1];
+      try {
+        const deleteResponse = await this.cloudinary.deleteImage(public_id);
+      } catch(error) {
+        throw new Error(error);
       }
 
       roadmap.deletedAt = new Date();
@@ -279,9 +367,9 @@ export class RoadmapService {
       }
     } catch (error) {
       return {
-        error: error.message,
+        message: error.message,
         statusCode: 500,
-        message: 'Failed to delete roadmap'
+        data: null
       }
     }
   }

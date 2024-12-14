@@ -6,6 +6,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useWebSocketAdapter(new IoAdapter(app));
   console.log('server is running');
 
   //app.useGlobalFilters(new AllExceptionsFilter());
@@ -31,8 +32,22 @@ async function bootstrap() {
     },
   );
 
-  app.useWebSocketAdapter(new IoAdapter(app));
+  const reportMicroservice = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.RMQ,
+      options: {
+        urls: [process.env.URL],
+        queue: process.env.QUEUE_SEND_REPORT,
+        queueOptions: {
+          durable: true,  
+        },
+      },
+    },
+  );
+
   microserviceApp.listen(); 
+  reportMicroservice.listen();
 
 }
 bootstrap();

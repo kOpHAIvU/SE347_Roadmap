@@ -2,6 +2,7 @@ import { GroupDivision } from "src/modules/group-division/entities/group-divisio
 import { Roadmap } from "../../roadmap/entities/roadmap.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Node } from "src/modules/node/entities/node.entity";
 
 @Entity()
 export class Timeline {
@@ -34,5 +35,7 @@ export class Timeline {
 
     @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
     groupDivision: GroupDivision;
-    
+
+    @OneToMany(() => Node, node => node.timeline)
+    node: Node[];
 }

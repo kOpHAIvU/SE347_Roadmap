@@ -4,14 +4,49 @@ import { ReportController } from './report.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Report } from './entities/report.entity';
 import { UserModule } from '../user/user.module';
+import { RoleModule } from '../role/role.module';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
+import { ReportGateway } from './report.gateway';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Report]),
-    UserModule
+    ClientsModule.registerAsync([
+      {
+        name: 'RoadmapConfigurationReport',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('URL')],
+            queue: configService.get<string>('QUEUE_SEND_REPORT'),
+            queueOptions: {
+                durable: true,
+              },
+            }
+        }),
+        inject: [ConfigService],
+      }
+    ]),
+    UserModule,
+    RoleModule
   ],
   controllers: [ReportController],
-  providers: [ReportService],
+  providers: [
+    ReportService,
+    ReportGateway,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard
+    // },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: ThrottlerExceptionFilter,
+    // },
+  ],
   exports: [ReportService],
 })
 export class ReportModule {}

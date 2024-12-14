@@ -1,5 +1,5 @@
 import { User } from "../../user/entities/user.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Report {
@@ -23,4 +23,8 @@ export class Report {
 
     @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
     isActive: boolean;
+
+    @ManyToOne(() => User, receiver => receiver.receiverReport, {eager: true})
+    receive: User
+
 }

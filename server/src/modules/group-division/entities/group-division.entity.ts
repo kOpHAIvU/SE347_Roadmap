@@ -18,6 +18,9 @@ export class GroupDivision {
     @ManyToOne(() => Timeline, timeline => timeline.groupDivision, { eager: true })
     timeline: Timeline;
 
+    @Column({nullable: false})
+    role: number;
+
     @CreateDateColumn()
     timeOfParticipant: Date;
 

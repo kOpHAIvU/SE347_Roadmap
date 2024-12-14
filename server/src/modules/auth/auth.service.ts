@@ -40,6 +40,8 @@ export class AuthService {
     const { email, firstName, lastName, picture } = req.user;
     const user = await this.userService.findByEmail(email);
 
+    console.log("User information:", req.user);
+
     // username: string;
     // password: string;
     // fullName: string;

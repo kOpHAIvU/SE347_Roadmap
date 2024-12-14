@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Progress } from './entities/progress.entity';
 import { GroupDivisionModule } from '../group-division/group-division.module';
 import { NodeModule } from '../node/node.module';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
 
 @Module({
   imports: [
@@ -13,6 +16,16 @@ import { NodeModule } from '../node/node.module';
     NodeModule
   ],
   controllers: [ProgressController],
-  providers: [ProgressService],
+  providers: [
+    ProgressService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard
+    // },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: ThrottlerExceptionFilter,
+    // },
+  ],
 })
 export class ProgressModule {}

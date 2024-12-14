@@ -2,20 +2,29 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntP
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
+import { JwtAuthGuard } from '../auth/common/jwt-guard';
+import { RoleGuard } from '../role/common/role.guard';
+import { Roles } from '../role/common/role.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('roadmap')
 export class RoadmapController {
   constructor(private readonly roadmapService: RoadmapService) {}
 
   @Post('new_roadmap')
-  async create(@Body() createRoadmapDto: CreateRoadmapDto) {
-    return await this.roadmapService.create(createRoadmapDto);
+  @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() createRoadmapDto: CreateRoadmapDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    console.log("File in controller:", file);
+    return await this.roadmapService.create(createRoadmapDto, file);
   }
 
   @Get('all')
-  // @UseGuards(JwtAuthGuard, RoleGuard)
-  // @UseGuards(AuthGuard('jwt'))
-  // @Roles('admin') 
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles('admin') 
   async findAll(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 100,
@@ -24,18 +33,21 @@ export class RoadmapController {
   }
 
   @Get('id/:id')
+  @UseGuards(JwtAuthGuard)
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return await this.roadmapService.findOneById(+id);
   }
 
   @Get('code/:code')
+  @UseGuards(JwtAuthGuard)
   async findOneByCode(@Param('code') code: string) {
     return await this.roadmapService.findOneByCode(code);
   }
 
   @Get('type/:type')
+  @UseGuards(JwtAuthGuard)
   async findRoadmapByType(
-    @Param('type', ParseIntPipe) type: string,
+    @Param('type') type: string,
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 100,
   ) {
@@ -43,31 +55,49 @@ export class RoadmapController {
   }
 
   @Get('owner/:owner')
+  @UseGuards(JwtAuthGuard)
   async findRoadmapByOwner(
-    @Param('owner', ParseIntPipe) owner: string,
+    @Param('owner') owner: string,
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 100,
   ) {
     return await this.roadmapService.findRoadmapsByOwner(owner, page, limit);
   }
 
-  @Patch('id/:id')
-  async updateById(@Param('id', ParseIntPipe) id: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
-    return await this.roadmapService.updateById(+id, updateRoadmapDto);
+  @Patch('item/:id')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async updateById(@Param(
+    'id', ParseIntPipe) id: string, 
+    @Body() updateRoadmapDto: UpdateRoadmapDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    return await this.roadmapService.updateById(+id, updateRoadmapDto, file);
   }
 
   @Patch('code/:code')
+  @UseGuards(JwtAuthGuard)
   async updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
     return await this.roadmapService.updateByCode(code, updateRoadmapDto);  
   }
 
-  @Delete('id/:id')
-  async removeById(@Param('id', ParseIntPipe) id: number) {
+  @Delete('item/:id')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async removeById(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file?: Express.Multer.File
+  ) {
     return await this.roadmapService.removeById(+id);
   }
 
   @Delete('code/:code')
-  async removeByCode(@Param('code') code: string) {
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async removeByCode(
+    @Param('code') code: string,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
     return await this.roadmapService.removeByCode(code);
   }
 }

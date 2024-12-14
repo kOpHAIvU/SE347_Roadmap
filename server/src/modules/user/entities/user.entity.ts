@@ -76,4 +76,7 @@ export class User {
 
     @OneToMany(() => Favorite, favorite => favorite.user)
     favorite: Favorite[]; 
+
+    @OneToMany(() => Report, report => report.receive )
+    receiverReport: Report
 }

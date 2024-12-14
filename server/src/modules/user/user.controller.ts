@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseInterceptors, UploadedFile, UseGuards, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -8,6 +8,7 @@ import { JwtAuthGuard } from '../auth/common/jwt-guard';
 import { AuthGuard } from '@nestjs/passport';
 import { RoleGuard } from '../role/common/role.guard';
 import { Roles } from '../role/common/role.decorator';
+import { Request } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -23,32 +24,29 @@ export class UserController {
     @Body() createUserDto: CreateUserDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    // const fileBuffer = file?.buffer.toString('base64') || null;
+    console.log("File in controller:", file);
+    //const fileBuffer = file?.buffer.toString('base64') || null;
     return await this.userService.create(createUserDto, file);
   }
   
-  @Get("id/:id")
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @UseGuards(AuthGuard('jwt'))
-  @Roles('admin')  
+  // View profile of user: Feature of admin right
+  @Get("item/:id")
+  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async findOneById(@Param('id', ParseIntPipe) id: number) {
     return await this.userService.findOneById(+id);
   }
- 
-  @Get("hi")
-  async findOne(@Body() loginDto: LoginDto)
-  {
-    return await this.userService.findOne(loginDto);
-  }
 
-  @Patch('item/:id')
+  @Patch('updateProfile')
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
   async update(
-    @Param('id') id: string, 
+    @Req() req: any,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    return await this.userService.update(+id, updateUserDto, file);
+    const userId = req.user.userId;
+    return await this.userService.update(userId, updateUserDto, file);
   }
 
   @Delete('item/:id')

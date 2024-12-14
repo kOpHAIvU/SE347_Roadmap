@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login-dto';
 import { UserService } from '../user/user.service';
@@ -6,6 +6,9 @@ import { User } from '../user/entities/user.entity';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { UseGuards, Req } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from './common/jwt-guard';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -14,14 +17,7 @@ export class AuthController {
     private readonly authService: AuthService
   ) {}
 
-  @Post('signup')
-  async signup(
-    @Body() 
-    userDto: CreateUserDto
-  ): Promise<User> {
-    return await this.userService.create(userDto);
-  }
-// string 
+  // Login
   @Post('login')
   async login(
     @Body()
@@ -30,15 +26,19 @@ export class AuthController {
     return await this.authService.login(loginDTO);
   }
 
-  @Get('googleAuth')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req) {
-
-  }
-
+  // Login by google account
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
     return await this.authService.googleLogin(req);
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  async viewProfile(
+    @Req() req: any
+  ) {
+    const userId = req.user.userId;
+    return await this.userService.findOneById(userId);
   }
 }

@@ -9,6 +9,9 @@ import { RoleModule } from '../role/role.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import {env} from '../../configs/env.config'
 import { ConfigModule, ConfigService} from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -45,9 +48,16 @@ import { ConfigModule, ConfigService} from '@nestjs/config';
     ConfigModule,
     UserModule,
     RoleModule,
+    CloudinaryModule
   ],
   controllers: [RoadmapController],  
-  providers: [RoadmapService],
+  providers: [
+    RoadmapService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard
+    // }
+  ],
   exports: [RoadmapService]
 })
 export class RoadmapModule {}

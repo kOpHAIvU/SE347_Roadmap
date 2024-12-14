@@ -34,11 +34,10 @@ export class UserService {
     try {
       if (createUserDto.avatar) {
         const uploadResponse = await this.cloudinaryService.uploadImage(file);
-        avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString(); 
-        
+        avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
       }
     } catch(error) {
-      return null
+      throw new Error(error);
     }
 
     console.log("Role response:", roleResponse);
@@ -52,12 +51,14 @@ export class UserService {
         password: hashedPassword,  
         avatar: avatarUrl || null,
       });
+
     } else {
       user = await this.usersRepository.create({
         ...createUserDto,
         role: roleResponse.data,
       });
     }
+    console.log('User:', user);
     
     const userSaved = await this.usersRepository.save(user);
     delete userSaved.password;
@@ -77,6 +78,7 @@ export class UserService {
 
   async findOneById(id: number): Promise<ResponseDto> {
     try {
+      console.log("Id of user get profile: ", id);
       const user = await this.usersRepository.findOne({where: {id}});
       if (!user) {
         return {
@@ -93,7 +95,8 @@ export class UserService {
     } catch(error) {
       return {
         statusCode: 500,
-        message: 'Server error when getting user'
+        message: 'Server error when getting user',
+        data:null
       }
     }
   }
@@ -157,21 +160,31 @@ export class UserService {
         const url = user.avatar.split(' ');
         public_id = url[1];
         secure_url = url[0];
-        const deleteResponse = await this.cloudinaryService.deleteImage(public_id);
-        if (deleteResponse.statusCode !== 200) {
-          return {
-            statusCode: 500,
-            message: 'Error when updating avatar',
-            data: null
-          }
+        let deleteResponse;
+        // if (deleteResponse.statusCode !== 200) {
+        //   return {
+        //     statusCode: 500,
+        //     message: 'Error when updating avatar',
+        //     data: null
+        //   }
+        // }
+        try {
+          deleteResponse = await this.cloudinaryService.deleteImage(public_id);
+        }catch{
+          throw new Error('Error when deleting image');
         }
-        const uploadResponse = await this.cloudinaryService.uploadImage(file);
-        if (uploadResponse.statusCode !== 200) {
-          return {
-            statusCode: 500,
-            message: 'Error when updating avatar',
-            data: null
-          }
+        let uploadResponse;
+        // if (uploadResponse.statusCode !== 200) {
+        //   return {
+        //     statusCode: 500,
+        //     message: 'Error when updating avatar',
+        //     data: null
+        //   }
+        // }
+        try {
+          uploadResponse = await this.cloudinaryService.uploadImage(file);
+        } catch (error) {
+          throw new Error(error);
         }
         avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
       }
@@ -212,13 +225,19 @@ export class UserService {
                         : userResponse.data;
       const url = user.avatar.split(' ');
       const public_id = url[1];
-      const deleteResponse = await this.cloudinaryService.deleteImage(public_id);
-      if (deleteResponse.statusCode !== 200) {
-        return {
-          statusCode: 500,
-          message: 'Error when deleting user',
-          data: null
-        }
+      // const deleteResponse = await this.cloudinaryService.deleteImage(public_id);
+      // if (deleteResponse.statusCode !== 200) {
+      //   return {
+      //     statusCode: 500,
+      //     message: 'Error when deleting user',
+      //     data: null
+      //   }
+      // }
+
+      try {
+        const deleteResponse = await this.cloudinaryService.deleteImage(public_id);
+      } catch(error) {
+        throw new Error(error);
       }
 
       user.deletedAt = new Date();
