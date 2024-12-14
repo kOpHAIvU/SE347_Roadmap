@@ -73,6 +73,7 @@ export class TimelineService {
     try {
       const timelines = await this.timelineRepository
                         .createQueryBuilder('timeline')
+                        .leftJoinAndSelect('timeline.creator', 'creator')
                         .where('timeline.isActive = :isActive', { isActive: 1 })
                         .andWhere('timeline.deletedAt is null')
                         .orderBy('timeline.createdAt', 'DESC')
@@ -106,6 +107,7 @@ export class TimelineService {
       const timeline = await this.timelineRepository
                       .createQueryBuilder('timeline')
                       .leftJoinAndSelect('timeline.roadmap', 'roadmap')
+                      .leftJoinAndSelect('timeline.creator', 'creator')
                       .where('timeline.id = :id', { id })
                       .andWhere('timeline.isActive = :isActive', { isActive: true })
                       .andWhere('timeline.deletedAt is null') 
@@ -172,10 +174,12 @@ export class TimelineService {
     id: number, 
     updateTimelineDto: UpdateTimelineDto
   ): Promise<ResponseDto>  {
-    const timeline = await this.findOneById(id);
-    Logger.log(timeline);
+    const timelineResponse = await this.findOneById(id);
+    const timeline = Array.isArray(timelineResponse.data)
+                    ? timelineResponse.data[0]
+                    : timelineResponse.data
   
-    if (!timeline.data) {
+    if (!timeline) {
       return {
         statusCode: 404,
         message: 'Timeline not found'
@@ -205,6 +209,7 @@ export class TimelineService {
       }
 
       const newTimeline = this.timelineRepository.create({
+        ...timeline,
         ...updateTimelineDto,
         roadmap: roadmap,
         creator: leader,
@@ -220,7 +225,8 @@ export class TimelineService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Server error when updating timeline',
+        message: error.message,
+        data: null
       };
     }
   }

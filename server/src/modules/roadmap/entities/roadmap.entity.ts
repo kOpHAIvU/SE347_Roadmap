@@ -19,7 +19,7 @@ export class Roadmap {
     @Column({nullable: false })
     type: string;
 
-    @Column({nullable: false })
+    @Column()
     avatar: string;
 
     @Column({nullable: false })

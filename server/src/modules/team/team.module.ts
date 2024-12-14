@@ -9,13 +9,15 @@ import { RoleModule } from '../role/role.module';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Team]),
     TimelineModule,
     UserModule,
-    RoleModule
+    RoleModule,
+    CloudinaryModule
   ],
   controllers: [TeamController],
   providers: [

@@ -11,6 +11,7 @@ import {env} from '../../configs/env.config'
 import { ConfigModule, ConfigService} from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
     ConfigModule,
     UserModule,
     RoleModule,
+    CloudinaryModule
   ],
   controllers: [RoadmapController],  
   providers: [

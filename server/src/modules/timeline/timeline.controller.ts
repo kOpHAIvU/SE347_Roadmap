@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { TimelineService } from './timeline.service';
 import { CreateTimelineDto } from './dto/create-timeline.dto';
 import { UpdateTimelineDto } from './dto/update-timeline.dto';
 import { JwtAuthGuard } from '../auth/common/jwt-guard';
 import { Roles } from '../role/common/role.decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('timeline')
 
@@ -44,13 +45,18 @@ export class TimelineController {
         
   @Patch('item/:id')
   @UseGuards(JwtAuthGuard)
-  async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto) {
+  async update(
+    @Param('id', ParseIntPipe) id: string, 
+    @Body() updateTimelineDto: UpdateTimelineDto,
+  ) {
     return await this.timelineService.update(+id, updateTimelineDto);
   }
 
   @Delete('item/:id')
   @UseGuards(JwtAuthGuard)
-  async remove(@Param('id', ParseIntPipe) id: string) {
+  async remove(
+    @Param('id', ParseIntPipe) id: string,
+  ) {
     return await this.timelineService.remove(+id);
   }
 }

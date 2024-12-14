@@ -17,13 +17,12 @@ export class MessageController {
   }
 
   @Get('all')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('admin')
+  @UseGuards(JwtAuthGuard)
   async findAll(
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
-    return await this.messageService.findAll();
+    return await this.messageService.findAll(page, limit);
   }
 
   @Get('item/:id')
@@ -32,9 +31,22 @@ export class MessageController {
     return await this.messageService.findOneById(+id);
   }
 
+  @Get('team/:teamId')
+  @UseGuards(JwtAuthGuard)
+  async findMessagesByTeam(
+    @Param ('teamId', ParseIntPipe) teamId: string,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return await this.messageService.findAllByTeamId(+teamId, page, limit);
+  }
+
   @Patch('item/:id')
   @UseGuards(JwtAuthGuard)
-  async update(@Param('id', ParseIntPipe) id: string, @Body() updateMessageDto: UpdateMessageDto) {
+  async update
+  (@Param('id', ParseIntPipe) id: string, 
+  @Body() updateMessageDto: UpdateMessageDto
+) {
     return await this.messageService.update(+id, updateMessageDto);
   }
 
