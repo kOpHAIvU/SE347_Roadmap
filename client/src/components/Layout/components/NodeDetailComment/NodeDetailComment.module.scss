@@ -1,0 +1,114 @@
+.comment-item {
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.comment-item.slide-in {
+    animation: slideInComment 0.5s ease-out forwards;
+}
+
+.header {
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+    margin-top: 5px;
+}
+
+.username {
+    font-size: 1.4rem;
+}
+
+.delete {
+    height: 17px;
+    width: 17px;
+    color: var(--color-red);
+    margin-right: 10px;
+    transition: var(--transform);
+
+    &:hover {
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+.comment-content,
+.text-commented,
+.username {
+    margin-left: 5px;
+}
+
+.text-commented {
+    margin-top: 5px;
+    font-weight: 300;
+    font-size: 1.6rem;
+    font-style: italic;
+}
+.comment-show {
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+    height: 27px;
+}
+.comment-content,
+.content {
+    margin-top: 5px;
+    width: 95%;
+}
+
+.content {
+    font-size: 1.4rem;
+    font-weight: 400;
+    margin-bottom: 5px;
+    flex: 1;
+    padding: 5px;
+}
+
+.rewrite-icon {
+    height: 17px;
+    width: 17px;
+    color: rgba(22, 24, 35, 0.5);
+    transition: var(--transform);
+
+    &:hover {
+        transform: scale(1.1);
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInComment {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

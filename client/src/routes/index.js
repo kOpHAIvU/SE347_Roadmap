@@ -36,6 +36,8 @@ const privateRoutes = [
 const accountDataRoutes = [
     { path: '/roadmap/:id', Component: OwnRoadmap, layout: DefaultLayout },
     { path: '/timeline/:id', Component: Timeline, layout: DefaultLayout },
+    { path: '/timeline/:id/setting', Component: TimelineSetting, layout: DefaultLayout },
+    { path: '/timeline/:id/setting/invite', Component: TimelineSetting, layout: DefaultLayout },
     { path: '/test', layout: TestLayout },
 ];
 

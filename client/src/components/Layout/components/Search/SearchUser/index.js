@@ -28,9 +28,8 @@ function SearchUser({ onChooseNewCollab }) {
     };
 
     const handleClickOutside = (event) => {
-        // Kiểm tra nếu click bên ngoài vùng search
         if (searchRef.current && !searchRef.current.contains(event.target)) {
-            setVisible(false);  // Ẩn kết quả
+            setVisible(false);
         }
     };
 
@@ -57,7 +56,10 @@ function SearchUser({ onChooseNewCollab }) {
                                 return <User
                                     key={collaborator.id}
                                     children={collaborator}
-                                    onChooseNewCollab={onChooseNewCollab}
+                                    onChooseNewCollab={(id, username) => {
+                                        onChooseNewCollab(id, username);
+                                        setVisible(false);
+                                    }}
                                 />;
                             })}
                         </PopperWrapper>
@@ -65,11 +67,10 @@ function SearchUser({ onChooseNewCollab }) {
                 )}
             >
                 <div className={cx('search')}>
-                    <input placeholder='Find roadmap'
+                    <input placeholder='Find collaborator'
                         value={search}
                         onChange={handleInputChange}
-                        onBlur={() => setVisible(false)}  // Ẩn khi mất focus
-                        onFocus={() => search && setVisible(true)}  // Hiển thị lại khi có từ khóa và focus
+                        onFocus={() => search && setVisible(true)}
                     />
 
                     <button className={cx('search-btn')}>

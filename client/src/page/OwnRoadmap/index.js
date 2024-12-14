@@ -125,7 +125,6 @@ function OwnRoadmap() {
         fetchData();
     }, []);
     
-
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
             const updatedNodes = [...prevNodes];
@@ -230,30 +229,15 @@ function OwnRoadmap() {
     };
 
     const handleMakeDialog = (type) => {
-        if (type === 'Clone') {
-            if (nodes.length < 5) {
-                const newDialog = { id: Date.now(), type: type }; // Unique ID for each CantClone
-                setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+        const newDialog = { id: Date.now(), type: type };
+        setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 
-                // Automatically remove the CantClone after 3 seconds
-                setTimeout(() => {
-                    setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
-                }, 3000);
+        // Automatically remove the CantClone after 3 seconds
+        setTimeout(() => {
+            setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+        }, 3000);
 
-                return;
-            }
-            setCreateTimelineDialog(true);
-        } else if (type === 'Saved') {
-            const newDialog = { id: Date.now(), type: type };
-            setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
-
-            // Automatically remove the CantClone after 3 seconds
-            setTimeout(() => {
-                setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
-            }, 3000);
-
-            return;
-        }
+        return;
     };
 
     return (
@@ -386,7 +370,7 @@ function OwnRoadmap() {
                     ) : null
                 ))}
             </div>
-            
+
             {createTimelineDialog &&
                 <CreateTimeline
                     newId="hehe"

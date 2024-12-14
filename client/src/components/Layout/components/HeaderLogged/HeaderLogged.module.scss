@@ -76,20 +76,20 @@
 }
 
 .bell-icon {
-    width: 20px; 
+    width: 20px;
     height: 18px;
-    font-size: 16px; 
-    
+    font-size: 16px;
+
     background-color: #e2e5e9;
     padding: 10px;
-    border-radius: 50%; 
-    
+    border-radius: 50%;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    
-    position: relative; 
-    cursor: pointer; 
+
+    position: relative;
+    cursor: pointer;
     transition: background-color 0.3s ease;
     margin-left: 10px;
 }
@@ -98,10 +98,9 @@
     background-color: #d0d4da;
 }
 .bell-icon.active {
-    background-color: #ebf5ff; 
-    color:#0866ff;
+    background-color: #ebf5ff;
+    color: #0866ff;
 }
-
 
 .avatar {
     height: var(--avatar-size);
@@ -131,7 +130,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 5;
 }
 
 .modal {
@@ -152,7 +151,7 @@
         font-size: 24px;
         cursor: pointer;
         color: #333;
-        z-index: 1; 
+        z-index: 1;
         padding: 4px;
         margin-right: 4px;
 
@@ -162,7 +161,7 @@
     }
 }
 .form-name {
-    display: block; 
+    display: block;
     margin-top: 10px;
     line-height: 30px;
 }
@@ -178,12 +177,12 @@
         font-weight: bold;
         font-size: 14px;
         width: auto;
-        line-height: 24px; 
+        line-height: 24px;
     }
 
     input,
     textarea {
-        width: 100%; 
+        width: 100%;
         padding: 8px;
         border: 1px solid #ccc;
         border-radius: 4px;

@@ -6,6 +6,8 @@ import { users, invites } from '../Users';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { DeleteCollab } from '~/components/Layout/components/MiniNotification/index.js';
+import { useParams } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -15,33 +17,62 @@ function TimelineSetting() {
     const [isInviteFormVisible, setIsInviteFormVisible] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { id } = useParams();
 
     useEffect(() => {
-        if (location.pathname === '/timeline/setting/invite') {
+        if (location.pathname === `/timeline/${id}/setting/invite`) {
             setIsInviteFormVisible(true);
         }
-    }, [location.pathname]);
+    }, [location.pathname, id]);
+
     const handleRoleChange = (userId, newRole) => {
         setUserList((prevUsers) => prevUsers.map((user) => (user.id === userId ? { ...user, role: newRole } : user)));
     };
 
     const handleInviteButtonClick = () => {
         setIsInviteFormVisible(true);
-        navigate('/timeline/setting/invite');
+        navigate(`/timeline/${id}/setting/invite`);
     };
 
     const handleCloseInviteForm = () => {
         setIsInviteFormVisible(false);
-        navigate('/timeline/setting');
+        navigate(`/timeline/${id}/setting`);
     };
 
     const handleRevokeInvite = (inviteId) => {
         setInviteList((prevInvites) => prevInvites.filter((invite) => invite.id !== inviteId));
     };
 
+    const [dialogs, setDialogs] = useState([]);
+
     const handleDeleteUser = (userId) => {
         setUserList((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+
+        const userToDelete = userList.find((user) => user.id === userId);
+
+        if (userToDelete) {
+            // Xóa user khỏi danh sách
+            setUserList((prevList) => prevList.filter((user) => user.id !== userId));
+
+            // Hiển thị thông báo xóa
+            const newDialog = { id: Date.now(), username: userToDelete.name };
+            setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+
+            // Tự động ẩn thông báo sau 3 giây
+            setTimeout(() => {
+                setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+            }, 3000);
+        }
     };
+
+    const handleDeleteTimeline = () => {
+        const confirmDelete = window.confirm(`Do you really want to delete this roadmap?`);
+
+        if (confirmDelete) {
+            window.location.href = '/home';
+        }
+    };
+
     return (
         <>
             <div className={cx('wrapper', { 'blur-background': isInviteFormVisible })}>
@@ -68,20 +99,36 @@ function TimelineSetting() {
                                     <p className={cx('userEmail')}>{user.email}</p>
                                 </div>
 
-                                <select
-                                    value={user.role}
-                                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                                    className={cx('userRoleSelect')}
-                                >
-                                    <option value="Administrator">Administrator</option>
-                                    <option value="Editor">Editor</option>
-                                    <option value="Reviewer">Reviewer</option>
-                                </select>
-
-                                <button className={cx('deleteButton')} onClick={() => handleDeleteUser(user.id)}>
-                                    <FontAwesomeIcon className={cx('delete-icon')} icon={faTrashCan} />
-                                </button>
+                                {user.role === 'Administrator' ? (
+                                    <span className={cx('userRoleLabel')}>Administrator</span>
+                                ) : (
+                                    <select
+                                        value={user.role}
+                                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                        className={cx('userRoleSelect')}
+                                    >
+                                        {/* <option value="Administrator">Administrator</option> */}
+                                        <option value="Editor">Editor</option>
+                                        <option value="Reviewer">Reviewer</option>
+                                    </select>
+                                )}
+                                {user.role !== 'Administrator' && (
+                                    <button className={cx('deleteButton')} onClick={() => handleDeleteUser(user.id)}>
+                                        <FontAwesomeIcon className={cx('delete-icon')} icon={faTrashCan} />
+                                    </button>
+                                )}
                             </div>
+                        ))}
+                    </div>
+                    <div className={cx('mini-notify')}>
+                        {dialogs.map((dialog) => (
+                            <DeleteCollab
+                                key={dialog.id}
+                                username={dialog.username}
+                                handleClose={() => {
+                                    setDialogs((prevDialogs) => prevDialogs.filter((d) => d.id !== dialog.id));
+                                }}
+                            />
                         ))}
                     </div>
                 </div>
@@ -112,6 +159,16 @@ function TimelineSetting() {
                         ))}
                     </div>
                 </div>
+
+                <div className={cx('delete-status')}>
+                    <div className={cx('delete')}>
+                        <h1 className={cx('delete-title')}>Delete this timeline</h1>
+                        <h1 className={cx('delete-content')}>
+                            Once you delete a timeline, there is no going back. Please be certain.
+                        </h1>
+                    </div>
+                    <FontAwesomeIcon onClick={handleDeleteTimeline} className={cx('delete-btn')} icon={faTrashCan} />
+                </div>
             </div>
 
             {/* Form mời bạn */}
@@ -136,9 +193,9 @@ function TimelineSetting() {
                         <label>
                             <strong>Role:</strong>
                             <div className={cx('roleRadioGroup')}>
-                                <label>
+                                {/* <label>
                                     <input type="radio" name="role" value="Administrator" /> Administrator
-                                </label>
+                                </label> */}
                                 <label>
                                     <input type="radio" name="role" value="Editor" /> Editor
                                 </label>
