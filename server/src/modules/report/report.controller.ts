@@ -64,4 +64,14 @@ export class ReportController {
   async remove(@Param('id') id: string) {
     return await this.reportService.remove(+id);
   }
+
+  @Get('type/:type')
+  @UseGuards(JwtAuthGuard)
+  async findAllByType(
+    @Param('type') type: string,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return await this.reportService.getReportsByType(type, page, limit);
+  }
 }

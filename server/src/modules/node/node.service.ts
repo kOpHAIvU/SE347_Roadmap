@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { time } from 'console';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +7,7 @@ import { Repository } from 'typeorm';
 import { RoadmapService } from '../roadmap/roadmap.service';
 import { ResponseDto } from './common/response.dto';
 import {Node} from "../node/entities/node.entity";
+import { TimelineService } from '../timeline/timeline.service';
 
 @Injectable()
 export class NodeService {
@@ -14,28 +16,49 @@ export class NodeService {
     @InjectRepository(Node)
     private nodeRepository: Repository<Node>,
     private roadmapService: RoadmapService,
+    @Inject(forwardRef(() => TimelineService))
+    private timelineService: TimelineService,
   ) {}
 
   async create(
     createNodeDto: CreateNodeDto
   ): Promise<ResponseDto> {
     try {
+      const node = await this.nodeRepository.create({
+        ...createNodeDto,
+        roadmap: null,
+        timeline: null,
+      });
       const roadmapResponse = await this.roadmapService.findOneById(createNodeDto.roadmap);
       const roadmap = Array.isArray(roadmapResponse.data)
                   ? roadmapResponse.data[0]
                   : roadmapResponse.data;
-      if (!roadmap) {
+      if (!roadmap && createNodeDto.roadmap !== null) {
         return {
           statusCode: 404,
           message: 'Roadmap not found',
           data: null
         }
       }
+      if (createNodeDto.roadmap !== null) {
+        node.roadmap = roadmap;
+      }
 
-      const node = await this.nodeRepository.create({
-        ...createNodeDto,
-        roadmap: roadmap,
-      });
+      const timelineResponse = await this.timelineService.findOneById(createNodeDto.timeline);
+      const timeline = Array.isArray(timelineResponse.data)
+                  ? timelineResponse.data[0]
+                  : timelineResponse.data;
+      if (!timeline && createNodeDto.timeline !== null) {
+        return {
+          statusCode: 404,
+          message: 'Timeline not found',
+          data: null
+        }
+      }
+
+      if (createNodeDto.timeline !== null) {
+        node.timeline = timeline;
+      }
 
       const savedNode = await this.nodeRepository.save(node);
 
@@ -61,6 +84,7 @@ export class NodeService {
       const nodes = await this.nodeRepository
                       .createQueryBuilder('node')
                       .leftJoinAndSelect('node.roadmap', 'roadmap')
+                      .leftJoinAndSelect('node.timeline', 'timeline')
                       .where('node.isActive = :isActive', { isActive: 1 })
                       .andWhere('node.deletedAt is null')
                       .skip((page - 1) * limit)
@@ -95,6 +119,7 @@ export class NodeService {
       const node = await this.nodeRepository
                       .createQueryBuilder('node')
                       .leftJoinAndSelect('node.roadmap', 'roadmap')
+                      .leftJoinAndSelect('node.timeline', 'timeline') 
                       .where('node.id = :id', { id })
                       .andWhere('node.isActive = :isActive', { isActive: 1 })
                       .andWhere('node.deletedAt is null')
@@ -133,24 +158,48 @@ export class NodeService {
       const node  = Array.isArray(nodeResponse.data)
                   ? nodeResponse.data[0]
                   : nodeResponse.data;
+      if (!node) {
+        return {
+          statusCode: 404,
+          message: 'Node not found',
+          data: null
+        }
+      }
+      const updateNode = await this.nodeRepository.create({
+        ...node,
+        ...updateNodeDto,
+        roadmap: null,
+        timeline: null,
+      });
 
       const roadmapResponse = await this.roadmapService.findOneById(updateNodeDto.roadmap);
       const roadmap = Array.isArray(roadmapResponse.data)
                   ? roadmapResponse.data[0]
                   : roadmapResponse.data;
-      if (!roadmap) {
+      if (!roadmap && updateNodeDto.roadmap !== null) {
         return {
           statusCode: 404,
           message: 'Roadmap not found',
           data: null
         }
       }
-
-      const updateNode = this.nodeRepository.create({
-        ...node,
-        ...updateNodeDto,
-        roadmap: roadmap,
-      });
+      if (updateNodeDto.roadmap !== null) {
+        updateNode.roadmap = roadmap;
+      }
+      const timelineResponse = await this.timelineService.findOneById(updateNodeDto.timeline);
+      const timeline = Array.isArray(timelineResponse.data)
+                  ? timelineResponse.data[0]
+                  : timelineResponse.data;
+      if (!timeline && updateNodeDto.timeline !== null) {
+        return {
+          statusCode: 404,
+          message: 'Timeline not found',
+          data: null
+        }
+      }
+      if (updateNodeDto.timeline !== null) {
+        updateNode.timeline = timeline;
+      }
 
       const result = await this.nodeRepository.save(updateNode);
 

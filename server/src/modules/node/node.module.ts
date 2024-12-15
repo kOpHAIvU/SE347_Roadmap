@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { NodeService } from './node.service';
 import { NodeController } from './node.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -8,16 +8,18 @@ import { RoleModule } from '../role/role.module';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
+import { TimelineModule } from '../timeline/timeline.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Node]),
     RoadmapModule,
-    RoleModule
+    RoleModule,
+    forwardRef(() => TimelineModule),
   ],
   controllers: [NodeController],
   providers: [
-    NodeService,
+    NodeService, 
     // {
     //   provide: APP_GUARD,
     //   useClass: ThrottlerGuard

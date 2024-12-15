@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RoadmapService } from '../roadmap/roadmap.service';
 import {ResponseDto} from './common/response.interface'
 import { UserService } from '../user/user.service';
+import { NodeService } from '../node/node.service';
 
 @Injectable()
 export class TimelineService {
@@ -16,6 +17,7 @@ export class TimelineService {
     private timelineRepository: Repository<Timeline>,
     private roadmapService: RoadmapService,
     private userService: UserService,
+    private nodeService: NodeService,
   ) {}
 
   async create(
@@ -257,6 +259,79 @@ export class TimelineService {
       return {
         statusCode: 500,
         message: 'Server error when removing timeline'
+      }
+    }
+  }
+
+  async cloneRoadmap(
+    roadmapId: number,
+    ownerId: number
+  ): Promise<ResponseDto> {
+    try {
+      const roadmapResponse = await this.roadmapService.findOneById(roadmapId);
+      const roadmap = Array.isArray(roadmapResponse.data)
+                      ? roadmapResponse.data[0]
+                      : roadmapResponse.data;
+      if (!roadmap) {
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+          data: null
+        }
+      }
+      const ownerResponse = await this.userService.findOneById(ownerId);
+      const owner = Array.isArray(ownerResponse.data)
+                    ? ownerResponse.data[0]
+                    : ownerResponse.data;
+      if (!owner) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+          data: null
+        }
+      }
+      const timeline = await this.timelineRepository.create({
+        title: roadmap.title,
+        content: roadmap.content,
+        roadmap: roadmap,
+        creator: owner,
+        isActive: true,
+      });
+      const result = await this.timelineRepository.save(timeline);
+
+      const node = roadmap.node;
+      for (let i = 0; i < node.length; i++) {
+        const nodeResponse = await this.nodeService.create({
+          level: node[i].level,
+          xAxis: node[i].xAxis,
+          yAxis: node[i].yAxis,
+          type: node[i].type,
+          tick: node[i].tick,
+          dueTime: node[i].dueTime,
+          attachFile: node[i].attachFile,
+          content: node[i].content,
+          detail: node[i].detail,
+          timeline: result.id,
+        });
+        if (nodeResponse.data === null ) {
+          return {
+            statusCode: 500,
+            message: 'Clone node on timeline error',
+            data: null
+          };
+        }
+      }
+
+      return {
+        statusCode: 201,
+        message: 'Clone roadmap successfully',
+        data: result,
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
       }
     }
   }

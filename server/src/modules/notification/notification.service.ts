@@ -11,6 +11,7 @@ import { UserService } from '../user/user.service';
 import {Server} from 'socket.io';
 import { Subject } from 'rxjs';
 import { NotificationGateway } from './notification.gateway';
+import { ThrottlerStorageService } from '@nestjs/throttler';
  
 @Injectable()
 export class NotificationService {
@@ -28,22 +29,38 @@ export class NotificationService {
     createNotificationDto: CreateNotificationDto
   ): Promise<ResponseDto> {
     try {
+
+      const notification = this.notificationRepository.create({
+        ...createNotificationDto,
+      });
+
       const posterResponse = await this.userService.findOneById(createNotificationDto.posterId); 
       const owner = Array.isArray(posterResponse.data)
                     ? posterResponse.data[0]
                     : posterResponse.data;
-      if (!owner) {
+        
+      if (!owner && createNotificationDto.posterId !== null) {
         return {
           statusCode: 404,
           message: 'Poster not found',
           data: null
         };
       }
+      notification.postNotification = owner;
 
-      const notification = this.notificationRepository.create({
-        ...createNotificationDto,
-        postNotification: owner,
-      });
+      const receiverResponse = await this.userService.findOneById(createNotificationDto.receiverId);
+      const receiver = Array.isArray(receiverResponse.data)
+                      ? receiverResponse.data[0]
+                      : receiverResponse.data;
+      if (!receiver && createNotificationDto.receiverId !== null) {
+        return {
+          statusCode: 404,
+          message: 'Receiver not found',
+          data: null
+        };
+      }
+      notification.receiver = receiver;
+      
       const result = await this.notificationRepository.save(notification);
       if (!result) {
         return {
@@ -207,13 +224,20 @@ export class NotificationService {
           data: null
         };
       }
-      console.log(notification);
+      
+      const receiverResponse = await this.userService.findOneById(updateNotificationDto.receiverId);
+      const receiver = Array.isArray(receiverResponse.data)
+                      ? receiverResponse.data[0]
+                      : receiverResponse.data;
+      notification.receiver = receiver;
 
-      const updateData = {
+      const updateData = this.notificationRepository.create({ 
         ...notification,
         ...updateNotificationDto,
-        posterId: owner,
-      };  
+        postNotification: owner,
+
+      });
+
       console.log(updateData);
       const result = await this.notificationRepository.save(updateData);
       return {

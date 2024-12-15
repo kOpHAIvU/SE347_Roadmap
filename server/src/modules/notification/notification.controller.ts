@@ -32,8 +32,10 @@ export class NotificationController {
     const createNotificationDto = {
       title: notificationTitle,
       content: notificationContent,
-      posterId: null,
+      posterId: 1,
+      receiverId: null,
       isActive: true,
+      type: 'gmail'
     };
 
     try {

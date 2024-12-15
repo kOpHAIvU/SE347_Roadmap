@@ -43,6 +43,9 @@ export class Roadmap {
     @Column({default: 0})
     react: number;
 
+    @Column({ type: 'boolean', default: false })
+    isPublic: boolean;
+
     @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
     isActive: boolean;
 

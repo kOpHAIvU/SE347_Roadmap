@@ -12,6 +12,9 @@ export class Report {
     @Column({nullable: false})
     content: string;
 
+    @Column({nullable: false})
+    type: string;
+
     @ManyToOne(() => User, reporter => reporter.report, { eager: true })
     reporter: User;
 

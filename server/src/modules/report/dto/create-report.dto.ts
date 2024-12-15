@@ -4,11 +4,16 @@ export class CreateReportDto {
     @IsString()
     title: string;
 
+    type: string;
+
     @IsString()
     content: string;
 
     @IsNumber()
     posterId: number;
+
+    @IsNumber()
+    receiverId: number;
 
     @IsBoolean()
     @IsOptional()
