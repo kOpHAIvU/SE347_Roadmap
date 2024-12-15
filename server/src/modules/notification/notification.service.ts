@@ -79,7 +79,7 @@ export class NotificationService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: "Server is not OK",
+        message: error.message,
         data: null
       }
     }
@@ -105,6 +105,7 @@ export class NotificationService {
       const notifications = await this.notificationRepository
                       .createQueryBuilder('notification')
                       .leftJoinAndSelect('notification.postNotification', 'postNotification')
+                      .leftJoinAndSelect('notification.receiver', 'receiver')
                       .where("notification.isActive = :isActive", { isActive: 1 })
                       .andWhere('notification.deletedAt is null')
                       .orderBy('notification.createdAt', 'DESC')
@@ -144,6 +145,7 @@ export class NotificationService {
                                     .leftJoinAndSelect('notification.receiver', 'receiver')
                                     .where("notification.isActive = :isActive", { isActive: 1 })
                                     .andWhere('notification.deletedAt is null')
+                                    .andWhere('notification.receiverId = :id', { id })
                                     .skip((page - 1) * limit)
                                     .take(limit)
                                     .getMany();
@@ -235,7 +237,7 @@ export class NotificationService {
         ...notification,
         ...updateNotificationDto,
         postNotification: owner,
-
+        receiver
       });
 
       console.log(updateData);

@@ -3,6 +3,7 @@ import { Roadmap } from "../../roadmap/entities/roadmap.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Node } from "src/modules/node/entities/node.entity";
+import { Progress } from "src/modules/progress/entities/progress.entity";
 
 @Entity()
 export class Timeline {
@@ -38,4 +39,7 @@ export class Timeline {
 
     @OneToMany(() => Node, node => node.timeline)
     node: Node[];
+
+    @OneToMany(() => Progress, progress => progress.timeline)
+    progress: Progress[];
 }

@@ -66,7 +66,7 @@ export class GroupDivisionService {
         ...createGroupDivisionDto,
         team: team,
         user: user,
-        timeline: timeline,
+        timeline: timeline
       });
 
       const savedGroupDivision = await this.groupDivisionRepository.save(groupDivision);
@@ -155,8 +155,45 @@ export class GroupDivisionService {
   }
 
   async findOneByFullInformation(
-    teamId: number,
     userId: number,
+    teamId: number,
+    timelineId: number,
+  ): Promise<ResponseDto> {
+    try {
+      console.log(userId, teamId, timelineId);
+      const groupDivision = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .leftJoinAndSelect('groupDivision.team', 'team')
+                              .leftJoinAndSelect('groupDivision.user', 'user')
+                              .leftJoinAndSelect('groupDivision.timeline', 'timeline')
+                              .where('team.id = :teamId', { teamId })
+                              .andWhere('user.id = :userId', { userId })
+                              .andWhere('timeline.id = :timelineId', { timelineId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .getOne();
+      if (!groupDivision) {
+        return {
+          statusCode: 404,
+          message: 'Group division not found',
+          data: null
+        } 
+      }
+      return {
+        statusCode: 200,
+        message: 'Get group division successfully',
+        data: groupDivision
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
+  async findOneByTimeline(
+    teamId: number,
     timelineId: number,
   ): Promise<ResponseDto> {
     try {
@@ -166,7 +203,6 @@ export class GroupDivisionService {
                               .leftJoinAndSelect('groupDivision.user', 'user')
                               .leftJoinAndSelect('groupDivision.timeline', 'timeline')
                               .where('team.id = :teamId', { teamId })
-                              .andWhere('user.id = :userId', { userId })
                               .andWhere('timeline.id = :timelineId', { timelineId })
                               .andWhere('groupDivision.deletedAt is null')
                               .getOne();
@@ -191,85 +227,135 @@ export class GroupDivisionService {
     }
   }
 
+  async findAllByUser(
+    idUser: number
+  ): Promise<ResponseDto> {
+    try {
+
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
   async update(
     id: number, 
     updateGroupDivisionDto: UpdateGroupDivisionDto
   ): Promise<ResponseDto> {
-    try {
-      const groupDivision = await this.findOneById(id);
-      if (groupDivision.statusCode !== 200) {
+    try { 
+      const groupDivisionResponse = await this.findOneById(id);
+      if (groupDivisionResponse.statusCode !== 200) {
         return {
           statusCode: 404,
           message: 'GroupDivision not found',
           data: null
         };
       }
-
-      const teamResponse = await this.teamService.findOneById(updateGroupDivisionDto.teamId);
-      const team = Array.isArray(teamResponse.data)
-                  ? teamResponse.data[0]
-                  : teamResponse.data;
-      if (!team) {
-        return {          
-          statusCode: 404,
-          message: 'Team not found',
-          data: null
-        }
-      }
-
-      const userResponse = await this.userService.findOneById(updateGroupDivisionDto.userId);
-      const user = Array.isArray(userResponse.data)
-                  ? userResponse.data[0]
-                  : userResponse.data;
-      if (!user) {
-        return {
-          statusCode: 404,
-          message: 'User not found',
-          data: null                                   
-        }
-      }
-
-      const timelineResponse = await this.timelineService.findOneById(updateGroupDivisionDto.timelineId); 
-      const timeline = Array.isArray(timelineResponse.data)
-                      ? timelineResponse.data[0]
-                      : timelineResponse.data;
-      if (!timeline) {
-        return {
-          statusCode: 404,
-          message: 'Timeline not found',
-          data: null
-        }
-      }
+      const groupDivision = Array.isArray(groupDivisionResponse.data)
+                            ? groupDivisionResponse.data[0]
+                            : groupDivisionResponse.data;
       const newGroupDivision = this.groupDivisionRepository.create({
-        id,
-        ...updateGroupDivisionDto,
-        team,
-        user,
-        timeline,
+        ...groupDivision,
+        role: updateGroupDivisionDto.role
       })
       const result = await this.groupDivisionRepository.save(newGroupDivision);
-
-      if (!result) {
-        return {
-          statusCode: 500,
-          message: 'Server error when updating groupDivision',
-          data: null
-        }
-      }
-
       return {
         statusCode: 200,
         message: 'Update groupDivision successfully',
         data: result
       }
-    } catch(err) {
+
+    } catch(error) {
       return {
         statusCode: 500,
-        message: 'Server error when updating groupDivision',
+        message: error.message,
         data: null
       }
     }
   }
+
+  // async update(
+  //   id: number, 
+  //   updateGroupDivisionDto: UpdateGroupDivisionDto
+  // ): Promise<ResponseDto> {
+  //   try {
+  //     const groupDivision = await this.findOneById(id);
+  //     if (groupDivision.statusCode !== 200) {
+  //       return {
+  //         statusCode: 404,
+  //         message: 'GroupDivision not found',
+  //         data: null
+  //       };
+  //     }
+
+  //     const teamResponse = await this.teamService.findOneById(updateGroupDivisionDto.teamId);
+  //     const team = Array.isArray(teamResponse.data)
+  //                 ? teamResponse.data[0]
+  //                 : teamResponse.data;
+  //     if (!team) {
+  //       return {          
+  //         statusCode: 404,
+  //         message: 'Team not found',
+  //         data: null
+  //       }
+  //     }
+
+  //     const userResponse = await this.userService.findOneById(updateGroupDivisionDto.userId);
+  //     const user = Array.isArray(userResponse.data)
+  //                 ? userResponse.data[0]
+  //                 : userResponse.data;
+  //     if (!user) {
+  //       return {
+  //         statusCode: 404,
+  //         message: 'User not found',
+  //         data: null                                   
+  //       }
+  //     }
+
+  //     const timelineResponse = await this.timelineService.findOneById(updateGroupDivisionDto.timelineId); 
+  //     const timeline = Array.isArray(timelineResponse.data)
+  //                     ? timelineResponse.data[0]
+  //                     : timelineResponse.data;
+  //     if (!timeline) {
+  //       return {
+  //         statusCode: 404,
+  //         message: 'Timeline not found',
+  //         data: null
+  //       }
+  //     }
+  //     const newGroupDivision = this.groupDivisionRepository.create({
+  //       id,
+  //       ...updateGroupDivisionDto,
+  //       team,
+  //       user,
+  //       timeline,
+  //     })
+  //     const result = await this.groupDivisionRepository.save(newGroupDivision);
+
+  //     if (!result) {
+  //       return {
+  //         statusCode: 500,
+  //         message: 'Server error when updating groupDivision',
+  //         data: null
+  //       }
+  //     }
+
+  //     return {
+  //       statusCode: 200,
+  //       message: 'Update groupDivision successfully',
+  //       data: result
+  //     }
+  //   } catch(err) {
+  //     return {
+  //       statusCode: 500,
+  //       message: 'Server error when updating groupDivision',
+  //       data: null
+  //     }
+  //   }
+  // }
 
   async remove(id: number): Promise<ResponseDto> {
     try {
@@ -308,4 +394,75 @@ export class GroupDivisionService {
       }
     }
   }
+
+  async getAllGroupDivisionByUserId(
+    userId: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<ResponseDto> {
+    try {
+      const groupDivisions = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .leftJoinAndSelect('groupDivision.team', 'team')
+                              .leftJoinAndSelect('groupDivision.user', 'user')
+                              .leftJoinAndSelect('groupDivision.timeline', 'timeline')
+                              .where('user.id = :userId', { userId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .skip((page - 1) * limit)
+                              .take(limit)
+                              .getMany();
+      if (groupDivisions.length === 0) {
+        return {
+          statusCode: 404,
+          message: 'GroupDivision not found',
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Find all groupDivisions successfully',
+        data: groupDivisions
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
+  async getAllGroupDivisionByTeamId(
+    teamId: number,
+  ): Promise<ResponseDto> {
+    try {
+      const groupDivisions = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .leftJoinAndSelect('groupDivision.team', 'team')
+                              .leftJoinAndSelect('groupDivision.user', 'user')
+                              .leftJoinAndSelect('groupDivision.timeline', 'timeline')
+                              .where('team.id = :teamId', { teamId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .getMany();
+      if (groupDivisions.length === 0) {
+        return {
+          statusCode: 404,
+          message: 'GroupDivision not found',
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Find all groupDivisions successfully',
+        data: groupDivisions
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  } 
+
 }

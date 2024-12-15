@@ -1,5 +1,5 @@
 import { time } from 'console';
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateNodeDto {
     
@@ -25,10 +25,11 @@ export class CreateNodeDto {
 
     @IsNumber()
     @IsNotEmpty()
-    dueTime: number;
+    @IsOptional()
+    dueTime?: number;
 
     @IsString()
-    attachFile: string;
+    attachFile?: string;
 
     @IsString()
     content: string;

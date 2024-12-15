@@ -24,11 +24,11 @@ export class Node {
     @Column({nullable: false})
     tick: boolean;
 
-    @Column({nullable: false})
-    dueTime: number;
+    @Column({default: null})
+    dueTime?: number;
 
-    @Column()
-    attachFile: string;
+    @Column({default: null})
+    attachFile?: string;
 
     @Column()
     content: string;

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
 import { GroupDivisionService } from './group-division.service';
 import { CreateGroupDivisionDto } from './dto/create-group-division.dto';
 import { UpdateGroupDivisionDto } from './dto/update-group-division.dto';
@@ -33,6 +33,27 @@ export class GroupDivisionController {
     return await this.groupDivisionService.findOneById(+id);
   } 
 
+  @Get('user/owner')
+  @UseGuards(JwtAuthGuard)
+  async findAllGroupOfUser(
+    @Req() req: any,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return await this.groupDivisionService.getAllGroupDivisionByUserId(req.user.userId, 
+      +page, +limit);
+  }
+
+  @Get('team/:teamId')
+  @UseGuards(JwtAuthGuard)
+  async findAllGroupOfTeam(
+    @Param('teamId') teamId: string,
+  ) {
+    return await this.groupDivisionService.getAllGroupDivisionByTeamId(+teamId);
+  }
+
+  // API này về mặt nguyên tắc nghiệp vụ chỉ chỉnh sửa
+  // được quyền của người dùng trên timeline
   @Patch('item/:id')
   @UseGuards(JwtAuthGuard)
   async update(@Param('id') id: string, @Body() updateGroupDivisionDto: UpdateGroupDivisionDto) {

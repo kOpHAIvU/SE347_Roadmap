@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject, Sse, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject, Sse, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -35,7 +35,8 @@ export class NotificationController {
       posterId: 1,
       receiverId: null,
       isActive: true,
-      type: 'gmail'
+      type: 'gmail',
+      isCheck: false,
     };
 
     try {
@@ -87,14 +88,22 @@ export class NotificationController {
     return await this.notificationService.findAll(page, limit);
   }
 
-  @Get('all/user/:id')
+  @Get('item/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.notificationService.findOne(+id);
+  }
+
+  // api này để lấy tất cả các thông báo của một user
+  @Get('all/owner')
   @UseGuards(JwtAuthGuard)
   async findNotificationsByUserId(
-    @Param('id', ParseIntPipe) id: number,
+    @Req() req: any,
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
-    return await this.notificationService.findNotificationsByUser(id, page, limit);
+    console.log("User ID:", req.user.userId);
+    return await this.notificationService.findNotificationsByUser(req.user.userId, page, limit);
   }
 
   @Patch('item/:id')

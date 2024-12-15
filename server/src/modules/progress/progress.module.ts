@@ -8,12 +8,18 @@ import { NodeModule } from '../node/node.module';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
+import { RoleModule } from '../role/role.module';
+import { TeamModule } from '../team/team.module';
+import { TimelineModule } from '../timeline/timeline.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Progress]),
     GroupDivisionModule,
-    NodeModule
+    NodeModule,
+    TeamModule,
+    TimelineModule,
+    RoleModule
   ],
   controllers: [ProgressController],
   providers: [

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
@@ -33,14 +33,15 @@ export class FavoriteController {
     return await this.favoriteService.findOne(+id);
   }
 
-  @Get('user/:id')
+  // API này để lấy tất cả các roadmap yêu thích của người dùng
+  @Get('all/owner')
   @UseGuards(JwtAuthGuard)
   async findFavoriteByUser(
-    @Param('id', ParseIntPipe) id: number,
+    @Req () req: any,
     @Query ('page', ParseIntPipe) page: number,
     @Query ('limit', ParseIntPipe) limit: number
   ) {
-    return await this.favoriteService.findFavoriteByUser(id, page, limit);
+    return await this.favoriteService.findFavoriteByUser(req.user.userId, page, limit);
   }
 
   @Patch('item/:id')

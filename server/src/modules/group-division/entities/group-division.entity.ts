@@ -21,7 +21,7 @@ export class GroupDivision {
     @Column({nullable: false})
     role: number;
 
-    @CreateDateColumn()
+    @Column({ type: 'timestamp' , default: () => 'CURRENT_TIMESTAMP'})
     timeOfParticipant: Date;
 
     @CreateDateColumn()  
@@ -30,6 +30,4 @@ export class GroupDivision {
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
 
-    @OneToMany(() => Progress, progress => progress.groupDivision)
-    progress: Progress[];
 }

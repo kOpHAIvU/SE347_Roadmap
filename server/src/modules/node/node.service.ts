@@ -33,7 +33,7 @@ export class NodeService {
       const roadmap = Array.isArray(roadmapResponse.data)
                   ? roadmapResponse.data[0]
                   : roadmapResponse.data;
-      if (!roadmap && createNodeDto.roadmap !== null) {
+      if (!roadmap && typeof createNodeDto.roadmap !== 'undefined') {
         return {
           statusCode: 404,
           message: 'Roadmap not found',
@@ -44,11 +44,12 @@ export class NodeService {
         node.roadmap = roadmap;
       }
 
+      console.log('createNodeDto.timeline', createNodeDto.timeline);
       const timelineResponse = await this.timelineService.findOneById(createNodeDto.timeline);
       const timeline = Array.isArray(timelineResponse.data)
                   ? timelineResponse.data[0]
                   : timelineResponse.data;
-      if (!timeline && createNodeDto.timeline !== null) {
+      if (!timeline && typeof createNodeDto.timeline !== 'undefined') {
         return {
           statusCode: 404,
           message: 'Timeline not found',
@@ -70,7 +71,7 @@ export class NodeService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Server error when creating node',
+        message: error.message,
         data: null,
       };
     }
@@ -168,38 +169,9 @@ export class NodeService {
       const updateNode = await this.nodeRepository.create({
         ...node,
         ...updateNodeDto,
-        roadmap: null,
-        timeline: null,
+        roadmap: node.roadmap,
+        timeline: node.timeline,
       });
-
-      const roadmapResponse = await this.roadmapService.findOneById(updateNodeDto.roadmap);
-      const roadmap = Array.isArray(roadmapResponse.data)
-                  ? roadmapResponse.data[0]
-                  : roadmapResponse.data;
-      if (!roadmap && updateNodeDto.roadmap !== null) {
-        return {
-          statusCode: 404,
-          message: 'Roadmap not found',
-          data: null
-        }
-      }
-      if (updateNodeDto.roadmap !== null) {
-        updateNode.roadmap = roadmap;
-      }
-      const timelineResponse = await this.timelineService.findOneById(updateNodeDto.timeline);
-      const timeline = Array.isArray(timelineResponse.data)
-                  ? timelineResponse.data[0]
-                  : timelineResponse.data;
-      if (!timeline && updateNodeDto.timeline !== null) {
-        return {
-          statusCode: 404,
-          message: 'Timeline not found',
-          data: null
-        }
-      }
-      if (updateNodeDto.timeline !== null) {
-        updateNode.timeline = timeline;
-      }
 
       const result = await this.nodeRepository.save(updateNode);
 

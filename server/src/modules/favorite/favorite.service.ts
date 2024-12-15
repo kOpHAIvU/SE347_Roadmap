@@ -47,11 +47,13 @@ export class FavoriteService {
       const user = Array.isArray(userResponse.data)
                             ? userResponse.data[0]
                             : userResponse.data;
+  
       const newFavorite = this.favoriteRepository.create({
         ...createFavoriteDto,
         user,
         roadmap
       });  
+      newFavorite.time = new Date();
       const result = await  this.favoriteRepository.save(newFavorite);
 
       return {
@@ -77,8 +79,7 @@ export class FavoriteService {
                             .createQueryBuilder('favorite')
                             .leftJoinAndSelect('favorite.user', 'user')
                             .leftJoinAndSelect('favorite.roadmap', 'roadmap')
-                            .where('favorite.isActive = :isActive', {isActive: 1})
-                            .andWhere('favorite.deleted is null')
+                            .andWhere('favorite.deletedAt is null')
                             .orderBy('favorite.time', 'DESC')
                             .skip((page - 1) * limit)
                             .take(limit)
@@ -114,8 +115,7 @@ export class FavoriteService {
                             .leftJoinAndSelect('favorite.user', 'user')
                             .leftJoinAndSelect('favorite.roadmap', 'roadmap')
                             .where('favorite.id = :id', {id})
-                            .andWhere('favorite.isActive = :isActive', {isActive: 1})
-                            .andWhere('favorite.deleted is null')
+                            .andWhere('favorite.deletedAt is null')
                             .getOne();
     if (!favorite) {
       return {
@@ -144,16 +144,17 @@ export class FavoriteService {
     limit: number = 10
   ) {
     try {
+      console.log("ID user", id);
       const favorite = await this.favoriteRepository
-                                  .createQueryBuilder('favorite ')
+                                  .createQueryBuilder('favorite')
                                   .leftJoinAndSelect('favorite.roadmap', 'roadmap')
                                   .leftJoinAndSelect('favorite.user', 'user')
-                                  .where('favorite.userId := userId', {userId: id})
+                                  .where('favorite.userId = :userId', { userId: id })
                                   .andWhere('favorite.deletedAt is null')
                                   .skip((page - 1) * limit)
                                   .take(limit)
                                   .getMany();
-      if (favorite.length !== 0) {
+      if (favorite.length === 0) {
         return {
           statusCode: 404,
           message: "The favorite roadmaps of this user is not found",
@@ -180,6 +181,7 @@ export class FavoriteService {
   ): Promise<ResponseDto> {
     try {
       const favoriteResponse = await this.findOne(id);
+      console.log("Favorite response", favoriteResponse);
       if (favoriteResponse.statusCode !== 200) {
         return {
           statusCode: 200,
