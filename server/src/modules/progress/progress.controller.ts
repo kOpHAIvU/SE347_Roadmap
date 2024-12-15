@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
 import { ProgressService } from './progress.service';
 import { CreateProgressDto } from './dto/create-progress.dto';
 import { JwtAuthGuard } from '../auth/common/jwt-guard';
@@ -12,41 +12,58 @@ export class ProgressController {
 
   @Post('new')
   @UseGuards(JwtAuthGuard)
-  async create(@Body() createProgressDto: CreateProgressDto) {
+  async create(
+    @Body() createProgressDto: CreateProgressDto
+  ) {
     return await this.progressService.create(createProgressDto);
   }
 
-  @Get('all/userProgress/:userId')
+  @Get('all')
   @UseGuards(JwtAuthGuard)
   async findAll(
-    @Param('userId', ParseIntPipe) userId: number,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    return await this.progressService.findAll(page, limit);
+  }
+
+  // @Get('all/userProgress/:userId')
+  // @UseGuards(JwtAuthGuard)
+  // async findAllBy(
+  //   @Body('timelineId', ParseIntPipe) timelineId: number,
+  //   @Body('teamId', ParseIntPipe) groupId: number,
+  //   @Query('page', ParseIntPipe) page: number = 1,
+  //   @Query('limit', ParseIntPipe) limit: number = 10,
+  // ) {
+  //   return await this.progressService.findAllByUser(timelineId, groupId, page, limit);
+  // }
+
+  @Get('all/userProgress')
+  @UseGuards(JwtAuthGuard)
+  async findAllBy(
+    @Req() req: any,
     @Body('timelineId', ParseIntPipe) timelineId: number,
-    @Body('teamId', ParseIntPipe) groupId: number,
+    @Body('teamId', ParseIntPipe) teamId: number,
     @Query('page', ParseIntPipe) page: number = 1,
     @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
-    return await this.progressService.findAllByUser(userId, timelineId, groupId, page, limit);
+    return await this.progressService.findProgressOfUser(
+      req.user.userId, timelineId, teamId, page, limit);
   }
 
   @Get('nodeItem/:nodeId')
   @UseGuards(JwtAuthGuard)
   async findOne(
-    @Body('userId', ParseIntPipe) userId: number,
     @Body('timelineId', ParseIntPipe) timelineId: number,
     @Body('teamId', ParseIntPipe) groupId: number,
     @Param('nodeId', ParseIntPipe) nodeId: number,
   ) {
-    return await this.progressService.findOne(userId, timelineId, groupId, nodeId);
+    return await this.progressService.findOne(timelineId, groupId, nodeId);
   }
 
-  @Delete('nodeItem/:nodeId')
+  @Delete('item/:id')
   @UseGuards(JwtAuthGuard)
-  async remove(
-    @Body('userId', ParseIntPipe) userId: number,
-    @Body('timelineId', ParseIntPipe) timelineId: number,
-    @Body('teamId', ParseIntPipe) groupId: number,
-    @Param('nodeId', ParseIntPipe) nodeId: number,
-  ) {
-    return await this.progressService.remove(userId, timelineId, groupId, nodeId);
+  async remove(@Param('id') id: string) {
+    return await this.progressService.remove(+id);
   }
 }

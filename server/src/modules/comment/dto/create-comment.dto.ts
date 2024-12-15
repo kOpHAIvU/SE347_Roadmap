@@ -21,5 +21,5 @@ export class CreateCommentDto {
     parentComment: number;
 
     @IsNumber()
-    isActive: boolean;
+    isActive?: boolean;
 }

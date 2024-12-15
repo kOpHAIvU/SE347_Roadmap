@@ -15,7 +15,7 @@ export class NodeController {
     return await this.nodeService.create(createNodeDto);
   }
 
-  @Get('item/:id')
+  @Get('all')
   @UseGuards(JwtAuthGuard)
   @Roles('admin')
   async findAll(

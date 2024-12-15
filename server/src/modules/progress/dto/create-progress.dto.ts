@@ -14,10 +14,6 @@ export class CreateProgressDto {
     @IsNotEmpty()
     teamId: number;
 
-    @IsNumber()
-    @IsNotEmpty()
-    memberId: number;
-
     createdAt: Date;
 
     deletedAt: Date | null;

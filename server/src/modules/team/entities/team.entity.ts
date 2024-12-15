@@ -2,6 +2,7 @@ import { GroupDivision } from "src/modules/group-division/entities/group-divisio
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Message } from "../../message/entities/message.entity";
+import { Progress } from "src/modules/progress/entities/progress.entity";
 
 @Entity()
 export class Team {
@@ -31,4 +32,7 @@ export class Team {
 
     @OneToMany(() => Message, message => message.sender)
     message: Message[];
+
+    @OneToMany(() => Progress, progress => progress.team)
+    progress: Progress[];
 }

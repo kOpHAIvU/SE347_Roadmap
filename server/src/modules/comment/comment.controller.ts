@@ -45,4 +45,14 @@ export class CommentController {
   async remove(@Param('id', ParseIntPipe) id: string) {
     return await this.commentService.remove(+id);
   }
+
+  @Get('all/roadmap/:roadmapId')
+  @UseGuards(JwtAuthGuard)
+  async findCommentsByRoadmapId(
+    @Param('roadmapId', ParseIntPipe) roadmapId: number,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return await this.commentService.getAllCommentsOfRoadmap(roadmapId, page, limit);
+  }
 }

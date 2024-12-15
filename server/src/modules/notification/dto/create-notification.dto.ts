@@ -18,6 +18,10 @@ export class CreateNotificationDto {
 
     @IsBoolean()
     @IsOptional()
+    isCheck?: boolean;
+
+    @IsBoolean()
+    @IsOptional()
     isActive: boolean;  
 
 }
