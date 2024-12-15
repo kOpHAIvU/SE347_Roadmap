@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards, UseInterceptors, UploadedFile, Req } from '@nestjs/common';
 import { TimelineService } from './timeline.service';
 import { CreateTimelineDto } from './dto/create-timeline.dto';
 import { UpdateTimelineDto } from './dto/update-timeline.dto';
@@ -58,5 +58,16 @@ export class TimelineController {
     @Param('id', ParseIntPipe) id: string,
   ) {
     return await this.timelineService.remove(+id);
+  }
+
+  @Post('clone/:roadmapId')
+  @UseGuards(JwtAuthGuard)
+  async cloneRoadmap(
+    @Param('roadmapId', ParseIntPipe) roadmapId: string,
+    @Req() req: any
+  ) {
+    return await this.timelineService.cloneRoadmap(+roadmapId,
+      req.user.userId
+    );
   }
 }

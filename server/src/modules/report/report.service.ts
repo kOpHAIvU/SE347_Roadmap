@@ -24,21 +24,37 @@ export class ReportService {
 
   async create(createReportDto: CreateReportDto): Promise<ResponseDto> {
     try {
+      const report = this.reportRepository.create({
+        ...createReportDto,
+        reporter: null,
+        receive: null,
+      });
       const posterResponse = await this.userService.findOneById(createReportDto.posterId); 
-      const owner = Array.isArray(posterResponse.data)
+      const poster = Array.isArray(posterResponse.data)
                     ? posterResponse.data[0]
                     : posterResponse.data;
-      if (!owner) {
+      if (!poster && createReportDto.posterId !== null) {
         return {
           statusCode: 404,
           message: 'Poster not found',
           data: null
         };
       }
-      const report = this.reportRepository.create({
-        ...createReportDto,
-        reporter: owner,
-      });
+      report.reporter = poster;
+
+      const receiverResponse = await this.userService.findOneById(createReportDto.receiverId);
+      const receiver = Array.isArray(receiverResponse.data)
+                    ? receiverResponse.data[0]
+                    : receiverResponse.data;
+      if (!receiver && createReportDto.receiverId !== null) {
+        return {
+          statusCode: 404,
+          message: 'Receiver not found',
+          data: null
+        };
+      }
+      report.receive = receiver;
+      
       const result = await this.reportRepository.save(report);
       if (!result) {
         return {
@@ -68,6 +84,44 @@ export class ReportService {
     }
   }
 
+  async getReportsByType(
+    type: string, 
+    page: number = 1,
+    limit: number = 10
+  ) {
+    try {
+      const reports = await this.reportRepository
+                      .createQueryBuilder('report')
+                      .leftJoinAndSelect('report.reporter', 'reporter')
+                      .leftJoinAndSelect('report.receive', 'receive')
+                      .where("report.isActive = :isActive", { isActive: 1 })
+                      .andWhere('report.deletedAt is null')
+                      .andWhere('report.type = :type', { type })
+                      .orderBy('report.createdAt', 'DESC')
+                      .skip((page - 1) * limit)  
+                      .take(limit)                
+                      .getMany();
+      if (reports.length == 0) {
+        return {
+          statusCode: 404,
+          message: 'Report not found',
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Get all reports successfully',
+        data: reports
+      };
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
   async handleNotificationFromRabbitMQ(
     data: Report
   ): Promise<void> {
@@ -83,6 +137,7 @@ export class ReportService {
       const reports = await this.reportRepository
                       .createQueryBuilder('report')
                       .leftJoinAndSelect('report.reporter', 'reporter')
+                      .leftJoinAndSelect('report.receive', 'receive')
                       .where("report.isActive = :isActive", { isActive: 1 })
                       .andWhere('report.deletedAt is null')
                       .orderBy('report.createdAt', 'DESC')
@@ -104,7 +159,7 @@ export class ReportService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: "Server is not OK",
+        message: error.message,
         data: null
       }
     }
@@ -118,7 +173,8 @@ export class ReportService {
     try {
       const reports = await this.reportRepository
                                 .createQueryBuilder('report')
-                               // .leftJoinAndSelect('report.user', "user")
+                                .leftJoinAndSelect('report.reporter', 'reporter')
+                                .leftJoinAndSelect('report.receive', 'receive')
                                 .where('report.reporter= :posterId', {posterId: idUser})
                                 .andWhere('report.deletedAt is null') 
                                 .orderBy('report.createdAt', 'DESC')
@@ -168,7 +224,7 @@ export class ReportService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: "Server is not OK",
+        message: error.message,
         data: null
       }
     }
@@ -191,25 +247,38 @@ export class ReportService {
           data: null
         }
       }
+      const updateData = this.reportRepository.create({
+        ...report,
+        ...updateReportDto,
+        reporter: null, 
+        receive: null,
+      });
 
       const posterResponse = await this.userService.findOneById(updateReportDto.posterId); 
       const owner = Array.isArray(posterResponse.data)
                     ? posterResponse.data[0]
                     : posterResponse.data;                  
-      if (!owner) {
+      if (!owner && updateReportDto.posterId !== null) {
         return {
           statusCode: 404,
           message: 'Poster not found',
           data: null
         };
       }
+      updateData.reporter = owner;
+      const receiverResponse = await this.userService.findOneById(updateReportDto.receiverId);
+      const receiver = Array.isArray(receiverResponse.data)
+                    ? receiverResponse.data[0]
+                    : receiverResponse.data;
+      if (!receiver && updateReportDto.receiverId !== null) {
+        return {
+          statusCode: 404,
+          message: 'Receiver not found',
+          data: null
+        };
+      }
+      updateData.receive = receiver;
 
-      const updateData = this.reportRepository.create({
-        ...report,
-        ...updateReportDto,
-        reporter: owner, 
-      }); 
-      console.log(updateData);
       const result = await this.reportRepository.save(updateData);
       return {
         statusCode: 200,
@@ -219,7 +288,7 @@ export class ReportService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: "Server is not OK",
+        message: error.message,
         data: null
       }
     }
@@ -252,7 +321,7 @@ export class ReportService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: "Server is not OK",
+        message: error.message,
         data: null
       }
     }

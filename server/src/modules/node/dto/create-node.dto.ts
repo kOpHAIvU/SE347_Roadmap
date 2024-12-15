@@ -1,3 +1,4 @@
+import { time } from 'console';
 import { IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateNodeDto {
@@ -36,13 +37,9 @@ export class CreateNodeDto {
     detail: string;
 
     @IsNumber()
-    roadmap: number;
+    roadmap?: number;
 
-    @IsBoolean()
-    isActive: boolean;
-
-    createdAt: Date;
-
-    deletedAt: Date | null;
+    @IsNumber()
+    timeline?: number;
 
 }

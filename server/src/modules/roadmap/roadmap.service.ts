@@ -340,7 +340,9 @@ export class RoadmapService {
       const roadmap = Array.isArray(getData.data) 
         ? getData.data[0] 
         : getData.data;
-     // const roadmap = getData.data;
+
+      console.log("Roadmap is: ", roadmap);
+//
       if (!roadmap) {
         return {
           statusCode: 404,

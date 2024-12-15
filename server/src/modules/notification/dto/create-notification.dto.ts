@@ -7,8 +7,14 @@ export class CreateNotificationDto {
     @IsString()
     content: string;
 
+    @IsString()
+    type: string;
+
     @IsNumber()
     posterId: number;
+
+    @IsNumber()
+    receiverId: number;
 
     @IsBoolean()
     @IsOptional()
