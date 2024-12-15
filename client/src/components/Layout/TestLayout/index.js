@@ -1,80 +1,107 @@
-import React, { useState, useRef } from 'react';
-import { Stage, Layer, Rect, Text } from 'react-konva';
-import styles from './TestLayout.module.scss';
 import classNames from 'classnames/bind';
+import styles from './TestLayout.module.scss';
+import { useState, useRef } from 'react';
+import ReactQuill from 'react-quill';
+import "react-quill/dist/quill.snow.css";
 
 const cx = classNames.bind(styles);
 
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, 3, 4, 5, false] }],
+    [{ font: [] }],
+    [{ size: [] }],
+    ["bold", "italic", "underline", "blockquote"],
+    [{ list: "ordered" }, { list: "bullet" }, { indent: "-1" }, { indent: "+1" }],
+    ["link"]
+  ]
+};
 function TestLayout() {
-  const [text, setText] = useState("Click to edit");
-  const [isEditing, setIsEditing] = useState(false);
-  const textRef = useRef(null);
+  const [text, setText] = useState("hahaa");
+  const [comments, setComments] = useState([]);  // Lưu trữ các comment
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  const [selectedRange, setSelectedRange] = useState(null);  // Lưu range của văn bản được chọn
 
-  const handleTextClick = () => {
-    setIsEditing(true);
+  const quillRef = useRef(null);
+
+  // Hàm xử lý việc thêm comment khi bôi đen văn bản
+  const addComment = (comment) => {
+    if (selectedRange) {
+      const quill = quillRef.current.getEditor();
+      const selectedText = quill.getText(selectedRange.index, selectedRange.length);
+      setComments(prev => [
+        ...prev,
+        { text: selectedText, comment, index: selectedRange.index, length: selectedRange.length }
+      ]);
+      setShowContextMenu(false);  // Đóng menu sau khi thêm comment
+    }
   };
 
-  const handleTextChange = (e) => {
-    setText(e.target.value);
+  // Lắng nghe sự kiện nhấp chuột phải
+  const handleRightClick = (e) => {
+    e.preventDefault();
+    const quill = quillRef.current.getEditor();
+    const range = quill.getSelection();  // Lấy range của phần văn bản được chọn
+    if (range && range.length > 0) {
+      setSelectedRange(range);
+      setContextMenuPosition({ x: e.clientX, y: e.clientY });
+      setShowContextMenu(true);  // Hiển thị menu context
+    }
   };
 
-  const handleTextDblClick = (e) => {
-    // Chuyển sang chế độ chỉnh sửa khi người dùng double-click
-    setIsEditing(true);
-    const textNode = textRef.current;
-    const stageBox = textNode.getClientRect();
-    const textarea = document.createElement('textarea');
-    
-    // Đặt vị trí và kích thước cho textarea
-    textarea.value = text;
-    textarea.style.position = 'absolute';
-    textarea.style.top = `${stageBox.y}px`;
-    textarea.style.left = `${stageBox.x}px`;
-    textarea.style.width = `${stageBox.width}px`;
-    textarea.style.height = `${stageBox.height}px`;
-    textarea.style.fontSize = `${textNode.fontSize()}px`;
-    textarea.style.fontFamily = `${textNode.fontFamily()}`;
-    document.body.appendChild(textarea);
-    textarea.focus();
-
-    textarea.onblur = () => {
-      setText(textarea.value);
-      document.body.removeChild(textarea);
-      setIsEditing(false);
-    };
-
-    textarea.oninput = (e) => {
-      setText(e.target.value);
-    };
+  // Hàm xử lý khi thay đổi nội dung văn bản
+  const handleTextChange = (newText) => {
+    setText(newText);
   };
 
   return (
-    <div className={cx('container')}>
-      <Stage width={window.innerWidth} height={window.innerHeight}>
-        <Layer>
-          <Rect
-            x={100}
-            y={100}
-            width={200}
-            height={50}
-            fill="lightblue"
-            cornerRadius={10}
-          />
-          <Text
-            ref={textRef}
-            text={text}
-            fontSize={16}
-            width={200}
-            height={50}
-            x={100}
-            y={100}
-            align="center"
-            verticalAlign="middle"
-            onClick={handleTextClick}
-            onDblClick={handleTextDblClick}  // Kích hoạt chế độ chỉnh sửa khi double-click
-          />
-        </Layer>
-      </Stage>
+    <div
+      className={cx('modal-overlay')}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <div className={cx('modal')}>
+        <ReactQuill
+          ref={quillRef}
+          className={cx('editor')}
+          theme="snow"
+          value={text}
+          onChange={handleTextChange}
+          onContextMenu={handleRightClick}  // Lắng nghe sự kiện nhấp chuột phải
+          modules={modules}
+        />
+
+        {showContextMenu && (
+          <div
+            className={cx('context-menu')}
+            style={{ top: contextMenuPosition.y, left: contextMenuPosition.x }}
+          >
+            <input
+              type="text"
+              placeholder="Thêm comment"
+              onBlur={(e) => addComment(e.target.value)}  // Khi mất focus sẽ thêm comment
+              autoFocus
+            />
+          </div>
+        )}
+
+        {comments.map((comment, i) => (
+          <div key={i} className={cx('comment-container')}>
+            <span
+              className={cx('highlight')}
+              style={{
+                position: 'absolute',
+                left: `${comment.index}px`,  // Điều chỉnh vị trí highlight
+                top: `${comment.index * 20}px` // Điều chỉnh chiều cao highlight
+              }}
+            >
+              {comment.text}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

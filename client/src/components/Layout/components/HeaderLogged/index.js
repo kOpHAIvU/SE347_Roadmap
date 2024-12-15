@@ -67,6 +67,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const notificationRef = useRef(null);
     const bellRef = useRef(null);
+    const [image, setImage] = useState(null);
 
     const toggleNotification = () => {
         setIsNotificationOpen((prev) => !prev);
@@ -167,6 +168,15 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                             <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
                         </div>
 
+                        <div className={cx('form-group')}>
+                            <label>Attach Image</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setImage(e.target.files[0])} // setImage là state chứa file ảnh
+                            />
+                        </div>
+
                         <div className={cx('button-group')}>
                             <button className={cx('cancel-btn')} onClick={() => setShowForm(false)}>
                                 Cancel
@@ -175,7 +185,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                             <button
                                 className={cx('create-btn')}
                                 onClick={handleCreate}
-                                disabled={!name || !description}
+                                disabled={!name || !description || !image}
                             >
                                 Create
                             </button>

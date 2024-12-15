@@ -12,7 +12,8 @@ const calculateTextWidth = (text, fontWeight) => {
 
 function AdvanceRoadmap({ userType, nodes, setNodes
     , updateNodeContent, updateNodeDue, updateNodeDetail
-    , handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode, nodeBelowType, updateTickState }) {
+    , handleDeleteNode, handleSameLevelClick, handleAddChildLevelNode
+    , nodeBelowType, updateTickState, updateNodeComment }) {
     const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: 600 });
 
     useEffect(() => {
@@ -258,11 +259,13 @@ function AdvanceRoadmap({ userType, nodes, setNodes
 
     const [indexNodeDetail, setIndexNodeDetail] = useState(null)
     const [nodeDetailClick, setNodeDetailClick] = useState(null)
+    const [nodeComment, setNodeComment] = useState(null);
 
-    const handleOpenNodeDetail = (index, nodeDetail) => {
+    const handleOpenNodeDetail = (index, nodeDetail, nodeComment) => {
         setIndexNodeDetail(index)
         setNodeDetailClick(nodeDetail)
         setOpenNodeDetail(true)
+        setNodeComment(nodeComment)
     }
 
 
@@ -296,7 +299,7 @@ function AdvanceRoadmap({ userType, nodes, setNodes
                             handleSameLevelClick={handleSameLevelClick}
                             handleAddChildLevelNode={handleAddChildLevelNode}
                             nodeBelowTypes={nodeBelowType(index)}
-                            handleOpenNodeDetail={() => handleOpenNodeDetail(index, node.nodeDetail)}
+                            handleOpenNodeDetail={() => handleOpenNodeDetail(index, node.nodeDetail, node.nodeComment)}
                             updateTickState={updateTickState}
                         />
                     })}
@@ -310,8 +313,10 @@ function AdvanceRoadmap({ userType, nodes, setNodes
                     userType={userType}
                     index={indexNodeDetail}
                     nodeDetail={nodeDetailClick}
+                    nodeComment={nodeComment}
                     updateNodeDetail={updateNodeDetail}
                     handleOutsideClick={handleOutsideModalClick}
+                    updateNodeComment={updateNodeComment}
                 />}
         </div>
     );

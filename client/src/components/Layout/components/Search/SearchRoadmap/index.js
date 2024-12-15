@@ -8,13 +8,14 @@ import Roadmap from '../../SearchItem/Roadmap/index.js';
 
 import styles from './SearchRoadmap.module.scss';
 import classNames from 'classnames/bind';
+import { Timeline } from '../../SearchItem/index.js';
 
 const cx = classNames.bind(styles);
 
 function SearchRoadmap() {
     const [search, setSearch] = useState('');
     const [visible, setVisible] = useState(false);
-    const searchRef = useRef(null);  // Ref để theo dõi vùng Search
+    const searchRef = useRef(null);
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -29,9 +30,8 @@ function SearchRoadmap() {
     };
 
     const handleClickOutside = (event) => {
-        // Kiểm tra nếu click bên ngoài vùng search
         if (searchRef.current && !searchRef.current.contains(event.target)) {
-            setVisible(false);  // Ẩn kết quả
+            //setVisible(false);
         }
     };
 
@@ -42,6 +42,37 @@ function SearchRoadmap() {
         { id: 2, title: 'Javascript cơ bản', author: 'KoPhaiVu', clones: 123, avatar: source },
         { id: 3, title: 'Github cơ bản', author: 'KoPhaiVu', clones: 123, avatar: source },
     ];
+
+    const [timelines, setTimelines] = useState([
+        {
+            id: 0,
+            title: 'CSS cơ bản',
+            author: 'KoPhaiVu',
+            avatar: source,
+            contributors: 3
+        },
+        {
+            id: 1,
+            title: 'HTML cơ bản',
+            author: 'KoPhaiVu',
+            avatar: source,
+            contributors: 1
+        },
+        {
+            id: 2,
+            title: 'Javascript cơ bản',
+            author: 'KoPhaiVu',
+            avatar: source,
+            contributors: 2
+        },
+        {
+            id: 3,
+            title: 'Github cơ bản',
+            author: 'KoPhaiVu',
+            avatar: source,
+            contributors: 3
+        },
+    ]);
 
     // Lắng nghe sự kiện click chuột ra ngoài vùng Search
     document.addEventListener('mousedown', handleClickOutside);
@@ -56,8 +87,13 @@ function SearchRoadmap() {
                 render={(attrs) => (
                     <div className={cx('search-result')} tabIndex="-1" {...attrs}>
                         <PopperWrapper>
+                            <h1 className={cx('title')}>Roadmaps</h1>
                             {roadmaps.map((roadmap) => {
-                                return <Roadmap key={roadmap.id} children={roadmap} />;
+                                return <Roadmap key={roadmap.id} children={roadmap} setVisible={setVisible} />;
+                            })}
+                            <h1 className={cx('title')}>Timelines</h1>
+                            {timelines.map((timeline) => {
+                                return <Timeline key={timeline.id} children={timeline} setVisible={setVisible} />;
                             })}
                         </PopperWrapper>
                     </div>
@@ -67,8 +103,7 @@ function SearchRoadmap() {
                     <input placeholder='Find roadmap'
                         value={search}
                         onChange={handleInputChange}
-                        onBlur={() => setVisible(false)}  // Ẩn khi mất focus
-                        onFocus={() => search && setVisible(true)}  // Hiển thị lại khi có từ khóa và focus
+                        onFocus={() => search && setVisible(true)}
                     />
 
                     <button className={cx('search-btn')}>
