@@ -67,11 +67,11 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
                             e.stopPropagation();
                             onLoveChange();
                         }}
-                        icon={children.loved ? faSolidHeart : faHeart}
+                        icon={children.loved.loveState ? faHeart : faSolidHeart}
                         className={cx('love')} />
 
                     <div className={cx('clone-num')} >
-                        <span className={cx('num')}>{children.clones} clones</span>
+                        <span className={cx('num')}>{children.clone} clones</span>
                         <FontAwesomeIcon className={cx('bolt-icon')} icon={faBolt} />
                     </div>
                 </div>

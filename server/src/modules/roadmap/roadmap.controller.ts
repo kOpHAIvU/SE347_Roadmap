@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ParseIntPipe, Query, UseInterceptors, UploadedFile  } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    UseGuards,
+    ParseIntPipe,
+    Query,
+    UseInterceptors,
+    UploadedFile,
+} from '@nestjs/common';
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
@@ -9,95 +22,83 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('roadmap')
 export class RoadmapController {
-  constructor(private readonly roadmapService: RoadmapService) {}
+    constructor(private readonly roadmapService: RoadmapService) {}
 
-  @Post('new_roadmap')
-  @UseInterceptors(FileInterceptor('file'))
-  @UseGuards(JwtAuthGuard)
-  async create(
-    @Body() createRoadmapDto: CreateRoadmapDto,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    console.log("File in controller:", file);
-    return await this.roadmapService.create(createRoadmapDto, file);
-  }
+    @Post('new_roadmap')
+    @UseInterceptors(FileInterceptor('file'))
+    @UseGuards(JwtAuthGuard)
+    async create(@Body() createRoadmapDto: CreateRoadmapDto, @UploadedFile() file?: Express.Multer.File) {
+        console.log('File in controller:', file);
+        return await this.roadmapService.create(createRoadmapDto, file);
+    }
 
-  @Get('all')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('admin') 
-  async findAll(
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 100,
-  ) {
-    return await this.roadmapService.findAll(page, limit);
-  }
+    @Get('all')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles('admin')
+    async findAll(@Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 100) {
+        return await this.roadmapService.findAll(page, limit);
+    }
 
-  @Get('id/:id')
-  @UseGuards(JwtAuthGuard)
-  async findOneById(@Param('id', ParseIntPipe) id: number) {
-    return await this.roadmapService.findOneById(+id);
-  }
+    @Get('id/:id')
+    @UseGuards(JwtAuthGuard)
+    async findOneById(@Param('id', ParseIntPipe) id: number) {
+        return await this.roadmapService.findOneById(+id);
+    }
 
-  @Get('code/:code')
-  @UseGuards(JwtAuthGuard)
-  async findOneByCode(@Param('code') code: string) {
-    return await this.roadmapService.findOneByCode(code);
-  }
+    @Get('code/:code')
+    @UseGuards(JwtAuthGuard)
+    async findOneByCode(@Param('code') code: string) {
+        return await this.roadmapService.findOneByCode(code);
+    }
 
-  @Get('type/:type')
-  @UseGuards(JwtAuthGuard)
-  async findRoadmapByType(
-    @Param('type') type: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 100,
-  ) {
-    return await this.roadmapService.findRoadmapsByType(type, page, limit);
-  }
+    @Get('type/:type')
+    @UseGuards(JwtAuthGuard)
+    async findRoadmapByType(
+        @Param('type') type: string,
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 100,
+    ) {
+        return await this.roadmapService.findRoadmapsByType(type, page, limit);
+    }
 
-  @Get('owner/:owner')
-  @UseGuards(JwtAuthGuard)
-  async findRoadmapByOwner(
-    @Param('owner') owner: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 100,
-  ) {
-    return await this.roadmapService.findRoadmapsByOwner(owner, page, limit);
-  }
+    @Get('owner/:owner')
+    @UseGuards(JwtAuthGuard)
+    async findRoadmapByOwner(
+        @Param('owner') owner: string,
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 100,
+    ) {
+        return await this.roadmapService.findRoadmapsByOwner(owner, page, limit);
+    }
 
-  @Patch('item/:id')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  async updateById(@Param(
-    'id', ParseIntPipe) id: string, 
-    @Body() updateRoadmapDto: UpdateRoadmapDto,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    return await this.roadmapService.updateById(+id, updateRoadmapDto, file);
-  }
+    @Patch('item/:id')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    async updateById(
+        @Param('id', ParseIntPipe) id: string,
+        @Body() updateRoadmapDto: UpdateRoadmapDto,
+        @UploadedFile() file?: Express.Multer.File,
+    ) {
+        return await this.roadmapService.updateById(+id, updateRoadmapDto, file);
+    }
 
-  @Patch('code/:code')
-  @UseGuards(JwtAuthGuard)
-  async updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
-    return await this.roadmapService.updateByCode(code, updateRoadmapDto);  
-  }
+    @Patch('code/:code')
+    @UseGuards(JwtAuthGuard)
+    async updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
+        return await this.roadmapService.updateByCode(code, updateRoadmapDto);
+    }
 
-  @Delete('item/:id')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  async removeById(
-    @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file?: Express.Multer.File
-  ) {
-    return await this.roadmapService.removeById(+id);
-  }
+    @Delete('item/:id')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    async removeById(@Param('id', ParseIntPipe) id: number, @UploadedFile() file?: Express.Multer.File) {
+        return await this.roadmapService.removeById(+id);
+    }
 
-  @Delete('code/:code')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  async removeByCode(
-    @Param('code') code: string,
-    @UploadedFile() file?: Express.Multer.File,
-  ) {
-    return await this.roadmapService.removeByCode(code);
-  }
+    @Delete('code/:code')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    async removeByCode(@Param('code') code: string, @UploadedFile() file?: Express.Multer.File) {
+        return await this.roadmapService.removeByCode(code);
+    }
 }

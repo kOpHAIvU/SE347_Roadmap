@@ -8,51 +8,48 @@ import { RoleGuard } from '../role/common/role.guard';
 
 @Controller('favorite')
 export class FavoriteController {
-  constructor(private readonly favoriteService: FavoriteService) {}
+    constructor(private readonly favoriteService: FavoriteService) {}
 
-  @Post('new')
-  @UseGuards(JwtAuthGuard)
-  async create(@Body() createFavoriteDto: CreateFavoriteDto) {
-    return await this.favoriteService.create(createFavoriteDto);
-  }
+    @Post('new')
+    @UseGuards(JwtAuthGuard)
+    async create(@Body() createFavoriteDto: CreateFavoriteDto) {
+        return await this.favoriteService.create(createFavoriteDto);
+    }
 
-  @Get('all')
-  @UseGuards(JwtAuthGuard)
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('admin')
-  async findAll(
-    @Query ('page', ParseIntPipe) page: number,
-    @Query ('limit', ParseIntPipe) limit: number
-  ) {
-    return await this.favoriteService.findAll(page, limit);
-  }
+    @Get('all')
+    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles('admin')
+    async findAll(@Query('page', ParseIntPipe) page: number, @Query('limit', ParseIntPipe) limit: number) {
+        return await this.favoriteService.findAll(page, limit);
+    }
 
-  @Get('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.favoriteService.findOne(+id);
-  }
+    @Get('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async findOne(@Param('id', ParseIntPipe) id: number) {
+        return await this.favoriteService.findOne(+id);
+    }
 
-  // API này để lấy tất cả các roadmap yêu thích của người dùng
-  @Get('all/owner')
-  @UseGuards(JwtAuthGuard)
-  async findFavoriteByUser(
-    @Req () req: any,
-    @Query ('page', ParseIntPipe) page: number,
-    @Query ('limit', ParseIntPipe) limit: number
-  ) {
-    return await this.favoriteService.findFavoriteByUser(req.user.userId, page, limit);
-  }
+    // API này để lấy tất cả các roadmap yêu thích của người dùng
+    @Get('all/owner')
+    @UseGuards(JwtAuthGuard)
+    async findFavoriteByUser(
+        @Req() req: any,
+        @Query('page', ParseIntPipe) page: number,
+        @Query('limit', ParseIntPipe) limit: number,
+    ) {
+        return await this.favoriteService.findFavoriteByUser(req.user.userId, page, limit);
+    }
 
-  @Patch('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async update(@Param('id', ParseIntPipe) id: number, @Body() updateFavoriteDto: UpdateFavoriteDto) {
-    return await this.favoriteService.update(+id, updateFavoriteDto);
-  }
+    @Patch('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async update(@Param('id', ParseIntPipe) id: number, @Body() updateFavoriteDto: UpdateFavoriteDto) {
+        return await this.favoriteService.update(+id, updateFavoriteDto);
+    }
 
-  @Delete('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return await this.favoriteService.remove(+id);
-  }
+    @Delete('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async remove(@Param('id', ParseIntPipe) id: number) {
+        return await this.favoriteService.remove(+id);
+    }
 }

@@ -57,5 +57,4 @@ export class Roadmap {
 
     @OneToMany(() => Favorite, favorite => favorite.roadmap)
     favorite: Favorite[]
-
 }
