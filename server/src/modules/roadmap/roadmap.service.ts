@@ -63,14 +63,18 @@ export class RoadmapService {
       console.log(this.configService.get<string>('URL'));
 
       const result = await this.roadmapRepository.save(roadmap); 
+      console.log("Owner:", result.owner.role.id)
       if (result.owner.role.id === 1) {
+        console.log("Owner is admin");
         console.log(env.RABBITMQ.NAME);
         try {
           await this.rabbitClient.connect();
         } catch (error) {
           console.log("Error connect rabbitmq: ", error);
         }
-        this.rabbitClient.emit("Create_new_roadmap", result);
+        console.log("Result send data to rabbitMQ: ");
+        const rabbit = this.rabbitClient.emit("Create_new_roadmap", result);
+
       }
       return {
         statusCode: 201,
@@ -93,6 +97,7 @@ export class RoadmapService {
       const roadmap = await this.roadmapRepository
                       .createQueryBuilder('roadmap')
                       .leftJoinAndSelect('roadmap.owner', 'owner')
+                      .leftJoinAndSelect('roadmap.node', 'node')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .orderBy('roadmap.createdAt', 'DESC')
@@ -144,11 +149,14 @@ export class RoadmapService {
     id: number
   ): Promise<ResponseDto> {
     try {
-      const roadmap = await this.roadmapRepository.findOneBy({ 
-        id,
-        isActive: true,
-        deletedAt: IsNull(),
-      });
+      const roadmap = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.node', 'node')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.isActive = :isActive', { isActive: 1 })
+                      .andWhere('roadmap.id = :id', { id })
+                      .getMany();
       if (!roadmap) {
         return {
           statusCode: 404,
@@ -156,7 +164,6 @@ export class RoadmapService {
           data: null
         }
       }
-      
       return {
         statusCode: 200,
         message: 'Get roadmap successfully',
@@ -165,7 +172,8 @@ export class RoadmapService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Failed to get roadmap'
+        message: 'Failed to get roadmap',
+        data: null
       }
     }
   }

@@ -9,6 +9,9 @@ import { ClientProxy } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { ReportGateway } from './report.gateway';
 import {Report} from './entities/report.entity'
+import { FirebaseService } from '../firebase/firebase.service';
+import { report } from 'process';
+import { GmailNotificationStrategy } from '../notification/strategy/gmail-notification.service';
 
 @Injectable()
 export class ReportService {
@@ -19,7 +22,9 @@ export class ReportService {
     private reportRepository: Repository<Report>,
     private userService: UserService,
     private configService: ConfigService,
-    private reportGateway: ReportGateway
+    private reportGateway: ReportGateway,
+    private firebaseService: FirebaseService,
+    private gmailService: GmailNotificationStrategy,
   ) {}
 
   async create(createReportDto: CreateReportDto): Promise<ResponseDto> {
@@ -125,8 +130,16 @@ export class ReportService {
   async handleNotificationFromRabbitMQ(
     data: Report
   ): Promise<void> {
-   console.log('Notification received from RabbitMQ:', data);
-    this.reportGateway.sendNotificationToClients(data.content);
+    console.log('Notification received from RabbitMQ:', data);
+   // this.reportGateway.sendNotificationToClients(data.content);
+    const receiver = await this.userService.findOneById(data.receive.id);
+    const receiverData = Array.isArray(receiver.data)
+                        ? receiver.data[0]
+                        : receiver.data;
+    if (receiverData) {
+      const responseReport = await this.firebaseService.sendPushNotification(receiverData.deviceToken, data.title, data.content);
+      const responseGmail = await this.gmailService.sendEmail(receiverData.email, data.title, data.content);
+    }
   }
 
   async findAll(

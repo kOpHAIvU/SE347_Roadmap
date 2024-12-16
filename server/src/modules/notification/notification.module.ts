@@ -6,7 +6,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Notification } from './entities/notification.entity';
 import { UserModule } from '../user/user.module';
 import { NotificationGateway } from './notification.gateway';
-import { NotificationWorker } from './notification.worker';
 import { ConfigService } from '@nestjs/config';
 import { RoleModule } from '../role/role.module';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
@@ -14,6 +13,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
 import { GmailNotificationStrategy } from './strategy/gmail-notification.service';
 import { SMSNotificationStrategy } from './strategy/sms-notification.service';
+import { FirebaseModule } from '../firebase/firebase.module';
 
 @Module({
   imports:
@@ -36,14 +36,14 @@ import { SMSNotificationStrategy } from './strategy/sms-notification.service';
         }
       ]),
       UserModule,
-      RoleModule
+      RoleModule,
+      FirebaseModule
     ],
   controllers: [NotificationController],
   providers: [NotificationService, 
     NotificationGateway,
-    NotificationWorker,
     GmailNotificationStrategy,
-    SMSNotificationStrategy
+    SMSNotificationStrategy,
     // {
     //   provide: APP_GUARD,
     //   useClass: ThrottlerGuard
@@ -53,6 +53,9 @@ import { SMSNotificationStrategy } from './strategy/sms-notification.service';
     //   useClass: ThrottlerExceptionFilter,
     // },
   ],
-  exports: [NotificationService],
+  exports: [
+    NotificationService,
+    GmailNotificationStrategy,
+  ],
 })
 export class NotificationModule {}

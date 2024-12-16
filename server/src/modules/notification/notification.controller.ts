@@ -1,3 +1,4 @@
+import { UserService } from './../user/user.service';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Inject, Sse, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -6,18 +7,19 @@ import { Ctx, EventPattern, MessagePattern, Payload, RmqContext } from '@nestjs/
 import { Roadmap } from '../roadmap/entities/roadmap.entity';
 import { Server } from 'socket.io';
 import { Observable, of } from 'rxjs';
-import { NotificationWorker } from './notification.worker';
 import { RoleGuard } from '../role/common/role.guard';
 import { Roles } from '../role/common/role.decorator';
 import { JwtAuthGuard } from '../auth/common/jwt-guard';
 import { GmailNotificationStrategy } from './strategy/gmail-notification.service';
+import { FirebaseService } from '../firebase/firebase.service';
 
 @Controller('notification')
 export class NotificationController {
   constructor(
     private readonly notificationService: NotificationService,
-    private readonly notificationWorker: NotificationWorker,
     private readonly gmailService: GmailNotificationStrategy,
+    private readonly userService: UserService,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   @EventPattern('Create_new_roadmap')
@@ -28,6 +30,23 @@ export class NotificationController {
     const notificationContent = `Welcome to the latest updates! We just released a new Roadmap to help you easily track and plan for the future of the system.\n
     The title of roadmap is: ${newRoadmap.title}\n
     Please check it out and let us know if you have any feedback or questions.\n`;
+
+    const usersResponse = await this.userService.findAll();
+    const users = Array.isArray(usersResponse.data) 
+                        ? usersResponse.data 
+                        : [usersResponse.data];
+
+    for (let i = 0; i < users.length; i++) {
+      console.log("User get notification:", users[i]);
+      if (users[i].deviceToken) {
+       // console.log("User get notifications: ", users[i].email);
+        let deviceToken = users[i].deviceToken;
+        const response = await this.firebaseService.sendPushNotification(deviceToken, notificationTitle, notificationContent);
+      }
+      if (users[i].email) {
+        const sendGmail = await this.gmailService.sendEmail(users[i].email, notificationTitle, notificationContent);
+      }
+    }
 
     const createNotificationDto = {
       title: notificationTitle,

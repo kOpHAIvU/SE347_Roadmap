@@ -73,7 +73,8 @@ export class AuthService {
       password: "",
       gender: "",
       role: 2,
-      avatar: picture
+      avatar: picture,
+      deviceToken: ""
     }
 
     const createdUser = await this.userService.create(createUserDto);
