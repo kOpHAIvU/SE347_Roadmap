@@ -50,11 +50,25 @@ function Home() {
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
 
         return data.filter(item => {
-            if (item.isPublic === false && item.owner.id !== profileId)
+            console.log(item)
+            if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
                 return false;
             return true;
         }).map(item => {
             const favorite = favoritesArray.find(fav => fav.roadmap.id === item.id && fav.user.id === profileId);
+            console.log({
+                id: item.id,
+                title: item.title,
+                content: item.content,
+                clone: item.clone,
+                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
+                loved: {
+                    loveId: favorite ? favorite.id : null,
+                    loveState: favorite ? false : true,
+                },
+                react: item.react,
+                nodeCount: item.node.length,
+            })
             return {
                 id: item.id,
                 title: item.title,
@@ -66,7 +80,7 @@ function Home() {
                     loveState: favorite ? false : true,
                 },
                 react: item.react,
-                nodeCount: Array.isArray(item.node) ? item.node.length : 0,
+                nodeCount: item.node.length,
             };
         });
     };
@@ -139,6 +153,12 @@ function Home() {
             } else {
                 console.error('Failed to add favorite. Status:', response.status);
             }
+
+            const fetchData = async () => {
+                const data = await fetchRoadmapData();
+                setRoadmaps(data);
+            };
+            fetchData();
         } catch (error) {
             console.error('Error:', error);
         }
@@ -207,7 +227,6 @@ function Home() {
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchRoadmapData();
-            console.log(data)
             setRoadmaps(data);
         };
         fetchData();
@@ -232,7 +251,6 @@ function Home() {
         else {
             newReactValue = roadmapToUpdate.react + 1;
             const profileId = await fetchProfile();
-
             fetchNewFavourite(profileId, roadmapToUpdate.id)
         }
 

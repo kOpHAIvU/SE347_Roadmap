@@ -30,7 +30,6 @@ export class FavoriteController {
         return await this.favoriteService.findOne(+id);
     }
 
-    // API này để lấy tất cả các roadmap yêu thích của người dùng
     @Get('all/owner')
     @UseGuards(JwtAuthGuard)
     async findFavoriteByUser(

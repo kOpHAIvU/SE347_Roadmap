@@ -51,7 +51,7 @@ function YourRoadmap() {
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
 
         return data.filter(item => {
-            if (item.isPublic === false && item.owner.id !== profileId)
+            if (!item.owner?.id || item.owner.id !== profileId)
                 return false;
             return true;
         }).map(item => {
@@ -140,6 +140,12 @@ function YourRoadmap() {
             } else {
                 console.error('Failed to add favorite. Status:', response.status);
             }
+
+            const fetchData = async () => {
+                const data = await fetchRoadmapData();
+                setRoadmaps(data);
+            };
+            fetchData();
         } catch (error) {
             console.error('Error:', error);
         }
@@ -218,20 +224,53 @@ function YourRoadmap() {
     //     },
     // ]);
 
-    const handleLoveChange = (id) => {
+    const handleLoveChange = async (id) => {
         setRoadmaps((prevRoadmaps) =>
             prevRoadmaps.map((roadmap) =>
-                roadmap.id === id ? { ...roadmap, loved: !roadmap.loved } : roadmap
+                roadmap.id === id
+                    ? { ...roadmap, loved: { ...roadmap.loved, loveState: !roadmap.loved.loveState } }
+                    : roadmap
             )
         );
+
+        const roadmapToUpdate = roadmaps.find(roadmap => roadmap.id === id);
+        let newReactValue;
+        if (!roadmapToUpdate.loved.loveState) {
+            newReactValue = roadmapToUpdate.react - 1;
+            fetchDelFavourite(roadmapToUpdate.loved.loveId)
+        }
+        else {
+            newReactValue = roadmapToUpdate.react + 1;
+            const profileId = await fetchProfile();
+
+            fetchNewFavourite(profileId, roadmapToUpdate.id)
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    react: newReactValue,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Updated roadmap:', data);
+            } else {
+                console.error('Failed to update react value');
+            }
+        } catch (error) {
+            console.error('Error while patching react value:', error);
+        }
     };
 
     const handleClickRoadmap = (id) => {
         navigate(`/roadmap/${id}`); // Điều hướng tới /roadmap/{id}
-    };
-
-    const handleDeleteRoadmap = (id) => {
-        setRoadmaps((prevRoadmaps) => prevRoadmaps.filter((roadmap) => roadmap.id !== id));
     };
 
     return (
@@ -244,7 +283,6 @@ function YourRoadmap() {
                         children={roadmap}
                         onLoveChange={() => handleLoveChange(roadmap.id)}
                         onClick={() => handleClickRoadmap(roadmap.id)}
-                        onDelete={() => handleDeleteRoadmap(roadmap.id)}
                     />
                 })}
             </div>
