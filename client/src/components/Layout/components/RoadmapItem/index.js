@@ -9,6 +9,40 @@ import { CantClone } from '../MiniNotification/index.js';
 
 const cx = classNames.bind(styles);
 
+const getToken = () => {
+    const token = localStorage.getItem('vertexToken');
+
+    if (!token) {
+        console.error('No access token found. Please log in.');
+        return;
+    }
+    return token;
+}
+
+const getRoadmapById = async (id) => {
+    try {
+        const response = await fetch(`http://localhost:3004/roadmap/id/${id}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${getToken()}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
+            return;
+        }
+
+        const data = await response.json();
+
+        return data.data;
+    } catch (error) {
+        console.error('Fetch Favorite Error:', error);
+    }
+};
+
 function RoadmapItem({ children, onLoveChange, onClick }) {
     const [showDialog, setShowDialog] = useState(false);
     const [title, setTitle] = useState(children.title);
@@ -20,17 +54,14 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
         }
     };
 
-
     const [errorDialogs, setErrorDialogs] = useState([]); // Array to manage multiple CantClone dialogs
 
     const handleClose = (id) => {
         setErrorDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
     };
 
-    let nodeCount = 1;
-
     const handleCloneClick = () => {
-        if (nodeCount < 5) {
+        if (children.nodeCount < 5) {
             const newDialog = { id: Date.now() }; // Unique ID for each CantClone
             setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 
