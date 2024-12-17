@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear, faXmark, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './OwnRoadmap.module.scss';
@@ -11,20 +11,217 @@ import SettingRoadmap from '~/components/Layout/components/Dialog/SettingRoadmap
 import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.js';
 import { CantClone } from '~/components/Layout/components/MiniNotification/index.js';
 import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
+const filterRoadmapData = (data) => {
+    data.map((item, index) => {
+        return {
+            id: index,
+            level: item.level,
+            x: item.xAxis,
+            y: item.yAxis,
+            type: item.type,
+            ticked: item.tick,
+            due_time: item.dueTime,
+            content: item.content,
+            nodeDetail: item.detail,
+            nodeId: item.id
+        }
+    })
+}
+
 function OwnRoadmap() {
-    const userType = 'Administrator'
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+    const [profile, setProfile] = useState(null);
+    const [roadmapData, setRoadmapData] = useState(null);
+
+    const [userType, setUserType] = useState("Viewer")
     const [roadName, setRoadName] = useState('Name not given');
     const [titleText, setTitleText] = useState('Make some description');
+    const [loved, setLoved] = useState(false);
+    const [visibility, setVisibility] = useState("Private");
+
+    const getToken = () => {
+        const token = localStorage.getItem('vertexToken');
+
+        if (!token) {
+            navigate(`/login`);
+            return;
+        }
+        return token;
+    }
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch('http://localhost:3004/auth/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setProfile(data.data);
+                console.log("Profile: ", data.data);
+                return data.data;
+            } else {
+                console.error('Error:', data.message || 'Failed to fetch profile data.');
+            }
+        } catch (error) {
+            console.error('Fetch Profile Error:', error);
+        }
+    };
+
+    const fetchRoadmapData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/id/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setRoadmapData(data.data);
+                setVisibility(data.data.isPublic ? "Pubic" : "Private")
+                console.log("Roadmap data: ", data.data);
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchDelRoadmap = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log("Roadmap deleted: ", data);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchFavoriteData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/favorite/all/owner?page=1&limit=10`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                if (data && Array.isArray(data.data)) {
+                    for (let i = 0; i < data.data.length; i++) {
+                        if (String(data.data[i].roadmap.id) === id) {
+                            setLoved(true)
+                            setLoveId(data.data[i].id)
+                        }
+                    }
+                }
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Favorite Error:', error);
+        }
+    };
+
+    const fetchNewFavourite = async (userId) => {
+        try {
+            const response = await fetch('http://localhost:3004/favorite/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId: userId, roadmapId: id }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Favorite added:', data); // Xử lý dữ liệu nếu cần
+            } else {
+                console.error('Failed to add favorite. Status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchDelFavourite = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:3004/favorite/item/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to delete favorite.');
+                return;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const [loveId, setLoveId] = useState(null)
+    useEffect(() => {
+        const fetchData = async () => {
+            const fetchedProfile = await fetchProfile();
+            const fetchedRoadmapData = await fetchRoadmapData();
+            await fetchFavoriteData()
+
+            if (fetchedProfile && fetchedRoadmapData) {
+                setUserType(
+                    fetchedProfile.id === fetchedRoadmapData[0].owner.id
+                        ? "Administrator"
+                        : "Viewer"
+                );
+                setRoadName(fetchedRoadmapData[0].title)
+                setTitleText(fetchedRoadmapData[0].content)
+            }
+        };
+        fetchData();
+    }, [id]);
+
     const [isEditing, setIsEditing] = useState(false);
     const textareaRef = useRef(null);
     const [contentExpanded, setIsContentExpanded] = useState(false);
-    const [loved, setLoved] = useState(false);
     const [toggle, setToggle] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
-    const [visibility, setVisibility] = useState("Private");
     const [createTimelineDialog, setCreateTimelineDialog] = useState(false);
 
     const adjustTextareaHeight = () => {
@@ -55,10 +252,11 @@ function OwnRoadmap() {
         }
     };
 
-    const handleDeleteRoadmap = () => {
+    const handleDeleteRoadmap = async () => {
         const confirmDelete = window.confirm(`Do you really want to delete "${roadName}" roadmap?`);
 
         if (confirmDelete) {
+            await fetchDelRoadmap()
             window.location.href = "/home";
         }
     }
@@ -84,47 +282,10 @@ function OwnRoadmap() {
             id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
             content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
             nodeDetail: ''
-        },  
+        },
     ]);
     //const [nodes, setNodes] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch('http://localhost:3004/roadmap/all', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    }
-                });
-    
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-    
-                const result = await response.json();
-                console.log(result);
-    
-                if (result.data) {
-                    const roadmapContent = result.data.map((node, index) => {
-                        node.content = node.content.trim().split('\n').map(item => JSON.parse(item));
-                        console.log(node);
-                        return node;
-                    });
-                    setNodes(roadmapContent); 
-                } else {
-                    console.log("Data is not found");
-                }
-    
-            } catch (error) {
-                console.log(error.message);
-            }
-        };
-    
-        fetchData();
-    }, []);
-    
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
             const updatedNodes = [...prevNodes];
@@ -240,6 +401,50 @@ function OwnRoadmap() {
         return;
     };
 
+    const handleLove = async () => {
+        setLoved(!loved)
+
+        let newReactValue;
+        if (loved) {
+            newReactValue = roadmapData[0].react - 1;
+            fetchDelFavourite(loveId)
+        }
+        else {
+            newReactValue = roadmapData[0].react + 1;
+            fetchNewFavourite(profile.id)
+        }
+
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    react: newReactValue,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Updated roadmap after react toggle: ', data);
+            } else {
+                console.error('Failed to update react value');
+            }
+        } catch (error) {
+            console.error('Error while patching react value:', error);
+        }
+    }
+
+    const handleClone = () => {
+        if (nodes.length <= 5)
+            handleMakeDialog('Clone')
+        else {
+            
+        }
+    }
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('important-section')}>
@@ -351,11 +556,11 @@ function OwnRoadmap() {
 
             </div>
             <div className={cx('drop-react')}>
-                <button onClick={() => setLoved(!loved)} className={cx('react-love', { loved })}>
-                    <FontAwesomeIcon className={cx('love-roadmap')} icon={faHeartRegular} />
+                <button onClick={() => handleLove()} className={cx('react-love', { loved })}>
+                    <FontAwesomeIcon className={cx('love-roadmap')} icon={loved ? faHeart : faHeartRegular} />
                     <h1 className={cx('love-text')}>Love</h1>
                 </button>
-                <button className={cx('clone-roadmap')} onClick={() => handleMakeDialog('Clone')} >
+                <button className={cx('clone-roadmap')} onClick={() => handleClone()} >
                     <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
                     <h1 className={cx('clone-text')}>Clone</h1>
                 </button>
