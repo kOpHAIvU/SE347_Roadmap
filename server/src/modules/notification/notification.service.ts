@@ -12,11 +12,13 @@ import {Server} from 'socket.io';
 import { Subject } from 'rxjs';
 import { NotificationGateway } from './notification.gateway';
 import { ThrottlerStorageService } from '@nestjs/throttler';
+import { FirebaseService } from '../firebase/firebase.service';
  
 @Injectable()
 export class NotificationService {
 
   private notificationSubject = new Subject<MessageEvent>();
+  private readonly firebaseService: FirebaseService;
 
   constructor (
     @InjectRepository(Notification)

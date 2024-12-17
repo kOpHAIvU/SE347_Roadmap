@@ -79,6 +79,13 @@ export class RoadmapService {
         }
     }
 
+
+      const result = await this.roadmapRepository.save(roadmap); 
+      console.log("Owner:", result.owner.role.id)
+      if (result.owner.role.id === 1) {
+        console.log("Owner is admin");
+        console.log(env.RABBITMQ.NAME);
+
     async findAll(page = 1, limit = 10): Promise<ResponseDto> {
         try {
             const roadmap = await this.roadmapRepository
@@ -110,6 +117,45 @@ export class RoadmapService {
                 message: 'Failed to get all road maps',
             };
         }
+        console.log("Result send data to rabbitMQ: ");
+        const rabbit = this.rabbitClient.emit("Create_new_roadmap", result);
+
+      }
+      return {
+        statusCode: 201,
+        message: 'Create roadmap successfully',
+        data: result,
+      }
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+      }
+    }
+  }
+
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<ResponseDto> {
+    try {
+      const roadmap = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.owner', 'owner')
+                      .leftJoinAndSelect('roadmap.node', 'node')
+                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .orderBy('roadmap.createdAt', 'DESC')
+                      .skip((page - 1) * limit)  
+                      .take(limit)                
+                      .getMany();
+      
+      if (!roadmap) {
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+=======
     }
 
     async findTheLastCodeOfRoadmap(): Promise<number> {
@@ -130,6 +176,61 @@ export class RoadmapService {
             return -1;
         }
     }
+  }
+
+  async findTheLastCodeOfRoadmap(): Promise<number> {
+    try {
+      const roadmap = await this.roadmapRepository 
+                      .createQueryBuilder('roadmap')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .orderBy('roadmap.id', 'DESC')
+                      .getOne();
+      if (!roadmap) {
+        return 0;
+      }
+      const code = roadmap.code;
+      const numberPart = parseInt(code.slice(4), 10); 
+      return +numberPart;
+
+    } catch (error) {
+      return -1;
+    }
+  }
+
+  async findOneById(
+    id: number
+  ): Promise<ResponseDto> {
+    try {
+      const roadmap = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.node', 'node')
+                      .leftJoinAndSelect('roadmap.owner', 'owner')
+                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.isActive = :isActive', { isActive: 1 })
+                      .andWhere('roadmap.id = :id', { id })
+                      .getMany();
+      if (!roadmap) {
+        return {
+          statusCode: 404,
+          message: 'Roadmap not found',
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Get roadmap successfully',
+        data: roadmap,
+      }
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: 'Failed to get roadmap',
+        data: null
+      }
+=======
 
     async findOneById(id: number): Promise<ResponseDto> {
         try {

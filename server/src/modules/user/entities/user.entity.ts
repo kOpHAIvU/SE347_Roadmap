@@ -30,6 +30,9 @@ export class User {
     @Column()
     avatar: string;
 
+    @Column()
+    deviceToken: string;
+
     @Column({ length: 100, unique: true, nullable: false })
     email: string;
 

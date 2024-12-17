@@ -210,6 +210,34 @@ export class UserService {
     }
   }
 
+  async findAll(): Promise<ResponseDto> {
+    try {
+      const users = await this.usersRepository
+                            .createQueryBuilder('user')
+                            .where('user.isActive = :isActive', {isActive: true})
+                            .andWhere('user.deletedAt is null')
+                            .getMany();
+      if (!users) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+          data: []
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Get user successfully',
+        data: users
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
   async remove(id: number): Promise<ResponseDto> {
     try {
       const userResponse = await this.findOneById(id);

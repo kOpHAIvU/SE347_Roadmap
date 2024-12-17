@@ -11,6 +11,8 @@ import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerE
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { ReportGateway } from './report.gateway';
+import { FirebaseModule } from '../firebase/firebase.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -32,7 +34,9 @@ import { ReportGateway } from './report.gateway';
       }
     ]),
     UserModule,
-    RoleModule
+    RoleModule,
+    FirebaseModule,
+    NotificationModule,
   ],
   controllers: [ReportController],
   providers: [
