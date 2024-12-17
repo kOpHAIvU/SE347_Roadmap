@@ -1,8 +1,7 @@
 import { time } from 'console';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateNodeDto {
-    
     @IsString()
     @IsNotEmpty()
     level: number;
@@ -42,5 +41,4 @@ export class CreateNodeDto {
 
     @IsNumber()
     timeline?: number;
-
 }
