@@ -79,7 +79,24 @@ export class UserService {
   async findOneById(id: number): Promise<ResponseDto> {
     try {
       console.log("Id of user get profile: ", id);
-      const user = await this.usersRepository.findOne({where: {id}});
+      //const user = await this.usersRepository.findOne({where: {id}});
+      const user = await this.usersRepository
+                            .createQueryBuilder('user')   
+                            .select([
+                              'user.id',
+                              'user.username',
+                              'user.fullName',
+                              'user.gender',
+                              'user.email',
+                              'user.avatar',
+                              'user.role',
+                              'user.deviceToken',
+                            ])
+                            .where('user.id = :id', {id})
+                            .andWhere('user.isActive = :isActive', {isActive: true})
+                            .andWhere('user.deletedAt is null')
+                            .getMany();           
+
       if (!user) {
         return {
           statusCode: 404,
@@ -103,12 +120,28 @@ export class UserService {
 
   async findByEmail(email: string): Promise<ResponseDto> {
     try {
-      const user = await this.usersRepository.findOne({where: {email}});
+      //const user = await this.usersRepository.findOne({where: {email}});
+      const user = await this.usersRepository
+                            .createQueryBuilder('user')
+                            .select([
+                              'user.id',
+                              'user.username',
+                              'user.fullName',
+                              'user.gender',
+                              'user.email',
+                              'user.avatar',
+                              'user.role',
+                              'user.deviceToken',
+                            ])
+                            .where('user.email = :email', {email})
+                            .andWhere('user.isActive = :isActive', {isActive: true})
+                            .andWhere('user.deletedAt is null')
+                            .getOne();
       if (!user) {
         return {
           statusCode: 404,
           message: 'User not found',
-          data: []
+          data: null
         }
       } 
       return {
@@ -214,6 +247,16 @@ export class UserService {
     try {
       const users = await this.usersRepository
                             .createQueryBuilder('user')
+                            .select([
+                              'user.id',
+                              'user.username',
+                              'user.fullName',
+                              'user.gender',
+                              'user.email',
+                              'user.avatar',
+                              'user.role',
+                              'user.deviceToken',
+                            ])
                             .where('user.isActive = :isActive', {isActive: true})
                             .andWhere('user.deletedAt is null')
                             .getMany();
@@ -253,14 +296,6 @@ export class UserService {
                         : userResponse.data;
       const url = user.avatar.split(' ');
       const public_id = url[1];
-      // const deleteResponse = await this.cloudinaryService.deleteImage(public_id);
-      // if (deleteResponse.statusCode !== 200) {
-      //   return {
-      //     statusCode: 500,
-      //     message: 'Error when deleting user',
-      //     data: null
-      //   }
-      // }
 
       try {
         const deleteResponse = await this.cloudinaryService.deleteImage(public_id);

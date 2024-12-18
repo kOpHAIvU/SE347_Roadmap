@@ -27,9 +27,6 @@ export class Node {
     @Column({default: null})
     dueTime?: number;
 
-    @Column({default: null})
-    attachFile?: string;
-
     @Column()
     content: string;
 

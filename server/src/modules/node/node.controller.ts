@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, ParseIntPipe } from '@nestjs/common';
 import { NodeService } from './node.service';
 import { CreateNodeDto } from './dto/create-node.dto';
 import { UpdateNodeDto } from './dto/update-node.dto';
@@ -16,7 +16,7 @@ export class NodeController {
   }
 
   @Get('all')
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Roles('admin')
   async findAll(
     @Query('page') page: number = 1,
@@ -42,4 +42,28 @@ export class NodeController {
   async remove(@Param('id') id: string) {
     return await this.nodeService.remove(+id);
   }
+
+  @Get('all/roadmap/:roadmapId')
+  @UseGuards(JwtAuthGuard)
+  async findNodesByRoadmapId(
+    @Param('roadmapId', ParseIntPipe) roadmapId: string
+  ) {
+    return await this.nodeService.findNodeByRoadmapId(+roadmapId);
+  }
+
+  @Get('all/timeline/:timelineId')  
+  @UseGuards(JwtAuthGuard)
+  async findNodesByTimelineId(
+    @Param('timelineId', ParseIntPipe) timelineId: string
+  ) {
+    return await this.nodeService.findAllNodeByTimelineId(+timelineId);
+  }
+
+
+  
+  
+
+
+
+
 }
