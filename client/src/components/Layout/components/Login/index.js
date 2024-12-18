@@ -30,8 +30,8 @@ function Login() {
             const emailError = !value
                 ? 'Please enter your email!'
                 : !/\S+@\S+\.\S+/.test(value)
-                ? 'Invalid email!'
-                : '';
+                    ? 'Invalid email!'
+                    : '';
 
             setErrors((prev) => ({ ...prev, email: emailError }));
         }
@@ -60,16 +60,24 @@ function Login() {
         } else {
             console.log('Form data:', formData);
             try {
-                const response = await fetch('http://localhost:5000/api/login', {
+                const response = await fetch('http://localhost:3004/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({ username: 'kophaivu', password: '29032004' }),
                 });
                 const data = await response.json();
                 // Kiểm tra mã trạng thái và thông báo
                 if (response.ok) {
-                    alert('Login successful!');
-                    navigate('/home');
+                    const { accessToken } = data; // Lấy accessToken từ phản hồi
+
+                    if (accessToken) {
+                        localStorage.setItem('vertexToken', accessToken);
+
+                        alert('Login successful!');
+                        navigate('/home'); // Điều hướng tới trang khác
+                    } else {
+                        alert('Access token not received!');
+                    }
                 } else {
                     alert(data.message || 'Login failed!'); // Thông báo lỗi
                 }

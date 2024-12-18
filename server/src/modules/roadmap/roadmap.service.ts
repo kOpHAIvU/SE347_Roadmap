@@ -96,6 +96,17 @@ export class RoadmapService {
     try {
       const roadmap = await this.roadmapRepository
                       .createQueryBuilder('roadmap')
+                      .select([
+                        'roadmap.id',
+                        'roadmap.title',
+                        'roadmap.owner',
+                        'roadmap.code',
+                        'roadmap.clone',
+                        'roadmap.react',
+                        'roadmap.avatar',
+                        'roadmap.content',
+                        'roadmap.type',
+                      ])
                       .leftJoinAndSelect('roadmap.owner', 'owner')
                       .leftJoinAndSelect('roadmap.node', 'node')
                       .leftJoinAndSelect('roadmap.comment', 'comment')

@@ -58,4 +58,12 @@ export class NodeController {
   ) {
     return await this.nodeService.findAllNodeByTimelineId(+timelineId);
   }
+
+
+  
+  
+
+
+
+
 }
