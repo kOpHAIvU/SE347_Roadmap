@@ -54,4 +54,5 @@ export class UserController {
   async remove(@Param('id') id: string) {
     return  await this.userService.remove(+id);
   }
-}
+
+} 

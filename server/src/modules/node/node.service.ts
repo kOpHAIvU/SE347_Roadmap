@@ -88,6 +88,7 @@ export class NodeService {
                       .leftJoinAndSelect('node.timeline', 'timeline')
                       .where('node.isActive = :isActive', { isActive: 1 })
                       .andWhere('node.deletedAt is null')
+                      .orderBy('node.id', 'ASC')
                       .skip((page - 1) * limit)
                       .take(limit)
                       .getMany();
@@ -218,7 +219,70 @@ export class NodeService {
       }
     }
   }
+  
+  async  findAllNodeByTimelineId(
+    timelineId: number
+  ): Promise<ResponseDto> {
+    try {
+      const nodes = await this.nodeRepository
+                      .createQueryBuilder('node')
+                      .leftJoinAndSelect('node.comment', "comment")
+                      .where('node.timeline = :timelineId', { timelineId })
+                      .andWhere('node.isActive = :isActive', { isActive: 1 })
+                      .andWhere('node.deletedAt is null')
+                      .orderBy('node.id', 'ASC')
+                      .getMany();
+      if (nodes.length === 0) {
+        return  {
+          statusCode: 404,
+          message: 'Node not found',
+          data: null
+        }
+      }
+    } catch(error) {
+      return {
+        statusCode: 200,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
+  async findNodeByRoadmapId(
+    roadmap: number
+  ) {
+    try {
+      const nodes = await this.nodeRepository
+                      .createQueryBuilder('node')
+                      .leftJoinAndSelect('node.comment', 'comment')
+                      .where('node.roadmap = :roadmap', { roadmap })
+                      .andWhere('node.isActive = :isActive', { isActive: 1 })
+                      .andWhere('node.deletedAt is null')
+                      .orderBy('node.id', 'ASC')
+                      .getMany();
+    if (nodes.length === 0) {
+      return {
+        statusCode: 404,
+        message: 'Node not found',
+        data: null
+      }
+    } 
+    return {
+      statusCode: 200,
+      message: 'Node fetched successfully',
+      data: nodes
+    }
+    } catch(error) {
+      return{
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
 }
+
+
 
 
 /*

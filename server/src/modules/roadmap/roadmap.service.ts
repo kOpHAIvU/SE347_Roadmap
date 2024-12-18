@@ -98,7 +98,7 @@ export class RoadmapService {
                       .createQueryBuilder('roadmap')
                       .leftJoinAndSelect('roadmap.owner', 'owner')
                       .leftJoinAndSelect('roadmap.node', 'node')
-                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .leftJoinAndSelect('roadmap.comment', 'comment')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .orderBy('roadmap.createdAt', 'DESC')
@@ -154,12 +154,12 @@ export class RoadmapService {
                       .createQueryBuilder('roadmap')
                       .leftJoinAndSelect('roadmap.node', 'node')
                       .leftJoinAndSelect('roadmap.owner', 'owner')
-                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .leftJoinAndSelect('roadmap.comment', 'comment')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .andWhere('roadmap.isActive = :isActive', { isActive: 1 })
                       .andWhere('roadmap.id = :id', { id })
-                      .getMany();
+                      .getOne();
       if (!roadmap) {
         return {
           statusCode: 404,
