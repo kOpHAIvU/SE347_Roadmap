@@ -47,75 +47,7 @@ function Comment() {
 
     // const token = "";
 
-    const fetchComments = async () => {
-        try {
-            const response = await fetch('http://localhost:3004/comment/all', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    //'Authorization': `Bearer ${token}`, // Cung cấp JWT token
-                },
-            });
-            const data = await response.json();
-
-            if (data.statusCode !== 200) {
-                throw new Error('Network response was not ok');
-            }
-
-            console.log(data);
-            const comments = data.data[0];
-            const modifiedComments = comments.map((comment) => {
-                const createdAt = new Date(comment.createdAt);
-                const year = createdAt.getFullYear();
-                const month = String(createdAt.getMonth() + 1).padStart(2, '0');
-                const day = String(createdAt.getDate()).padStart(2, '0');
-                const formattedDate = `${year}-${month}-${day}`;
-                return {
-                    id: comment.id,
-                    poster: comment.poster.fullName,
-                    day: formattedDate,
-                    avatar: comment.poster.avatar,
-                    content: comment.content,
-                    parent: comment.parentComment.id,
-                };
-            });
-            // console.log(modifiedComments);
-            setComments(modifiedComments);
-        } catch (error) {
-            console.log(error.message);
-        }
-    };
-    useEffect(() => {
-        fetchComments();
-    }, []);
-
     // Function is used to deleted comment
-
-    const deleteComment = useCallback(async (commentId) => {
-        try {
-            const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    //'Authorization': `Bearer ${token}`, // Cung cấp JWT token
-                },
-            });
-
-            const data = await response.json();
-
-            if (data.statusCode === 500) {
-                throw new Error('Something went wrong');
-            }
-            if (data.statusCode === 404) {
-                throw new Error('Comment not found');
-            }
-
-            console.log(data);
-            await fetchComments();
-        } catch (error) {
-            console.log(error.message);
-        }
-    }, []);
 
     // useEffect(() => {
     //     deleteComment(24);

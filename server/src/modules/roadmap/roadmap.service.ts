@@ -14,6 +14,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 @Injectable()
 export class RoadmapService {
 
+
   constructor(
     @Inject("RoadmapConfiguration") private rabbitClient: ClientProxy,
     @InjectRepository(Roadmap)
@@ -38,6 +39,7 @@ export class RoadmapService {
         if (file) {
           const uploadResponse = await this.cloudinary.uploadImage(file);
           avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
+
         }
       } catch(error) {
         throw new Error(error);
@@ -69,9 +71,11 @@ export class RoadmapService {
         console.log(env.RABBITMQ.NAME);
         try {
           await this.rabbitClient.connect();
+
         } catch (error) {
           console.log("Error connect rabbitmq: ", error);
         }
+
         console.log("Result send data to rabbitMQ: ");
         const rabbit = this.rabbitClient.emit("Create_new_roadmap", result);
 
@@ -121,6 +125,7 @@ export class RoadmapService {
         return {
           statusCode: 404,
           message: 'Roadmap not found',
+
         }
       }
 
@@ -135,6 +140,7 @@ export class RoadmapService {
         message: 'Failed to get all road maps'
       }
     }
+
   }
 
   async findTheLastCodeOfRoadmap(): Promise<number> {
@@ -206,6 +212,7 @@ export class RoadmapService {
           statusCode: 404,
           message: 'Roadmap not found',
           data: null
+
         }
       }
 
