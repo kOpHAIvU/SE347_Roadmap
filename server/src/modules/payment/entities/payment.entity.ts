@@ -12,6 +12,9 @@ export class Payment {
     @Column({default: "null"})
     code: string;
 
+    @Column()
+    type: string;
+
     @ManyToOne(() => User, user => user.payment)
     user: User;
 

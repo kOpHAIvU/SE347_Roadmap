@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { UserService } from '../user/user.service';
+import { MomoService } from './strategy/momo.service';
 
 @Injectable()
 export class PaymentService {
@@ -13,6 +14,7 @@ export class PaymentService {
     @InjectRepository(Payment)
     private paymentRepository: Repository<Payment>,
     private readonly userService: UserService,
+    private readonly momoService: MomoService
   ) {}  
 
   encodeTo8Char(id: number): string {
@@ -51,6 +53,17 @@ export class PaymentService {
       const template_payment = await this.paymentRepository.save(newPayment)
       const idTransaction = this.encodeTo8Char(template_payment.id)
       template_payment.code = idTransaction
+      if (createPaymentDto.type === 'momo') {
+        const momoPayment = await this.momoService.createPayment(template_payment.totalPayment, user.fullName);
+        console.log('Create payment via momo', momoPayment);
+        if (momoPayment.errorCode !== 1) {
+          return {
+            statusCode: 400,
+            message: momoPayment.returnmessage,
+            data: null
+          }
+        }
+      }
       const payment = await this.paymentRepository.save(template_payment)
       
       return {
