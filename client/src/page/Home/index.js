@@ -56,19 +56,6 @@ function Home() {
             return true;
         }).map(item => {
             const favorite = favoritesArray.find(fav => fav.roadmap.id === item.id && fav.user.id === profileId);
-            console.log({
-                id: item.id,
-                title: item.title,
-                content: item.content,
-                clone: item.clone,
-                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                loved: {
-                    loveId: favorite ? favorite.id : null,
-                    loveState: favorite ? false : true,
-                },
-                react: item.react,
-                nodeCount: item.node.length,
-            })
             return {
                 id: item.id,
                 title: item.title,
@@ -177,7 +164,6 @@ function Home() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to delete favorite.');
-                alert(errorData.message || 'Failed to delete favorite.');
                 return;
             }
         } catch (error) {

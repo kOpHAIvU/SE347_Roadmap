@@ -11,8 +11,8 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 const cx = classNames.bind(styles);
 
 function Login() {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [errors, setErrors] = useState({ email: '', password: '' });
+    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [errors, setErrors] = useState({ username: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
@@ -23,29 +23,15 @@ function Login() {
         setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi nhập lại
     };
 
-    const handleBlur = (e) => {
-        const { name, value } = e.target;
-
-        if (name === 'email') {
-            const emailError = !value
-                ? 'Please enter your email!'
-                : !/\S+@\S+\.\S+/.test(value)
-                    ? 'Invalid email!'
-                    : '';
-
-            setErrors((prev) => ({ ...prev, email: emailError }));
-        }
-    };
-
     const validate = () => {
         const newErrors = {};
-        if (!formData.email) newErrors.email = 'Please enter your email!';
-        else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Invalid email!';
+        if (!formData.username) {
+            newErrors.username = 'Please enter your username!';
         }
 
-        if (!formData.password) newErrors.password = 'Please enter your password!';
-        else if (formData.password.length < 6) {
+        if (!formData.password) {
+            newErrors.password = 'Please enter your password!';
+        } else if (formData.password.length < 6) {
             newErrors.password = 'Password must have at least 6 characters';
         }
 
@@ -63,8 +49,12 @@ function Login() {
                 const response = await fetch('http://localhost:3004/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: 'kophaivu', password: '29032004' }),
+                    body: JSON.stringify({
+                        username: formData.username,
+                        password: formData.password,
+                    }),
                 });
+
                 const data = await response.json();
                 // Kiểm tra mã trạng thái và thông báo
                 if (response.ok) {
@@ -115,18 +105,17 @@ function Login() {
                     <span className={cx('divider-text')}>OR</span>
                 </div>
 
-                {/* Email Input */}
-                <div className={cx('form-group', { invalid: !!errors.email })}>
+                {/* Username  Input */}
+                <div className={cx('form-group', { invalid: !!errors.username })}>
                     <input
                         type="text"
-                        name="email"
-                        placeholder="Username or Email"
+                        name="username"
+                        placeholder="Username"
                         className={cx('input-field')}
-                        value={formData.email}
+                        value={formData.username}
                         onChange={handleChange}
-                        onBlur={handleBlur}
                     />
-                    {errors.email && <span className={cx('error-message')}>{errors.email}</span>}
+                    {errors.username && <span className={cx('error-message')}>{errors.username}</span>}
                 </div>
 
                 {/* Password Input */}
