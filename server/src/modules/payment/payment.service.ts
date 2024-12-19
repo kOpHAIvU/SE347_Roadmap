@@ -50,12 +50,9 @@ export class PaymentService {
         user: user
       })
 
-      const template_payment = await this.paymentRepository.save(newPayment)
-      const idTransaction = this.encodeTo8Char(template_payment.id)
-      template_payment.code = idTransaction
-      if (createPaymentDto.type === 'momo') {
-        const momoPayment = await this.momoService.createOrder(template_payment.totalPayment, user.fullName);
-        console.log('Create payment via momo', momoPayment);
+      if (createPaymentDto.type === 'zalopay') {
+        const momoPayment = await this.momoService.createOrder(createPaymentDto.totalPayment, user.fullName);
+        console.log('Create payment via zalopay', momoPayment);
         if (momoPayment.returncode !== 1) {
           return {
             statusCode: 400,
@@ -63,8 +60,9 @@ export class PaymentService {
             data: null
           }
         }
+        newPayment.code = momoPayment.zptranstoken;
       }
-      const payment = await this.paymentRepository.save(template_payment)
+      const payment = await this.paymentRepository.save(newPayment)
       
       return {
         statusCode: 200,
