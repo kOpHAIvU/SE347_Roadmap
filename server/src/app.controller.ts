@@ -9,6 +9,11 @@ import { RoleGuard } from './modules/role/common/role.guard';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get()
+  getHello(): string {
+    return "Hello world"
+  }
+
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))
   @UseGuards(JwtAuthGuard, RoleGuard)

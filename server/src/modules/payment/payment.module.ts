@@ -4,6 +4,7 @@ import { PaymentController } from './payment.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from './entities/payment.entity';
 import { UserModule } from '../user/user.module';
+import { MomoService } from './strategy/momo.service';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { UserModule } from '../user/user.module';
     UserModule
   ],
   controllers: [PaymentController],
-  providers: [PaymentService],
+  providers: [PaymentService, MomoService],
   exports: [PaymentService],
 })
 export class PaymentModule {}

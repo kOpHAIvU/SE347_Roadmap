@@ -51,4 +51,16 @@ export class NodeController {
     async findNodesByTimelineId(@Param('timelineId', ParseIntPipe) timelineId: string) {
         return await this.nodeService.findAllNodeByTimelineId(+timelineId);
     }
+
+    @Delete('roadmap/:roadmapId')
+    @UseGuards(JwtAuthGuard)
+    async removeNodeByRoadmapId(@Param('roadmapId', ParseIntPipe) roadmapId: string) {
+        return await this.nodeService.deleteNodeByRoadmapId(+roadmapId);
+    }
+
+    @Delete('timeline/:timelineId')
+    @UseGuards(JwtAuthGuard)
+    async removeNodeByTimelineId(@Param('timelineId', ParseIntPipe) timelineId: string) {
+        return await this.nodeService.deleteNodeByTimelineId(+timelineId);
+    }
 }

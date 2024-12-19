@@ -39,21 +39,13 @@ const filterRoadmapData = (data) => {
     }));
 }
 
-
-const filterRoadmapIdData = (data) => {
-    //console.log(data)
-    return data.map((item) => ({ id: item.id }));
-}
-
 function OwnRoadmap() {
     const navigate = useNavigate();
     const { id: encryptedId } = useParams();
     const id = decryptId(encryptedId);
-    //console.log("Id: ", id)
 
     const [profile, setProfile] = useState(null);
     const [roadmapData, setRoadmapData] = useState(null);
-    const [idList, setIdList] = useState(null);
     const [nodes, setNodes] = useState(null);
 
     const [userType, setUserType] = useState("Viewer")
@@ -107,16 +99,13 @@ function OwnRoadmap() {
             });
 
             const data = await response.json();
-            console.log(data)
             if (response.ok) {
                 setRoadmapData(data.data);
                 setVisibility(data.data.isPublic ? "Pubic" : "Private");
                 console.log("Roadmap data: ", data.data);
 
                 setNodes(filterRoadmapData(data.data.node))
-                //console.log("Nodes after fetching: ", nodes);
-                setIdList(filterRoadmapIdData(data.data.node))
-                console.log("Id after fetching: ", idList);
+                console.log("Nodes after fetching: ", nodes);
 
                 return data.data;
             } else {
@@ -254,9 +243,32 @@ function OwnRoadmap() {
         }
     };
 
-    const fetchDelNode = async (id) => {
+    const fetchAllNodeInRoadmap = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/node/item/${id}`, {
+            const response = await fetch(`http://localhost:3004/node/all/roadmap/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setNodes(filterRoadmapData(data.data))
+                console.log("Nodes after fetching: ", nodes);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchDelAllNodeInRoadmap = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/node/roadmap/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -266,7 +278,7 @@ function OwnRoadmap() {
 
             const data = await response.json();
             if (response.ok) {
-                console.log("Node ", data.data.id, " deleted.");
+                console.log(data);
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -292,6 +304,7 @@ function OwnRoadmap() {
                 setRoadName(fetchedRoadmapData.title)
                 setTitleText(fetchedRoadmapData.content)
             }
+            console.log("Id: ", id)
         };
         fetchData();
     }, [id]);
@@ -449,15 +462,13 @@ function OwnRoadmap() {
     }
 
     const handleSave = async () => {
-        for (let i = 0; i < idList.length; i++) {
-            await fetchDelNode(idList[i])
-            console.log("Idlist: ", idList[i])
-        }
-
+        await fetchDelAllNodeInRoadmap()
         for (let i = 0; i < nodes.length; i++) {
             await fetchNewNode(nodes[i])
             console.log("Nodes new: ", nodes[i])
         }
+        await fetchAllNodeInRoadmap()
+
         handleMakeDialog('Saved')
     }
 
@@ -491,11 +502,11 @@ function OwnRoadmap() {
 
         let newReactValue;
         if (loved) {
-            newReactValue = roadmapData[0].react - 1;
+            newReactValue = roadmapData.react - 1;
             fetchDelFavourite(loveId)
         }
         else {
-            newReactValue = roadmapData[0].react + 1;
+            newReactValue = roadmapData.react + 1;
             fetchNewFavourite(profile.id)
         }
 

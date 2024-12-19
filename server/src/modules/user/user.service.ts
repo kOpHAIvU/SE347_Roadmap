@@ -89,7 +89,7 @@ export class UserService {
                 .where('user.id = :id', { id })
                 .andWhere('user.isActive = :isActive', { isActive: true })
                 .andWhere('user.deletedAt is null')
-                .getMany();
+                .getOne();
 
             if (!user) {
                 return {
