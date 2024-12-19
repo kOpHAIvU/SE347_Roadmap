@@ -41,6 +41,7 @@ import { DatabaseModule } from './database/database.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerExceptionFilter } from './common/exception-filter/ThrottlerException.filter';
+import { PaymentModule } from './modules/payment/payment.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { ThrottlerExceptionFilter } from './common/exception-filter/ThrottlerExc
     ProgressModule,
     FavoriteModule,
     CloudinaryModule,
+    PaymentModule
 
     // TypeOrmModule.forRoot({
     //   type: 'mysql',

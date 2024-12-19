@@ -9,6 +9,7 @@ import { Notification } from '../../notification/entities/notification.entity';
 import { GroupDivision } from '../../group-division/entities/group-division.entity';
 import { Message } from '../../message/entities/message.entity';
 import { Favorite } from 'src/modules/favorite/entities/favorite.entity';
+import { Payment } from 'src/modules/payment/entities/payment.entity';
 
 @Entity()
 export class User {
@@ -81,5 +82,8 @@ export class User {
     favorite: Favorite[]; 
 
     @OneToMany(() => Report, report => report.receive )
-    receiverReport: Report
+    receiverReport: Report[]
+
+    @OneToMany(() => Payment, payment => payment.user)
+    payment: Payment[]
 }
