@@ -272,7 +272,6 @@ export class TimelineService {
                     type: node[i].type,
                     tick: node[i].tick,
                     dueTime: node[i].dueTime,
-                    attachFile: node[i].attachFile,
                     content: node[i].content,
                     detail: node[i].detail,
                     timeline: result.id,
