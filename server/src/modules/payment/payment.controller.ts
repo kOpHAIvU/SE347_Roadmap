@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -10,7 +10,12 @@ export class PaymentController {
 
   @Post('new')
   @UseGuards(JwtAuthGuard)
-  create(@Body() createPaymentDto: CreatePaymentDto) {
+  create(
+    @Body() createPaymentDto: CreatePaymentDto,
+    @Req() request,
+  ) {
+    const userId = request.user.userId;
+    createPaymentDto.userId = userId;
     return this.paymentService.create(createPaymentDto);
   }
 

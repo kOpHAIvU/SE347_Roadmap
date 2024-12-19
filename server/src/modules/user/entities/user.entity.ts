@@ -37,7 +37,7 @@ export class User {
     @Column({ length: 100, unique: true, nullable: false })
     email: string;
 
-    @Column({ type: 'boolean', default: false }) // Default status is 0 (false)
+    @Column({ type: 'boolean', default: true }) // Default status is 0 (false)
     isActive: boolean;
 
     @CreateDateColumn()  
