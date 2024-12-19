@@ -300,6 +300,76 @@ export class NodeService {
       }
     }
   }
+
+  async deleteNodeByRoadmapId(
+    roadmapId: number
+  ) {
+    try {
+      const nodes = await this.nodeRepository
+                      .createQueryBuilder('node')
+                      .where('node.roadmap = :roadmapId', { roadmapId })
+                      .andWhere('node.isActive = :isActive', { isActive: 1 })
+                      .andWhere('node.deletedAt is null')
+                      .getMany();
+      for (let i = 0; i < nodes.length; i++) {
+        const idNode = nodes[i].id;
+        const result = await this.remove(idNode);
+        if (result.statusCode !== 200) {
+          return {
+            statusCode: 500,
+            message: "Cannot delete node " + idNode,
+            data: null
+          }
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Node deleted successfully',
+        data: null
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
+  async deleteNodeByTimelineId(
+    timelineId: number
+  ) {
+    try {
+      const nodes = await this.nodeRepository
+                      .createQueryBuilder('node')
+                      .where('node.timeline = :timelineId', { timelineId })
+                      .andWhere('node.isActive = :isActive', { isActive: 1 })
+                      .andWhere('node.deletedAt is null')
+                      .getMany();
+      for (let i = 0; i < nodes.length; i++) {
+        const idNode = nodes[i].id;
+        const result = await this.remove(idNode);
+        if (result.statusCode !== 200) {
+          return {
+            statusCode: 500,
+            message: "Cannot delete node " + idNode,
+            data: null
+          }
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Node deleted successfully',
+        data: null
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
 }
 
 
