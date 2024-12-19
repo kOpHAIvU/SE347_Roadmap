@@ -34,7 +34,7 @@ export class RoadmapController {
 
     @Get('all')
     @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles('admin')
+    // @Roles('admin')
     async findAll(@Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 100) {
         return await this.roadmapService.findAll(page, limit);
     }
