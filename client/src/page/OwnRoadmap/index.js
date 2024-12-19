@@ -20,12 +20,13 @@ const secretKey = 'kophaivu'; // Khóa bí mật
 
 // Hàm giải mã
 const decryptId = (encryptedId) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    const normalizedEncryptedId = encryptedId.replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = CryptoJS.AES.decrypt(normalizedEncryptedId, secretKey);
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-const filterRoadmapData = (data) =>
-    data.map((item, index) => ({
+const filterRoadmapData = (data) => {
+    return data.map((item, index) => ({
         id: index,
         level: item.level,
         x: item.xAxis,
@@ -36,13 +37,19 @@ const filterRoadmapData = (data) =>
         content: item.content,
         nodeDetail: item.detail,
     }));
+}
 
-const filterRoadmapIdData = (data) =>
-    data.map((item) => ({ id: item.id }));
+
+const filterRoadmapIdData = (data) => {
+    //console.log(data)
+    return data.map((item) => ({ id: item.id }));
+}
 
 function OwnRoadmap() {
     const navigate = useNavigate();
-    const { id } = decryptId(useParams());
+    const { id: encryptedId } = useParams();
+    const id = decryptId(encryptedId);
+    //console.log("Id: ", id)
 
     const [profile, setProfile] = useState(null);
     const [roadmapData, setRoadmapData] = useState(null);
@@ -70,7 +77,7 @@ function OwnRoadmap() {
             const response = await fetch('http://localhost:3004/auth/profile', {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    'Authorization': `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -100,14 +107,15 @@ function OwnRoadmap() {
             });
 
             const data = await response.json();
+            console.log(data)
             if (response.ok) {
                 setRoadmapData(data.data);
                 setVisibility(data.data.isPublic ? "Pubic" : "Private");
                 console.log("Roadmap data: ", data.data);
 
-                setNodes(filterRoadmapData(data.data[0].node))
+                setNodes(filterRoadmapData(data.data.node))
                 //console.log("Nodes after fetching: ", nodes);
-                setIdList(filterRoadmapIdData(data.data[0].node.id))
+                setIdList(filterRoadmapIdData(data.data.node))
                 console.log("Id after fetching: ", idList);
 
                 return data.data;
@@ -277,12 +285,12 @@ function OwnRoadmap() {
 
             if (fetchedProfile && fetchedRoadmapData) {
                 setUserType(
-                    fetchedProfile.id === fetchedRoadmapData[0].owner.id
+                    fetchedProfile.id === fetchedRoadmapData.owner.id
                         ? "Administrator"
                         : "Viewer"
                 );
-                setRoadName(fetchedRoadmapData[0].title)
-                setTitleText(fetchedRoadmapData[0].content)
+                setRoadName(fetchedRoadmapData.title)
+                setTitleText(fetchedRoadmapData.content)
             }
         };
         fetchData();
@@ -597,7 +605,7 @@ function OwnRoadmap() {
 
             </div>
             <div className={cx('roadmap-section')}>
-                {nodes === null || nodes.length === 0 ? (
+                {!nodes || nodes.length === 0 ? (
                     <div className={cx('add-first-node')} onClick={() => handleSameLevelClick(-1, 50, 0, 1, 'Checkbox')}>
                         <FontAwesomeIcon className={cx('add-button')} icon={faSquarePlus} />
                         <h1 className={cx('add-text')}>Create your first node now!!!</h1>

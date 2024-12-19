@@ -11,7 +11,9 @@ const secretKey = 'kophaivu'; // Khóa bí mật
 
 // Hàm mã hóa
 const encryptId = (id) => {
-  return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    // Thay thế ký tự đặc biệt
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
 
 function Home() {
@@ -58,7 +60,6 @@ function Home() {
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
 
         return data.filter(item => {
-            console.log(item)
             if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
                 return false;
             return true;
