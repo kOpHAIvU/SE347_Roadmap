@@ -17,8 +17,7 @@ export class CreateCommentDto {
     roadmap: number;
 
     @IsNumber()
-    @IsNotEmpty()
-    parentComment: number;
+    parentComment?: number;
 
     @IsNumber()
     isActive?: boolean;
