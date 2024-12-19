@@ -67,7 +67,6 @@ function Home() {
                     loveState: favorite ? false : true,
                 },
                 react: item.react,
-                nodeCount: item.node.length,
             };
         });
     };

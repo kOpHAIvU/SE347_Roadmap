@@ -15,22 +15,23 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
-const filterRoadmapData = (data) => {
-    data.map((item, index) => {
-        return {
-            id: index,
-            level: item.level,
-            x: item.xAxis,
-            y: item.yAxis,
-            type: item.type,
-            ticked: item.tick,
-            due_time: item.dueTime,
-            content: item.content,
-            nodeDetail: item.detail,
-            nodeId: item.id
-        }
-    })
-}
+const filterRoadmapData = (data) =>
+    data.map((item, index) => ({
+        id: index,
+        level: item.level,
+        x: item.xAxis,
+        y: item.yAxis,
+        type: item.type,
+        ticked: item.tick,
+        due_time: item.dueTime,
+        content: item.content,
+        nodeDetail: item.detail,
+    }));
+
+
+
+const filterRoadmapIdData = (data) =>
+    data.map((item) => ({ id: item.id }));
 
 function OwnRoadmap() {
     const navigate = useNavigate();
@@ -38,6 +39,8 @@ function OwnRoadmap() {
 
     const [profile, setProfile] = useState(null);
     const [roadmapData, setRoadmapData] = useState(null);
+    const [idList, setIdList] = useState(null);
+    const [nodes, setNodes] = useState(null);
 
     const [userType, setUserType] = useState("Viewer")
     const [roadName, setRoadName] = useState('Name not given');
@@ -69,7 +72,7 @@ function OwnRoadmap() {
 
             if (response.ok) {
                 setProfile(data.data);
-                console.log("Profile: ", data.data);
+                //console.log("Profile: ", data.data);
                 return data.data;
             } else {
                 console.error('Error:', data.message || 'Failed to fetch profile data.');
@@ -92,8 +95,14 @@ function OwnRoadmap() {
             const data = await response.json();
             if (response.ok) {
                 setRoadmapData(data.data);
-                setVisibility(data.data.isPublic ? "Pubic" : "Private")
+                setVisibility(data.data.isPublic ? "Pubic" : "Private");
                 console.log("Roadmap data: ", data.data);
+
+                setNodes(filterRoadmapData(data.data[0].node))
+                //console.log("Nodes after fetching: ", nodes);
+                setIdList(filterRoadmapIdData(data.data[0].node.id))
+                console.log("Id after fetching: ", idList);
+
                 return data.data;
             } else {
                 const errorData = await response.json();
@@ -197,6 +206,61 @@ function OwnRoadmap() {
         }
     };
 
+    const fetchNewNode = async (nodeData) => {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('level', nodeData.level);
+            formData.append('xAxis', nodeData.x);
+            formData.append('yAxis', nodeData.y);
+            formData.append('type', nodeData.type);
+            formData.append('tick', nodeData.ticked);
+            formData.append('dueTime', nodeData.due_time);
+            formData.append('content', nodeData.content);
+            formData.append('detail', nodeData.nodeDetail);
+            formData.append('roadmap', id);
+
+            const response = await fetch('http://localhost:3004/node/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Node added:', data); // Xử lý dữ liệu nếu cần
+            } else {
+                console.error('Failed to add node. Status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchDelNode = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:3004/node/item/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log("Node ", data.data.id, " deleted.");
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
     const [loveId, setLoveId] = useState(null)
     useEffect(() => {
         const fetchData = async () => {
@@ -261,30 +325,29 @@ function OwnRoadmap() {
         }
     }
 
-    const nodeDetail = `
-    <h2>What is GitHub?</h2>
-    <p><span style="background-color: rgb(246, 249, 252); color: rgb(33, 51, 67);">GitHub is an online software development platform. It's used for storing, tracking, and collaborating on software projects. </span></p>
-    <p>It makes it easy for developers to share code files and collaborate with fellow developers on open-source projects. GitHub also serves as a social networking site where developers can openly network, collaborate, and pitch their work.</p>
-    <p>Since its founding in 2008, GitHub has acquired millions of users and established itself as a go-to platform for collaborative software projects. This free service comes with several helpful features for sharing code and working with others in real time.</p>
-    <p>On top of its code-related functions, GitHub encourages users to build a personal profile and brand for themselves. You can visit anyone’s profile and see what projects they own and contribute to. This makes GitHub a type of social network for programmers and fosters a collaborative approach to software and <a href="https://blog.hubspot.com/website/website-development?hubs_content=blog.hubspot.com/website/what-is-github-used-for&amp;hubs_content-cta=website%20development" rel="noopener noreferrer" target="_blank" style="color: var(--cl-anchor-color,#0068b1);"><strong>website development</strong></a>.</p>
-    <h3>How does GitHub work?</h3>
-    <p>GitHub users create accounts, upload files, and create coding projects. But the real work of GitHub happens when users begin to collaborate.</p>
-    <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
-    `;
+    // const nodeDetail = `
+    // <h2>What is GitHub?</h2>
+    // <p><span style="background-color: rgb(246, 249, 252); color: rgb(33, 51, 67);">GitHub is an online software development platform. It's used for storing, tracking, and collaborating on software projects. </span></p>
+    // <p>It makes it easy for developers to share code files and collaborate with fellow developers on open-source projects. GitHub also serves as a social networking site where developers can openly network, collaborate, and pitch their work.</p>
+    // <p>Since its founding in 2008, GitHub has acquired millions of users and established itself as a go-to platform for collaborative software projects. This free service comes with several helpful features for sharing code and working with others in real time.</p>
+    // <p>On top of its code-related functions, GitHub encourages users to build a personal profile and brand for themselves. You can visit anyone’s profile and see what projects they own and contribute to. This makes GitHub a type of social network for programmers and fosters a collaborative approach to software and <a href="https://blog.hubspot.com/website/website-development?hubs_content=blog.hubspot.com/website/what-is-github-used-for&amp;hubs_content-cta=website%20development" rel="noopener noreferrer" target="_blank" style="color: var(--cl-anchor-color,#0068b1);"><strong>website development</strong></a>.</p>
+    // <h3>How does GitHub work?</h3>
+    // <p>GitHub users create accounts, upload files, and create coding projects. But the real work of GitHub happens when users begin to collaborate.</p>
+    // <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
+    // `;
 
-    const [nodes, setNodes] = useState([
-        {
-            id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2,
-            content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
-            nodeDetail: nodeDetail
-        },
-        {
-            id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
-            content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
-            nodeDetail: ''
-        },
-    ]);
-    //const [nodes, setNodes] = useState(null);
+    // const [nodes, setNodes] = useState([
+    //     {
+    //         id: 1, level: 1, x: 50, y: 50, type: 'Checkbox', ticked: false, due_time: 2,
+    //         content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
+    //         nodeDetail: nodeDetail
+    //     },
+    //     {
+    //         id: 2, level: 1, x: 50, y: 150, type: 'Checkbox', ticked: false, due_time: 2,
+    //         content: 'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
+    //         nodeDetail: ''
+    //     },
+    // ]);
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
@@ -333,7 +396,6 @@ function OwnRoadmap() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
-        console.log(newId)
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -371,9 +433,17 @@ function OwnRoadmap() {
             ? nodes[index + 1].type : null;
     }
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        for (let i = 0; i < idList.length; i++) {
+            await fetchDelNode(idList[i])
+            console.log("Idlist: ", idList[i])
+        }
+
+        for (let i = 0; i < nodes.length; i++) {
+            await fetchNewNode(nodes[i])
+            console.log("Nodes new: ", nodes[i])
+        }
         handleMakeDialog('Saved')
-        console.log("Lưu ở đây nhóe thím Lon, lấy cái nodes mà post lên")
     }
 
     const handleOutsideClick = (e) => {
@@ -441,7 +511,7 @@ function OwnRoadmap() {
         if (nodes.length <= 5)
             handleMakeDialog('Clone')
         else {
-            
+
         }
     }
 
@@ -520,7 +590,7 @@ function OwnRoadmap() {
 
             </div>
             <div className={cx('roadmap-section')}>
-                {nodes === null ? (
+                {nodes === null || nodes.length === 0 ? (
                     <div className={cx('add-first-node')} onClick={() => handleSameLevelClick(-1, 50, 0, 1, 'Checkbox')}>
                         <FontAwesomeIcon className={cx('add-button')} icon={faSquarePlus} />
                         <h1 className={cx('add-text')}>Create your first node now!!!</h1>
