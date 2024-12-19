@@ -116,7 +116,7 @@ export class RoadmapService {
                       .leftJoinAndSelect('roadmap.comment', 'comment')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
-                      .orderBy('roadmap.createdAt', 'DESC')
+                      .orderBy('roadmap.react', 'DESC')
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
@@ -128,7 +128,7 @@ export class RoadmapService {
 
         }
       }
-
+      
       return {
         statusCode: 200,
         message: 'Get this of roadmap successfully',
@@ -137,7 +137,8 @@ export class RoadmapService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Failed to get all road maps'
+        message: error.message,
+        data: null
       }
     }
 
@@ -215,7 +216,6 @@ export class RoadmapService {
 
         }
       }
-
       return {
         statusCode: 200,
         message: 'Get roadmap successfully',
