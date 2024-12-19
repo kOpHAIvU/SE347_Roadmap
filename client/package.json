@@ -16,6 +16,7 @@
         "amqplib": "^0.10.4",
         "antd": "^5.21.1",
         "classnames": "^2.5.1",
+        "crypto-js": "^4.2.0",
         "dotenv": "^16.4.5",
         "konva": "^9.3.16",
         "normalize.css": "^8.0.1",

@@ -12,8 +12,17 @@ import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.
 import { CantClone } from '~/components/Layout/components/MiniNotification/index.js';
 import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
 import { useNavigate, useParams } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
+
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm giải mã
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+};
 
 const filterRoadmapData = (data) =>
     data.map((item, index) => ({
@@ -28,14 +37,12 @@ const filterRoadmapData = (data) =>
         nodeDetail: item.detail,
     }));
 
-
-
 const filterRoadmapIdData = (data) =>
     data.map((item) => ({ id: item.id }));
 
 function OwnRoadmap() {
     const navigate = useNavigate();
-    const { id } = useParams();
+    const { id } = decryptId(useParams());
 
     const [profile, setProfile] = useState(null);
     const [roadmapData, setRoadmapData] = useState(null);

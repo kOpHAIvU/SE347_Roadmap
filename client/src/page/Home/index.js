@@ -3,8 +3,16 @@ import styles from './Home.module.scss';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
+
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+  return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+};
 
 function Home() {
     const navigate = useNavigate();
@@ -263,7 +271,8 @@ function Home() {
     };
 
     const handleClickRoadmap = (id) => {
-        navigate(`/roadmap/${id}`);
+        const encryptedId = encryptId(id);
+        navigate(`/roadmap/${encryptedId}`);
     };
 
     return (
