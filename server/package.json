@@ -48,7 +48,7 @@
     "class-validator": "^0.14.1",
     "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "firebase-admin": "^13.0.1",
     "follow-redirects": "^1.15.9",
