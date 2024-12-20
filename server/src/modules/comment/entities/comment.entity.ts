@@ -12,6 +12,12 @@ export class Comment {
     @Column({nullable: false})
     content: string;
 
+    @Column({default: -1})
+    left: number;
+
+    @Column({default: -1})
+    right: number;
+
     @ManyToOne(() => User, poster => poster.comment, { eager: true })
     poster: User;
 
