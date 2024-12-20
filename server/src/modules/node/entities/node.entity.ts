@@ -53,4 +53,6 @@ export class Node {
 
     @ManyToOne(() => Timeline, timeline => timeline.node, { eager: true })
     timeline: Timeline;
+
+    
 }

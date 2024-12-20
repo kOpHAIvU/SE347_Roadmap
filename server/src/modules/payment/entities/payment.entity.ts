@@ -15,11 +15,17 @@ export class Payment {
     @Column()
     type: string;
 
+    @Column()
+    oderurl: string;
+
     @ManyToOne(() => User, user => user.payment)
     user: User;
 
     @CreateDateColumn()  
     createdAt:Date
+
+    @Column({default: false})
+    status: boolean;
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;

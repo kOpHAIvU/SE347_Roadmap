@@ -1,12 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { JwtAuthGuard } from '../auth/common/jwt-guard';
+import { MomoService } from './strategy/momo.service';
 
 @Controller('payment')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(private readonly paymentService: PaymentService,
+    private readonly momoService: MomoService
+  ) {}
 
   @Post('new')
   @UseGuards(JwtAuthGuard)
@@ -45,4 +48,43 @@ export class PaymentController {
   remove(@Param('id') id: string) {
     return this.paymentService.remove(+id);
   }
+
+  @Post('item/:id')
+  @UseGuards(JwtAuthGuard)
+  async pay(@Param('id', ParseIntPipe) id: string) {
+    return this.paymentService.updatePaymentStatus(+id);
+  }
+
+  @Post('callback')
+  async callbackZaloPay(
+    @Body('data') data: string,
+    @Body('mac') mac: string,
+  ) {
+    console.log('Callback from ZaloPay', data, mac);
+    return await this.momoService.handleCallback(data, mac);
+  }
+
+  @Post('checkStatus')
+  @UseGuards(JwtAuthGuard)
+  async checkStatus(
+    @Body('transId') transId: string, // Mã của payment trong CSDL - trường id trong CSDL
+    @Body('orderId') orderId: number // Mã của transaction trên cổng thanh toán - tương đương trường code trong CSDL
+  ) {
+    const result =  await this.momoService.checkTransactionStatus(transId, orderId);
+    if (result.statusCode === 200) {
+      const updatePayment = await this.paymentService.updatePaymentStatus(orderId);
+      return {
+        statusCode: 200,
+        message: 'The bill has been paid successfully.',
+        data: updatePayment
+      }
+    } else {
+      return {
+        statusCode: 400,
+        message: 'The bill has not been paid yet.',
+        data: null
+      }
+    }
+  }
 }
+//241219_cb55e220-be27-11ef-bbc4-e1112c7842b8

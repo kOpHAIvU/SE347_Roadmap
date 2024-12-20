@@ -42,6 +42,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerExceptionFilter } from './common/exception-filter/ThrottlerException.filter';
 import { PaymentModule } from './modules/payment/payment.module';
+import { MomoService } from './modules/payment/strategy/momo.service';
 
 @Module({
   imports: [
@@ -98,6 +99,7 @@ import { PaymentModule } from './modules/payment/payment.module';
     AppService, 
     GoogleStrategy, 
     CloudinaryService,
+    MomoService
     // {
     //   provide: APP_FILTER,
     //   useClass: ThrottlerExceptionFilter,

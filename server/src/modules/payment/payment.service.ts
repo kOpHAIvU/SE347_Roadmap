@@ -47,7 +47,8 @@ export class PaymentService {
                         : userResponse.data
       const newPayment = this.paymentRepository.create({
         ...createPaymentDto,
-        user: user
+        user: user,
+        status: false
       })
 
       if (createPaymentDto.type === 'zalopay') {
@@ -60,7 +61,8 @@ export class PaymentService {
             data: null
           }
         }
-        newPayment.code = momoPayment.zptranstoken;
+        newPayment.code = momoPayment.apptransid;
+        newPayment.oderurl = momoPayment.oderurl;
       }
       const payment = await this.paymentRepository.save(newPayment)
       
@@ -185,6 +187,37 @@ export class PaymentService {
       return {
         statusCode: 200,
         message: "Payment updated successfully",
+        data: result
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
+  async updatePaymentStatus(
+    id: number,
+  ) {
+    try {
+      const oldPaymentResponse = await this.findOne(id);
+      if (oldPaymentResponse.statusCode !== 200) {
+        return {
+          statusCode: 404,
+          message: "Payment not found",
+          data: null
+        }
+      }
+      const newPayment = this.paymentRepository.create({
+        ...oldPaymentResponse.data,
+        status: true
+      })
+      const result = await this.paymentRepository.save(newPayment);
+      return {
+        statusCode: 200,
+        message: "Payment status updated successfully",
         data: result
       }
     } catch(error) {
