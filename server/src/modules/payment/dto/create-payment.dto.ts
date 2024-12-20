@@ -3,5 +3,6 @@ export class CreatePaymentDto {
     userId?: number;
     // type is "momo", 'zalopay'
     type: string;
+    status: boolean;
     isActive?: boolean;
 }
