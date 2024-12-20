@@ -77,7 +77,7 @@ function YourRoadmap() {
                     loveState: favorite ? false : true,
                 },
                 react: item.react,
-                nodeCount: Array.isArray(item.node) ? item.node.length : 0,
+                nodeCount: item.node.length
             };
         });
     };

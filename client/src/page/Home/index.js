@@ -19,6 +19,8 @@ const encryptId = (id) => {
 function Home() {
     const navigate = useNavigate();
 
+    const [profile, setProfile] = useState(null);
+
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
 
@@ -55,6 +57,7 @@ function Home() {
 
     const filterRoadmapData = async (data) => {
         const profileId = await fetchProfile();
+        setProfile(profileId)
         const favorites = await fetchFavoriteData();
 
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
@@ -76,6 +79,7 @@ function Home() {
                     loveState: favorite ? false : true,
                 },
                 react: item.react,
+                nodeCount: item.node.length
             };
         });
     };
@@ -179,6 +183,7 @@ function Home() {
         }
     };
 
+    
     // let source = "https://i.ebayimg.com/images/g/XI0AAOSw~HJker7R/s-l1200.jpg"
     // // Đặt roadmaps trong state để có thể cập nhật
     // const [roadmaps, setRoadmaps] = useState([
@@ -244,8 +249,7 @@ function Home() {
         }
         else {
             newReactValue = roadmapToUpdate.react + 1;
-            const profileId = await fetchProfile();
-            fetchNewFavourite(profileId, roadmapToUpdate.id)
+            fetchNewFavourite(profile.id, roadmapToUpdate.id)
         }
 
         try {
@@ -286,6 +290,7 @@ function Home() {
                         children={roadmap}
                         onLoveChange={() => handleLoveChange(roadmap.id)}
                         onClick={() => handleClickRoadmap(roadmap.id)}
+                        //fetchNewTimeline={() => fetchNewTimeline}
                     />
                 ))}
             </div>

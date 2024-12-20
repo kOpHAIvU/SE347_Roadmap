@@ -2,13 +2,32 @@ import classNames from 'classnames/bind';
 import styles from './YourTimeline.module.scss';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import Timeline from '../Timeline/index.js';
 import TimelineItem from '~/components/Layout/components/TimelineItem/index.js';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
 
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    // Thay thế ký tự đặc biệt
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
 function YourTimeline() {
     const navigate = useNavigate();
+
+    const getToken = () => {
+        const token = localStorage.getItem('vertexToken');
+
+        if (!token) {
+            navigate(`/login`);
+            return;
+        }
+        return token;
+    }
 
     let source = "https://i.ebayimg.com/images/g/XI0AAOSw~HJker7R/s-l1200.jpg"
     // Đặt roadmaps trong state để có thể cập nhật
