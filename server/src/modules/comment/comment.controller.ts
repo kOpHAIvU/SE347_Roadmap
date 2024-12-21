@@ -55,4 +55,11 @@ export class CommentController {
   ) {
     return await this.commentService.getAllCommentsOfRoadmap(roadmapId, page, limit);
   }
+
+  @Post('nestedComment')
+  async createNestedComment(
+    @Body() createCommentDto: CreateCommentDto
+  ) { 
+    return await this.commentService.createNestedComment(createCommentDto);
+  }
 }

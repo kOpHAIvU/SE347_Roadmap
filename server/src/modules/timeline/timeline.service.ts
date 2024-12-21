@@ -76,6 +76,7 @@ export class TimelineService {
       const timelines = await this.timelineRepository
                         .createQueryBuilder('timeline')
                         .leftJoinAndSelect('timeline.creator', 'creator')
+                        .leftJoinAndSelect('timeline.node', 'node')
                         .where('timeline.isActive = :isActive', { isActive: 1 })
                         .andWhere('timeline.deletedAt is null')
                         .orderBy('timeline.createdAt', 'DESC')
@@ -110,6 +111,7 @@ export class TimelineService {
                       .createQueryBuilder('timeline')
                       .leftJoinAndSelect('timeline.roadmap', 'roadmap')
                       .leftJoinAndSelect('timeline.creator', 'creator')
+                      .leftJoinAndSelect('timeline.node', 'node')
                       .where('timeline.id = :id', { id })
                       .andWhere('timeline.isActive = :isActive', { isActive: true })
                       .andWhere('timeline.deletedAt is null') 
@@ -145,6 +147,7 @@ export class TimelineService {
       const timelines = await this.timelineRepository
                                   .createQueryBuilder("timeline")
                                   .leftJoinAndSelect('timeline.roadmap', 'roadmap')
+                                  .leftJoinAndSelect('timeline.node', 'node')
                                   .where('timeline.creatorId = :userId', {userId: userId})
                                   .andWhere('timeline.isActive = :isActive', { isActive: true })
                                   .andWhere('timeline.deletedAt is null') 
@@ -296,6 +299,7 @@ export class TimelineService {
         roadmap: roadmap,
         creator: owner,
         isActive: true,
+        avatar: roadmap.avatar 
       });
       const result = await this.timelineRepository.save(timeline);
 
@@ -335,4 +339,6 @@ export class TimelineService {
       }
     }
   }
+
+
 }

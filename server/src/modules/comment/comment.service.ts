@@ -1,6 +1,6 @@
 import { Message } from 'src/modules/message/entities/message.entity';
 import { RoadmapService } from './../roadmap/roadmap.service';
-import { Injectable, Logger, Query } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, Query } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,6 +23,7 @@ export class CommentService {
     id: number
   ): Promise<ResponseDto> {
     try {
+
         const comment = await this.commentRepository
                             .createQueryBuilder('comment')
                             .leftJoinAndSelect('comment.poster', 'poster')
@@ -32,7 +33,7 @@ export class CommentService {
                             .andWhere("comment.isActive = :isActive", { isActive: true })
                             .andWhere("comment.deletedAt IS NULL")
                             .getOne();
-
+        console.log("Parent comment",comment);
         if (!comment) {
             return {
                 statusCode: 404,
@@ -363,4 +364,87 @@ export class CommentService {
       }
     }
   }
+
+  async createNestedComment(createCommentDto: CreateCommentDto) {
+    const { roadmap, content, poster, parentComment } = createCommentDto;
+  
+    // Fetch roadmap
+
+    const roadmapResponse = await this.roadmapService.findOneById(roadmap);
+    const roadmapData = Array.isArray(roadmapResponse.data)
+      ? roadmapResponse.data[0]
+      : roadmapResponse.data;
+
+    const posterResponse = await this.userService.findOneById(poster);
+    const posterData = Array.isArray(posterResponse.data)
+      ? posterResponse.data[0]
+      : posterResponse.data;
+  
+    let leftValue: number;
+    let rightValue: number;
+  
+    if (!roadmap) {
+      throw new NotFoundException('Roadmap not found.');
+    }
+
+    const parentCommentResponse = await this.findOneById(parentComment);
+    const parentCommentData = Array.isArray(parentCommentResponse.data)
+      ? parentCommentResponse.data[0]
+      : parentCommentResponse.data;
+
+    
+    if (typeof(parentComment) !== 'undefined') {
+      // Fetch parent comment
+
+      if (!parentCommentData) {
+        throw new NotFoundException('Parent comment not found.');
+      }
+  
+      leftValue = parentCommentData.right;
+      rightValue = leftValue + 1;
+  
+      // Update `right` values for comments in the same branch
+      await this.commentRepository
+        .createQueryBuilder()
+        .update(Comment)
+        .set({ right: () => '`right` + 2' })
+        .where('roadmapId = :roadmapId', { roadmapId: roadmapData.id })
+        .andWhere('`right` >= :rightValue', { rightValue })
+        .execute();
+  
+      // Update `left` values for comments in the same branch
+      await this.commentRepository
+        .createQueryBuilder()
+        .update(Comment)
+        .set({ left: () => '`left` + 2' })
+        .where('roadmapId = :roadmapId', { roadmapId: roadmapData.id })
+        .andWhere('`left` > :rightValue', { rightValue })
+        .execute();
+  
+    } else {
+      // Root comment for the roadmap
+      const maxRightValue = await this.commentRepository
+        .createQueryBuilder('comment')
+        .where('comment.roadmapId = :roadmapId', { roadmapId: roadmapData.id })
+        .orderBy('comment.right', 'DESC')
+        .getOne();
+  
+      leftValue = maxRightValue ? maxRightValue.right + 1 : 1;
+      rightValue = leftValue + 1;
+    }
+    
+    // Create and save the new comment
+    const newComment = this.commentRepository.create({
+      content,
+      roadmap: roadmapData,
+      poster: posterData,
+      left: leftValue,
+      right: rightValue,
+      parentComment: parentComment ? parentCommentData : null,
+      node: null,
+    });
+  
+    return await this.commentRepository.save(newComment);
+  }
+  
 }

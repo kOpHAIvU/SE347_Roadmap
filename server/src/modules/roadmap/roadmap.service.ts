@@ -92,36 +92,91 @@ export class RoadmapService {
   async findAll(
     page = 1,
     limit = 10,
-  ): Promise<ResponseDto> {
+    idUser: number
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      roadmap: Roadmap[],
+      totalRecord: number
+    }
+  }> {
+    const userResponse = await this.userService.findOneById(idUser);
+    if (userResponse.statusCode !== 200) {
+      return {
+        statusCode: 404,
+        message: 'User not found',
+        data: null,
+      }
+    }
+    const user = Array.isArray(userResponse.data)
+                ? userResponse.data[0]
+                : userResponse.data;
     try {
-      const roadmap = await this.roadmapRepository
+      let roadmap: Roadmap[], totalRecord: number;
+      if (user.role.id === 1) {
+        // role is admin
+        roadmap = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.owner', 'owner')
+                      .leftJoinAndSelect('roadmap.node', 'node')
+                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .where("roadmap.isActive = :isActive", { isActive: true })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                      .orderBy('roadmap.createdAt', 'DESC')
+                      .skip((page - 1) * limit)  
+                      .take(limit)                
+                      .getMany();
+        totalRecord = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                      .getCount();  
+      // role is user
+      } else {
+        roadmap = await this.roadmapRepository
                       .createQueryBuilder('roadmap')
                       .leftJoinAndSelect('roadmap.owner', 'owner')
                       .leftJoinAndSelect('roadmap.node', 'node')
                       .leftJoinAndSelect('owner.comment', 'comment')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.owner = :owner', { owner: user.id })
                       .orderBy('roadmap.createdAt', 'DESC')
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
+        totalRecord = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.owner = :owner', { owner: user.id })
+                      .getCount();
+      }
       
       if (!roadmap) {
         return {
           statusCode: 404,
           message: 'Roadmap not found',
+          data: null
         }
       }
 
       return {
         statusCode: 200,
         message: 'Get this of roadmap successfully',
-        data: roadmap,
+        data: {
+          roadmap,
+          totalRecord,
+        },
       }
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Failed to get all road maps'
+        message: 'Failed to get all road maps',
+        data: null
       }
     }
   }

@@ -11,6 +11,7 @@ import {
     Query,
     UseInterceptors,
     UploadedFile,
+    Req,
 } from '@nestjs/common';
 import { RoadmapService } from './roadmap.service';
 import { CreateRoadmapDto } from './dto/create-roadmap.dto';
@@ -33,10 +34,13 @@ export class RoadmapController {
     }
 
     @Get('all')
-    @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles('admin')
-    async findAll(@Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 100) {
-        return await this.roadmapService.findAll(page, limit);
+    @UseGuards(JwtAuthGuard)
+    async findAll(
+        @Query('page', ParseIntPipe) page: number = 1, 
+        @Query('limit', ParseIntPipe) limit: number = 100,
+        @Req() req: any
+    ) {
+        return await this.roadmapService.findAll(page, limit, req.user.userId);
     }
 
     @Get('id/:id')
