@@ -41,6 +41,8 @@ import { DatabaseModule } from './database/database.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerExceptionFilter } from './common/exception-filter/ThrottlerException.filter';
+import { PaymentModule } from './modules/payment/payment.module';
+import { MomoService } from './modules/payment/strategy/momo.service';
 
 @Module({
   imports: [
@@ -71,6 +73,7 @@ import { ThrottlerExceptionFilter } from './common/exception-filter/ThrottlerExc
     ProgressModule,
     FavoriteModule,
     CloudinaryModule,
+    PaymentModule
 
     // TypeOrmModule.forRoot({
     //   type: 'mysql',
@@ -96,6 +99,7 @@ import { ThrottlerExceptionFilter } from './common/exception-filter/ThrottlerExc
     AppService, 
     GoogleStrategy, 
     CloudinaryService,
+    MomoService
     // {
     //   provide: APP_FILTER,
     //   useClass: ThrottlerExceptionFilter,

@@ -12,6 +12,7 @@ import YourFavourite from '~/page/YourFavourite/index.js';
 import YourRoadmap from '~/page/YourRoadmap/index.js';
 import YourTimeline from '~/page/YourTimeline/index.js';
 import ForgotPassword from '~/page/ForgotPassword/index.js';
+import UpgradeAccount from '~/page/UpgradeAccount/index.js';
 
 const publicRoutes = [
     { path: '/', Component: MainScreen, layout: MainScreenLayout },
@@ -28,6 +29,7 @@ const privateRoutes = [
     { path: '/timeline/setting/invite', Component: TimelineSetting, layout: DefaultLayout },
     { path: '/your_roadmap', Component: YourRoadmap, layout: DefaultLayout },
     { path: '/favourite', Component: YourFavourite, layout: DefaultLayout },
+    { path: '/upgrade', Component: UpgradeAccount, layout: DefaultLayout },
     { path: '/account', Component: Account, layout: DefaultLayout },
     { path: '/security', Component: Security, layout: DefaultLayout },
     { path: '/report', Component: Report, layout: DefaultLayout },

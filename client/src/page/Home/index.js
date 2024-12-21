@@ -3,11 +3,23 @@ import styles from './Home.module.scss';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
 
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    // Thay thế ký tự đặc biệt
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
 function Home() {
     const navigate = useNavigate();
+
+    const [profile, setProfile] = useState(null);
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -32,7 +44,7 @@ function Home() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch profile data.');
-                alert(errorData.message || 'Failed to fetch profile data.');
+                navigate(`/login`);
                 return;
             }
 
@@ -45,30 +57,17 @@ function Home() {
 
     const filterRoadmapData = async (data) => {
         const profileId = await fetchProfile();
+        setProfile(profileId)
         const favorites = await fetchFavoriteData();
 
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
 
         return data.filter(item => {
-            console.log(item)
             if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
                 return false;
             return true;
         }).map(item => {
             const favorite = favoritesArray.find(fav => fav.roadmap.id === item.id && fav.user.id === profileId);
-            console.log({
-                id: item.id,
-                title: item.title,
-                content: item.content,
-                clone: item.clone,
-                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                loved: {
-                    loveId: favorite ? favorite.id : null,
-                    loveState: favorite ? false : true,
-                },
-                react: item.react,
-                nodeCount: item.node.length,
-            })
             return {
                 id: item.id,
                 title: item.title,
@@ -80,14 +79,14 @@ function Home() {
                     loveState: favorite ? false : true,
                 },
                 react: item.react,
-                nodeCount: item.node.length,
+                nodeCount: item.node.length
             };
         });
     };
 
     const fetchRoadmapData = async () => {
         try {
-            const response = await fetch('http://localhost:3004/roadmap/all?page=1&limit=10', {
+            const response = await fetch('http://localhost:3004/roadmap/all?page=1&limit=12', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -98,8 +97,7 @@ function Home() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
-                alert(errorData.message || 'Failed to fetch roadmap data.');
-                return;
+                navigate(`/login`);
             }
 
             const data = await response.json();
@@ -124,8 +122,7 @@ function Home() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch favorite data.');
-                alert(errorData.message || 'Failed to fetch favorite data.');
-                return;
+                navigate(`/login`);
             }
 
             const data = await response.json();
@@ -152,6 +149,7 @@ function Home() {
                 console.log('Favorite added:', data); // Xử lý dữ liệu nếu cần
             } else {
                 console.error('Failed to add favorite. Status:', response.status);
+                navigate(`/login`);
             }
 
             const fetchData = async () => {
@@ -177,13 +175,13 @@ function Home() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to delete favorite.');
-                alert(errorData.message || 'Failed to delete favorite.');
-                return;
+                navigate(`/login`);
             }
         } catch (error) {
             console.error('Error:', error);
         }
     };
+
 
     // let source = "https://i.ebayimg.com/images/g/XI0AAOSw~HJker7R/s-l1200.jpg"
     // // Đặt roadmaps trong state để có thể cập nhật
@@ -250,8 +248,7 @@ function Home() {
         }
         else {
             newReactValue = roadmapToUpdate.react + 1;
-            const profileId = await fetchProfile();
-            fetchNewFavourite(profileId, roadmapToUpdate.id)
+            fetchNewFavourite(profile.id, roadmapToUpdate.id)
         }
 
         try {
@@ -271,6 +268,7 @@ function Home() {
                 console.log('Updated roadmap:', data);
             } else {
                 console.error('Failed to update react value');
+                navigate(`/login`);
             }
         } catch (error) {
             console.error('Error while patching react value:', error);
@@ -278,7 +276,8 @@ function Home() {
     };
 
     const handleClickRoadmap = (id) => {
-        navigate(`/roadmap/${id}`);
+        const encryptedId = encryptId(id);
+        navigate(`/roadmap/${encryptedId}`);
     };
 
     return (
@@ -293,6 +292,12 @@ function Home() {
                         onClick={() => handleClickRoadmap(roadmap.id)}
                     />
                 ))}
+            </div>
+            <div className={cx('numeric')}>
+                <div className={cx('card')}>1</div>
+                <div className={cx('card')}>2</div>
+                <div className={cx('card')}>3</div>
+                <div className={cx('card')}>4</div>
             </div>
         </div>
     );

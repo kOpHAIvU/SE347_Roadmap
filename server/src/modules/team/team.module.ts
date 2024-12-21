@@ -12,27 +12,19 @@ import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerE
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Team]),
-    TimelineModule,
-    UserModule,
-    RoleModule,
-    CloudinaryModule
-  ],
-  controllers: [TeamController],
-  providers: [
-    TeamService,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ThrottlerGuard
-    // },
-    // {
-    //   provide: APP_FILTER,
-    //   useClass: ThrottlerExceptionFilter,
-    // },
-  ],
-  exports: [
-    TeamService,
-  ],
+    imports: [TypeOrmModule.forFeature([Team]), TimelineModule, UserModule, RoleModule, CloudinaryModule],
+    controllers: [TeamController],
+    providers: [
+        TeamService,
+        // {
+        //   provide: APP_GUARD,
+        //   useClass: ThrottlerGuard
+        // },
+        // {
+        //   provide: APP_FILTER,
+        //   useClass: ThrottlerExceptionFilter,
+        // },
+    ],
+    exports: [TeamService],
 })
 export class TeamModule {}

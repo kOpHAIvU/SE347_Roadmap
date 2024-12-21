@@ -3,15 +3,103 @@ import { useNavigate } from 'react-router-dom';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import styles from './CreateTimeline.module.scss';
 import classNames from 'classnames/bind';
+import CryptoJS from 'crypto-js';
+import { useEffect, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
-function CreateTimeline({ newId, title, setTitle, content, setContent, handleOutsideClick, setShowDialog }) {
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    // Thay thế ký tự đặc biệt
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
+function CreateTimeline({ children, title, setTitle, content, setContent, handleOutsideClick, setShowDialog }) {
     const navigate = useNavigate();
 
-    const handleCreate = () => {
+    const [profile, setProfile] = useState(null)
+
+    const getToken = () => {
+        const token = localStorage.getItem('vertexToken');
+
+        if (!token) {
+            navigate(`/login`);
+            return;
+        }
+        return token;
+    }
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch('http://localhost:3004/auth/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to fetch profile data.');
+                return;
+            }
+
+            const data = await response.json();
+            return data.data.id;
+        } catch (error) {
+            console.error('Fetch Profile Error:', error);
+        }
+    };
+
+    const fetchNewTimeline = async (title, content, id) => {
+        try {
+            const response = await fetch('http://localhost:3004/timeline/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    content: content,
+                    roadmap: id,
+                    leader: profile
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                return data.data.id
+            } else {
+                console.error('Failed to add favorite. Status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await fetchProfile();
+            setProfile(data);
+        };
+        fetchData();
+    }, []);
+
+    const handleCreate = async () => {
         if (title && content) {
-            navigate(`/timeline/${newId}`);
+            const newId = await fetchNewTimeline(title, content, children.id)
+            if (newId) {
+                const encryptedId = encryptId(newId);
+                navigate(`/timeline/${encryptedId}`);
+            } else {
+                console.error("Failed to create new timeline.");
+            }
         }
     };
 

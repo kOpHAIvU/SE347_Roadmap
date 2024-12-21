@@ -93,7 +93,7 @@ export class CommentService {
         comment.roadmap = roadmap;
 
         let parentComment;
-        if (createCommentDto.parentComment !== null) {
+        if (typeof createCommentDto.parentComment !== 'undefined') {
             const parentCommentResponse = await this.findOneById(createCommentDto.parentComment);
             if (parentCommentResponse.statusCode !== 200) {
                 return {

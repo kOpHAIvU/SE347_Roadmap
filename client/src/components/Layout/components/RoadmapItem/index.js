@@ -9,40 +9,6 @@ import { CantClone } from '../MiniNotification/index.js';
 
 const cx = classNames.bind(styles);
 
-const getToken = () => {
-    const token = localStorage.getItem('vertexToken');
-
-    if (!token) {
-        console.error('No access token found. Please log in.');
-        return;
-    }
-    return token;
-}
-
-const getRoadmapById = async (id) => {
-    try {
-        const response = await fetch(`http://localhost:3004/roadmap/id/${id}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${getToken()}`,
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
-            return;
-        }
-
-        const data = await response.json();
-
-        return data.data;
-    } catch (error) {
-        console.error('Fetch Favorite Error:', error);
-    }
-};
-
 function RoadmapItem({ children, onLoveChange, onClick }) {
     const [showDialog, setShowDialog] = useState(false);
     const [title, setTitle] = useState(children.title);
@@ -61,8 +27,10 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     };
 
     const handleCloneClick = () => {
+        console.log(children)
+        console.log(children.nodeCount)
         if (children.nodeCount < 5) {
-            const newDialog = { id: Date.now() }; // Unique ID for each CantClone
+            const newDialog = { id: Date.now() };
             setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 
             // Automatically remove the CantClone after 3 seconds
@@ -110,7 +78,7 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
 
             {showDialog &&
                 <CreateTimeline
-                    newId={"Haha"}
+                    children={children}
                     title={title}
                     setTitle={setTitle}
                     content={content}
@@ -123,33 +91,6 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
                     <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
                 ))}
             </div>
-            {/* Dialog xác nhận xóa */}
-            {/* {showDeleteDialog && (
-                <div
-                    className={cx('modal-overlay')}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleOutsideClick(e);
-                    }}>
-                    <div className={cx('modal')}>
-                        <button className={cx('close-btn')} onClick={() => setShowDeleteDialog(false)}>
-                            <FontAwesomeIcon icon={faTimes} />
-                        </button>
-
-                        <h2 className={cx('form-name')}>Are you sure you want to delete '{children.title}'?</h2>
-
-                        <div className={cx('button-group')}>
-                            <button className={cx('cancel-btn')} onClick={() => setShowDeleteDialog(false)}>
-                                Cancel
-                            </button>
-
-                            <button className={cx('delete-roadmap')} onClick={handleDeleteConfirm}>
-                                Confirm
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )} */}
         </div >
     );
 }

@@ -4,8 +4,18 @@ import styles from './YourRoadmap.module.scss';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
+
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    // Thay thế ký tự đặc biệt
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
 
 function YourRoadmap() {
     const navigate = useNavigate();
@@ -33,7 +43,7 @@ function YourRoadmap() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch profile data.');
-                alert(errorData.message || 'Failed to fetch profile data.');
+                navigate(`/login`);
                 return;
             }
 
@@ -67,7 +77,7 @@ function YourRoadmap() {
                     loveState: favorite ? false : true,
                 },
                 react: item.react,
-                nodeCount: Array.isArray(item.node) ? item.node.length : 0,
+                nodeCount: item.node.length
             };
         });
     };
@@ -85,7 +95,7 @@ function YourRoadmap() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
-                alert(errorData.message || 'Failed to fetch roadmap data.');
+                navigate(`/login`);
                 return;
             }
 
@@ -111,7 +121,7 @@ function YourRoadmap() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch favorite data.');
-                alert(errorData.message || 'Failed to fetch favorite data.');
+                navigate(`/login`);
                 return;
             }
 
@@ -139,6 +149,7 @@ function YourRoadmap() {
                 console.log('Favorite added:', data); // Xử lý dữ liệu nếu cần
             } else {
                 console.error('Failed to add favorite. Status:', response.status);
+                navigate(`/login`);
             }
 
             const fetchData = async () => {
@@ -164,7 +175,7 @@ function YourRoadmap() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to delete favorite.');
-                alert(errorData.message || 'Failed to delete favorite.');
+                navigate(`/login`);
                 return;
             }
         } catch (error) {
@@ -172,7 +183,7 @@ function YourRoadmap() {
         }
     };
 
-    const [roadmaps, setRoadmaps] = useState();
+    const [roadmaps, setRoadmaps] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -261,6 +272,7 @@ function YourRoadmap() {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Updated roadmap:', data);
+                navigate(`/login`);
             } else {
                 console.error('Failed to update react value');
             }
@@ -270,7 +282,8 @@ function YourRoadmap() {
     };
 
     const handleClickRoadmap = (id) => {
-        navigate(`/roadmap/${id}`); // Điều hướng tới /roadmap/{id}
+        const encryptedId = encryptId(id);
+        navigate(`/roadmap/${encryptedId}`);
     };
 
     return (

@@ -40,7 +40,7 @@ export class RoadmapController {
         @Query('limit', ParseIntPipe) limit: number = 100,
         @Req() req: any
     ) {
-        return await this.roadmapService.findAll(page, limit, req.user.userId);
+        return await this.roadmapService.findAll(page, limit, req.user.id);
     }
 
     @Get('id/:id')

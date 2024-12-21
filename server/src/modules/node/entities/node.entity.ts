@@ -27,9 +27,6 @@ export class Node {
     @Column({default: null})
     dueTime?: number;
 
-    @Column({default: null})
-    attachFile?: string;
-
     @Column()
     content: string;
 
@@ -56,4 +53,6 @@ export class Node {
 
     @ManyToOne(() => Timeline, timeline => timeline.node, { eager: true })
     timeline: Timeline;
+
+    
 }
