@@ -28,6 +28,9 @@ export class Timeline {
     @Column({ type: 'boolean', default: true }) 
     isActive: boolean;
 
+    @Column()
+    avatar: string;
+
     @CreateDateColumn()  
     createdAt: Date;
 
