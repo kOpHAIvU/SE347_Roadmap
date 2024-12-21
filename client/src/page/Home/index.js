@@ -3,8 +3,18 @@ import styles from './Home.module.scss';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
+
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    // Thay thế ký tự đặc biệt
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
 
 function Home() {
     const navigate = useNavigate();
@@ -50,7 +60,6 @@ function Home() {
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
 
         return data.filter(item => {
-            console.log(item)
             if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
                 return false;
             return true;
@@ -67,7 +76,6 @@ function Home() {
                     loveState: favorite ? false : true,
                 },
                 react: item.react,
-                nodeCount: item.node.length,
             };
         });
     };
@@ -264,7 +272,8 @@ function Home() {
     };
 
     const handleClickRoadmap = (id) => {
-        navigate(`/roadmap/${id}`);
+        const encryptedId = encryptId(id);
+        navigate(`/roadmap/${encryptedId}`);
     };
 
     return (

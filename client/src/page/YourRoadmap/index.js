@@ -4,8 +4,18 @@ import styles from './YourRoadmap.module.scss';
 import classNames from 'classnames/bind';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
+
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    // Thay thế ký tự đặc biệt
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
 
 function YourRoadmap() {
     const navigate = useNavigate();
@@ -270,7 +280,8 @@ function YourRoadmap() {
     };
 
     const handleClickRoadmap = (id) => {
-        navigate(`/roadmap/${id}`); // Điều hướng tới /roadmap/{id}
+        const encryptedId = encryptId(id);
+        navigate(`/roadmap/${encryptedId}`);
     };
 
     return (

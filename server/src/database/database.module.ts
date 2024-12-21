@@ -14,6 +14,7 @@ import { Message } from 'src/modules/message/entities/message.entity';
 import { Favorite } from 'src/modules/favorite/entities/favorite.entity';
 import {Comment} from 'src/modules/comment/entities/comment.entity';
 import { Node } from 'src/modules/node/entities/node.entity';
+import { Payment } from 'src/modules/payment/entities/payment.entity';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { Node } from 'src/modules/node/entities/node.entity';
             GroupDivision,
             Progress,
             Message, 
-            Favorite
+            Favorite,
+            Payment,
           ],  
           synchronize: configService.get<string>('DATABASE_SYNC') === 'true',
       }),
