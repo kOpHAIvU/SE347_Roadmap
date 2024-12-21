@@ -9,7 +9,7 @@ const cx = classNames.bind(styles);
 
 const { Header, Sider, Content } = Layout;
 
-function DefaultLayout( {children} ) {
+function DefaultLayout({ children }) {
     const [collapsed, setCollapsed] = useState(false);
 
     return (

@@ -307,7 +307,7 @@ function OwnRoadmap() {
             console.log("Id: ", id)
         };
         fetchData();
-    }, [id]);
+    }, []);
 
     const [isEditing, setIsEditing] = useState(false);
     const textareaRef = useRef(null);
@@ -534,10 +534,10 @@ function OwnRoadmap() {
     }
 
     const handleClone = () => {
-        if (nodes.length <= 5)
+        if (nodes.length < 5)
             handleMakeDialog('Clone')
         else {
-
+            setCreateTimelineDialog(true)
         }
     }
 
@@ -674,7 +674,7 @@ function OwnRoadmap() {
 
             {createTimelineDialog &&
                 <CreateTimeline
-                    newId="hehe"
+                    children={roadmapData}
                     title={roadName}
                     setTitle={setRoadName}
                     content={titleText}

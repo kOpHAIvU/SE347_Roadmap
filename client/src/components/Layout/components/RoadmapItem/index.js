@@ -61,6 +61,8 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     };
 
     const handleCloneClick = () => {
+        console.log(children);
+        console.log(children.nodeCount);
         if (children.nodeCount < 5) {
             const newDialog = { id: Date.now() };
             setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);

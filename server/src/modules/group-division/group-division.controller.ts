@@ -9,60 +9,54 @@ import { Roles } from '../role/common/role.decorator';
 
 @Controller('group-division')
 export class GroupDivisionController {
-  constructor(private readonly groupDivisionService: GroupDivisionService) {}
+    constructor(private readonly groupDivisionService: GroupDivisionService) {}
 
-  @Post('new')
-  @UseGuards(JwtAuthGuard)
-  async create(@Body() createGroupDivisionDto: CreateGroupDivisionDto) {
-    return await this.groupDivisionService.create(createGroupDivisionDto);
-  }
+    @Post('new')
+    @UseGuards(JwtAuthGuard)
+    async create(@Body() createGroupDivisionDto: CreateGroupDivisionDto) {
+        return await this.groupDivisionService.create(createGroupDivisionDto);
+    }
 
-  @Get("all")
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles("admin")
-  async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ) {
-    return await this.groupDivisionService.findAll();
-  }
+    @Get('all')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles('admin')
+    async findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
+        return await this.groupDivisionService.findAll();
+    }
 
-  @Get('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async findOne(@Param('id') id: string) {
-    return await this.groupDivisionService.findOneById(+id);
-  } 
+    @Get('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async findOne(@Param('id') id: string) {
+        return await this.groupDivisionService.findOneById(+id);
+    }
 
-  @Get('user/owner')
-  @UseGuards(JwtAuthGuard)
-  async findAllGroupOfUser(
-    @Req() req: any,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 10,
-  ) {
-    return await this.groupDivisionService.getAllGroupDivisionByUserId(req.user.userId, 
-      +page, +limit);
-  }
+    @Get('user/owner')
+    @UseGuards(JwtAuthGuard)
+    async findAllGroupOfUser(
+        @Req() req: any,
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
+    ) {
+        return await this.groupDivisionService.getAllGroupDivisionByUserId(req.user.userId, +page, +limit);
+    }
 
-  @Get('team/:teamId')
-  @UseGuards(JwtAuthGuard)
-  async findAllGroupOfTeam(
-    @Param('teamId') teamId: string,
-  ) {
-    return await this.groupDivisionService.getAllGroupDivisionByTeamId(+teamId);
-  }
+    @Get('team/:teamId')
+    @UseGuards(JwtAuthGuard)
+    async findAllGroupOfTeam(@Param('teamId') teamId: string) {
+        return await this.groupDivisionService.getAllGroupDivisionByTeamId(+teamId);
+    }
 
-  // API này về mặt nguyên tắc nghiệp vụ chỉ chỉnh sửa
-  // được quyền của người dùng trên timeline
-  @Patch('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async update(@Param('id') id: string, @Body() updateGroupDivisionDto: UpdateGroupDivisionDto) {
-    return await this.groupDivisionService.update(+id, updateGroupDivisionDto);
-  }
+    // API này về mặt nguyên tắc nghiệp vụ chỉ chỉnh sửa
+    // được quyền của người dùng trên timeline
+    @Patch('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async update(@Param('id') id: string, @Body() updateGroupDivisionDto: UpdateGroupDivisionDto) {
+        return await this.groupDivisionService.update(+id, updateGroupDivisionDto);
+    }
 
-  @Delete('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async remove(@Param('id') id: string) {
-    return await this.groupDivisionService.remove(+id);
-  }
+    @Delete('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async remove(@Param('id') id: string) {
+        return await this.groupDivisionService.remove(+id);
+    }
 }

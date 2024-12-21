@@ -15,9 +15,18 @@ export class CreateCommentDto {
     @IsNotEmpty()
     roadmap: number;
 
+    // @IsNumber()
+    // left: number;
+
+    // @IsNumber()
+    // right: number;
+
     @IsNumber()
     parentComment?: number;
 
     @IsNumber()
     isActive?: boolean;
+
+    @IsNumber()
+    node: number;
 }

@@ -10,12 +10,58 @@ import { DeleteCollab, NewCollab, Saved } from '~/components/Layout/components/M
 import { SettingTimeline } from '~/components/Layout/components/Dialog/index.js';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
 
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+const decryptId = (encryptedId) => {
+    const normalizedEncryptedId = encryptedId.replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = CryptoJS.AES.decrypt(normalizedEncryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+};
+
 function Timeline() {
-    const { id } = useParams();
     const navigate = useNavigate();
+    const { id: encryptedId } = useParams();
+    const id = decryptId(encryptedId);
+
+    const [profile, setProfile] = useState(null);
+
+    const getToken = () => {
+        const token = localStorage.getItem('vertexToken');
+
+        if (!token) {
+            navigate(`/login`);
+            return;
+        }
+        return token;
+    }
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch('http://localhost:3004/auth/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setProfile(data.data);
+                return data.data;
+            } else {
+                console.error('Error:', data.message || 'Failed to fetch profile data.');
+            }
+        } catch (error) {
+            console.error('Fetch Profile Error:', error);
+        }
+    };
+
     const authority = 'Administrator';
     let roadmapName = 'Name not given';
     let title =

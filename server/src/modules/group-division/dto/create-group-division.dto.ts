@@ -1,7 +1,6 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateGroupDivisionDto {
-
     @IsString()
     @IsNotEmpty()
     teamId: number;
@@ -15,5 +14,5 @@ export class CreateGroupDivisionDto {
 
     // role means 1:editor, 2:viewer,...
     @IsNumber()
-    role: number
+    role: number;
 }

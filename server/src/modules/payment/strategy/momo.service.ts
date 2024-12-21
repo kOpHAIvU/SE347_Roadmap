@@ -28,12 +28,6 @@ export class MomoService {
     this.status_check = this.configService.get<string>('ZALOPAY_STATUS');
 }
 
-  /**
-   * Tạo đơn hàng ZaloPay
-   * @param amount Số tiền thanh toán
-   * @param appUser Người dùng thực hiện thanh toán
-   * @returns Response từ ZaloPay
-   */
   async createOrder(
     amount: number, 
     appUser: string

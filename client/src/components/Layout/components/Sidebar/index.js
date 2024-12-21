@@ -1,7 +1,7 @@
 import styles from './Sidebar.module.scss';
 import classNames from 'classnames/bind';
 import { Menu } from 'antd';
-import { HomeOutlined, BranchesOutlined, LaptopOutlined, HeartFilled } from '@ant-design/icons';
+import { HomeOutlined, BranchesOutlined, LaptopOutlined, HeartFilled, CloudUploadOutlined } from '@ant-design/icons';
 import images from '~/assets/images/index.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -22,6 +22,8 @@ function Sidebar({ collapsed }) {
             navigate('/your_roadmap');
         } else if (e.key === 'favourite') {
             navigate('/favourite');
+        } else if (e.key === 'upgrade') {
+            navigate('/upgrade');
         }
     };
 
@@ -30,6 +32,7 @@ function Sidebar({ collapsed }) {
         if (location.pathname.startsWith('/timeline')) return 'your-timeline';
         if (location.pathname.startsWith('/your_roadmap')) return 'your-roadmap';
         if (location.pathname.startsWith('/favourite')) return 'favourite';
+        if (location.pathname.startsWith('/upgrade')) return 'upgrade';
         return ''; // Không có mục nào được chọn
     };
 
@@ -56,6 +59,10 @@ function Sidebar({ collapsed }) {
                 </Menu.Item>
                 <Menu.Item className={cx('item')} key="favourite" icon={<HeartFilled className={cx('icon')} />}>
                     Your Favourite
+                </Menu.Item>
+                <div className={cx('divider')} />
+                <Menu.Item className={cx('item')} key="upgrade" icon={<CloudUploadOutlined className={cx('icon')} />}>
+                    Upgrade account
                 </Menu.Item>
             </Menu>
         </div>
