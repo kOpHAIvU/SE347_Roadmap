@@ -9,16 +9,6 @@ import { CantClone } from '../MiniNotification/index.js';
 
 const cx = classNames.bind(styles);
 
-const getToken = () => {
-    const token = localStorage.getItem('vertexToken');
-
-    if (!token) {
-        console.error('No access token found. Please log in.');
-        return;
-    }
-    return token;
-}
-
 function RoadmapItem({ children, onLoveChange, onClick }) {
     const [showDialog, setShowDialog] = useState(false);
     const [title, setTitle] = useState(children.title);
@@ -39,7 +29,7 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     const handleCloneClick = () => {
         console.log(children)
         console.log(children.nodeCount)
-        if (children.nodeCount < 5 ) {
+        if (children.nodeCount < 5) {
             const newDialog = { id: Date.now() };
             setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
 

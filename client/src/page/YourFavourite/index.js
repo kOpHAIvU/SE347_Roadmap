@@ -42,7 +42,7 @@ function YourFavourite() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch profile data.');
-                alert(errorData.message || 'Failed to fetch profile data.');
+                navigate(`/login`);
                 return;
             }
 
@@ -96,7 +96,7 @@ function YourFavourite() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
-                alert(errorData.message || 'Failed to fetch roadmap data.');
+                navigate(`/login`);
                 return;
             }
 
@@ -122,7 +122,7 @@ function YourFavourite() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch favorite data.');
-                alert(errorData.message || 'Failed to fetch favorite data.');
+                navigate(`/login`);
                 return;
             }
 
@@ -150,6 +150,7 @@ function YourFavourite() {
                 console.log('Favorite added:', data); // Xử lý dữ liệu nếu cần
             } else {
                 console.error('Failed to add favorite. Status:', response.status);
+                navigate(`/login`);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -169,8 +170,7 @@ function YourFavourite() {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to delete favorite.');
-                alert(errorData.message || 'Failed to delete favorite.');
-                return;
+                navigate(`/login`);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -260,6 +260,7 @@ function YourFavourite() {
                 console.log('Updated roadmap:', data);
             } else {
                 console.error('Failed to update react value');
+                navigate(`/login`);
             }
         } catch (error) {
             console.error('Error while patching react value:', error);
@@ -275,7 +276,7 @@ function YourFavourite() {
         <div className={cx('wrapper')}>
             <h1 className={cx('page-title')}>Your favourite Roadmaps</h1>
             <div className={cx('container')} >
-                {roadmaps.map((roadmap) => {
+                {Array.isArray(roadmaps) && roadmaps.length > 0 && roadmaps.map((roadmap) => {
                     return <RoadmapItem
                         key={roadmap.id}
                         children={roadmap}

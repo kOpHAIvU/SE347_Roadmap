@@ -77,7 +77,7 @@ function Comment() {
 
     const fetchGetAllCommentInRoadmap = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/comment/all/roadmap/${id}?page=1&limit=100`, {
+            const response = await fetch(`http://localhost:3004/comment/all/roadmap/${id}?page=10&limit=20`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

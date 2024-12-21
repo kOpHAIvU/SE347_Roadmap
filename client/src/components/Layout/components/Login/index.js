@@ -62,14 +62,12 @@ function Login() {
 
                     if (accessToken) {
                         localStorage.setItem('vertexToken', accessToken);
-
-                        alert('Login successful!');
-                        navigate('/home'); // Điều hướng tới trang khác
+                        navigate('/home');
                     } else {
-                        alert('Access token not received!');
+                        console.log('Access token not received!');
                     }
                 } else {
-                    alert(data.message || 'Login failed!'); // Thông báo lỗi
+                    console.log(data.message || 'Login failed!'); // Thông báo lỗi
                 }
             } catch (error) {
                 console.error('Error:', error);
