@@ -19,6 +19,7 @@
     height: var(--avatar-size);
     width: var(--avatar-size);
     border-radius: 50%;
+    object-fit: cover;
     cursor: pointer;
     margin: 10px;
 }
@@ -104,14 +105,6 @@
     max-width: 828px;
     margin-left: 45px;
     display: flex;
-}
-
-.avatar2 {
-    height: var(--avatar-size);
-    width: var(--avatar-size);
-    border-radius: 50%;
-    cursor: pointer;
-    margin-right: 10px;
 }
 
 .reply-textarea {

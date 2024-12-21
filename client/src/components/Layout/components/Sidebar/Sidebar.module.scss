@@ -42,11 +42,17 @@
 
 .icon {
     width: 20px;
-    scale: 1.5; /* Tăng kích thước của icon */
+    scale: 1.5;
 }
 
 .item {
     margin-top: 10px !important;
     font-weight: 500;
     font-size: 1.5rem;
+}
+
+.divider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 10px 10px;
 }

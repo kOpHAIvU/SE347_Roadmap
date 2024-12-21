@@ -9,7 +9,6 @@ import { LuSquareCode } from 'react-icons/lu';
 const cx = classNames.bind(styles);
 
 function Information() {
-    console.log('Rendering HomeContent');
     return (
         <div className={cx('container')}>
             <section className={cx('heroStack')}>

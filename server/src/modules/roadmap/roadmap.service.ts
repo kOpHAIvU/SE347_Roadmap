@@ -14,7 +14,6 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 @Injectable()
 export class RoadmapService {
 
-
   constructor(
     @Inject("RoadmapConfiguration") private rabbitClient: ClientProxy,
     @InjectRepository(Roadmap)
@@ -23,7 +22,7 @@ export class RoadmapService {
     private configService: ConfigService,
     private cloudinary: CloudinaryService
   ) {}
-  
+
   async create(
     createRoadmapDto: CreateRoadmapDto,
     file: Express.Multer.File,
@@ -39,7 +38,6 @@ export class RoadmapService {
         if (file) {
           const uploadResponse = await this.cloudinary.uploadImage(file);
           avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
-
         }
       } catch(error) {
         throw new Error(error);
@@ -71,11 +69,9 @@ export class RoadmapService {
         console.log(env.RABBITMQ.NAME);
         try {
           await this.rabbitClient.connect();
-
         } catch (error) {
           console.log("Error connect rabbitmq: ", error);
         }
-
         console.log("Result send data to rabbitMQ: ");
         const rabbit = this.rabbitClient.emit("Create_new_roadmap", result);
 
@@ -96,52 +92,93 @@ export class RoadmapService {
   async findAll(
     page = 1,
     limit = 10,
-  ): Promise<ResponseDto> {
+    idUser: number
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      roadmap: Roadmap[],
+      totalRecord: number
+    }
+  }> {
+    const userResponse = await this.userService.findOneById(idUser);
+    if (userResponse.statusCode !== 200) {
+      return {
+        statusCode: 404,
+        message: 'User not found',
+        data: null,
+      }
+    }
+    const user = Array.isArray(userResponse.data)
+                ? userResponse.data[0]
+                : userResponse.data;
     try {
-      const roadmap = await this.roadmapRepository
+      let roadmap: Roadmap[], totalRecord: number;
+      if (user.role.id === 1) {
+        // role is admin
+        roadmap = await this.roadmapRepository
                       .createQueryBuilder('roadmap')
-                      .select([
-                        'roadmap.id',
-                        'roadmap.title',
-                        'roadmap.owner',
-                        'roadmap.code',
-                        'roadmap.clone',
-                        'roadmap.react',
-                        'roadmap.avatar',
-                        'roadmap.content',
-                        'roadmap.type',
-                      ])
                       .leftJoinAndSelect('roadmap.owner', 'owner')
                       .leftJoinAndSelect('roadmap.node', 'node')
-                      .leftJoinAndSelect('roadmap.comment', 'comment')
-                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .where("roadmap.isActive = :isActive", { isActive: true })
                       .andWhere('roadmap.deletedAt is null')
-                      .orderBy('roadmap.react', 'DESC')
+                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                      .orderBy('roadmap.createdAt', 'DESC')
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
+        totalRecord = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                      .getCount();  
+      // role is user
+      } else {
+        roadmap = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .leftJoinAndSelect('roadmap.owner', 'owner')
+                      .leftJoinAndSelect('roadmap.node', 'node')
+                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.owner = :owner', { owner: user.id })
+                      .orderBy('roadmap.createdAt', 'DESC')
+                      .skip((page - 1) * limit)  
+                      .take(limit)                
+                      .getMany();
+        totalRecord = await this.roadmapRepository
+                      .createQueryBuilder('roadmap')
+                      .where("roadmap.isActive = :isActive", { isActive: 1 })
+                      .andWhere('roadmap.deletedAt is null')
+                      .andWhere('roadmap.owner = :owner', { owner: user.id })
+                      .getCount();
+      }
       
       if (!roadmap) {
         return {
           statusCode: 404,
           message: 'Roadmap not found',
-
+          data: null
         }
       }
-      
+
       return {
         statusCode: 200,
         message: 'Get this of roadmap successfully',
-        data: roadmap,
+        data: {
+          roadmap,
+          totalRecord,
+        },
       }
     } catch (error) {
       return {
         statusCode: 500,
-        message: error.message,
+        message: 'Failed to get all road maps',
         data: null
       }
     }
-
   }
 
   async findTheLastCodeOfRoadmap(): Promise<number> {
@@ -172,12 +209,12 @@ export class RoadmapService {
                       .createQueryBuilder('roadmap')
                       .leftJoinAndSelect('roadmap.node', 'node')
                       .leftJoinAndSelect('roadmap.owner', 'owner')
-                      .leftJoinAndSelect('roadmap.comment', 'comment')
+                      .leftJoinAndSelect('owner.comment', 'comment')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .andWhere('roadmap.isActive = :isActive', { isActive: 1 })
                       .andWhere('roadmap.id = :id', { id })
-                      .getOne();
+                      .getMany();
       if (!roadmap) {
         return {
           statusCode: 404,
@@ -213,9 +250,9 @@ export class RoadmapService {
           statusCode: 404,
           message: 'Roadmap not found',
           data: null
-
         }
       }
+
       return {
         statusCode: 200,
         message: 'Get roadmap successfully',

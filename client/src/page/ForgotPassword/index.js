@@ -5,7 +5,6 @@ import classNames from 'classnames/bind';
 const cx = classNames.bind(styles);
 
 function ForgotPassword() {
-    console.log('Rendering HomeContent');
 
     return (
         <div className={cx('wrapper')}>

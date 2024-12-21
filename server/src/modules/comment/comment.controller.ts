@@ -9,42 +9,27 @@ import { Roles } from '../role/common/role.decorator';
 
 @Controller('comment')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+    constructor(private readonly commentService: CommentService) {}
 
-  @Post('new')
-  @UseGuards(JwtAuthGuard)
-  async create(@Body() createCommentDto: CreateCommentDto) {
-    return await this.commentService.create(createCommentDto);
-  }
-
-  @Get('all')
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles('admin') 
-  async findAll(
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return await this.commentService.findAll(page, limit);
-  }
-
-  @Get('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-      return await this.commentService.findOneById(+id);
+    @Post('new')
+    @UseGuards(JwtAuthGuard)
+    async create(@Body() createCommentDto: CreateCommentDto) {
+        return await this.commentService.create(createCommentDto);
     }
 
-  // Only the content of the comment can be updated
-  @Patch('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async  update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return await this.commentService.update(+id, updateCommentDto);
-  }
+    @Get('all')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles('admin')
+    async findAll(@Query('page', ParseIntPipe) page: number, @Query('limit', ParseIntPipe) limit: number) {
+        return await this.commentService.findAll(page, limit);
+    }
 
-  @Delete('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async remove(@Param('id', ParseIntPipe) id: string) {
-    return await this.commentService.remove(+id);
-  }
+    @Get('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async findOne(@Param('id', ParseIntPipe) id: number) {
+        return await this.commentService.findOneById(+id);
+    }
+
 
   @Get('all/roadmap/:roadmapId')
   @UseGuards(JwtAuthGuard)
@@ -55,4 +40,28 @@ export class CommentController {
   ) {
     return await this.commentService.getAllCommentsOfRoadmap(roadmapId, page, limit);
   }
+
+  @Post('nestedComment')
+  async createNestedComment(
+    @Body() createCommentDto: CreateCommentDto
+  ) { 
+    return await this.commentService.createNestedComment(createCommentDto);
+  }
+
+
+    // Only the content of the comment can be updated
+    @Patch('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
+        return await this.commentService.update(+id, updateCommentDto);
+    }
+
+    @Delete('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async remove(@Param('id', ParseIntPipe) id: string) {
+        return await this.commentService.remove(+id);
+    }
+
+  
 }
+
