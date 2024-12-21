@@ -249,85 +249,34 @@ export class GroupDivisionService {
         }
     }
 
-    // async update(
-    //   id: number,
-    //   updateGroupDivisionDto: UpdateGroupDivisionDto
-    // ): Promise<ResponseDto> {
-    //   try {
-    //     const groupDivision = await this.findOneById(id);
-    //     if (groupDivision.statusCode !== 200) {
-    //       return {
-    //         statusCode: 404,
-    //         message: 'GroupDivision not found',
-    //         data: null
-    //       };
+    //   {
+    //     "id": 5,
+    //     "title": "Ofsadfada",
+    //     "content": "Roadmap for testing",
+    //     "isActive": true,
+    //     "createdAt": "2024-12-20T01:32:10.652Z",
+    //     "deletedAt": null,
+    //     "creator": {
+    //         "id": 10,
+    //         "username": "kophaivu",
+    //         "password": "$2a$10$cTgJ1eQs7eg4gnqmwWrX6eZt7jQMhEF7BIl1ZTH2a7AnxmzDYlxGm",
+    //         "fullName": "KoPhaiVu",
+    //         "gender": "Male",
+    //         "avatar": "https://res.cloudinary.com/daxxuqogj/image/upload/v1734159330/uploads/ikintntqacgh7y0pkky2.jpg uploads/ikintntqacgh7y0pkky2",
+    //         "deviceToken": "",
+    //         "email": "hoangle293vu@gmail.com",
+    //         "isActive": true,
+    //         "createdAt": "2024-12-14T06:55:38.386Z",
+    //         "deletedAt": null
+    //     },
+    //     "team": {
+    //         userId: ,
+    //         fullName: ,
+    //         avatar: ,
+    //         // 1. Administrator, 2. Editor, 3. Viewer
+    //         role: ,
     //     }
-
-    //     const teamResponse = await this.teamService.findOneById(updateGroupDivisionDto.teamId);
-    //     const team = Array.isArray(teamResponse.data)
-    //                 ? teamResponse.data[0]
-    //                 : teamResponse.data;
-    //     if (!team) {
-    //       return {
-    //         statusCode: 404,
-    //         message: 'Team not found',
-    //         data: null
-    //       }
-    //     }
-
-    //     const userResponse = await this.userService.findOneById(updateGroupDivisionDto.userId);
-    //     const user = Array.isArray(userResponse.data)
-    //                 ? userResponse.data[0]
-    //                 : userResponse.data;
-    //     if (!user) {
-    //       return {
-    //         statusCode: 404,
-    //         message: 'User not found',
-    //         data: null
-    //       }
-    //     }
-
-    //     const timelineResponse = await this.timelineService.findOneById(updateGroupDivisionDto.timelineId);
-    //     const timeline = Array.isArray(timelineResponse.data)
-    //                     ? timelineResponse.data[0]
-    //                     : timelineResponse.data;
-    //     if (!timeline) {
-    //       return {
-    //         statusCode: 404,
-    //         message: 'Timeline not found',
-    //         data: null
-    //       }
-    //     }
-    //     const newGroupDivision = this.groupDivisionRepository.create({
-    //       id,
-    //       ...updateGroupDivisionDto,
-    //       team,
-    //       user,
-    //       timeline,
-    //     })
-    //     const result = await this.groupDivisionRepository.save(newGroupDivision);
-
-    //     if (!result) {
-    //       return {
-    //         statusCode: 500,
-    //         message: 'Server error when updating groupDivision',
-    //         data: null
-    //       }
-    //     }
-
-    //     return {
-    //       statusCode: 200,
-    //       message: 'Update groupDivision successfully',
-    //       data: result
-    //     }
-    //   } catch(err) {
-    //     return {
-    //       statusCode: 500,
-    //       message: 'Server error when updating groupDivision',
-    //       data: null
-    //     }
-    //   }
-    // }
+    // },
 
     async remove(id: number): Promise<ResponseDto> {
         try {

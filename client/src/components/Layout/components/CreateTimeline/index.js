@@ -45,7 +45,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch profile data.');
-                return;
+                navigate('/login')
             }
 
             const data = await response.json();
@@ -71,12 +71,71 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
                 }),
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                const data = await response.json();
-                console.log(data);
+                //console.log(data);
+                return data.data
+            } else {
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchNewTeam = async (name, avatar) => {
+        try {
+            const response = await fetch('http://localhost:3004/team/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    avatar: 'avatar',
+                    leader: profile,
+                    isActive: 1,
+                    file: avatar
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log("New team: ", data);
                 return data.data.id
             } else {
-                console.error('Failed to add favorite. Status:', response.status);
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchGroupDivisionTeam = async (teamId, timelineId) => {
+        try {
+            const response = await fetch('http://localhost:3004/group-division/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nateamIde: teamId,
+                    userId: profile,
+                    timelineId: timelineId,
+                    role: 1
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log(data);
+            } else {
+                console.error(data);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -93,9 +152,14 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const handleCreate = async () => {
         if (title && content) {
-            const newId = await fetchNewTimeline(title, content, children.id)
-            if (newId) {
-                const encryptedId = encryptId(newId);
+            const timelineData = await fetchNewTimeline(title, content, children.id)
+            const teamId = await fetchNewTeam("Team for study",
+                timelineData.roadmap.avatar ? timelineData.roadmap.avatar.substring(0, timelineData.roadmap.avatar.indexOf('.jpg') + 4) : '',
+            )
+            await fetchGroupDivisionTeam(teamId, timelineData.id)
+
+            if (timelineData && teamId) {
+                const encryptedId = encryptId(timelineData.id);
                 navigate(`/timeline/${encryptedId}`);
             } else {
                 console.error("Failed to create new timeline.");
