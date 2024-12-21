@@ -1,87 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './NotificationModal.module.scss';
 import classNames from 'classnames/bind';
-import images from '~/assets/images';
 
 const cx = classNames.bind(styles);
 
-const newAvatar = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
-const newav =
-    'https://scontent.fsgn2-5.fna.fbcdn.net/v/t39.30808-6/376194887_1504946626576665_3116387707499991413_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=B5tnevj9eI4Q7kNvgFla1sp&_nc_zt=23&_nc_ht=scontent.fsgn2-5.fna&_nc_gid=At6eYUITeknKof22d27Qhxv&oh=00_AYAzzQ8eKca4FU-_nhgcAOcwP4rnd9Covk3x3zKJv4WxRA&oe=675B353D';
+const getToken = () => {
+    const token = localStorage.getItem('vertexToken');
+    if (!token) {
+        console.error('No access token found. Please log in.');
+        return null;
+    }
+    return token;
+};
 
 function NotificationModal() {
     const [activeTab, setActiveTab] = useState('unread');
-    const [notifications, setNotifications] = useState([
-        { id: 1, type: 'system', text: 'System Notification 1', unread: true, avatar: images.logo, username: 'System' },
-        {
-            id: 2,
-            type: 'system',
-            text: 'System Notification 2',
-            unread: false,
-            avatar: images.logo,
-            username: 'System',
-        },
-        {
-            id: 3,
-            type: 'invite',
-            text: 'You have been invited to join Timeline A',
-            unread: true,
-            status: null,
-            avatar: newav,
-            username: 'abcxyz',
-        },
-        {
-            id: 4,
-            type: 'invite',
-            text: 'You have been invited to join Timeline B',
-            unread: true,
-            status: null,
-            avatar: newAvatar,
-            username: 'abcxyz',
-        },
-        { id: 5, type: 'system', text: 'System Notification 3', unread: true, avatar: images.logo, username: 'System' },
-        { id: 6, type: 'system', text: 'System Notification 4', unread: true, avatar: images.logo, username: 'System' },
-        {
-            id: 7,
-            type: 'invite',
-            text: 'You have been invited to join Timeline C',
-            unread: false,
-            status: 'decline',
-            avatar: newAvatar,
-            username: 'abcxyz',
-        },
-        {
-            id: 8,
-            type: 'invite',
-            text: 'You have been invited to join Timeline D',
-            unread: true,
-            status: null,
-            avatar: newAvatar,
-            username: 'abcxyz',
-        },
-        {
-            id: 9,
-            type: 'system',
-            text: 'System Notification 5',
-            unread: false,
-            avatar: images.logo,
-            username: 'System',
-        },
-        {
-            id: 10,
-            type: 'invite',
-            text: 'You have been invited to join Timeline E',
-            unread: true,
-            status: null,
-            avatar: newAvatar,
-            username: 'abcxyz',
-        },
-    ]);
+    const [notifications, setNotifications] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    // Filter notifications based on activeTab
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                const token = getToken();
+                if (!token) {
+                    throw new Error('Access token is missing. Please log in.');
+                }
+
+                const response = await fetch('http://localhost:3004/notification/all?page=1&limit=10', {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch notifications');
+                }
+
+                const responseData = await response.json();
+
+                console.log('Response data:', responseData);
+
+                const notificationsData = responseData.data || [];
+
+                const formattedData = notificationsData.map((item) => ({
+                    id: item.id,
+                    type: item.type,
+                    text: item.content || '',
+                    unread: !item.isCheck,
+                    avatar: item.receiver?.avatar || '',
+                    username: item.receiver?.username || 'System',
+                    status: null,
+                }));
+
+                setNotifications(formattedData);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchNotifications();
+    }, []);
+
     const filteredNotifications = activeTab === 'all' ? notifications : notifications.filter((n) => n.unread);
 
-    // Handle Accept or Decline
     const handleResponse = (id, status) => {
         setNotifications((prevNotifications) =>
             prevNotifications.map((notification) =>
@@ -99,6 +89,14 @@ function NotificationModal() {
             ),
         );
     };
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
 
     return (
         <div className={cx('modal')}>

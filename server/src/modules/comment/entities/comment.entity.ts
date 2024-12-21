@@ -12,13 +12,21 @@ export class Comment {
     @Column({nullable: false})
     content: string;
 
+
+    @Column({default: -1})
+    left: number;
+
+    @Column({default: -1})
+    right: number;
+
     @ManyToOne(() => User, poster => poster.comment, { eager: true })
+
     poster: User;
 
-    @ManyToOne(() => Roadmap, roadmap => roadmap.id, { eager: true })
+    @ManyToOne(() => Roadmap, roadmap => roadmap.id, { eager: false})
     roadmap: Roadmap;
 
-    @ManyToOne(() => Comment, comment => comment.childComments, { eager: true })
+    @ManyToOne(() => Comment, comment => comment.childComments, { eager: false })
     @JoinColumn({ name: 'parentCommentId' })  
     parentComment: Comment;
 
@@ -37,6 +45,6 @@ export class Comment {
     deletedAt: Date | null;
 
     @ManyToOne(() => Node,  node => node.comment, { eager: true })
-    node: Node
+    node: Node 
 
 }

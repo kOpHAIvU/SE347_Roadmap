@@ -249,35 +249,6 @@ export class GroupDivisionService {
         }
     }
 
-    //   {
-    //     "id": 5,
-    //     "title": "Ofsadfada",
-    //     "content": "Roadmap for testing",
-    //     "isActive": true,
-    //     "createdAt": "2024-12-20T01:32:10.652Z",
-    //     "deletedAt": null,
-    //     "creator": {
-    //         "id": 10,
-    //         "username": "kophaivu",
-    //         "password": "$2a$10$cTgJ1eQs7eg4gnqmwWrX6eZt7jQMhEF7BIl1ZTH2a7AnxmzDYlxGm",
-    //         "fullName": "KoPhaiVu",
-    //         "gender": "Male",
-    //         "avatar": "https://res.cloudinary.com/daxxuqogj/image/upload/v1734159330/uploads/ikintntqacgh7y0pkky2.jpg uploads/ikintntqacgh7y0pkky2",
-    //         "deviceToken": "",
-    //         "email": "hoangle293vu@gmail.com",
-    //         "isActive": true,
-    //         "createdAt": "2024-12-14T06:55:38.386Z",
-    //         "deletedAt": null
-    //     },
-    //     "team": {
-    //         userId: ,
-    //         fullName: ,
-    //         avatar: ,
-    //         // 1. Administrator, 2. Editor, 3. Viewer
-    //         role: ,
-    //     }
-    // },
-
     async remove(id: number): Promise<ResponseDto> {
         try {
             const groupDivisionResponse = await this.findOneById(id);
