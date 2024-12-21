@@ -14,6 +14,7 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 @Injectable()
 export class RoadmapService {
 
+
   constructor(
     @Inject("RoadmapConfiguration") private rabbitClient: ClientProxy,
     @InjectRepository(Roadmap)
@@ -22,7 +23,7 @@ export class RoadmapService {
     private configService: ConfigService,
     private cloudinary: CloudinaryService
   ) {}
-
+  
   async create(
     createRoadmapDto: CreateRoadmapDto,
     file: Express.Multer.File,
@@ -38,6 +39,7 @@ export class RoadmapService {
         if (file) {
           const uploadResponse = await this.cloudinary.uploadImage(file);
           avatarUrl = uploadResponse.secure_url.toString() + " " + uploadResponse.public_id.toString();
+
         }
       } catch(error) {
         throw new Error(error);
@@ -69,9 +71,11 @@ export class RoadmapService {
         console.log(env.RABBITMQ.NAME);
         try {
           await this.rabbitClient.connect();
+
         } catch (error) {
           console.log("Error connect rabbitmq: ", error);
         }
+
         console.log("Result send data to rabbitMQ: ");
         const rabbit = this.rabbitClient.emit("Create_new_roadmap", result);
 
@@ -93,26 +97,19 @@ export class RoadmapService {
     page = 1,
     limit = 10,
     idUser: number
-  ): Promise<{
-    statusCode: number,
-    message: string,
-    data: {
-      roadmap: Roadmap[],
-      totalRecord: number
-    }
-  }> {
-    const userResponse = await this.userService.findOneById(idUser);
-    if (userResponse.statusCode !== 200) {
-      return {
-        statusCode: 404,
-        message: 'User not found',
-        data: null,
+  ): Promise<ResponseDto> {
+    try {
+      const userResponse = await this.userService.findOneById(idUser);
+      if (userResponse.statusCode !== 200) {
+        return {
+          statusCode: 404,
+          message: 'User not found',
+          data: null,
+        }
       }
-    }
     const user = Array.isArray(userResponse.data)
                 ? userResponse.data[0]
                 : userResponse.data;
-    try {
       let roadmap: Roadmap[], totalRecord: number;
       if (user.role.id === 1) {
         // role is admin
@@ -156,29 +153,28 @@ export class RoadmapService {
                       .getCount();
       }
       
+      
       if (!roadmap) {
         return {
           statusCode: 404,
           message: 'Roadmap not found',
-          data: null
+
         }
       }
-
+      
       return {
         statusCode: 200,
         message: 'Get this of roadmap successfully',
-        data: {
-          roadmap,
-          totalRecord,
-        },
+        data: roadmap,
       }
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Failed to get all road maps',
+        message: error.message,
         data: null
       }
     }
+
   }
 
   async findTheLastCodeOfRoadmap(): Promise<number> {
@@ -209,12 +205,12 @@ export class RoadmapService {
                       .createQueryBuilder('roadmap')
                       .leftJoinAndSelect('roadmap.node', 'node')
                       .leftJoinAndSelect('roadmap.owner', 'owner')
-                      .leftJoinAndSelect('owner.comment', 'comment')
+                      .leftJoinAndSelect('roadmap.comment', 'comment')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .andWhere('roadmap.isActive = :isActive', { isActive: 1 })
                       .andWhere('roadmap.id = :id', { id })
-                      .getMany();
+                      .getOne();
       if (!roadmap) {
         return {
           statusCode: 404,
@@ -250,9 +246,9 @@ export class RoadmapService {
           statusCode: 404,
           message: 'Roadmap not found',
           data: null
+
         }
       }
-
       return {
         statusCode: 200,
         message: 'Get roadmap successfully',

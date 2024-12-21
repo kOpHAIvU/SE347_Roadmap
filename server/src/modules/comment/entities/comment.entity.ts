@@ -47,10 +47,4 @@ export class Comment {
     @ManyToOne(() => Node,  node => node.comment, { eager: true })
     node: Node 
 
-    @Column({default: 1})
-    left: number;
-
-    @Column({default: 2})
-    right: number;
-
 }
