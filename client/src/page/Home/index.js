@@ -62,6 +62,8 @@ function Home() {
 
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
 
+        console.log(data)
+
         return data.filter(item => {
             if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
                 return false;

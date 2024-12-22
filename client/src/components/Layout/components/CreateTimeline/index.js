@@ -153,8 +153,8 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
     const handleCreate = async () => {
         if (title && content) {
             const timelineData = await fetchNewTimeline(title, content, children.id)
-            const teamId = await fetchNewTeam("Team for study",
-                timelineData.roadmap.avatar ? timelineData.roadmap.avatar.substring(0, timelineData.roadmap.avatar.indexOf('.jpg') + 4) : '',
+            const teamId = await fetchNewTeam("Team for study", timelineData.roadmap.avatar
+                //timelineData.roadmap.avatar ? timelineData.roadmap.avatar.substring(0, timelineData.roadmap.avatar.indexOf('.jpg') + 4) : '',
             )
             await fetchGroupDivisionTeam(teamId, timelineData.id)
 
