@@ -86,6 +86,7 @@ export class UserService {
                     'user.role',
                     'user.deviceToken',
                 ])
+                .leftJoinAndSelect('user.role', 'role')
                 .where('user.id = :id', { id })
                 .andWhere('user.isActive = :isActive', { isActive: true })
                 .andWhere('user.deletedAt is null')
