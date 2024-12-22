@@ -100,6 +100,7 @@ export class RoadmapService {
     idUser: number
   ): Promise<ResponseDto> {
     try {
+
       const userResponse = await this.userService.findOneById(idUser);
       if (userResponse.statusCode !== 200) {
         return {
@@ -111,6 +112,7 @@ export class RoadmapService {
     const user = Array.isArray(userResponse.data)
                 ? userResponse.data[0]
                 : userResponse.data;
+    console.log("UUser send request: ", user);
       let roadmap: Roadmap[], totalRecord: number;
       if (user.role.id === 1) {
         // role is admin
