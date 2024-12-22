@@ -307,7 +307,7 @@ export class NodeService {
     try {
       const nodes = await this.nodeRepository
                       .createQueryBuilder('node')
-                      .where('node.roadmap = :roadmapId', { roadmapId })
+                      .where('node.roadmapId = :roadmapId', { roadmapId })
                       .andWhere('node.isActive = :isActive', { isActive: 1 })
                       .andWhere('node.deletedAt is null')
                       .getMany();
