@@ -65,7 +65,8 @@ export class RoadmapService {
       console.log(this.configService.get<string>('URL'));
 
       const result = await this.roadmapRepository.save(roadmap); 
-      console.log("Owner:", result.owner.role.id)
+     // console.log("Owner:", result.owner.role.id)
+     console.log("Owner:", result.owner)
       if (result.owner.role.id === 1) {
         console.log("Owner is admin");
         console.log(env.RABBITMQ.NAME);

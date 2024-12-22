@@ -215,7 +215,7 @@ export class NodeService {
           const nodes = await this.nodeRepository
                           .createQueryBuilder('node')
                           .leftJoinAndSelect('node.comment', "comment")
-                          .where('node.timeline = :timelineId', { timelineId })
+                          .where('node.timelineId = :timelineId', { timelineId })
                           .andWhere('node.isActive = :isActive', { isActive: 1 })
                           .andWhere('node.deletedAt is null')
                           .orderBy('node.id', 'ASC')
@@ -270,12 +270,12 @@ export class NodeService {
 
   async findNodeByRoadmapId(
     roadmap: number
-  ) {
+  ): Promise<ResponseDto> {
     try {
       const nodes = await this.nodeRepository
                       .createQueryBuilder('node')
                       .leftJoinAndSelect('node.comment', 'comment')
-                      .where('node.roadmap = :roadmap', { roadmap })
+                      .where('node.roadmapId = :roadmap', { roadmap })
                       .andWhere('node.isActive = :isActive', { isActive: 1 })
                       .andWhere('node.deletedAt is null')
                       .orderBy('node.id', 'ASC')
