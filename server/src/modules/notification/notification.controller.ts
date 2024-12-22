@@ -26,6 +26,7 @@ export class NotificationController {
   async handlePostNotificationWhenCreateNewRoadmap(
     @Payload() newRoadmap: Roadmap
   ) {
+    console.log("Create notification:", newRoadmap);
     const notificationTitle = "New Roadmap Has Been Uploaded!";
     const notificationContent = `Welcome to the latest updates! We just released a new Roadmap to help you easily track and plan for the future of the system.\n
     The title of roadmap is: ${newRoadmap.title}\n

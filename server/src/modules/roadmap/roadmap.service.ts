@@ -65,7 +65,8 @@ export class RoadmapService {
       console.log(this.configService.get<string>('URL'));
 
       const result = await this.roadmapRepository.save(roadmap); 
-      console.log("Owner:", result.owner.role.id)
+     // console.log("Owner:", result.owner.role.id)
+     console.log("Owner:", result.owner)
       if (result.owner.role.id === 1) {
         console.log("Owner is admin");
         console.log(env.RABBITMQ.NAME);
@@ -99,6 +100,7 @@ export class RoadmapService {
     idUser: number
   ): Promise<ResponseDto> {
     try {
+
       const userResponse = await this.userService.findOneById(idUser);
       if (userResponse.statusCode !== 200) {
         return {
@@ -110,6 +112,7 @@ export class RoadmapService {
     const user = Array.isArray(userResponse.data)
                 ? userResponse.data[0]
                 : userResponse.data;
+    console.log("UUser send request: ", user);
       let roadmap: Roadmap[], totalRecord: number;
       if (user.role.id === 1) {
         // role is admin

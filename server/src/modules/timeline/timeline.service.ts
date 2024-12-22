@@ -286,6 +286,7 @@ export class TimelineService {
       const owner = Array.isArray(ownerResponse.data)
                     ? ownerResponse.data[0]
                     : ownerResponse.data;
+
       if (!owner) {
         return {
           statusCode: 404,
@@ -302,9 +303,9 @@ export class TimelineService {
         avatar: roadmap.avatar 
       });
       const result = await this.timelineRepository.save(timeline);
-
       const node = roadmap.node;
-      for (let i = 0; i < node.length; i++) {
+      console.log("List node of roadmap", roadmap.node);
+      for (let i = 0; i < roadmap.node.length; i++) {
         const nodeResponse = await this.nodeService.create({
           level: node[i].level,
           xAxis: node[i].xAxis,
