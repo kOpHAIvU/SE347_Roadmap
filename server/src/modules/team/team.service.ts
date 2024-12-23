@@ -30,7 +30,7 @@ export class TeamService {
       throw new Error('User not found');
     }
 
-    let avatarUrl: string;
+    let avatarUrl: string = "";
     try {
       if (file) {
         const uploadResponse = await this.cloudinary.uploadImage(file);
@@ -41,23 +41,24 @@ export class TeamService {
     }
 
     try {
+
       const group = await this.teamRepository.create({
         ...createGroupDto,
         leader: leader,
-        avatar: avatarUrl || null, 
+        avatar: avatarUrl || "", 
       });
-  
+
       const savedGroup = await this.teamRepository.save(group); 
-  
+      console.log("File", avatarUrl)
       return {
-        statusCode: 201,
+        statusCode: 200,
         message: 'Group created successfully',
         data: savedGroup, 
       };
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Server error when creating group',
+        message: error.message,
         data: null,
       };
     }

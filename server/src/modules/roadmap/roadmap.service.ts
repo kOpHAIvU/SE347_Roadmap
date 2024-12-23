@@ -122,7 +122,6 @@ export class RoadmapService {
                       .leftJoinAndSelect('owner.comment', 'comment')
                       .where("roadmap.isActive = :isActive", { isActive: true })
                       .andWhere('roadmap.deletedAt is null')
-                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
                       .orderBy('roadmap.createdAt', 'DESC')
                       .skip((page - 1) * limit)  
                       .take(limit)                
@@ -131,7 +130,6 @@ export class RoadmapService {
                       .createQueryBuilder('roadmap')
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
-                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
                       .getCount();  
       // role is user
       } else {
@@ -143,6 +141,7 @@ export class RoadmapService {
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .andWhere('roadmap.owner = :owner', { owner: user.id })
+                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
                       .orderBy('roadmap.createdAt', 'DESC')
                       .skip((page - 1) * limit)  
                       .take(limit)                
@@ -152,10 +151,9 @@ export class RoadmapService {
                       .where("roadmap.isActive = :isActive", { isActive: 1 })
                       .andWhere('roadmap.deletedAt is null')
                       .andWhere('roadmap.owner = :owner', { owner: user.id })
+                      .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
                       .getCount();
       }
-      
-      
       if (!roadmap) {
         return {
           statusCode: 404,
