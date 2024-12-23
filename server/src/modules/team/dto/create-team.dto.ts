@@ -5,8 +5,8 @@ export class CreateTeamDto {
     @IsNotEmpty()
     name: string;
 
-    @IsString()
-    avatar: string;
+   // @IsString()
+    avatar?: string;
 
     @IsNotEmpty()
     leader: number;
