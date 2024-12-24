@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ChatSection from '~/components/Layout/components/ChatSection/index.js';
 import classNames from 'classnames/bind';
 import styles from './Timeline.module.scss';
@@ -22,12 +22,30 @@ const decryptId = (encryptedId) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
+const filterTimelineNode = (data) => {
+    return data.map((item, index) => ({
+        id: index,
+        level: item.level,
+        x: item.xAxis,
+        y: item.yAxis,
+        type: item.type,
+        ticked: item.tick,
+        due_time: item.dueTime,
+        content: item.content,
+        nodeDetail: item.detail,
+    }));
+}
+
 function Timeline() {
     const navigate = useNavigate();
     const { id: encryptedId } = useParams();
     const id = decryptId(encryptedId);
 
     const [profile, setProfile] = useState(null);
+    const [userType, setUserType] = useState("Viewer")
+    const [roadName, setRoadName] = useState('Name not given');
+    const [titleText, setTitleText] = useState('Make some description');
+
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -62,11 +80,68 @@ function Timeline() {
         }
     };
 
-    const authority = 'Administrator';
-    let roadmapName = 'Name not given';
-    let title =
-        'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
-    const [roadName, setRoadName] = useState(roadmapName);
+    const fetchTimelineData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setNodes(filterTimelineNode(data.data.node))
+                console.log("Nodes after fetching: ", nodes);
+
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchAllNodeInTimeline = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/node/all/timeline/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setNodes(filterTimelineNode(data.data))
+                console.log("Nodes after fetching: ", nodes);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const fetchedProfile = await fetchProfile();
+            const fetchedTimelineData = await fetchTimelineData();
+
+            if (fetchedProfile && fetchedTimelineData) {
+                setUserType(
+                    
+                )
+            }
+        }
+        fetchData();
+    }, [])
+
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
@@ -340,7 +415,7 @@ function Timeline() {
             <div className={cx('timeline-section')}>
                 <div className={cx('important-section')}>
                     <div className={cx('title-container')}>
-                        {authority === 'Administrator' ? (
+                        {userType === 'Administrator' ? (
                             <input
                                 className={cx('page-title')}
                                 value={roadName}
@@ -366,7 +441,7 @@ function Timeline() {
                         />
                     </div>
 
-                    {authority !== 'Viewer' && (
+                    {userType !== 'Viewer' && (
                         <div className={cx('save-setting')}>
                             <button className={cx('save-btn')} onClick={() => handleMakeDialog('Save', null)}>
                                 Save
@@ -425,13 +500,13 @@ function Timeline() {
                     className={cx('content', { expanded: contentExpanded })}
                     onClick={() => setIsContentExpanded(!contentExpanded)}
                 >
-                    {title}
+                    {titleText}
                 </span>
 
                 <div className={cx('timeline-section')}>
                     {toggle ? (
                         <AdvanceRoadmap
-                            userType={authority}
+                            userType={userType}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}
@@ -446,7 +521,7 @@ function Timeline() {
                         />
                     ) : (
                         <RoadmapSection
-                            userType={authority}
+                            userType={userType}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}

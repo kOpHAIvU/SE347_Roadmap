@@ -55,26 +55,20 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         }
     };
 
-    const fetchNewTimeline = async (title, content, id) => {
+    const fetchCloneRoadmap = async () => {
         try {
-            const response = await fetch('http://localhost:3004/timeline/new', {
+            const response = await fetch(`http://localhost:3004/timeline/clone/${children.id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    title: title,
-                    content: content,
-                    roadmap: id,
-                    leader: profile
-                }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                //console.log(data);
+                console.log(data);
                 return data.data
             } else {
                 console.error(data);
@@ -84,7 +78,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         }
     };
 
-    const fetchNewTeam = async (name, avatar) => {
+    const fetchNewTeam = async (name) => {
         try {
             const response = await fetch('http://localhost:3004/team/new', {
                 method: 'POST',
@@ -94,10 +88,8 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
                 },
                 body: JSON.stringify({
                     name: name,
-                    avatar: 'avatar',
                     leader: profile,
                     isActive: 1,
-                    file: avatar
                 }),
             });
 
@@ -116,22 +108,22 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchGroupDivisionTeam = async (teamId, timelineId) => {
         try {
+            const body = new URLSearchParams({
+                teamId: teamId,
+                userId: profile,
+                timelineId: timelineId,
+                role: 1
+            }).toString();
             const response = await fetch('http://localhost:3004/group-division/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: JSON.stringify({
-                    nateamIde: teamId,
-                    userId: profile,
-                    timelineId: timelineId,
-                    role: 1
-                }),
+                body: body,
             });
 
             const data = await response.json();
-
             if (response.ok) {
                 console.log(data);
             } else {
@@ -152,10 +144,9 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const handleCreate = async () => {
         if (title && content) {
-            const timelineData = await fetchNewTimeline(title, content, children.id)
-            const teamId = await fetchNewTeam("Team for study", timelineData.roadmap.avatar
-                //timelineData.roadmap.avatar ? timelineData.roadmap.avatar.substring(0, timelineData.roadmap.avatar.indexOf('.jpg') + 4) : '',
-            )
+            const timelineData = await fetchCloneRoadmap()
+            console.log("Timeline: ", timelineData)
+            const teamId = await fetchNewTeam("Team for study")
             await fetchGroupDivisionTeam(teamId, timelineData.id)
 
             if (timelineData && teamId) {

@@ -25,7 +25,7 @@ const decryptId = (encryptedId) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-const filterRoadmapData = (data) => {
+const filterRoadmapNode = (data) => {
     return data.map((item, index) => ({
         id: index,
         level: item.level,
@@ -46,7 +46,7 @@ function OwnRoadmap() {
 
     const [profile, setProfile] = useState(null);
     const [roadmapData, setRoadmapData] = useState(null);
-    const [nodes, setNodes] = useState(null);
+    const [nodes, setNodes] = useState([]);
 
     const [userType, setUserType] = useState("Viewer")
     const [roadName, setRoadName] = useState('Name not given');
@@ -104,7 +104,7 @@ function OwnRoadmap() {
                 setVisibility(data.data.isPublic ? "Pubic" : "Private");
                 console.log("Roadmap data: ", data.data);
 
-                setNodes(filterRoadmapData(data.data.node))
+                setNodes(filterRoadmapNode(data.data.node))
                 console.log("Nodes after fetching: ", nodes);
 
                 return data.data;
@@ -255,7 +255,7 @@ function OwnRoadmap() {
 
             const data = await response.json();
             if (response.ok) {
-                setNodes(filterRoadmapData(data.data))
+                setNodes(filterRoadmapNode(data.data))
                 console.log("Nodes after fetching: ", nodes);
             } else {
                 const errorData = await response.json();
