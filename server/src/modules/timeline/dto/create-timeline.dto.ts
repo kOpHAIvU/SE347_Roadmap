@@ -9,7 +9,8 @@ export class CreateTimelineDto {
     @IsNotEmpty()
     content: string;
 
-    @IsNotEmpty()
+    avatar?: string;
+    
     roadmap: number;
 
     leader: number;
