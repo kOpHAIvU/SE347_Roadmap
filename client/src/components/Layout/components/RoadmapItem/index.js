@@ -2,12 +2,46 @@ import styles from './RoadmapItem.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faCircleDown, faHeart as faSolidHeart } from '@fortawesome/free-solid-svg-icons';
-import { faHeart } from '@fortawesome/free-regular-svg-icons'
+import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { useState } from 'react';
 import CreateTimeline from '../CreateTimeline/index.js';
 import { CantClone } from '../MiniNotification/index.js';
 
 const cx = classNames.bind(styles);
+
+const getToken = () => {
+    const token = localStorage.getItem('vertexToken');
+
+    if (!token) {
+        console.error('No access token found. Please log in.');
+        return;
+    }
+    return token;
+};
+
+const getRoadmapById = async (id) => {
+    try {
+        const response = await fetch(`http://localhost:3004/roadmap/id/${id}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${getToken()}`,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
+            return;
+        }
+
+        const data = await response.json();
+
+        return data.data;
+    } catch (error) {
+        console.error('Fetch Favorite Error:', error);
+    }
+};
 
 function RoadmapItem({ children, onLoveChange, onClick }) {
     const [showDialog, setShowDialog] = useState(false);
@@ -27,8 +61,8 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     };
 
     const handleCloneClick = () => {
-        console.log(children)
-        console.log(children.nodeCount)
+        console.log(children);
+        console.log(children.nodeCount);
         if (children.nodeCount < 5) {
             const newDialog = { id: Date.now() };
             setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
@@ -46,9 +80,7 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     return (
         <div className={cx('wrapper')} onClick={onClick}>
             <div className={cx('container')}>
-                <img className={cx('roadmap-pic')}
-                    src={children.avatar}
-                    alt="Roadmap picture" />
+                <img className={cx('roadmap-pic')} src={children.avatar} alt="Roadmap picture" />
                 <h1 className={cx('title')}>{children.title}</h1>
                 <h2 className={cx('content')}>{children.content}</h2>
                 <div className={cx('below')}>
@@ -56,8 +88,9 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
                         className={cx('clone-btn')}
                         onClick={(e) => {
                             e.stopPropagation();
-                            handleCloneClick()
-                        }}>
+                            handleCloneClick();
+                        }}
+                    >
                         <FontAwesomeIcon className={cx('clone-icon')} icon={faCircleDown} />
                         <span className={cx('clone-title')}>Clone</span>
                     </button>
@@ -67,31 +100,34 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
                             onLoveChange();
                         }}
                         icon={children.loved.loveState ? faHeart : faSolidHeart}
-                        className={cx('love')} />
+                        className={cx('love')}
+                    />
 
-                    <div className={cx('clone-num')} >
+                    <div className={cx('clone-num')}>
                         <span className={cx('num')}>{children.clone} clones</span>
                         <FontAwesomeIcon className={cx('bolt-icon')} icon={faBolt} />
                     </div>
                 </div>
             </div>
 
-            {showDialog &&
+            {showDialog && (
                 <CreateTimeline
-                    children={children}
+                    newId={'Haha'}
                     title={title}
                     setTitle={setTitle}
                     content={content}
                     setContent={setContent}
                     handleOutsideClick={handleOutsideClick}
-                    setShowDialog={setShowDialog} />}
+                    setShowDialog={setShowDialog}
+                />
+            )}
 
             <div className={cx('mini-notify')}>
                 {errorDialogs.map((dialog) => (
                     <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
                 ))}
             </div>
-        </div >
+        </div>
     );
 }
 
