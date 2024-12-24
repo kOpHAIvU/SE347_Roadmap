@@ -58,7 +58,7 @@ export class TimelineController {
     async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto) {
         return await this.timelineService.update(+id, updateTimelineDto);
     }
-
+    
     @Delete('item/:id')
     @UseGuards(JwtAuthGuard)
     async remove(@Param('id', ParseIntPipe) id: string) {

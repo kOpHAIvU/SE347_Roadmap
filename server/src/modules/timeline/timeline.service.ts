@@ -8,6 +8,7 @@ import { RoadmapService } from '../roadmap/roadmap.service';
 import {ResponseDto} from './common/response.interface'
 import { UserService } from '../user/user.service';
 import { NodeService } from '../node/node.service';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class TimelineService {
@@ -63,7 +64,8 @@ export class TimelineService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Server error when creating timeline'
+        message: error.message,
+        data: null
       }
     }
   }
@@ -192,33 +194,49 @@ export class TimelineService {
     }
   
     try {
-      const roadmapResponse = await this.roadmapService.findOneById(updateTimelineDto.roadmap);
-      const roadmap = Array.isArray(roadmapResponse.data) 
-                      ? roadmapResponse.data[0] 
-                      : roadmapResponse.data;
-      if (!roadmap) { 
-        return {
-          statusCode: 404,
-          message: 'Roadmap not found'
-        }
-      }
-      const leaderResponse = await this.userService.findOneById(updateTimelineDto.leader);
-      const leader = Array.isArray(leaderResponse.data)
-                    ? leaderResponse.data[0]
-                    : leaderResponse.data;
-      if (!leader) {
-        return {
-          statusCode: 404,
-          message: 'User not found',
-        }
-      }
+      // const roadmapResponse = await this.roadmapService.findOneById(updateTimelineDto.roadmap);
+      // const roadmap = Array.isArray(roadmapResponse.data) 
+      //                 ? roadmapResponse.data[0] 
+      //                 : roadmapResponse.data;
+      // if (!roadmap) { 
+      //   return {
+      //     statusCode: 404,
+      //     message: 'Roadmap not found'
+      //   }
+      // }
+
+      // const leaderResponse = await this.userService.findOneById(updateTimelineDto.leader);
+      // const leader = Array.isArray(leaderResponse.data)
+      //               ? leaderResponse.data[0]
+      //               : leaderResponse.data;
+      // if (!leader) {
+      //   return {
+      //     statusCode: 404,
+      //     message: 'User not found',
+      //   }
+      // }
 
       const newTimeline = this.timelineRepository.create({
         ...timeline,
         ...updateTimelineDto,
-        roadmap: roadmap,
-        creator: leader,
+        roadmap: timeline.roadmap,
+        creator: timeline.creator,
       });
+
+      let leaderResponse = null;
+      if (typeof updateTimelineDto.leader !== 'undefined') {
+        leaderResponse = await this.userService.findOneById(updateTimelineDto.leader);
+        const leader = Array.isArray(leaderResponse.data)
+              ? leaderResponse.data[0]
+              : leaderResponse.data;
+        if (!leader) {
+          return {
+            statusCode: 404,
+            message: 'User not found',
+          }
+        }
+        newTimeline.creator = leader;
+      }
   
       const result = await this.timelineRepository.save(newTimeline);
   
