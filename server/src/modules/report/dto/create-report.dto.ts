@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateReportDto {
     @IsString()
@@ -17,5 +17,5 @@ export class CreateReportDto {
 
     @IsBoolean()
     @IsOptional()
-    isActive: boolean;  
+    isActive: boolean;
 }

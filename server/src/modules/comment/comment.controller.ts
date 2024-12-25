@@ -30,24 +30,20 @@ export class CommentController {
         return await this.commentService.findOneById(+id);
     }
 
+    @Get('all/roadmap/:roadmapId')
+    @UseGuards(JwtAuthGuard)
+    async findCommentsByRoadmapId(
+        @Param('roadmapId', ParseIntPipe) roadmapId: number,
+        @Query('page', ParseIntPipe) page: number,
+        @Query('limit', ParseIntPipe) limit: number,
+    ) {
+        return await this.commentService.getAllCommentsOfRoadmap(roadmapId, page, limit);
+    }
 
-  @Get('all/roadmap/:roadmapId')
-  @UseGuards(JwtAuthGuard)
-  async findCommentsByRoadmapId(
-    @Param('roadmapId', ParseIntPipe) roadmapId: number,
-    @Query('page', ParseIntPipe) page: number,
-    @Query('limit', ParseIntPipe) limit: number,
-  ) {
-    return await this.commentService.getAllCommentsOfRoadmap(roadmapId, page, limit);
-  }
-
-  @Post('nestedComment')
-  async createNestedComment(
-    @Body() createCommentDto: CreateCommentDto
-  ) { 
-    return await this.commentService.createNestedComment(createCommentDto);
-  }
-
+    @Post('nestedComment')
+    async createNestedComment(@Body() createCommentDto: CreateCommentDto) {
+        return await this.commentService.createNestedComment(createCommentDto);
+    }
 
     // Only the content of the comment can be updated
     @Patch('item/:id')
@@ -61,7 +57,4 @@ export class CommentController {
     async remove(@Param('id', ParseIntPipe) id: string) {
         return await this.commentService.remove(+id);
     }
-
-  
 }
-
