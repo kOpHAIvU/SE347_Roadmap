@@ -12,27 +12,29 @@ const SettingItem = ({ item, onUpdateValue }) => {
         return storedPhoto || item.value || defaultPhotoUrl;
     };
 
-    const [photo, setPhoto] = useState(getInitialPhoto());
+    const [photo, setPhoto] = useState(item.value);
 
     useEffect(() => {
-        // Chỉ lưu item.value vào localStorage nếu không có profilePhoto
-        if (!localStorage.getItem('profilePhoto') && item.value) {
-            localStorage.setItem('profilePhoto', item.value);
+        if (item.label === 'Profile Photo') {
+            setPhoto(item.value || defaultPhotoUrl);
         }
     }, [item.value]);
 
     const handleRemovePhoto = () => {
         setPhoto(defaultPhotoUrl);
-        // localStorage.removeItem('profilePhoto');
-        localStorage.setItem('profilePhoto', defaultPhotoUrl);
-        console.log('Photo removed');
+
+        if (onUpdateValue) {
+            onUpdateValue(defaultPhotoUrl);
+        }
     };
 
     const handleChangePhoto = (event) => {
         if (event.target.files && event.target.files[0]) {
             const newPhoto = URL.createObjectURL(event.target.files[0]);
             setPhoto(newPhoto);
-            localStorage.setItem('profilePhoto', newPhoto);
+            if (onUpdateValue) {
+                onUpdateValue(newPhoto);
+            }
             console.log('Photo changed');
         }
     };
