@@ -10,10 +10,10 @@ export class CreateReportDto {
     content: string;
 
     @IsNumber()
-    posterId: number;
+    posterId?: number;
 
     @IsNumber()
-    receiverId: number;
+    receiverId?: number;
 
     @IsBoolean()
     @IsOptional()

@@ -309,34 +309,25 @@ export class ReportService {
       const updateData = this.reportRepository.create({
         ...report,
         ...updateReportDto,
-        reporter: null, 
+        reporter: report.reporter, 
         receive: null,
       });
 
-      const posterResponse = await this.userService.findOneById(updateReportDto.posterId); 
-      const owner = Array.isArray(posterResponse.data)
-                    ? posterResponse.data[0]
-                    : posterResponse.data;                  
-      if (!owner && updateReportDto.posterId !== null) {
-        return {
-          statusCode: 404,
-          message: 'Poster not found',
-          data: null
-        };
+      
+      if (typeof updateReportDto.receiverId !== 'undefined') {
+        const receiverResponse = await this.userService.findOneById(updateReportDto.receiverId);
+        const receiver = Array.isArray(receiverResponse.data)
+                      ? receiverResponse.data[0]
+                      : receiverResponse.data;
+        if (!receiver) {
+          return {
+            statusCode: 404,
+            message: 'Receiver not found',
+            data: null
+          };
+        }
+        updateData.receive = receiver;
       }
-      updateData.reporter = owner;
-      const receiverResponse = await this.userService.findOneById(updateReportDto.receiverId);
-      const receiver = Array.isArray(receiverResponse.data)
-                    ? receiverResponse.data[0]
-                    : receiverResponse.data;
-      if (!receiver && updateReportDto.receiverId !== null) {
-        return {
-          statusCode: 404,
-          message: 'Receiver not found',
-          data: null
-        };
-      }
-      updateData.receive = receiver;
 
       const result = await this.reportRepository.save(updateData);
       return {

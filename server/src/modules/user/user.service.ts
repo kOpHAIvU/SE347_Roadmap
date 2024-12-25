@@ -230,7 +230,17 @@ export class UserService {
         }
     }
 
-    async findAll(): Promise<ResponseDto> {
+    async findAll(
+        page: number = 1,
+        limit: number = 10,
+    ): Promise<{
+        statusCode: number;
+        message: string;
+        data: {
+            total: number;
+            users: User[];
+        }
+    }> {
         try {
             const users = await this.usersRepository
                 .createQueryBuilder('user')
@@ -246,18 +256,28 @@ export class UserService {
                 ])
                 .where('user.isActive = :isActive', { isActive: true })
                 .andWhere('user.deletedAt is null')
+                .skip((page - 1) * limit)
+                .take(limit)
                 .getMany();
+            const total = await this.usersRepository
+                .createQueryBuilder('user')
+                .where('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .getCount();
             if (!users) {
                 return {
                     statusCode: 404,
                     message: 'User not found',
-                    data: [],
+                    data: null,
                 };
             }
             return {
                 statusCode: 200,
                 message: 'Get user successfully',
-                data: users,
+                data: {
+                    total,
+                    users,
+                },
             };
         } catch (error) {
             return {

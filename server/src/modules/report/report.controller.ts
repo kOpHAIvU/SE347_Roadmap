@@ -1,4 +1,4 @@
-import {Request, Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe } from '@nestjs/common';
+import {Request, Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseIntPipe, Req } from '@nestjs/common';
 import { ReportService } from './report.service';
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
@@ -14,7 +14,11 @@ export class ReportController {
 
   @Post('new')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  async create(@Body() createReportDto: CreateReportDto) {
+  async create(
+    @Body() createReportDto: CreateReportDto,
+    @Req() req: any,
+  ) {
+    createReportDto.posterId = req.user.userId;
     return await this.reportService.create(createReportDto);
   }
 

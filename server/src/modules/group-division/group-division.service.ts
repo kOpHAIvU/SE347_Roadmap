@@ -463,12 +463,12 @@ export class GroupDivisionService {
                               .createQueryBuilder('groupDivision')
                               .leftJoinAndSelect('groupDivision.team', 'team')
                               .leftJoinAndSelect('groupDivision.user', 'user')
-                              .where('timeline.id = :timelineId', { timelineId })
+                              .where('groupDivision.timelineId = :timelineId', { timelineId })
                               .andWhere('groupDivision.deletedAt is null')
                               .getMany();
       const totalRecord = await this.groupDivisionRepository
                               .createQueryBuilder('groupDivision')
-                              .where('timeline.id = :timelineId', { timelineId })
+                              .where('groupDivision.timelineId = :timelineId', { timelineId })
                               .andWhere('groupDivision.deletedAt is null')
                               .getCount();
       if (groupDivisions.length === 0) {

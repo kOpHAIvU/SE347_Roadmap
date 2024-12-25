@@ -249,15 +249,15 @@ export class RoadmapService {
                     message: 'Roadmap not found',
                 };
             }
-            const ownerResponse = await this.userService.findOneById(updateRoadmapDto.owner);
-            const owner = Array.isArray(ownerResponse.data) ? ownerResponse.data[0] : ownerResponse.data;
+            // const ownerResponse = await this.userService.findOneById(updateRoadmapDto.owner);
+            // const owner = Array.isArray(ownerResponse.data) ? ownerResponse.data[0] : ownerResponse.data;
 
-            if (!owner) {
-                return {
-                    statusCode: 404,
-                    message: 'User not found',
-                };
-            }
+            // if (!owner) {
+            //     return {
+            //         statusCode: 404,
+            //         message: 'User not found',
+            //     };
+            // }
 
             let public_id: string, secure_url: string;
             let avatarUrl: string = null;
@@ -284,14 +284,14 @@ export class RoadmapService {
                 roadmapCreate = this.roadmapRepository.create({
                     ...roadmap,
                     ...updateRoadmapDto,
-                    owner,
+                    owner: roadmap.owner,
                     avatar: avatarUrl || null,
                 });
             } else {
                 roadmapCreate = this.roadmapRepository.create({
                     ...roadmap,
                     ...updateRoadmapDto,
-                    owner,
+                    owner: roadmap.owner,
                 });
             }
             console.log('Roadmap create: ', roadmapCreate);
