@@ -91,7 +91,7 @@ export class UserService {
                 .andWhere('user.isActive = :isActive', { isActive: true })
                 .andWhere('user.deletedAt is null')
                 .getOne();
-
+            console.log('Leader is: ', user);
             if (!user) {
                 return {
                     statusCode: 404,
@@ -99,6 +99,7 @@ export class UserService {
                     data: null,
                 };
             }
+
             return {
                 statusCode: 200,
                 message: 'Get user successfully',

@@ -145,6 +145,8 @@ function YourTimeline() {
         navigate(`/timeline/${encryptedId}`);
     };
 
+    console.log(encryptId(7))
+
     return (
         <div className={cx('wrapper')}>
             <h1 className={cx('page-title')}>Your Timeline</h1>

@@ -36,13 +36,12 @@ export class RoadmapController {
     @Get('all')
     @UseGuards(JwtAuthGuard)
     async findAll(
-        @Query('page', ParseIntPipe) page: number = 1, 
+        @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 100,
-        @Req() req: any
+        @Req() req: any,
     ) {
         return await this.roadmapService.findAll(page, limit, req.user.userId);
     }
-
 
     @Get('id/:id')
     @UseGuards(JwtAuthGuard)

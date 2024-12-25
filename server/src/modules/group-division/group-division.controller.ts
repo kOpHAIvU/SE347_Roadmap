@@ -18,8 +18,7 @@ export class GroupDivisionController {
     }
 
     @Get('all')
-    @UseGuards(JwtAuthGuard, RoleGuard)
-    @Roles('admin')
+    @UseGuards(JwtAuthGuard)
     async findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
         return await this.groupDivisionService.findAll();
     }

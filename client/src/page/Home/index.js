@@ -31,6 +31,38 @@ function Home() {
         return token;
     }
 
+    const filterRoadmapData = async (data) => {
+        const profileId = await fetchProfile();
+        setProfile(profileId)
+        const favorites = await fetchFavoriteData();
+
+        const favoritesArray = Array.isArray(favorites) ? favorites : [];
+
+        console.log(data)
+
+        // return data.filter(item => {
+        //     if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
+        //         return false;
+        //     return true;
+        // }).
+        return data.map(item => {
+            const favorite = favoritesArray.find(fav => fav.roadmap.id === item.id && fav.user.id === profileId);
+            return {
+                id: item.id,
+                title: item.title,
+                content: item.content,
+                clone: item.clone,
+                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
+                loved: {
+                    loveId: favorite ? favorite.id : null,
+                    loveState: favorite ? false : true,
+                },
+                react: item.react,
+                nodeCount: item.node.length
+            };
+        });
+    };
+
     const fetchProfile = async () => {
         try {
             const response = await fetch('http://localhost:3004/auth/profile', {
@@ -53,35 +85,6 @@ function Home() {
         } catch (error) {
             console.error('Fetch Profile Error:', error);
         }
-    };
-
-    const filterRoadmapData = async (data) => {
-        const profileId = await fetchProfile();
-        setProfile(profileId)
-        const favorites = await fetchFavoriteData();
-
-        const favoritesArray = Array.isArray(favorites) ? favorites : [];
-
-        return data.filter(item => {
-            if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
-                return false;
-            return true;
-        }).map(item => {
-            const favorite = favoritesArray.find(fav => fav.roadmap.id === item.id && fav.user.id === profileId);
-            return {
-                id: item.id,
-                title: item.title,
-                content: item.content,
-                clone: item.clone,
-                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                loved: {
-                    loveId: favorite ? favorite.id : null,
-                    loveState: favorite ? false : true,
-                },
-                react: item.react,
-                nodeCount: item.node.length
-            };
-        });
     };
 
     const fetchRoadmapData = async () => {
