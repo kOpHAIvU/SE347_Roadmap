@@ -86,7 +86,10 @@ export class PaymentService {
   ): Promise<{
     statusCode: number, 
     message: string,
-    data: Payment[]
+    data: {
+      total: number,
+      data: Payment[]
+    }
   }> {
     try {
       const payments = await this.paymentRepository
@@ -97,18 +100,26 @@ export class PaymentService {
                                 .skip((page - 1) * limit)
                                 .take(limit)
                                 .getMany()
+      const total = await this.paymentRepository
+                          .createQueryBuilder('payment')
+                          .where('payment.deletedAt IS NULL')
+                          .andWhere('payment.isActive = true')
+                          .getCount() 
       if (payments.length === 0) {
         return {
           statusCode: 404,
           message: "No payment found",
-          data: payments
+          data: null
         }
       }
 
       return {
         statusCode: 200,
         message: "Get this list of payments successfully",
-        data: payments
+        data: {
+          total,
+          data: payments
+        }
       }
     } catch(error) {
       return {

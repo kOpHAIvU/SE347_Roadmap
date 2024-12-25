@@ -1,3 +1,4 @@
+import { Roadmap } from "src/modules/roadmap/entities/roadmap.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -28,6 +29,9 @@ export class Report {
     isActive: boolean;
 
     @ManyToOne(() => User, receiver => receiver.receiverReport, {eager: true})
-    receive: User
+    receive: User;
+
+    @ManyToOne(() => Roadmap,  roadmap => roadmap.report, {eager: true})
+    roadmap: Roadmap;
 
 }

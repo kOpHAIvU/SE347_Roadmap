@@ -4,6 +4,7 @@ import { Comment } from './../../comment/entities/comment.entity';
 import { Timeline } from "../../timeline/entities/timeline.entity";
 import {Node} from "../../node/entities/node.entity"
 import { Favorite } from "src/modules/favorite/entities/favorite.entity";
+import {Report} from "../../report/entities/report.entity"
 
 @Entity()
 export class Roadmap {
@@ -57,4 +58,7 @@ export class Roadmap {
 
     @OneToMany(() => Favorite, favorite => favorite.roadmap)
     favorite: Favorite[]
+
+    @OneToMany(() => Report, report => report.roadmap)
+    report: Report[]
 }

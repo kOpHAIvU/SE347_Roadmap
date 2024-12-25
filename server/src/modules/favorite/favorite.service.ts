@@ -73,7 +73,14 @@ export class FavoriteService {
   async findAll(
     page: number = 1,
     limit: number = 10,
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      total: number,
+      favorite: Favorite[]
+    }
+  }> {
     try {
       const favorites = await this.favoriteRepository
                             .createQueryBuilder('favorite')
@@ -84,7 +91,10 @@ export class FavoriteService {
                             .skip((page - 1) * limit)
                             .take(limit)
                             .getMany();
-
+      const total = await this.favoriteRepository
+                          .createQueryBuilder('favorite')
+                          .where('favorite.deletedAt is null')
+                          .getCount();
     if (favorites.length === 0) {
       return {
         statusCode: 404,
@@ -95,7 +105,10 @@ export class FavoriteService {
     return {
       statusCode: 200,
       message: "Get all favorite roadmaps successfully",
-      data: favorites,
+      data:  {
+        total,
+        favorite: favorites
+      }
     }                      
     } catch(error) {
       return {
@@ -142,7 +155,14 @@ export class FavoriteService {
     id: number,
     page: number = 1,
     limit: number = 10
-  ) {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      total: number,
+      favorite: Favorite[]
+    }
+  }> {
     try {
       console.log("ID user", id);
       const favorite = await this.favoriteRepository
@@ -154,6 +174,11 @@ export class FavoriteService {
                                   .skip((page - 1) * limit)
                                   .take(limit)
                                   .getMany();
+      const total = await this.favoriteRepository
+                            .createQueryBuilder('favorite')
+                            .where('favorite.userId = :userId', { userId: id })
+                            .andWhere('favorite.deletedAt is null')
+                            .getCount();  
       if (favorite.length === 0) {
         return {
           statusCode: 404,
@@ -164,7 +189,10 @@ export class FavoriteService {
       return {
         statusCode: 200,
         message: "Get the list of favorite roadmaps successfully",
-        data: favorite
+        data: {
+          total,
+          favorite
+        }
       }
     } catch(error) {
       return {

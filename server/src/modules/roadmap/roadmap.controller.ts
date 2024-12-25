@@ -65,14 +65,14 @@ export class RoadmapController {
         return await this.roadmapService.findRoadmapsByType(type, page, limit);
     }
 
-    @Get('owner/:owner')
+    @Get('owner')
     @UseGuards(JwtAuthGuard)
     async findRoadmapByOwner(
-        @Param('owner') owner: string,
+        @Req() req: any,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 100,
     ) {
-        return await this.roadmapService.findRoadmapsByOwner(owner, page, limit);
+        return await this.roadmapService.findRoadmapsByOwner(req.user.userId, page, limit);
     }
 
     @Patch('item/:id')
