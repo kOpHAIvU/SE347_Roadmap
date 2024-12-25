@@ -26,7 +26,7 @@ const formatTimelineData = (data, src) => {
             id: item.id,
             title: item.title,
             content: item.content,
-            avatar: src,
+            avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
             contributors: 3
         }
     })

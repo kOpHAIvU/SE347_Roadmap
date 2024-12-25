@@ -45,7 +45,8 @@ function Timeline() {
     const [userType, setUserType] = useState("Viewer")
     const [roadName, setRoadName] = useState('Name not given');
     const [titleText, setTitleText] = useState('Make some description');
-    const [nodes, setNodes] = useState([])
+    const [nodes, setNodes] = useState([]);
+    const [groupData, setGroupData] = useState([])
 
 
     const getToken = () => {
@@ -72,6 +73,7 @@ function Timeline() {
 
             if (response.ok) {
                 setProfile(data.data);
+                console.log(data.data)
                 return data.data;
             } else {
                 console.error('Error:', data.message || 'Failed to fetch profile data.');
@@ -97,6 +99,7 @@ function Timeline() {
                 setTitleText(data.data.content)
                 setNodes(filterTimelineNode(data.data.node))
                 console.log("Nodes after fetching: ", nodes);
+                console.log("Timeline data: ", data.data)
 
                 return data.data;
             } else {
@@ -134,6 +137,30 @@ function Timeline() {
         }
     };
 
+    const fetchGetGroupDivisionByTimeline = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/group-division/timelineId/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setGroupData(data.data.groupDivisions)
+                console.log(data);
+                return data.data
+            } else {
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     const fetchAllNodeInTimeline = async () => {
         try {
             const response = await fetch(`http://localhost:3004/node/all/timeline/${id}`, {
@@ -161,11 +188,33 @@ function Timeline() {
         const fetchData = async () => {
             const fetchedProfile = await fetchProfile();
             const fetchedTimelineData = await fetchTimelineData();
+            const fetchedGroupDivisonData = await fetchGetGroupDivisionByTimeline();
 
-            if (fetchedProfile && fetchedTimelineData) {
-                setUserType(
-                    
-                )
+            if (fetchedProfile && fetchedTimelineData && fetchedGroupDivisonData) {
+                for (let i = 0; i < fetchedGroupDivisonData.totalRecords; i++) {
+                    const groupDivision = fetchedGroupDivisonData.groupDivisions[i];
+
+                    if (fetchedProfile.id === groupDivision.user.id) {
+                        console.log("groupDivision role: ", groupDivision.role)
+                        switch (groupDivision.role) {
+                            case 1:
+                                setUserType("Administrator");
+                                break;
+                            case 2:
+                                setUserType("Editor");
+                                break;
+                            case 3:
+                                setUserType("Viewer");
+                                break;
+                            case 4:
+                                setUserType("onPending");
+                                break;
+                            default:
+                                console.warn("Unknown role:", groupDivision.role);
+                        }
+                    }
+                }
+                console.log(userType)
             }
         }
         fetchData();
@@ -455,7 +504,8 @@ function Timeline() {
                                 onBlur={async () => {
                                     if (roadName.trim() === '')
                                         setRoadName('Name not given');
-                                    await fetchUpdateTimelineTitleContent()
+                                    if (roadName !== 'Name not given')
+                                        await fetchUpdateTimelineTitleContent()
                                 }}
                             />
                         ) : (
@@ -569,7 +619,7 @@ function Timeline() {
 
             {chatExtended && !toggle && (
                 <div className={cx('chat-section', { show: chatExtended })}>
-                    <ChatSection />
+                    <ChatSection profile={profile} groupData={groupData} />
                 </div>
             )}
         </div>

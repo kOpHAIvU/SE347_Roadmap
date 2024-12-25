@@ -138,14 +138,21 @@ function Home() {
 
     const fetchNewFavourite = async (userId, roadmapId) => {
         try {
+            const body = new URLSearchParams({
+                userId: userId,
+                roadmapId: roadmapId
+            }).toString();
+
             const response = await fetch('http://localhost:3004/favorite/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: JSON.stringify({ userId: userId, roadmapId: roadmapId }),
+                body: body,
             });
+
+            console.log('Body:', body);
 
             if (response.ok) {
                 const data = await response.json();
@@ -251,7 +258,7 @@ function Home() {
         }
         else {
             newReactValue = roadmapToUpdate.react + 1;
-            fetchNewFavourite(profile.id, roadmapToUpdate.id)
+            fetchNewFavourite(profile, roadmapToUpdate.id)
         }
 
         try {

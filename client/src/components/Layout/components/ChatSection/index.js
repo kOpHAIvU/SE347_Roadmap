@@ -4,12 +4,55 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames/bind';
 import styles from './ChatSection.module.scss';
 import ChatItem from '../ChatItem/index.js';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
-function ChatSection() {
+function ChatSection({ profile, groupData }) {
+    const navigate = useNavigate()
+
     const [chatContent, setChatContent] = useState('');
     const allMessagesRef = useRef(null);
+
+    const getToken = () => {
+        const token = localStorage.getItem('vertexToken');
+
+        if (!token) {
+            navigate(`/login`);
+            return;
+        }
+        return token;
+    }
+
+    const fetchNewMessage = async () => {
+        try {
+            const body = {
+                content: chatContent,
+                check: 1,
+                senderId: profile.id,
+                teamId: groupData.team.id,
+            };
+
+            const response = await fetch('http://localhost:3004/comment/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(body),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log(data);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
 
     // Sử dụng useEffect để cuộn xuống dưới cùng khi có thay đổi trong chatContent
     useEffect(() => {
@@ -47,14 +90,14 @@ function ChatSection() {
     const handleSendMessage = () => {
         if (chatContent.trim() !== '') {
             const newMessage = {
-                id: chats.length, // Tạo ID mới dựa trên độ dài của mảng chats
-                user: 'KoPhaiVu', // Thay đổi tên người dùng nếu cần
-                avatar: source, // Thay đổi avatar nếu cần
+                id: chats.length,
+                user: profile.fullName,
+                avatar: profile.avatar,
                 date: new Date().toLocaleDateString(),
                 content: chatContent
             };
-            setChats([...chats, newMessage]); // Cập nhật trạng thái với tin nhắn mới
-            setChatContent(''); // Xóa nội dung textarea
+            setChats([...chats, newMessage]);
+            setChatContent('');
         }
     };
 
@@ -74,8 +117,8 @@ function ChatSection() {
                     rows={2} // Đặt số dòng mặc định
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
-                            e.preventDefault(); // Ngăn chặn hành vi mặc định (tạo dòng mới)
-                            handleSendMessage(); // Gọi hàm gửi tin nhắn
+                            e.preventDefault();
+                            handleSendMessage();
                         }
                     }}
                 />
