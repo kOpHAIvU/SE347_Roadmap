@@ -88,7 +88,14 @@ export class GroupDivisionService {
   async findAll(
     page: number = 1,
     limit: number = 10
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      totalRecords: number,
+      groupDivisions: GroupDivision[]
+    }
+  }> {
     try {
       const groupDivisions = await this.groupDivisionRepository
                               .createQueryBuilder('groupDivision') 
@@ -100,6 +107,11 @@ export class GroupDivisionService {
                               .skip((page - 1) * limit)
                               .take(limit)
                               .getMany();
+      const totalRecord = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .where('team.isActive = :isActive', { isActive: 1 })
+                              .andWhere('team.deletedAt is null')
+                              .getCount();
       if (groupDivisions.length === 0) {
         return {
           statusCode: 404,
@@ -110,7 +122,10 @@ export class GroupDivisionService {
       return {
         statusCode: 200,
         message: 'Find all groupDivisions successfully',
-        data: groupDivisions
+        data: {
+          totalRecords: totalRecord,
+          groupDivisions: groupDivisions
+        }
       }
     } catch(err) {
       return {
@@ -158,7 +173,14 @@ export class GroupDivisionService {
     userId: number,
     teamId: number,
     timelineId: number,
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      totalRecords: number,
+      groupDivision: GroupDivision
+    }
+  }> {
     try {
       console.log(userId, teamId, timelineId);
       const groupDivision = await this.groupDivisionRepository
@@ -171,6 +193,13 @@ export class GroupDivisionService {
                               .andWhere('timeline.id = :timelineId', { timelineId })
                               .andWhere('groupDivision.deletedAt is null')
                               .getOne();
+      const totalRecord = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .where('team.id = :teamId', { teamId })
+                              .andWhere('user.id = :userId', { userId })
+                              .andWhere('timeline.id = :timelineId', { timelineId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .getCount();  
       if (!groupDivision) {
         return {
           statusCode: 404,
@@ -181,7 +210,10 @@ export class GroupDivisionService {
       return {
         statusCode: 200,
         message: 'Get group division successfully',
-        data: groupDivision
+        data: {
+          totalRecords: totalRecord,
+          groupDivision
+        }
       }
     } catch(error) {
       return {
@@ -320,7 +352,14 @@ export class GroupDivisionService {
     userId: number,
     page: number = 1,
     limit: number = 10
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      totalRecords: number,
+      groupDivisions: GroupDivision[]
+    }
+  }> {
     try {
       const groupDivisions = await this.groupDivisionRepository
                               .createQueryBuilder('groupDivision')
@@ -332,6 +371,11 @@ export class GroupDivisionService {
                               .skip((page - 1) * limit)
                               .take(limit)
                               .getMany();
+      const totalRecord = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .where('user.id = :userId', { userId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .getCount();  
       if (groupDivisions.length === 0) {
         return {
           statusCode: 404,
@@ -342,7 +386,10 @@ export class GroupDivisionService {
       return {
         statusCode: 200,
         message: 'Find all groupDivisions successfully',
-        data: groupDivisions
+        data: {
+          totalRecords: totalRecord,
+          groupDivisions: groupDivisions
+        }
       }
     } catch(error) {
       return {
@@ -355,7 +402,14 @@ export class GroupDivisionService {
 
   async getAllGroupDivisionByTeamId(
     teamId: number,
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      groupDivisions: GroupDivision[],
+      totalRecords: number
+    }
+  }> {
     try {
       const groupDivisions = await this.groupDivisionRepository
                               .createQueryBuilder('groupDivision')
@@ -365,6 +419,11 @@ export class GroupDivisionService {
                               .where('team.id = :teamId', { teamId })
                               .andWhere('groupDivision.deletedAt is null')
                               .getMany();
+      const totalRecord = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .where('team.id = :teamId', { teamId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .getCount();    
       if (groupDivisions.length === 0) {
         return {
           statusCode: 404,
@@ -375,7 +434,10 @@ export class GroupDivisionService {
       return {
         statusCode: 200,
         message: 'Find all groupDivisions successfully',
-        data: groupDivisions
+        data: {
+          groupDivisions: groupDivisions,
+          totalRecords: totalRecord
+        }
       }
     } catch(error) {
       return {
@@ -385,5 +447,52 @@ export class GroupDivisionService {
       }
     }
   } 
+
+  async findGroupDivisionByTimelineId(
+    timelineId: number
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      groupDivisions: GroupDivision[],
+      totalRecords: number
+    }
+  }> {
+    try {
+      const groupDivisions = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .leftJoinAndSelect('groupDivision.team', 'team')
+                              .leftJoinAndSelect('groupDivision.user', 'user')
+                              .where('timeline.id = :timelineId', { timelineId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .getMany();
+      const totalRecord = await this.groupDivisionRepository
+                              .createQueryBuilder('groupDivision')
+                              .where('timeline.id = :timelineId', { timelineId })
+                              .andWhere('groupDivision.deletedAt is null')
+                              .getCount();
+      if (groupDivisions.length === 0) {
+        return {
+          statusCode: 404,
+          message: 'GroupDivision not found',
+          data: null
+        }
+      }
+      return {
+        statusCode: 200,
+        message: 'Find all groupDivisions successfully',
+        data: {
+          groupDivisions: groupDivisions,
+          totalRecords: totalRecord
+        }
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
 
 }

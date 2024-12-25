@@ -93,7 +93,14 @@ export class ReportService {
     type: string, 
     page: number = 1,
     limit: number = 10
-  ) {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      total: number,
+      reports: Report[]
+    }
+  }> {
     try {
       const reports = await this.reportRepository
                       .createQueryBuilder('report')
@@ -106,6 +113,12 @@ export class ReportService {
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
+      const total = await this.reportRepository
+                      .createQueryBuilder('report')
+                      .where("report.isActive = :isActive", { isActive: 1 })
+                      .andWhere('report.deletedAt is null')
+                      .andWhere('report.type = :type', { type })
+                      .getCount();
       if (reports.length == 0) {
         return {
           statusCode: 404,
@@ -116,7 +129,10 @@ export class ReportService {
       return {
         statusCode: 200,
         message: 'Get all reports successfully',
-        data: reports
+        data: {
+          total,
+          reports
+        }
       };
     } catch (error) {
       return {
@@ -145,7 +161,14 @@ export class ReportService {
   async findAll(
     page: number = 1,
     limit: number = 10,
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      total: number,
+      reports: Report[]
+    }
+  }> {
     try {
       const reports = await this.reportRepository
                       .createQueryBuilder('report')
@@ -157,6 +180,11 @@ export class ReportService {
                       .skip((page - 1) * limit)  
                       .take(limit)                
                       .getMany();
+      const total = await this.reportRepository
+                      .createQueryBuilder('report')
+                      .where("report.isActive = :isActive", { isActive: 1 })
+                      .andWhere('report.deletedAt is null')
+                      .getCount();
       if (reports.length == 0) {
         return {
           statusCode: 404,
@@ -167,7 +195,10 @@ export class ReportService {
       return {
         statusCode: 200,
         message: 'Get all reports successfully',
-        data: reports
+        data: {
+          total,
+          reports
+        }
       };
     } catch (error) {
       return {
@@ -182,7 +213,14 @@ export class ReportService {
     idUser: number,
     page: number = 1,
     limit: number = 10
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      total: number,
+      reports: Report[]
+    }
+  }> {
     try {
       const reports = await this.reportRepository
                                 .createQueryBuilder('report')
@@ -194,6 +232,11 @@ export class ReportService {
                                 .skip((page - 1) * limit)  
                                 .take(limit)                
                                 .getMany();
+      const  total = await this.reportRepository
+                                .createQueryBuilder('report')
+                                .where('report.reporter= :posterId', {posterId: idUser})
+                                .andWhere('report.deletedAt is null')
+                                .getCount();          
       if (reports.length === 0) {
         return {
           statusCode: 404,
@@ -204,7 +247,10 @@ export class ReportService {
       return {
         statusCode: 200,
         message: "Get the list of reports of this user successfully",
-        data: reports
+        data: {
+          total,
+          reports
+        }
       }
     } catch(error) {
       return {
