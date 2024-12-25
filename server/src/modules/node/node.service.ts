@@ -142,6 +142,7 @@ export class NodeService {
                 .createQueryBuilder('node')
                 .leftJoinAndSelect('node.roadmap', 'roadmap')
                 .leftJoinAndSelect('node.timeline', 'timeline')
+                .leftJoinAndSelect('node.comment', 'comment')
                 .where('node.id = :id', { id })
                 .andWhere('node.isActive = :isActive', { isActive: 1 })
                 .andWhere('node.deletedAt is null')

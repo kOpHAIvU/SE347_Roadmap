@@ -11,6 +11,9 @@ export class CreateCommentDto {
     @IsNotEmpty()
     poster: number;
 
+    @IsString()
+    title: string;
+
     @IsNumber()
     @IsNotEmpty()
     roadmap: number;

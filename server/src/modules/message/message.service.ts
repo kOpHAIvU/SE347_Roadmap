@@ -107,9 +107,11 @@ export class MessageService {
 
   async findAllByTeamId(
     id: number,
-    page: number = 0,
-    limit: number = 10,
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: Message[] | null,
+  }> {
     try {
       const messages = await this.messageRepository
                       .createQueryBuilder('message')
@@ -117,8 +119,6 @@ export class MessageService {
                       .where('message.deletedAt is null')
                       .where('message.teamId = :id', { id })
                       .orderBy('message.createdAt', 'DESC')
-                      .skip((page - 1) * limit)  
-                      .take(limit)
                       .getMany();
 
       if (messages.length === 0) {

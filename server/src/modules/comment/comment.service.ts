@@ -330,8 +330,6 @@ export class CommentService {
 
   async getAllCommentsOfRoadmap(
     roadmapId: number,
-    page: number = 1,
-    limit: number = 10,
   ): Promise<ResponseDto> {
     try {
       const comments = await this.commentRepository
@@ -341,9 +339,7 @@ export class CommentService {
                       .leftJoinAndSelect('comment.parentComment', 'parentComment')
                       .where("comment.isActive = :isActive", { isActive: true })
                       .andWhere("comment.deletedAt IS NULL")
-                      .andWhere("comment.roadmap = :roadmapId", { roadmapId })
-                      .skip((page - 1) * limit)  
-                      .take(limit)                
+                      .andWhere("comment.roadmap = :roadmapId", { roadmapId })              
                       .getMany();
       if (!comments) {
         return {
@@ -446,5 +442,7 @@ export class CommentService {
   
     return await this.commentRepository.save(newComment);
   }
+
+
   
 }

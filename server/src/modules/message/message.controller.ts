@@ -35,10 +35,8 @@ export class MessageController {
   @UseGuards(JwtAuthGuard)
   async findMessagesByTeam(
     @Param ('teamId', ParseIntPipe) teamId: string,
-    @Query('page', ParseIntPipe) page: number = 1,
-    @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
-    return await this.messageService.findAllByTeamId(+teamId, page, limit);
+    return await this.messageService.findAllByTeamId(+teamId);
   }
 
   @Patch('item/:id')

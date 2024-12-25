@@ -9,9 +9,11 @@ export class Comment {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({default: ""})
+    title: string;
+
     @Column({nullable: false})
     content: string;
-
 
     @Column({default: -1})
     left: number;
