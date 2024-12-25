@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear, faXmark, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear, faXmark, faHeart, faBug } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './OwnRoadmap.module.scss';
@@ -13,6 +13,7 @@ import { CantClone } from '~/components/Layout/components/MiniNotification/index
 import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
 import { useNavigate, useParams } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
+import { ReportTimelineRoadmap } from '~/components/Layout/components/Dialog/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -315,6 +316,7 @@ function OwnRoadmap() {
     const [toggle, setToggle] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
     const [createTimelineDialog, setCreateTimelineDialog] = useState(false);
+    const [createReportDialog, setCreateReportDialog] = useState(false);
 
     const adjustTextareaHeight = () => {
         if (textareaRef.current) {
@@ -476,6 +478,7 @@ function OwnRoadmap() {
         if (String(e.target.className).includes('modal-overlay')) {
             setShowSetting(false);
             setCreateTimelineDialog(false);
+            setCreateReportDialog(false);
         }
     }
 
@@ -571,16 +574,22 @@ function OwnRoadmap() {
                         title={toggle ? 'Draw' : 'Collumn'}
                     />
                 </div>
+                <div className={cx('report-ss')}>
+                    <FontAwesomeIcon
+                        className={cx('report')}
+                        icon={faBug}
+                        onClick={() => setCreateReportDialog(true)} />
+                    {userType !== 'Viewer' && (
+                        <div className={cx('save-setting')}>
+                            <button className={cx('save-btn')} onClick={handleSave}>Save</button>
+                            <FontAwesomeIcon
+                                icon={faGear}
+                                className={cx('setting-btn')}
+                                onClick={() => setShowSetting(true)} />
+                        </div>
+                    )}
+                </div>
 
-                {userType !== 'Viewer' && (
-                    <div className={cx('save-setting')}>
-                        <button className={cx('save-btn')} onClick={handleSave}>Save</button>
-                        <FontAwesomeIcon
-                            icon={faGear}
-                            className={cx('setting-btn')}
-                            onClick={() => setShowSetting(true)} />
-                    </div>
-                )}
             </div>
 
             {showSetting &&
@@ -682,6 +691,11 @@ function OwnRoadmap() {
                     handleOutsideClick={handleOutsideClick}
                     setShowDialog={setCreateTimelineDialog}
                 />}
+            {createReportDialog && <ReportTimelineRoadmap
+                type='roadmap'
+                name={roadName}
+                handleOutsideClick={handleOutsideClick}
+                setShowSetting={setCreateReportDialog} />}
             <Comment />
         </div>
     );

@@ -49,10 +49,36 @@
     }
 }
 
+.report-ss {
+    display: flex;
+    align-items: center;
+}
+
 .save-setting {
     margin-right: 10px;
     display: flex;
     align-items: center;
+}
+
+.report {
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+    color: var(--color-red);
+    border-radius: 50%;
+    border: 1px solid var(--color-red);
+    margin-right: 5px;
+    cursor: pointer;
+    transition: var(--transform);
+
+    &:hover {
+        background-color: var(--color-red);
+        color: white;                   
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
 }
 
 .save-btn {
@@ -79,11 +105,11 @@
     width: 27px;
     height: 27px;
     margin-left: 7px;
+    margin-bottom: 5px;
     align-self: center;
     color: rgba(22, 24, 35, 0.6);
     cursor: pointer;
 }
-
 
 .content-section {
     margin: 0 15px 10px 15px;

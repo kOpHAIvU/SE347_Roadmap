@@ -78,6 +78,33 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         }
     };
 
+    const fetchUpdateTimelineTitleContent = async (timelineId, title, content) => {
+        try {
+            const response = await fetch(`http://localhost:3004/timeline/item/${timelineId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    content: content,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log(data);
+                return data.data
+            } else {
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
     const fetchNewTeam = async (name) => {
         try {
             const response = await fetch('http://localhost:3004/team/new', {
@@ -148,6 +175,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
             console.log("Timeline: ", timelineData)
             const teamId = await fetchNewTeam("Team for study")
             await fetchGroupDivisionTeam(teamId, timelineData.id)
+            await fetchUpdateTimelineTitleContent(timelineData.id, title, content)
 
             if (timelineData && teamId) {
                 const encryptedId = encryptId(timelineData.id);
