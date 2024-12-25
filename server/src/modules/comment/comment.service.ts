@@ -443,6 +443,36 @@ export class CommentService {
     return await this.commentRepository.save(newComment);
   }
 
-
+  async getCommentByNodeId(
+    nodeId: number
+): Promise<ResponseDto> {
+    try {
+        const node = await this.commentRepository
+                              .createQueryBuilder('comment')
+                              .leftJoinAndSelect('comment.node', 'node')
+                              .where('comment.nodeId = :nodeId', { nodeId })
+                              .andWhere('comment.isActive = :isActive', { isActive: true })
+                              .andWhere('comment.deletedAt IS NULL')
+                              .getMany();
+        if (!node) {
+            return {
+                statusCode: 404,
+                message: 'Comment not found',
+                data: null
+            }
+        }
+        return {
+            statusCode: 200,
+            message: 'Get comment successfully',
+            data: node
+        }
+    } catch(error) {
+        return {
+            statusCode: 500,
+            message: error.message,
+            data: null
+        }
+    }
+}
   
 }
