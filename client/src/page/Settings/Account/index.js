@@ -79,7 +79,7 @@ const Account = () => {
             }
 
             const data = await response.json();
-            console.log(data.data.gender);
+            console.log('Data', data);
 
             // Chuyển đổi dữ liệu trả về thành định dạng của `ACCOUNT_ITEMS`
             const mappedData = [
@@ -128,10 +128,57 @@ const Account = () => {
         fetchProfile();
     }, []);
 
+    const updateProfile = async (updatedData) => {
+        try {
+            const response = await fetch('http://localhost:3004/user/updateProfile', {
+                method: 'PATCH',
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updatedData), // Sửa lại để gửi đúng cấu trúc
+            });
+
+            console.log('   ', updatedData);
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log('Profile updated successfully:', result);
+                console.log(result.data.avatar);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to update profile.');
+                return;
+            }
+        } catch (error) {
+            console.error('Update Profile Error:', error);
+        }
+    };
+
     const handleUpdateValue = (index, newValue) => {
         const updatedAccountData = [...accountData];
-        updatedAccountData[index].value = newValue; // Cập nhật giá trị mới
-        setAccountData(updatedAccountData); // Cập nhật trạng thái
+        updatedAccountData[index].value = newValue; // Cập nhật dữ liệu hiển thị
+        setAccountData(updatedAccountData);
+
+        // Chuẩn bị dữ liệu cập nhật (đồng bộ với API)
+        const fieldMap = {
+            Username: 'username',
+            'Full name': 'fullName',
+            Email: 'email',
+            Gender: 'gender',
+            'Profile Photo': 'avatar',
+        };
+
+        const label = updatedAccountData[index].label;
+        const updatedField = fieldMap[label]; // Lấy trường phù hợp với API
+
+        if (updatedField) {
+            const updatedData = { [updatedField]: newValue };
+            console.log('Sending data to API:', updatedData);
+            updateProfile(updatedData); // Gọi API để cập nhật
+        } else {
+            console.warn(`Field "${label}" is not mapped to any API key.`);
+        }
     };
 
     return (
