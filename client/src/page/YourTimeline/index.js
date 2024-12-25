@@ -26,7 +26,7 @@ const formatTimelineData = (data, src) => {
             id: item.id,
             title: item.title,
             content: item.content,
-            avatar: src,
+            avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
             contributors: 3
         }
     })
@@ -75,7 +75,7 @@ function YourTimeline() {
 
     const fetchTimelineData = async () => {
         try {
-            const response = await fetch('http://localhost:3004/timeline/all?page=1&limit=20', {
+            const response = await fetch('http://localhost:3004/timeline/all?page=1&limit=50', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -144,8 +144,6 @@ function YourTimeline() {
         const encryptedId = encryptId(id);
         navigate(`/timeline/${encryptedId}`);
     };
-
-    console.log(encryptId(7))
 
     return (
         <div className={cx('wrapper')}>

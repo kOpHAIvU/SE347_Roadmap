@@ -86,6 +86,42 @@ function HeaderLogged({ collapsed, setCollapsed }) {
         }
     };
 
+    const [avatar, setAvatar] = useState('');
+
+    const getToken = () => {
+        return localStorage.getItem('vertexToken');
+    };
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch('http://localhost:3004/auth/profile', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to fetch profile.');
+                return;
+            }
+
+            const data = await response.json();
+            if (data?.data?.avatar) {
+                const cleanAvatar = data.data.avatar.split(' ')[0];
+                setAvatar(cleanAvatar);
+            }
+        } catch (error) {
+            console.error('Fetch Profile Error:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchProfile();
+    }, []);
+
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
@@ -142,7 +178,9 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                     <MenuAvatar items={MENU_ITEMS}>
                         <img
                             className={cx('avatar')}
-                            src="https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg"
+                            src={
+                                avatar || 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg'
+                            }
                             alt="Avatar"
                         />
                     </MenuAvatar>

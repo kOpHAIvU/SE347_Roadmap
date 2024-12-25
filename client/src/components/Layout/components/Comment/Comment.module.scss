@@ -34,6 +34,7 @@
 .avatar {
     height: var(--avatar-size);
     width: var(--avatar-size);
+    object-fit: cover;
     border-radius: 50%;
     cursor: pointer;
     margin-right: 10px;
