@@ -223,6 +223,11 @@ export class NodeService {
                     data: null,
                 };
             }
+            return {
+                statusCode: 200,
+                message: 'Node fetched successfully',
+                data: nodes,
+            };
         } catch (error) {
             return {
                 statusCode: 200,

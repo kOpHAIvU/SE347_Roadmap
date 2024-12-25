@@ -30,36 +30,27 @@ export class CommentController {
         return await this.commentService.findOneById(+id);
     }
 
+    @Get('all/roadmap/:roadmapId')
+    @UseGuards(JwtAuthGuard)
+    async findCommentsByRoadmapId(@Param('roadmapId', ParseIntPipe) roadmapId: number) {
+        return await this.commentService.getAllCommentsOfRoadmap(roadmapId);
+    }
 
-  @Get('all/roadmap/:roadmapId')
-  @UseGuards(JwtAuthGuard)
-  async findCommentsByRoadmapId(
-    @Param('roadmapId', ParseIntPipe) roadmapId: number,
-  ) {
-    return await this.commentService.getAllCommentsOfRoadmap(roadmapId);
-  }
+    @Post('nestedComment')
+    async createNestedComment(@Body() createCommentDto: CreateCommentDto) {
+        return await this.commentService.createNestedComment(createCommentDto);
+    }
 
-  @Post('nestedComment')
-  async createNestedComment(
-    @Body() createCommentDto: CreateCommentDto
-  ) { 
-    return await this.commentService.createNestedComment(createCommentDto);
-  }
+    // Only the content of the comment can be updated
+    @Patch('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
+        return await this.commentService.update(+id, updateCommentDto);
+    }
 
-
-  // Only the content of the comment can be updated
-  @Patch('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async update(@Param('id', ParseIntPipe) id: string, @Body() updateCommentDto: UpdateCommentDto) {
-      return await this.commentService.update(+id, updateCommentDto);
-  }
-
-  @Delete('item/:id')
-  @UseGuards(JwtAuthGuard)
-  async remove(@Param('id', ParseIntPipe) id: string) {
-      return await this.commentService.remove(+id);
-  }
-
-  
+    @Delete('item/:id')
+    @UseGuards(JwtAuthGuard)
+    async remove(@Param('id', ParseIntPipe) id: string) {
+        return await this.commentService.remove(+id);
+    }
 }
-

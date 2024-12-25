@@ -102,7 +102,7 @@ function OwnRoadmap() {
             const data = await response.json();
             if (response.ok) {
                 setRoadmapData(data.data);
-                setVisibility(data.data.isPublic ? "Pubic" : "Private");
+                setVisibility(data.data.isPublic ? "Release" : "Private");
                 console.log("Roadmap data: ", data.data);
 
                 setNodes(filterRoadmapNode(data.data.node))
@@ -117,6 +117,28 @@ function OwnRoadmap() {
             console.error('Fetch Roadmap Error:', error);
         }
     };
+
+    const fetchPatchRoadmap = async (data) => {
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Updated roadmap after react toggle: ', data);
+            } else {
+                console.error('Failed to update react value');
+            }
+        } catch (error) {
+            console.error('Error while patching react value:', error);
+        }
+    }
 
     const fetchDelRoadmap = async () => {
         try {
@@ -513,27 +535,7 @@ function OwnRoadmap() {
             fetchNewFavourite(profile.id)
         }
 
-        try {
-            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    react: newReactValue,
-                }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Updated roadmap after react toggle: ', data);
-            } else {
-                console.error('Failed to update react value');
-            }
-        } catch (error) {
-            console.error('Error while patching react value:', error);
-        }
+        await fetchPatchRoadmap({ react: newReactValue })
     }
 
     const handleClone = () => {
@@ -542,6 +544,13 @@ function OwnRoadmap() {
         else {
             setCreateTimelineDialog(true)
         }
+    }
+
+    const handleSetVisibility = async (data) => {
+        setVisibility(data)
+        const isPublic = data === "Private" ? 0 : 1;
+        console.log("isPublic: ", isPublic)
+        await fetchPatchRoadmap({ isPublic: isPublic })
     }
 
     return (
@@ -595,7 +604,7 @@ function OwnRoadmap() {
             {showSetting &&
                 <SettingRoadmap
                     visibility={visibility}
-                    setVisibility={setVisibility}
+                    setVisibility={handleSetVisibility}
                     setShowSetting={setShowSetting}
                     handleOutsideClick={handleOutsideClick}
                     handleDeleteRoadmap={handleDeleteRoadmap} />}
@@ -691,11 +700,12 @@ function OwnRoadmap() {
                     handleOutsideClick={handleOutsideClick}
                     setShowDialog={setCreateTimelineDialog}
                 />}
-            {createReportDialog && <ReportTimelineRoadmap
-                type='roadmap'
-                name={roadName}
-                handleOutsideClick={handleOutsideClick}
-                setShowSetting={setCreateReportDialog} />}
+            {createReportDialog &&
+                <ReportTimelineRoadmap
+                    type='roadmap'
+                    name={roadName}
+                    handleOutsideClick={handleOutsideClick}
+                    setShowSetting={setCreateReportDialog} />}
             <Comment />
         </div>
     );
