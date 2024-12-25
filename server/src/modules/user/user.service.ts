@@ -219,7 +219,7 @@ export class UserService {
             return {
                 statusCode: 200,
                 message: 'Update user successfully',
-                data: result,
+                data: updatedUser,
             };
         } catch (error) {
             return {
