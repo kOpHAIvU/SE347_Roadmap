@@ -7,11 +7,6 @@ const cx = classNames.bind(styles);
 const SettingItem = ({ item, onUpdateValue }) => {
     const defaultPhotoUrl = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
 
-    const getInitialPhoto = () => {
-        const storedPhoto = localStorage.getItem('profilePhoto');
-        return storedPhoto || item.value || defaultPhotoUrl;
-    };
-
     const [photo, setPhoto] = useState(item.value);
 
     useEffect(() => {
@@ -143,8 +138,6 @@ const SettingItem = ({ item, onUpdateValue }) => {
                 </div>
             ) : (
                 <div className={cx('input-group')}>
-                    {/* <span className={cx('value')}>{item.value}</span>
-            {item.edit && <button className={cx('edit-btn')}>Edit</button>} */}
                     {isEditing ? (
                         <>
                             <input

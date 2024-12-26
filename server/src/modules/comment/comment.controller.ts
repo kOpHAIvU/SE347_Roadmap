@@ -53,4 +53,10 @@ export class CommentController {
     async remove(@Param('id', ParseIntPipe) id: string) {
         return await this.commentService.remove(+id);
     }
+
+    @Get('node/:nodeId')
+    @UseGuards(JwtAuthGuard)
+    async findCommentsByNodeId(@Param('nodeId', ParseIntPipe) nodeId: number) {
+        return await this.commentService.getCommentByNodeId(nodeId);
+    }
 }

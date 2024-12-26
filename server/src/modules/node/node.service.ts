@@ -219,7 +219,7 @@ export class NodeService {
             if (nodes.length === 0) {
                 return {
                     statusCode: 404,
-                    message: 'Node not found',
+                    message: 'Timeline not found',
                     data: null,
                 };
             }
