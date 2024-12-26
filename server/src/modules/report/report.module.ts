@@ -13,6 +13,8 @@ import { ConfigService } from '@nestjs/config';
 import { ReportGateway } from './report.gateway';
 import { FirebaseModule } from '../firebase/firebase.module';
 import { NotificationModule } from '../notification/notification.module';
+import { RoadmapService } from '../roadmap/roadmap.service';
+import { RoadmapModule } from '../roadmap/roadmap.module';
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { NotificationModule } from '../notification/notification.module';
     RoleModule,
     FirebaseModule,
     NotificationModule,
+    RoadmapModule
   ],
   controllers: [ReportController],
   providers: [

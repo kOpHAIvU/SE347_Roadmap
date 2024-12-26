@@ -15,6 +15,9 @@ export class CreateReportDto {
     @IsNumber()
     receiverId?: number;
 
+    @IsString()
+    roadmapId?: number;
+
     @IsBoolean()
     @IsOptional()
     isActive: boolean;

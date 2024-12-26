@@ -46,7 +46,7 @@ export class Comment {
     @Exclude()
     deletedAt: Date | null;
 
-    @ManyToOne(() => Node,  node => node.comment, { eager: true })
+    @ManyToOne(() => Node,  node => node.comment)
     node: Node 
 
 }
