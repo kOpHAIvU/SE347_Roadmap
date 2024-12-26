@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './HeaderLogged.module.scss';
 import classNames from 'classnames/bind';
 import NotificationModal from '~/components/Layout/components/NotificationModal';
+import CryptoJS from 'crypto-js';
 
 import {
     faCircleQuestion,
@@ -22,7 +23,7 @@ import MenuAvatar from '../MenuAvatar/index.js';
 import { SearchRoadmap } from '../Search/index.js';
 
 const cx = classNames.bind(styles);
-const MENU_ITEMS = [
+const MENU_ITEMS = (encryptedId) => [
     {
         icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faGear} />,
         title: 'Settings',
@@ -32,7 +33,7 @@ const MENU_ITEMS = [
                 {
                     icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faUser} />,
                     title: 'Your account',
-                    to: '/account',
+                    to: '/account/${encryptedId}',
                 },
                 {
                     icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faLock} />,
@@ -87,6 +88,8 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     };
 
     const [avatar, setAvatar] = useState('');
+    const [userId, setUserId] = useState(null);
+    const secretKey = 'kophaivu'; // Khóa bí mật
 
     const getToken = () => {
         return localStorage.getItem('vertexToken');
@@ -113,9 +116,20 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                 const cleanAvatar = data.data.avatar.split(' ')[0];
                 setAvatar(cleanAvatar);
             }
+
+            if (data?.data?.id) {
+                setUserId(data?.data?.id);
+            }
         } catch (error) {
             console.error('Fetch Profile Error:', error);
         }
+    };
+
+    // Hàm mã hóa
+    const encryptId = (id) => {
+        let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+        // Thay thế ký tự đặc biệt
+        return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     };
 
     useEffect(() => {
@@ -129,13 +143,49 @@ function HeaderLogged({ collapsed, setCollapsed }) {
         };
     }, [isNotificationOpen]);
 
-    const handleCreate = () => {
-        if (name && description) {
-            const newId = `Vincute${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
-            navigate(`/roadmap/${newId}`);
-            setShowForm(false);
-            setName('');
-            setDescription('');
+    const handleCreate = async () => {
+        if (name && description && image && userId) {
+            const formData = new FormData();
+            formData.append('title', name);
+            formData.append('content', description);
+            formData.append('file', image);
+            formData.append('owner', userId);
+            formData.append('clone', 0);
+            formData.append('react', 0);
+            formData.append('type', 'IT');
+
+            try {
+                const response = await fetch('http://localhost:3004/roadmap/new_roadmap', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`, // Thêm token xác thực
+                    },
+                    body: formData, // Gửi dữ liệu dưới dạng form
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Roadmap created:', data);
+
+                    // Điều hướng đến roadmap vừa tạo dựa trên id
+                    if (data?.data?.id) {
+                        const encryptedId = encryptId(data.data.id);
+                        navigate(`/roadmap/${encryptedId}`);
+                    }
+
+                    setShowForm(false);
+                    setName('');
+                    setDescription('');
+                    setImage(null);
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to create roadmap:', errorData.message);
+                }
+            } catch (error) {
+                console.error('Error creating roadmap:', error);
+            }
+        } else {
+            console.error('Please fill in all required fields.');
         }
     };
 
@@ -175,7 +225,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                         </div>
                     )}
 
-                    <MenuAvatar items={MENU_ITEMS}>
+                    <MenuAvatar items={MENU_ITEMS(userId ? encryptId(userId) : '')}>
                         <img
                             className={cx('avatar')}
                             src={
@@ -210,8 +260,19 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                             <label>Attach Image</label>
                             <input
                                 type="file"
-                                accept="image/*"
-                                onChange={(e) => setImage(e.target.files[0])} // setImage là state chứa file ảnh
+                                accept=".jpg,.JPG"
+                                onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (
+                                        file &&
+                                        (file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg'))
+                                    ) {
+                                        setImage(file); // setImage là state chứa file ảnh
+                                    } else {
+                                        alert('Please select a JPG image.');
+                                        e.target.value = ''; // Reset input nếu không phải ảnh JPG
+                                    }
+                                }}
                             />
                         </div>
 

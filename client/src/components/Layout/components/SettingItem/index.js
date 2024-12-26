@@ -62,7 +62,6 @@ const SettingItem = ({ item, onUpdateValue }) => {
 
     const handleSave = () => {
         setIsEditing(false); // Lưu giá trị và quay lại chế độ xem
-        // gọi callback để cập nhật giá trị trong component
         if (onUpdateValue) {
             onUpdateValue(value); // cập nhật giá trị
         }

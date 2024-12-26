@@ -55,7 +55,6 @@ const Account = () => {
         }
 
         const trimmedAvatar = avatar.split(' ')[0];
-        console.log(trimmedAvatar);
         return trimmedAvatar;
     };
 
@@ -79,7 +78,6 @@ const Account = () => {
             }
 
             const data = await response.json();
-            console.log('Data', data);
 
             // Chuyển đổi dữ liệu trả về thành định dạng của `ACCOUNT_ITEMS`
             const mappedData = [
@@ -134,7 +132,6 @@ const Account = () => {
             const headers = {
                 Authorization: `Bearer ${getToken()}`,
             };
-            console.log(isFormData);
             if (!isFormData) {
                 headers['Content-Type'] = 'application/json';
             }
@@ -158,7 +155,8 @@ const Account = () => {
                         ),
                     );
                 }
-                await fetchProfile();
+                window.location.reload();
+                // await fetchProfile();
             } else {
                 console.error('Error:', result.message || 'Failed to update profile.');
             }
@@ -183,7 +181,7 @@ const Account = () => {
 
         const label = updatedAccountData[index].label;
         const updatedField = fieldMap[label]; // Lấy trường phù hợp với API
-        console.log(label);
+
         if (updatedField) {
             const updatedData = {};
 
@@ -192,11 +190,9 @@ const Account = () => {
                 const formData = new FormData();
                 formData.append('file', newValue);
 
-                console.log('Sending file to API:', newValue);
                 updateProfile(formData, true); // Gọi API với FormData
             } else {
                 updatedData[updatedField] = newValue;
-                console.log('Sending data to API:', updatedData);
                 updateProfile(updatedData); // Gọi API với JSON
             }
         } else {

@@ -30,7 +30,6 @@ const privateRoutes = [
     { path: '/your_roadmap', Component: YourRoadmap, layout: DefaultLayout },
     { path: '/favourite', Component: YourFavourite, layout: DefaultLayout },
     { path: '/upgrade', Component: UpgradeAccount, layout: DefaultLayout },
-    { path: '/account', Component: Account, layout: DefaultLayout },
     { path: '/security', Component: Security, layout: DefaultLayout },
     { path: '/report', Component: Report, layout: DefaultLayout },
 ];
@@ -39,6 +38,7 @@ const accountDataRoutes = [
     { path: '/roadmap/:id', Component: OwnRoadmap, layout: DefaultLayout },
     { path: '/timeline/:id', Component: Timeline, layout: DefaultLayout },
     { path: '/timeline/:id/setting', Component: TimelineSetting, layout: DefaultLayout },
+    { path: '/account/:id', Component: Account, layout: DefaultLayout },
     { path: '/timeline/:id/setting/invite', Component: TimelineSetting, layout: DefaultLayout },
     { path: '/test', layout: TestLayout },
 ];
