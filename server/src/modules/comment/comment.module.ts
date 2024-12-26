@@ -10,13 +10,15 @@ import { RoleModule } from '../role/role.module';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerExceptionFilter } from 'src/common/exception-filter/ThrottlerException.filter';
+import { NodeModule } from '../node/node.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Comment]),
     RoadmapModule,
     UserModule,
-    RoleModule
+    RoleModule,
+    NodeModule
   ],
   controllers: [CommentController],
   providers: [

@@ -8,6 +8,7 @@ import { Comment } from './entities/comment.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/response.interface';
+import { NodeService } from '../node/node.service';
 
 @Injectable()
 export class CommentService {
@@ -17,6 +18,7 @@ export class CommentService {
     private commentRepository: Repository<Comment>,
     private userService: UserService,
     private roadmapService: RoadmapService,
+    private nodeService: NodeService,
   ) {}
 
   async findOneById(
@@ -107,6 +109,23 @@ export class CommentService {
                             ? parentCommentResponse.data[0]
                             : parentCommentResponse.data;
             comment.parentComment = parentComment;
+        }
+
+        let node;
+        if (typeof createCommentDto.node !== 'undefined') {
+            const nodeResponse = await this.nodeService.findOneById(createCommentDto.node);
+            if (nodeResponse.statusCode !== 200) {
+                return {
+                    statusCode: 404,
+                    message: 'Node not found',
+                    data: null
+                }
+            }
+
+            node = Array.isArray(nodeResponse.data)
+                    ? nodeResponse.data[0]
+                    : nodeResponse.data;
+            comment.node = node;
         }
 
         const result = await this.commentRepository.save(comment);
