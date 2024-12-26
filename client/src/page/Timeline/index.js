@@ -22,36 +22,6 @@ const decryptId = (encryptedId) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-
-const filterRoadmapNode = (data) => {
-    return data.map((item, index) => ({
-        id: index,
-        level: item.level,
-        x: item.xAxis,
-        y: item.yAxis,
-        type: item.type,
-        ticked: item.tick,
-        due_time: item.dueTime,
-        content: item.content,
-        nodeDetail: item.detail,
-    }));
-}
-
-const filterTimelineNode = (data) => {
-    return data.map((item, index) => ({
-        id: index,
-        level: item.level,
-        x: item.xAxis,
-        y: item.yAxis,
-        type: item.type,
-        ticked: item.tick,
-        due_time: item.dueTime,
-        content: item.content,
-        nodeDetail: item.detail,
-        nodeComment: item.comment
-    }));
-}
-
 function Timeline() {
     const navigate = useNavigate();
     const { id: encryptedId } = useParams();
@@ -211,6 +181,21 @@ function Timeline() {
             console.error('Error:', error);
         }
     };
+
+    const filterTimelineNode = (data) => {
+        return data.map((item, index) => ({
+            id: index,
+            level: item.level,
+            x: item.xAxis,
+            y: item.yAxis,
+            type: item.type,
+            ticked: item.tick,
+            due_time: item.dueTime,
+            content: item.content,
+            nodeDetail: item.detail,
+            nodeComment: item.comment
+        }));
+    }
 
     const fetchAllNodeInTimeline = async () => {
         try {
@@ -568,7 +553,7 @@ function Timeline() {
             console.log("Nodes new: ", nodes[i])
             if (nodeId) {
                 for (let j = 0; j < nodes[i].nodeComment.length; j++) {
-                    
+
                 }
             }
         }
