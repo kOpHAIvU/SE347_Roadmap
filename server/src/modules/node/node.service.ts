@@ -15,7 +15,6 @@ export class NodeService {
         @InjectRepository(Node)
         private nodeRepository: Repository<Node>,
         private roadmapService: RoadmapService,
-        @Inject(forwardRef(() => TimelineService))
         private timelineService: TimelineService,
     ) {}
 

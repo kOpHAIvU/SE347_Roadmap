@@ -15,7 +15,7 @@ import { TimelineModule } from '../timeline/timeline.module';
     TypeOrmModule.forFeature([Node]),
     RoadmapModule,
     RoleModule,
-    forwardRef(() => TimelineModule),
+    TimelineModule
   ],
   controllers: [NodeController],
   providers: [

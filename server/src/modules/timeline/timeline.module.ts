@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TimelineService } from './timeline.service';
 import { TimelineController } from './timeline.controller';
 import { Roadmap } from '../roadmap/entities/roadmap.entity';
@@ -18,7 +18,8 @@ import { NodeModule } from '../node/node.module';
     RoadmapModule,
     UserModule,
     RoleModule,
-    NodeModule
+    forwardRef(() => NodeModule),
+   // NodeModule
   ],
   controllers: [TimelineController],
   providers: [

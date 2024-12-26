@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { CreateTimelineDto } from './dto/create-timeline.dto';
 import { UpdateTimelineDto } from './dto/update-timeline.dto';
 import { Timeline } from './entities/timeline.entity';
@@ -18,6 +18,7 @@ export class TimelineService {
     private timelineRepository: Repository<Timeline>,
     private roadmapService: RoadmapService,
     private userService: UserService,
+    @Inject(forwardRef(() => NodeService))
     private nodeService: NodeService,
   ) {}
 
