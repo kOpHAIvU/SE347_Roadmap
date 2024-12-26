@@ -124,31 +124,43 @@ const Account = () => {
             console.error('Fetch Profile Error:', error);
         }
     };
+
     useEffect(() => {
         fetchProfile();
     }, []);
 
-    const updateProfile = async (updatedData) => {
+    const updateProfile = async (updatedData, isFormData = false) => {
         try {
+            const headers = {
+                Authorization: `Bearer ${getToken()}`,
+            };
+            console.log(isFormData);
+            if (!isFormData) {
+                headers['Content-Type'] = 'application/json';
+            }
+
             const response = await fetch('http://localhost:3004/user/updateProfile', {
                 method: 'PATCH',
-                headers: {
-                    Authorization: `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updatedData), // Sửa lại để gửi đúng cấu trúc
+                headers,
+                body: isFormData ? updatedData : JSON.stringify(updatedData),
             });
 
-            console.log('   ', updatedData);
             const result = await response.json();
 
             if (response.ok) {
                 console.log('Profile updated successfully:', result);
-                console.log(result.data.avatar);
+                // Cập nhật lại state với dữ liệu mới (dựa trên phản hồi từ API)
+                if (updatedData instanceof FormData) {
+                    const newAvatarUrl = result.data.avatar; // Thay thế với key trả về từ API
+                    setAccountData((prevData) =>
+                        prevData.map((item) =>
+                            item.label === 'Profile Photo' ? { ...item, value: newAvatarUrl } : item,
+                        ),
+                    );
+                }
+                await fetchProfile();
             } else {
-                const errorData = await response.json();
-                console.error('Error:', errorData.message || 'Failed to update profile.');
-                return;
+                console.error('Error:', result.message || 'Failed to update profile.');
             }
         } catch (error) {
             console.error('Update Profile Error:', error);
@@ -166,16 +178,27 @@ const Account = () => {
             'Full name': 'fullName',
             Email: 'email',
             Gender: 'gender',
-            'Profile Photo': 'avatar',
+            'Profile Photo': 'file',
         };
 
         const label = updatedAccountData[index].label;
         const updatedField = fieldMap[label]; // Lấy trường phù hợp với API
-
+        console.log(label);
         if (updatedField) {
-            const updatedData = { [updatedField]: newValue };
-            console.log('Sending data to API:', updatedData);
-            updateProfile(updatedData); // Gọi API để cập nhật
+            const updatedData = {};
+
+            if (label === 'Profile Photo' && newValue instanceof File) {
+                // Nếu là file ảnh, sử dụng FormData
+                const formData = new FormData();
+                formData.append('file', newValue);
+
+                console.log('Sending file to API:', newValue);
+                updateProfile(formData, true); // Gọi API với FormData
+            } else {
+                updatedData[updatedField] = newValue;
+                console.log('Sending data to API:', updatedData);
+                updateProfile(updatedData); // Gọi API với JSON
+            }
         } else {
             console.warn(`Field "${label}" is not mapped to any API key.`);
         }
@@ -189,6 +212,7 @@ const Account = () => {
                     key={index}
                     item={item}
                     onUpdateValue={(newValue) => handleUpdateValue(index, newValue)} // Truyền callback
+                    allowFileUpload={item.label === 'Profile Photo'}
                 />
             ))}
         </div>
