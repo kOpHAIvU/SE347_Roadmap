@@ -12,6 +12,7 @@ import {Report} from './entities/report.entity'
 import { FirebaseService } from '../firebase/firebase.service';
 import { report } from 'process';
 import { GmailNotificationStrategy } from '../notification/strategy/gmail-notification.service';
+import { RoadmapService } from '../roadmap/roadmap.service';
 
 @Injectable()
 export class ReportService {
@@ -25,6 +26,7 @@ export class ReportService {
     private reportGateway: ReportGateway,
     private firebaseService: FirebaseService,
     private gmailService: GmailNotificationStrategy,
+    private roadmapService: RoadmapService,
   ) {}
 
   async create(createReportDto: CreateReportDto): Promise<ResponseDto> {
@@ -33,6 +35,7 @@ export class ReportService {
         ...createReportDto,
         reporter: null,
         receive: null,
+        roadmap: null
       });
       const posterResponse = await this.userService.findOneById(createReportDto.posterId); 
       const poster = Array.isArray(posterResponse.data)
@@ -59,7 +62,22 @@ export class ReportService {
         };
       }
       report.receive = receiver;
-      
+
+      if (typeof createReportDto.roadmapId !== 'undefined') {
+        const roadmapResponse = await this.roadmapService.findOneById(createReportDto.roadmapId);
+        const roadmap = Array.isArray(roadmapResponse.data)
+                      ? roadmapResponse.data[0]
+                      : roadmapResponse.data;
+        if (!roadmap) {
+          return {
+            statusCode: 404,
+            message: 'Roadmap not found',
+            data: null
+          };
+        }
+        report.roadmap = roadmap;
+      }
+
       const result = await this.reportRepository.save(report);
       if (!result) {
         return {

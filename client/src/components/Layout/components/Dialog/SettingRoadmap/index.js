@@ -29,8 +29,8 @@ function SettingRoadmap({ visibility, setVisibility, setShowSetting, handleOutsi
                     <select className={cx('visibility-select')}
                         value={visibility}
                         onChange={(e) => setVisibility(e.target.value)}>
-                        <option value="private">Private</option>
-                        <option value="release">Release</option>
+                        <option value="Private">Private</option>
+                        <option value="Release">Release</option>
                     </select>
                 </div>
 

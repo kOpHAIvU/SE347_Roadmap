@@ -36,7 +36,7 @@ export class Node {
     @ManyToOne(() => Roadmap, roadmap => roadmap.node, { eager: true })
     roadmap: Roadmap;
 
-    @OneToMany(() => Comment, comment => comment.node)
+    @OneToMany(() => Comment, comment => comment.node, { eager: true })
     comment: Comment[];
 
     @Column({ type: 'boolean', default: true }) 

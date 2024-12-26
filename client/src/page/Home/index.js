@@ -97,16 +97,16 @@ function Home() {
                 },
             });
 
-            if (!response.ok) {
+            const data = await response.json();
+            if (response.ok) {
+                const filteredData = filterRoadmapData(data.data);
+                console.log("Filter: ", filteredData)
+                return filteredData;
+            } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
                 navigate(`/login`);
             }
-
-            const data = await response.json();
-            const filteredData = filterRoadmapData(data.data);
-
-            return filteredData;
         } catch (error) {
             console.error('Fetch Roadmap Error:', error);
         }

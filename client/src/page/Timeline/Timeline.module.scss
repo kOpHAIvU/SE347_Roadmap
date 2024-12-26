@@ -189,10 +189,10 @@
 
 .chat-section {
     height: calc(100vh - 60px);
-    width: 350px;
+    width: 400px;
     border-left: 1px solid var(--gray-color);
     top: 0;
-    right: -350px;
+    right: -400px;
     transform: translateX(100%);
     opacity: 0;
     transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;

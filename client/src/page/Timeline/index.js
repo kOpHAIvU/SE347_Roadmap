@@ -22,20 +22,6 @@ const decryptId = (encryptedId) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-const filterTimelineNode = (data) => {
-    return data.map((item, index) => ({
-        id: index,
-        level: item.level,
-        x: item.xAxis,
-        y: item.yAxis,
-        type: item.type,
-        ticked: item.tick,
-        due_time: item.dueTime,
-        content: item.content,
-        nodeDetail: item.detail,
-    }));
-}
-
 function Timeline() {
     const navigate = useNavigate();
     const { id: encryptedId } = useParams();
@@ -161,6 +147,56 @@ function Timeline() {
         }
     };
 
+    const fetchNewNode = async (nodeData) => {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('level', nodeData.level);
+            formData.append('xAxis', nodeData.x);
+            formData.append('yAxis', nodeData.y);
+            formData.append('type', nodeData.type);
+            formData.append('tick', nodeData.ticked);
+            formData.append('dueTime', nodeData.due_time);
+            formData.append('content', nodeData.content);
+            formData.append('detail', nodeData.nodeDetail);
+            formData.append('timeline', id);
+
+            const response = await fetch('http://localhost:3004/node/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Node added:', data);
+                return data.data
+            } else {
+                console.error('Failed to add node. Status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const filterTimelineNode = (data) => {
+        return data.map((item, index) => ({
+            id: index,
+            level: item.level,
+            x: item.xAxis,
+            y: item.yAxis,
+            type: item.type,
+            ticked: item.tick,
+            due_time: item.dueTime,
+            content: item.content,
+            nodeDetail: item.detail,
+            nodeComment: item.comment
+        }));
+    }
+
     const fetchAllNodeInTimeline = async () => {
         try {
             const response = await fetch(`http://localhost:3004/node/all/timeline/${id}`, {
@@ -181,6 +217,28 @@ function Timeline() {
             }
         } catch (error) {
             console.error('Error:', error);
+        }
+    };
+
+    const fetchDelAllNodeInTimeline = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/node/timeline/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log(data);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
         }
     };
 
@@ -488,6 +546,22 @@ function Timeline() {
         }
     };
 
+    const handleSave = async () => {
+        await fetchDelAllNodeInTimeline()
+        for (let i = 0; i < nodes.length; i++) {
+            const nodeId = await fetchNewNode(nodes[i])
+            console.log("Nodes new: ", nodes[i])
+            if (nodeId) {
+                for (let j = 0; j < nodes[i].nodeComment.length; j++) {
+
+                }
+            }
+        }
+        await fetchAllNodeInTimeline()
+
+        handleMakeDialog('Save', null)
+    }
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('timeline-section')}>
@@ -522,7 +596,7 @@ function Timeline() {
 
                     {userType !== 'Viewer' && (
                         <div className={cx('save-setting')}>
-                            <button className={cx('save-btn')} onClick={() => handleMakeDialog('Save', null)}>
+                            <button className={cx('save-btn')} onClick={handleSave}>
                                 Save
                             </button>
                             <FontAwesomeIcon
@@ -617,12 +691,14 @@ function Timeline() {
                 </div>
             </div>
 
-            {chatExtended && !toggle && (
-                <div className={cx('chat-section', { show: chatExtended })}>
-                    <ChatSection profile={profile} groupData={groupData} />
-                </div>
-            )}
-        </div>
+            {
+                chatExtended && !toggle && (
+                    <div className={cx('chat-section', { show: chatExtended })}>
+                        <ChatSection profile={profile} groupData={groupData} />
+                    </div>
+                )
+            }
+        </div >
     );
 }
 
