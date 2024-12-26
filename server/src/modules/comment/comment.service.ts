@@ -1,6 +1,6 @@
 import { Message } from 'src/modules/message/entities/message.entity';
 import { RoadmapService } from './../roadmap/roadmap.service';
-import { Injectable, Logger, NotFoundException, Query } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, Query, forwardRef } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +18,7 @@ export class CommentService {
     private commentRepository: Repository<Comment>,
     private userService: UserService,
     private roadmapService: RoadmapService,
+    @Inject(forwardRef(() => NodeService))
     private nodeService: NodeService,
   ) {}
 
