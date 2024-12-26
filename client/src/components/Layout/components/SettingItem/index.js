@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './SettingItem.module.scss';
+import defaultavatar from '~/assets/images/defaultavatar.jpg';
 
 const cx = classNames.bind(styles);
 
@@ -15,22 +16,39 @@ const SettingItem = ({ item, onUpdateValue }) => {
         }
     }, [item.value]);
 
-    const handleRemovePhoto = () => {
-        setPhoto(defaultPhotoUrl);
+    const handleRemovePhoto = async () => {
+        try {
+            const response = await fetch(defaultavatar);
+            if (!response.ok) {
+                throw new Error('Failed to fetch default avatar.');
+            }
 
-        if (onUpdateValue) {
-            onUpdateValue(defaultPhotoUrl);
+            const blob = await response.blob();
+
+            const defaultFile = new File([blob], 'default-avatar.jpg', { type: blob.type });
+
+            setPhoto(defaultavatar);
+            console.log('Photo reset to default, file:', defaultFile);
+
+            if (onUpdateValue) {
+                onUpdateValue(defaultFile);
+            }
+        } catch (error) {
+            console.error('Error resetting photo to default:', error);
         }
     };
 
     const handleChangePhoto = (event) => {
         if (event.target.files && event.target.files[0]) {
-            const newPhoto = URL.createObjectURL(event.target.files[0]);
-            setPhoto(newPhoto);
+            const file = event.target.files[0]; // Giữ file gốc
+            setPhoto(URL.createObjectURL(file)); // Hiển thị ảnh tạm thời
+
+            // Gửi file gốc qua callback
             if (onUpdateValue) {
-                onUpdateValue(newPhoto);
+                onUpdateValue(file);
             }
-            console.log('Photo changed');
+
+            console.log('Photo changed, file:', file);
         }
     };
 
@@ -67,6 +85,9 @@ const SettingItem = ({ item, onUpdateValue }) => {
         setSelectedValue(newValue);
         localStorage.setItem('gender', newValue);
         console.log(`Selected gender: ${newValue}`);
+        if (onUpdateValue) {
+            onUpdateValue(newValue); // Gọi callback để đồng bộ hóa với dữ liệu cha
+        }
     };
 
     return (
