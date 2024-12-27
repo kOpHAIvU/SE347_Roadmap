@@ -13,6 +13,7 @@ import YourRoadmap from '~/page/YourRoadmap/index.js';
 import YourTimeline from '~/page/YourTimeline/index.js';
 import ForgotPassword from '~/page/ForgotPassword/index.js';
 import UpgradeAccount from '~/page/UpgradeAccount/index.js';
+import Reports from '~/page/Reports/index.js';
 
 const publicRoutes = [
     { path: '/', Component: MainScreen, layout: MainScreenLayout },
@@ -32,6 +33,7 @@ const privateRoutes = [
     { path: '/upgrade', Component: UpgradeAccount, layout: DefaultLayout },
     { path: '/security', Component: Security, layout: DefaultLayout },
     { path: '/report', Component: Report, layout: DefaultLayout },
+    { path: '/reportRoadmap', Component: Reports, layout: DefaultLayout },
 ];
 
 const accountDataRoutes = [

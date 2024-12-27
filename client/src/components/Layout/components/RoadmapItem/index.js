@@ -77,7 +77,7 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
         setShowDialog(true);
     };
 
-    console.log(loveState)
+    console.log("Love state: ", loveState)
 
     return (
         <div className={cx('wrapper')} onClick={onClick}>

@@ -9,7 +9,7 @@ import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.
 import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.js';
 import SettingRoadmap from '~/components/Layout/components/Dialog/SettingRoadmap/index.js';
 import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.js';
-import { CantClone } from '~/components/Layout/components/MiniNotification/index.js';
+import { CantClone, ReportSended } from '~/components/Layout/components/MiniNotification/index.js';
 import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
 import { useNavigate, useParams } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
@@ -686,6 +686,9 @@ function OwnRoadmap() {
                         <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
                     ) : dialog.type === 'Saved' ? (
                         <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ) : dialog.type === 'Report' ? (
+                        <ReportSended />
+
                     ) : null
                 ))}
             </div>
@@ -703,9 +706,11 @@ function OwnRoadmap() {
             {createReportDialog &&
                 <ReportTimelineRoadmap
                     type='roadmap'
-                    name={roadName}
+                    profile={profile}
+                    roadmapData={roadmapData}
                     handleOutsideClick={handleOutsideClick}
-                    setShowSetting={setCreateReportDialog} />}
+                    setShowSetting={setCreateReportDialog}
+                    handleMakeDialog={handleMakeDialog} />}
             <Comment />
         </div>
     );

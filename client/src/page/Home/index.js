@@ -37,6 +37,7 @@ function Home() {
         const favorites = await fetchFavoriteData();
 
         const favoritesArray = Array.isArray(favorites) ? favorites : [];
+        console.log("favoritesArray: ", favoritesArray)
 
         console.log(data);
 
@@ -47,6 +48,7 @@ function Home() {
         // }).
         return data.map((item) => {
             const favorite = favoritesArray.find((fav) => fav.roadmap.id === item.id && fav.user.id === profileId);
+            console.log("Fav: ", favorite)
             return {
                 id: item.id,
                 title: item.title,
