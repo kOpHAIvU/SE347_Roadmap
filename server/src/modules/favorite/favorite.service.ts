@@ -292,4 +292,37 @@ export class FavoriteService {
       }
     }
   }
+  
+  async CheckOutUserFavoriteRoadmap(
+    idUser: number,
+    idRoadmap: number,
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: boolean
+  }> {
+    try {
+      const favorite = await this.favoriteRepository
+                            .createQueryBuilder('favorite')
+                            .where('favorite.userId = :userId', { userId: idUser })
+                            .andWhere('favorite.roadmapId = :roadmapId', { roadmapId: idRoadmap })
+                            .andWhere('favorite.deletedAt is null')
+                            .getOne();
+      let flag: boolean = true;
+      if (!favorite) {
+        flag = false;
+      }
+      return {
+        statusCode: 200,
+        message: "Check out user favorite roadmap successfully",
+        data: flag
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: false
+      }
+    }
+  }
 }
