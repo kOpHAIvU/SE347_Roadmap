@@ -63,6 +63,7 @@ export class CommentService {
     try {
         const comment = this.commentRepository.create({
           content: createCommentDto.content, 
+          title: createCommentDto.title,
           poster: null,  
           roadmap: null, 
           parentComment: null, 
