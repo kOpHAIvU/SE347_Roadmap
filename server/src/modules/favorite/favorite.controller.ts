@@ -51,4 +51,13 @@ export class FavoriteController {
     async remove(@Param('id', ParseIntPipe) id: number) {
         return await this.favoriteService.remove(+id);
     }
+
+    @Get('roadmap/:id')
+    @UseGuards(JwtAuthGuard)
+    async findFavoriteByRoadmap(
+        @Req() req: any,
+        @Param('id', ParseIntPipe) id: number
+    ) {
+        return await this.favoriteService.CheckOutUserFavoriteRoadmap(req.user.userId, id);
+    }
 }

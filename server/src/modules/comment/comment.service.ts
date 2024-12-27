@@ -470,6 +470,14 @@ export class CommentService {
         const node = await this.commentRepository
                               .createQueryBuilder('comment')
                               .leftJoinAndSelect('comment.node', 'node')
+                              .leftJoinAndSelect('comment.poster', 'poster')
+                              .select([
+                                'comment', 
+                                'node.id',
+                                'poster.avatar',
+                                'poster.id',
+                                'poster.fullName',
+                              ])
                               .where('comment.nodeId = :nodeId', { nodeId })
                               .andWhere('comment.isActive = :isActive', { isActive: true })
                               .andWhere('comment.deletedAt IS NULL')
