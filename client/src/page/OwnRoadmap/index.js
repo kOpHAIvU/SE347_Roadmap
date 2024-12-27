@@ -448,6 +448,7 @@ function OwnRoadmap() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -465,6 +466,7 @@ function OwnRoadmap() {
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {

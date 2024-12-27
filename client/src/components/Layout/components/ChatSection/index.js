@@ -79,7 +79,7 @@ function ChatSection({ profile, groupData }) {
             if (response.ok) {
                 console.log(data)
                 const messages = filterMessage(data.data);
-                console.log("message: ", messages);
+                //console.log("message: ", messages);
                 setChats(messages)
             } else {
                 const errorData = await response.json();
