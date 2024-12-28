@@ -84,7 +84,18 @@ export class RoadmapService {
         }
     }
 
-    async findAll(page = 1, limit = 10, idUser: number): Promise<ResponseDto> {
+    async findAll(
+        page = 1, 
+        limit = 10, 
+        idUser: number
+    ): Promise<{
+        statusCode: number,
+        message: string,
+        data: {
+            roadmap: Roadmap[],
+            totalRecord: number
+        }
+    }> {
         try {
             const userResponse = await this.userService.findOneById(idUser);
             if (userResponse.statusCode !== 200) {
@@ -142,13 +153,17 @@ export class RoadmapService {
                 return {
                     statusCode: 404,
                     message: 'Roadmap not found',
+                    data: null,
                 };
             }
 
             return {
                 statusCode: 200,
                 message: 'Get this of roadmap successfully',
-                data: roadmap,
+                data: {
+                    totalRecord: totalRecord,
+                    roadmap: roadmap,
+                },
             };
         } catch (error) {
             return {
@@ -424,18 +439,35 @@ export class RoadmapService {
         }
     }
 
-    async findRoadmapsByOwner(owner: string, page: number = 1, limit: number = 10): Promise<ResponseDto> {
+    async findRoadmapsByOwner(
+        owner: string, 
+        page: number = 1, 
+        limit: number = 10
+    ): Promise<{
+        statusCode: number,
+        message: string,
+        data: {
+            roadmap: Roadmap[],
+            totalRecord: number
+        }
+    }> {
         try {
             const roadmaps = await this.roadmapRepository
                 .createQueryBuilder('roadmap')
                 .leftJoinAndSelect('roadmap.node', 'node')
-                .where('roadmap.isActive = :isActive', { isActive: 1 })
+               // .where('roadmap.isActive = :isActive', { isActive: 1 })
                 .andWhere('roadmap.deletedAt is null')
                 .andWhere('roadmap.owner = :owner', { owner })
                 .orderBy('roadmap.createdAt', 'DESC')
                 .skip((page - 1) * limit)
                 .take(limit)
                 .getMany();
+            const totalRecord = await this.roadmapRepository
+                .createQueryBuilder('roadmap')
+                .where('roadmap.isActive = :isActive', { isActive: 1 })
+                //.andWhere('roadmap.deletedAt is null')
+                .andWhere('roadmap.owner = :owner', { owner })
+                .getCount();
             if (roadmaps.length === 0) {
                 return {
                     statusCode: 404,
@@ -446,7 +478,10 @@ export class RoadmapService {
             return {
                 statusCode: 200,
                 message: 'Get roadmap by owner successfully',
-                data: roadmaps,
+                data: {
+                    roadmap: roadmaps,
+                    totalRecord: totalRecord,
+                },
             };
         } catch (error) {
             return {
@@ -457,7 +492,18 @@ export class RoadmapService {
         }
     }
 
-    async findRoadmapsByType(type: string, page: number = 1, limit: number = 10): Promise<ResponseDto> {
+    async findRoadmapsByType(
+        type: string, 
+        page: number = 1, 
+        limit: number = 10
+    ): Promise<{
+        statusCode: number,
+        message: string,
+        data: {
+            roadmap: Roadmap[],
+            totalRecord: number
+        }
+    }> {
         try {
             const roadmap = await this.roadmapRepository
                 .createQueryBuilder('roadmap')
@@ -469,7 +515,12 @@ export class RoadmapService {
                 .skip((page - 1) * limit)
                 .take(limit)
                 .getMany();
-
+            const totalRecord = await this.roadmapRepository
+                .createQueryBuilder('roadmap')
+               // .where('roadmap.isActive = :isActive', { isActive: 1 })
+                .andWhere('roadmap.deletedAt is null')
+                .andWhere('roadmap.type = :type', { type })
+                .getCount();
             if (!roadmap) {
                 return {
                     statusCode: 404,
@@ -481,7 +532,10 @@ export class RoadmapService {
             return {
                 statusCode: 200,
                 message: 'Get roadmap by type successfully',
-                data: roadmap,
+                data: {
+                    roadmap: roadmap,
+                    totalRecord: totalRecord,
+                },
             };
         } catch (error) {
             return {

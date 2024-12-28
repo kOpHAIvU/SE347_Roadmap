@@ -74,7 +74,14 @@ export class TimelineService {
   async findAll(
     page: number ,
     limit: number,
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      timeline: Timeline[],
+      totalRecord: number
+    }
+  }> {
     try {
       const timelines = await this.timelineRepository
                         .createQueryBuilder('timeline')
@@ -86,6 +93,11 @@ export class TimelineService {
                         .skip((page - 1) * limit)  
                         .take(limit)                
                         .getMany();
+      const totalRecord = await this.timelineRepository
+                        .createQueryBuilder('timeline')
+                        .where('timeline.isActive = :isActive', { isActive: 1 })
+                        .andWhere('timeline.deletedAt is null')
+                        .getCount();
       if (timelines.length === 0) {
         return {
           statusCode: 404,
@@ -96,12 +108,16 @@ export class TimelineService {
       return {
         statusCode: 200,
         message: 'Get list of timelines successfully',
-        data: timelines,
+        data: {
+          timeline: timelines,
+          totalRecord: totalRecord
+        },
       }
     } catch(error) {
       return {
         statusCode: 500,
-        message: 'Server error when finding all timelines'
+        message: 'Server error when finding all timelines',
+        data: null
       }
     }
   }
@@ -145,7 +161,14 @@ export class TimelineService {
     userId: number,
     page: number = 1,
     limit: number = 10
-  ): Promise<ResponseDto> {
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      timeline: Timeline[],
+      totalRecord: number
+    }
+  }> {
     try {
       const timelines = await this.timelineRepository
                                   .createQueryBuilder("timeline")
@@ -157,6 +180,12 @@ export class TimelineService {
                                   .skip((page - 1) * limit)  
                                   .take(limit)
                                   .getMany()
+      const totalRecord = await this.timelineRepository
+                                  .createQueryBuilder("timeline")
+                                  .where('timeline.creatorId = :userId', {userId: userId})
+                                  .andWhere('timeline.isActive = :isActive', { isActive: true })
+                                  .andWhere('timeline.deletedAt is null') 
+                                  .getCount()
       if (timelines.length === 0) {
         return {
           statusCode: 404,
@@ -167,7 +196,10 @@ export class TimelineService {
       return {
         statusCode: 200,
         message: "Get list of timelines of this person successfully",
-        data: timelines
+        data: {
+          timeline: timelines,
+          totalRecord: totalRecord
+        }
       }                            
     } catch(error) {
       return {
