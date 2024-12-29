@@ -19,6 +19,9 @@ const encryptId = (id) => {
 
 function YourRoadmap() {
     const navigate = useNavigate();
+    const [profile, setProfile] = useState(null);
+    const [roadmapRecords, setRoadmapRecords] = useState(0);
+    const [currentPageNumber, setCurrentPageNumber] = useState(1);
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -56,78 +59,98 @@ function YourRoadmap() {
 
     const filterRoadmapData = async (data) => {
         const profileId = await fetchProfile();
-        const favorites = await fetchFavoriteData();
+        setProfile(profileId);
 
-        const favoritesArray = Array.isArray(favorites) ? favorites : [];
-
-        return data.filter(item => {
-            if (!item.owner?.id || item.owner.id !== profileId)
-                return false;
-            return true;
-        }).map(item => {
-            const favorite = favoritesArray.find(fav => fav.roadmap.id === item.id && fav.user.id === profileId);
-            return {
-                id: item.id,
-                title: item.title,
-                content: item.content,
-                clone: item.clone,
-                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                loved: {
-                    loveId: favorite ? favorite.id : null,
-                    loveState: favorite ? false : true,
-                },
-                react: item.react,
-                nodeCount: item.node.length
-            };
-        });
+        // Dùng Promise.all để chờ tất cả các kết quả từ map
+        const mappedData = await Promise.all(
+            data.map(async (item) => {
+                try {
+                    const loveId = await fetchFavoriteData(item.id);
+                    return {
+                        id: item.id,
+                        title: item.title,
+                        content: item.content,
+                        clone: item.clone,
+                        avatar: item.avatar
+                            ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4)
+                            : '',
+                        loved: {
+                            loveId: loveId ?? null,
+                            loveState: !!loveId, // Chuyển đổi giá trị truthy/falsy thành boolean
+                        },
+                        react: item.react,
+                        nodeCount: item.node?.length || 0, // Xử lý nếu node bị undefined
+                    };
+                } catch (error) {
+                    console.error(`Error fetching favorite data for item ${item.id}:`, error);
+                    return {
+                        id: item.id,
+                        title: item.title,
+                        content: item.content,
+                        clone: item.clone,
+                        avatar: item.avatar
+                            ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4)
+                            : '',
+                        loved: {
+                            loveId: null,
+                            loveState: false,
+                        },
+                        react: item.react,
+                        nodeCount: item.node?.length || 0,
+                    };
+                }
+            })
+        );
+        console.log("Roadmap: ", mappedData)
+        return mappedData;
     };
 
-    const fetchRoadmapData = async () => {
+    const fetchRoadmapData = async (pageNumber) => {
         try {
-            const response = await fetch('http://localhost:3004/roadmap/all?page=1&limit=10', {
+            const response = await fetch(`http://localhost:3004/roadmap/owner?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
                     'Content-Type': 'application/json',
                 },
             });
 
-            if (!response.ok) {
+            const data = await response.json();
+            if (response.ok) {
+                const filteredData = await filterRoadmapData(data.data.roadmap);
+                setRoadmapRecords(data.data.totalRecord)
+                setRoadmaps(filteredData)
+                return filteredData;
+            } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
                 navigate(`/login`);
-                return;
             }
-
-            const data = await response.json();
-            const filteredData = filterRoadmapData(data.data);
-
-            return filteredData;
         } catch (error) {
             console.error('Fetch Roadmap Error:', error);
         }
     };
 
-    const fetchFavoriteData = async () => {
+    const fetchFavoriteData = async (roadmapId) => {
         try {
-            const response = await fetch('http://localhost:3004/favorite/all/owner?page=1&limit=10', {
+            const response = await fetch(`http://localhost:3004/favorite/roadmap/${roadmapId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Error:', errorData.message || 'Failed to fetch favorite data.');
-                navigate(`/login`);
-                return;
-            }
-
             const data = await response.json();
-
-            return data.data;
+            if (response.ok) {
+                if (data.data)
+                    return data.data.id;
+                return;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
+                navigate(`/login`);
+            }
         } catch (error) {
             console.error('Fetch Favorite Error:', error);
         }
@@ -135,17 +158,23 @@ function YourRoadmap() {
 
     const fetchNewFavourite = async (userId, roadmapId) => {
         try {
+            const body = new URLSearchParams({
+                userId: userId,
+                roadmapId: roadmapId,
+            }).toString();
+
             const response = await fetch('http://localhost:3004/favorite/new', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify({ userId: userId, roadmapId: roadmapId }),
+                body: body,
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                const data = await response.json();
                 console.log('Favorite added:', data); // Xử lý dữ liệu nếu cần
             } else {
                 console.error('Failed to add favorite. Status:', response.status);
@@ -153,8 +182,7 @@ function YourRoadmap() {
             }
 
             const fetchData = async () => {
-                const data = await fetchRoadmapData();
-                setRoadmaps(data);
+                await fetchRoadmapData(currentPageNumber);
             };
             fetchData();
         } catch (error) {
@@ -167,8 +195,8 @@ function YourRoadmap() {
             const response = await fetch(`http://localhost:3004/favorite/item/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
                 },
             });
 
@@ -176,7 +204,6 @@ function YourRoadmap() {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to delete favorite.');
                 navigate(`/login`);
-                return;
             }
         } catch (error) {
             console.error('Error:', error);
@@ -248,13 +275,10 @@ function YourRoadmap() {
         let newReactValue;
         if (!roadmapToUpdate.loved.loveState) {
             newReactValue = roadmapToUpdate.react - 1;
-            fetchDelFavourite(roadmapToUpdate.loved.loveId)
-        }
-        else {
+            fetchNewFavourite(profile, roadmapToUpdate.id);
+        } else {
             newReactValue = roadmapToUpdate.react + 1;
-            const profileId = await fetchProfile();
-
-            fetchNewFavourite(profileId, roadmapToUpdate.id)
+            fetchDelFavourite(roadmapToUpdate.loved.loveId);
         }
 
         try {
@@ -272,9 +296,9 @@ function YourRoadmap() {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Updated roadmap:', data);
-                navigate(`/login`);
             } else {
                 console.error('Failed to update react value');
+                navigate(`/login`);
             }
         } catch (error) {
             console.error('Error while patching react value:', error);
@@ -285,6 +309,14 @@ function YourRoadmap() {
         const encryptedId = encryptId(id);
         navigate(`/roadmap/${encryptedId}`);
     };
+
+    const handlePageChange = async (pageNumber) => {
+        setCurrentPageNumber(pageNumber);
+    };
+
+    useEffect(() => {
+        fetchRoadmapData(currentPageNumber);
+    }, [currentPageNumber]);
 
     return (
         <div className={cx('wrapper')}>
@@ -298,6 +330,21 @@ function YourRoadmap() {
                         onClick={() => handleClickRoadmap(roadmap.id)}
                     />
                 })}
+            </div>
+            <div className={cx('numeric')}>
+                {/* <div className={cx('card')}>1</div>
+                <div className={cx('card')}>2</div>
+                <div className={cx('card')}>3</div>
+                <div className={cx('card')}>4</div> */}
+                {Array.from({ length: Math.ceil(roadmapRecords / 12) }, (_, index) => (
+                    <div
+                        key={index + 1}
+                        className={cx('card', { active: currentPageNumber === index + 1 })}
+                        onClick={() => handlePageChange(index + 1)}
+                    >
+                        {index + 1}
+                    </div>
+                ))}
             </div>
         </div>
     );

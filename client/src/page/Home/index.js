@@ -78,8 +78,6 @@ function Home() {
             })
         );
 
-        console.log("Roadmap: ", mappedData)
-
         return mappedData;
     };
 
@@ -113,7 +111,7 @@ function Home() {
             const response = await fetch(`http://localhost:3004/roadmap/all?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -330,10 +328,6 @@ function Home() {
                     ))}
             </div>
             <div className={cx('numeric')}>
-                {/* <div className={cx('card')}>1</div>
-                <div className={cx('card')}>2</div>
-                <div className={cx('card')}>3</div>
-                <div className={cx('card')}>4</div> */}
                 {Array.from({ length: Math.ceil(roadmapRecords / 12) }, (_, index) => (
                     <div
                         key={index + 1}
