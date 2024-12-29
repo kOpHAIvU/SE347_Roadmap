@@ -37,7 +37,6 @@ function Home() {
         const profileId = await fetchProfile();
         setProfile(profileId);
 
-<<<<<<< Updated upstream
         // Dùng Promise.all để chờ tất cả các kết quả từ map
         const mappedData = await Promise.all(
             data.map(async (item) => {
@@ -48,9 +47,7 @@ function Home() {
                         title: item.title,
                         content: item.content,
                         clone: item.clone,
-                        avatar: item.avatar
-                            ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4)
-                            : '',
+                        avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
                         loved: {
                             loveId: loveId ?? null,
                             loveState: !!loveId, // Chuyển đổi giá trị truthy/falsy thành boolean
@@ -65,9 +62,7 @@ function Home() {
                         title: item.title,
                         content: item.content,
                         clone: item.clone,
-                        avatar: item.avatar
-                            ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4)
-                            : '',
+                        avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
                         loved: {
                             loveId: null,
                             loveState: false,
@@ -76,43 +71,11 @@ function Home() {
                         nodeCount: item.node?.length || 0,
                     };
                 }
-            })
+            }),
         );
-=======
-        const favoritesArray = Array.isArray(favorites) ? favorites : [];
-        console.log('favoritesArray: ', favoritesArray);
->>>>>>> Stashed changes
 
-        console.log("Roadmap: ", mappedData)
-
-<<<<<<< Updated upstream
         return mappedData;
-=======
-        // return data.filter(item => {
-        //     if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
-        //         return false;
-        //     return true;
-        // }).
-        return data.map((item) => {
-            const favorite = favoritesArray.find((fav) => fav.roadmap.id === item.id && fav.user.id === profileId);
-            console.log('Fav: ', favorite);
-            return {
-                id: item.id,
-                title: item.title,
-                content: item.content,
-                clone: item.clone,
-                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                loved: {
-                    loveId: favorite ? favorite.id : null,
-                    loveState: favorite ? false : true,
-                },
-                react: item.react,
-                nodeCount: item.node.length,
-            };
-        });
->>>>>>> Stashed changes
     };
-
 
     const fetchProfile = async () => {
         try {
@@ -143,21 +106,16 @@ function Home() {
             const response = await fetch(`http://localhost:3004/roadmap/all?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
 
             const data = await response.json();
             if (response.ok) {
-<<<<<<< Updated upstream
                 const filteredData = await filterRoadmapData(data.data.roadmap);
-                setRoadmapRecords(data.data.totalRecord)
-                setRoadmaps(filteredData)
-=======
-                const filteredData = filterRoadmapData(data.data.roadmap);
-                console.log('Filter: ', filteredData);
->>>>>>> Stashed changes
+                setRoadmapRecords(data.data.totalRecord);
+                setRoadmaps(filteredData);
                 return filteredData;
             } else {
                 const errorData = await response.json();
@@ -181,8 +139,7 @@ function Home() {
 
             const data = await response.json();
             if (response.ok) {
-                if (data.data)
-                    return data.data.id;
+                if (data.data) return data.data.id;
                 return;
             } else {
                 const errorData = await response.json();
@@ -365,10 +322,6 @@ function Home() {
                     ))}
             </div>
             <div className={cx('numeric')}>
-                {/* <div className={cx('card')}>1</div>
-                <div className={cx('card')}>2</div>
-                <div className={cx('card')}>3</div>
-                <div className={cx('card')}>4</div> */}
                 {Array.from({ length: Math.ceil(roadmapRecords / 12) }, (_, index) => (
                     <div
                         key={index + 1}
