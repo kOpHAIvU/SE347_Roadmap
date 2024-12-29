@@ -114,6 +114,7 @@ function Home() {
             const data = await response.json();
             if (response.ok) {
                 const filteredData = await filterRoadmapData(data.data.roadmap);
+
                 setRoadmapRecords(data.data.totalRecord);
                 setRoadmaps(filteredData);
                 return filteredData;
