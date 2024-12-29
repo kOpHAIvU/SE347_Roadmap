@@ -37,6 +37,7 @@ function Home() {
         const profileId = await fetchProfile();
         setProfile(profileId);
 
+<<<<<<< Updated upstream
         // Dùng Promise.all để chờ tất cả các kết quả từ map
         const mappedData = await Promise.all(
             data.map(async (item) => {
@@ -77,10 +78,39 @@ function Home() {
                 }
             })
         );
+=======
+        const favoritesArray = Array.isArray(favorites) ? favorites : [];
+        console.log('favoritesArray: ', favoritesArray);
+>>>>>>> Stashed changes
 
         console.log("Roadmap: ", mappedData)
 
+<<<<<<< Updated upstream
         return mappedData;
+=======
+        // return data.filter(item => {
+        //     if (!item.owner?.id || (item.isPublic === false && item.owner.id !== profileId))
+        //         return false;
+        //     return true;
+        // }).
+        return data.map((item) => {
+            const favorite = favoritesArray.find((fav) => fav.roadmap.id === item.id && fav.user.id === profileId);
+            console.log('Fav: ', favorite);
+            return {
+                id: item.id,
+                title: item.title,
+                content: item.content,
+                clone: item.clone,
+                avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
+                loved: {
+                    loveId: favorite ? favorite.id : null,
+                    loveState: favorite ? false : true,
+                },
+                react: item.react,
+                nodeCount: item.node.length,
+            };
+        });
+>>>>>>> Stashed changes
     };
 
 
@@ -120,9 +150,14 @@ function Home() {
 
             const data = await response.json();
             if (response.ok) {
+<<<<<<< Updated upstream
                 const filteredData = await filterRoadmapData(data.data.roadmap);
                 setRoadmapRecords(data.data.totalRecord)
                 setRoadmaps(filteredData)
+=======
+                const filteredData = filterRoadmapData(data.data.roadmap);
+                console.log('Filter: ', filteredData);
+>>>>>>> Stashed changes
                 return filteredData;
             } else {
                 const errorData = await response.json();

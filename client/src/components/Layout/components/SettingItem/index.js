@@ -27,7 +27,7 @@ const SettingItem = ({ item, onUpdateValue }) => {
 
             const defaultFile = new File([blob], 'default-avatar.jpg', { type: blob.type });
 
-            setPhoto(defaultavatar);
+            setPhoto(defaultPhotoUrl);
             console.log('Photo reset to default, file:', defaultFile);
 
             if (onUpdateValue) {
@@ -82,7 +82,7 @@ const SettingItem = ({ item, onUpdateValue }) => {
     const handleOptionChange = (event) => {
         const newValue = event.target.value;
         setSelectedValue(newValue);
-        localStorage.setItem('gender', newValue);
+        // localStorage.setItem('gender', newValue);
         console.log(`Selected gender: ${newValue}`);
         if (onUpdateValue) {
             onUpdateValue(newValue); // Gọi callback để đồng bộ hóa với dữ liệu cha
