@@ -44,7 +44,6 @@ const getRoadmapById = async (id) => {
 };
 
 function RoadmapItem({ children, onLoveChange, onClick }) {
-    console.log("Child: ", children)
     const [showDialog, setShowDialog] = useState(false);
     const [title, setTitle] = useState(children.title);
     const [content, setContent] = useState(children.content);
@@ -76,8 +75,6 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
         }
         setShowDialog(true);
     };
-
-    console.log("Love state: ", loveState)
 
     return (
         <div className={cx('wrapper')} onClick={onClick}>
