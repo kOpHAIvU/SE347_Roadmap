@@ -307,7 +307,7 @@ export class UserService {
             } catch (error) {
                 throw new Error(error);
             }
-
+            user.email = "";
             user.deletedAt = new Date();
             user.isActive = false;
 
@@ -315,7 +315,7 @@ export class UserService {
             return {
                 statusCode: 200,
                 message: 'Delete user successfully',
-                data: null,
+                data: result,
             };
         } catch (error) {
             return {

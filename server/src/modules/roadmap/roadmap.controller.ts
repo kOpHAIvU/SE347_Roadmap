@@ -105,4 +105,14 @@ export class RoadmapController {
     async removeByCode(@Param('code') code: string, @UploadedFile() file?: Express.Multer.File) {
         return await this.roadmapService.removeByCode(code);
     }
+
+    @Get('search/:name')
+    @UseGuards(JwtAuthGuard)
+    async searchRoadmap(
+        @Param('name') name: string,
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
+    ) {
+        return await this.roadmapService.findRoadmapsByTitle(name, page, limit);
+    }
 }

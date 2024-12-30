@@ -545,4 +545,57 @@ export class RoadmapService {
             };
         }
     }
+
+    async findRoadmapsByTitle(
+        name: string,
+        page: number = 1,
+        limit: number = 10
+    ): Promise<{
+        statusCode: number,
+        message: string,
+        data: {
+            roadmap: Roadmap[],
+            totalRecord: number 
+        }
+    }> {
+        try {
+            const roadmaps = await this.roadmapRepository
+                .createQueryBuilder('roadmap')
+                .leftJoinAndSelect('roadmap.node', 'node')
+                .where('roadmap.isActive = :isActive', { isActive: 1 })
+                .andWhere('roadmap.deletedAt is null')
+                .andWhere('roadmap.title like :name', { name: `%${name}%` })
+                .orderBy('roadmap.createdAt', 'DESC')
+                .skip((page - 1) * limit)
+                .take(limit)
+                .getMany();
+            if (!roadmaps) {
+                return {
+                    statusCode: 404,
+                    message: 'Roadmap not found',
+                    data: null,
+                };
+            }
+            const totalRecord = await this.roadmapRepository
+                .createQueryBuilder('roadmap')
+                .where('roadmap.isActive = :isActive', { isActive: 1 })
+                .andWhere('roadmap.deletedAt is null')
+                .andWhere('roadmap.title like :name', { name: `%${name}%` })
+                .getCount();
+            return {
+                statusCode: 200,
+                message: 'Get roadmap by title successfully',
+                data: {
+                    roadmap: roadmaps,
+                    totalRecord: totalRecord,
+                },
+            }
+        } catch(error) {
+            return {
+                statusCode: 500,
+                message: 'Failed to get roadmap by title',
+                data: null,
+            }
+        }
+    }
 }

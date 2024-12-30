@@ -71,4 +71,14 @@ export class TimelineController {
         return await this.timelineService.cloneRoadmap(+roadmapId, req.user.userId);
     }
 
+    @Get('search/:name')
+    @UseGuards(JwtAuthGuard)
+    async search(
+        @Param('name') name: string, 
+        @Query('page', ParseIntPipe) page: number = 1, 
+        @Query('limit', ParseIntPipe) limit: number = 10
+    ) {
+        return await this.timelineService.findTimelineByTitle(name, page, limit);
+    }
+
 }
