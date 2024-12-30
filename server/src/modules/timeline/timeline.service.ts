@@ -390,6 +390,57 @@ export class TimelineService {
     }
   }
 
-
+  async findTimelineByTitle(
+    name: string,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      timeline: Timeline[],
+      totalRecord: number
+    }
+  }> {
+    try {
+      const timelines = await this.timelineRepository
+                        .createQueryBuilder('timeline')
+                        .leftJoinAndSelect('timeline.creator', 'creator')
+                        .leftJoinAndSelect('timeline.node', 'node')
+                        .where('timeline.title like :name', { name: `%${name}%` })
+                        .andWhere('timeline.isActive = :isActive', { isActive: 1 })
+                        .andWhere('timeline.deletedAt is null')
+                        .skip((page - 1) * limit)  
+                        .take(limit)                
+                        .getMany();
+      if (timelines.length === 0) {
+        return {
+          statusCode: 404,
+          message: 'Timelines not found',
+          data: null
+        }
+      }
+      const totalRecord = await this.timelineRepository
+                        .createQueryBuilder('timeline')
+                        .where('timeline.title like :name', { name: `%${name}%` })
+                        .andWhere('timeline.isActive = :isActive', { isActive: 1 })
+                        .andWhere('timeline.deletedAt is null')
+                        .getCount();
+      return {
+        statusCode: 200,
+        message: 'Get list of timelines successfully',
+        data: {
+          timeline: timelines,
+          totalRecord: totalRecord
+        },
+      }
+    } catch(error) {
+      return {
+        statusCode: 500,
+        message: 'Server error when finding timeline by title',
+        data: null
+      }
+    }
+  }
 
 }
