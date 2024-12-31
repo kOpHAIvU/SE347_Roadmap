@@ -6,7 +6,7 @@ export class Payment {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({default: 0})
     totalPayment: number;
 
     @Column({default: "null"})

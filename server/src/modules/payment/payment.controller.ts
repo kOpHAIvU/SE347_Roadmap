@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { JwtAuthGuard } from '../auth/common/jwt-guard';
 import { MomoService } from './strategy/momo.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('payment')
 export class PaymentController {
@@ -23,15 +24,16 @@ export class PaymentController {
   }
 
   @Post('new/banking')
+  @UseInterceptors(FileInterceptor('file'))
   @UseGuards(JwtAuthGuard)
-  createByBanking(
+  async createByBanking(
     @Req() request,
     @Body() createPaymentDto: CreatePaymentDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
     const userId = request.user.userId;
     createPaymentDto.userId = userId;
-    return this.paymentService.createByBanking(createPaymentDto, file);
+    return await this.paymentService.createByBanking(createPaymentDto, file);
   } 
 
   @Get('all')
@@ -50,14 +52,16 @@ export class PaymentController {
   }
 
   @Patch('item/:id')
+  @UseInterceptors(FileInterceptor('file'))
   @UseGuards(JwtAuthGuard)
-  update(
+  async update(
     @Param('id') id: string, 
     @Body() updatePaymentDto: UpdatePaymentDto,
     @Req() request,
+    @UploadedFile() file: Express.Multer.File,
   ) {
     updatePaymentDto.userId = request.user.userId;
-    return this.paymentService.update(+id, updatePaymentDto);
+    return await this.paymentService.update(+id, updatePaymentDto, file);
   }
 
   @Delete('item/:id')

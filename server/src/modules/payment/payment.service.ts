@@ -106,6 +106,7 @@ export class PaymentService {
       console.log('File to upload:', file);
       let imageUrl: string;
       if (typeof file !== 'undefined') {
+        console.log("Avatar");
         const uploadResponse = await this.cloudinaryService.uploadImage(file);
         imageUrl = uploadResponse.secure_url.toString() + ' ' + uploadResponse.public_id.toString();
       }
@@ -114,7 +115,7 @@ export class PaymentService {
         user: user,
         status: false,
         type: 'banking',
-        image: imageUrl || null,
+        image: imageUrl || "",
       })
       const payment = await this.paymentRepository.save(newPayment)
       
@@ -237,7 +238,7 @@ export class PaymentService {
         }
       }
       let public_id: string, secure_url: string, avatarUrl: string;
-      if (updatePaymentDto.type === 'banking' && typeof file !== 'undefined') {
+      if (oldPaymentResponse.data.type === 'banking' && typeof file !== 'undefined') {
         if (file) {
             const url = updatePaymentDto.image.split(' ');
             public_id = url[1];
@@ -327,6 +328,18 @@ export class PaymentService {
           data: null
         }
       }
+
+      if (oldPaymentResponse.data.type === 'banking') {
+        const url = oldPaymentResponse.data.image.split(' ');
+        const public_id = url[1];
+        let deleteResponse;
+        try {
+            deleteResponse = await this.cloudinaryService.deleteImage(public_id);
+        } catch {
+            throw new Error('Error when deleting image');
+        }
+      }
+
       const newPayment = this.paymentRepository.create({
         ...oldPaymentResponse.data,
         isActive: false,
