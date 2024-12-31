@@ -6,12 +6,14 @@ import { Payment } from './entities/payment.entity';
 import { UserModule } from '../user/user.module';
 import { MomoService } from './strategy/momo.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Payment]),
     UserModule,
-    ConfigModule
+    ConfigModule,
+    CloudinaryModule
   ],
   controllers: [PaymentController],
   providers: [PaymentService, MomoService, ConfigService],

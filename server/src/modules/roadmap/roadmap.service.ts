@@ -67,6 +67,14 @@ export class RoadmapService {
 
                 console.log('Result send data to rabbitMQ: ');
                 const rabbit = this.rabbitClient.emit('Create_new_roadmap', result);
+                rabbit.subscribe({
+                    next: (response) => {
+                      console.log('Event successfully emitted:', response);
+                    },
+                    error: (error) => {
+                      console.error('Error emitting event:', error);
+                    },
+                  });
             }
             return {
                 statusCode: 201,

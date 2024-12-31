@@ -24,6 +24,7 @@ export class ReportController {
 
   @EventPattern('Create_new_report')
   async handleNotification(@Payload() data: Report) {
+    console.log("Create new report");
     await this.reportService.handleNotificationFromRabbitMQ(data);
   }
 
