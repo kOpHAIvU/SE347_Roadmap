@@ -78,4 +78,12 @@ export class ReportController {
   ) {
     return await this.reportService.getReportsByType(type, page, limit);
   }
+
+  @Post('ban/:idRoadmap')
+ // @UseGuards(JwtAuthGuard)
+  async banUser(
+    @Param('idRoadmap', ParseIntPipe) idRoadmap: string
+  ) {
+    return await this.reportService.banRoadmap(+idRoadmap);
+  }
 }

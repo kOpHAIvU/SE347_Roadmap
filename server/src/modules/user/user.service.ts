@@ -325,4 +325,60 @@ export class UserService {
             };
         }
     }
+
+    async findUserByName(
+        name: string,
+        page: number = 1,
+        limit: number = 10,
+    ): Promise<{
+        status: number,
+        message: string,
+        data: {
+            total: number,
+            users: User[],
+        }
+    }> {
+        try {
+            const users = await this.usersRepository
+                .createQueryBuilder('user')
+                .select([
+                    'user.id',
+                    'user.username',
+                    'user.fullName',
+                ])
+                .where('user.fullName like :name', { name: `%${name}%` })
+                .andWhere('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .skip((page - 1) * limit)
+                .take(limit)
+                .getMany();
+            if (!users) {
+                return {
+                    status: 404,
+                    message: 'User not found',
+                    data: null,
+                }
+            }
+            const total = await this.usersRepository
+                .createQueryBuilder('user')
+                .where('user.fullName like :name', { name: `%${name}%` })
+                .andWhere('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .getCount();
+            return {
+                status: 200,
+                message: 'Get user successfully',
+                data: {
+                    total,
+                    users,
+                },
+            }
+        } catch(error) {
+            return {
+                status: 500,
+                message: error.message,
+                data: null,
+            }
+        }
+    }
 }

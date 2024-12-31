@@ -13,6 +13,7 @@ import { FirebaseService } from '../firebase/firebase.service';
 import { report } from 'process';
 import { GmailNotificationStrategy } from '../notification/strategy/gmail-notification.service';
 import { RoadmapService } from '../roadmap/roadmap.service';
+import { Roadmap } from '../roadmap/entities/roadmap.entity';
 
 @Injectable()
 export class ReportService {
@@ -85,6 +86,8 @@ export class ReportService {
           message: 'Failed to create report'
         }
       }
+
+
       console.log("URL with rabbitMQ", this.configService.get<string>('URL'));
       try {
         await this.rabbitClient.connect();
@@ -385,6 +388,56 @@ export class ReportService {
         statusCode: 200,
         message: 'Delete report successfully',
         data: result,
+      }
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
+  async banRoadmap(
+    idRoadmap: number,
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: {
+      idRoadmap: number,
+      title: string,
+    }
+  }> {
+    try {
+      const numberOfReport = await this.reportRepository
+                            .createQueryBuilder('report')
+                            .where('report.roadmap = :idRoadmap', {idRoadmap})
+                            .getCount();
+      if (numberOfReport >= 3) {
+        const result = await this.roadmapService.removeById(idRoadmap);
+        if (result.statusCode !== 200) {
+          return {
+            statusCode: 500,
+            message: 'Ban roadmap failed',
+            data: null,
+          }
+        }
+        const deletedRoadmap = Array.isArray(result.data)
+                                ? result.data[0]
+                                : result.data;
+        return {
+          statusCode: 200,
+          message: 'Ban roadmap successfully',
+          data: {
+            idRoadmap: deletedRoadmap.id,
+            title: deletedRoadmap.title,
+          },
+        }
+      }
+      return {
+        statusCode: 200,
+        message: "The roadmap's ban count is not enough to delete",
+        data: null
       }
     } catch (error) {
       return {

@@ -26,7 +26,6 @@ export class RoadmapService {
         try {
             const ownerResponse = await this.userService.findOneById(createRoadmapDto.owner);
             const owner = Array.isArray(ownerResponse.data) ? ownerResponse.data[0] : ownerResponse.data;
-            console.log('Avatar of roadmap', file);
             let avatarUrl: string;
             try {
                 if (file) {
@@ -57,8 +56,6 @@ export class RoadmapService {
             console.log(this.configService.get<string>('URL'));
 
             const result = await this.roadmapRepository.save(roadmap);
-            // console.log("Owner:", result.owner.role.id)
-            console.log('Owner:', result.owner);
             if (result.owner.role.id === 1) {
                 console.log('Owner is admin');
                 console.log(env.RABBITMQ.NAME);
@@ -106,7 +103,7 @@ export class RoadmapService {
                 };
             }
             const user = Array.isArray(userResponse.data) ? userResponse.data[0] : userResponse.data;
-            console.log('UUser send request: ', user);
+
             let roadmap: Roadmap[], totalRecord: number;
             if (user.role.id === 1) {
                 // role is admin
@@ -277,7 +274,6 @@ export class RoadmapService {
             let public_id: string, secure_url: string;
             let avatarUrl: string = null;
             if (file) {
-                console.log('Come here');
                 const url = roadmap.avatar.split(' ');
                 public_id = url[1];
                 secure_url = url[0];
@@ -291,11 +287,9 @@ export class RoadmapService {
                 avatarUrl = uploadResponse.secure_url.toString() + ' ' + uploadResponse.public_id.toString();
             }
 
-            console.log('Avatar of roadmap is: ', avatarUrl);
             let roadmapCreate;
 
             if (avatarUrl !== null) {
-                console.log('Avatar of roadmap is: ', avatarUrl);
                 roadmapCreate = this.roadmapRepository.create({
                     ...roadmap,
                     ...updateRoadmapDto,
@@ -309,7 +303,6 @@ export class RoadmapService {
                     owner: roadmap.owner,
                 });
             }
-            console.log('Roadmap create: ', roadmapCreate);
 
             const result = await this.roadmapRepository.save(roadmapCreate);
             Logger.log(roadmap);
@@ -375,7 +368,6 @@ export class RoadmapService {
             const getData = await this.findOneById(id);
             const roadmap = Array.isArray(getData.data) ? getData.data[0] : getData.data;
 
-            console.log('Roadmap is: ', roadmap);
             //
             if (!roadmap) {
                 return {
