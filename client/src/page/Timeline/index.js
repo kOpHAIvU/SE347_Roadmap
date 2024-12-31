@@ -22,20 +22,6 @@ const decryptId = (encryptedId) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-const filterTimelineNode = (data) => {
-    return data.map((item, index) => ({
-        id: index,
-        level: item.level,
-        x: item.xAxis,
-        y: item.yAxis,
-        type: item.type,
-        ticked: item.tick,
-        due_time: item.dueTime,
-        content: item.content,
-        nodeDetail: item.detail,
-    }));
-}
-
 function Timeline() {
     const navigate = useNavigate();
     const { id: encryptedId } = useParams();
@@ -47,7 +33,6 @@ function Timeline() {
     const [titleText, setTitleText] = useState('Make some description');
     const [nodes, setNodes] = useState([]);
     const [groupData, setGroupData] = useState([])
-
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -73,7 +58,7 @@ function Timeline() {
 
             if (response.ok) {
                 setProfile(data.data);
-                console.log(data.data)
+                //console.log(data.data)
                 return data.data;
             } else {
                 console.error('Error:', data.message || 'Failed to fetch profile data.');
@@ -97,9 +82,15 @@ function Timeline() {
             if (response.ok) {
                 setRoadName(data.data.title)
                 setTitleText(data.data.content)
-                setNodes(filterTimelineNode(data.data.node))
-                console.log("Nodes after fetching: ", nodes);
-                console.log("Timeline data: ", data.data)
+                const nodesArray = [];
+                for (const [i, node] of data.data.node.entries()) {
+                    const filteredNode = await filterTimelineNode(i, node);
+                    nodesArray.push(filteredNode);
+                }
+
+                setNodes(nodesArray);
+                // console.log("Nodes after fetching: ", nodes);
+                // console.log("Timeline data: ", data.data)
 
                 return data.data;
             } else {
@@ -127,7 +118,7 @@ function Timeline() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log(data);
+                //console.log(data);
                 return data.data
             } else {
                 console.error(data);
@@ -151,7 +142,7 @@ function Timeline() {
 
             if (response.ok) {
                 setGroupData(data.data.groupDivisions)
-                console.log(data);
+                //console.log(data);
                 return data.data
             } else {
                 console.error(data);
@@ -161,9 +152,187 @@ function Timeline() {
         }
     };
 
-    const fetchAllNodeInTimeline = async () => {
+    const fetchNewNode = async (nodeData) => {
         try {
-            const response = await fetch(`http://localhost:3004/node/all/timeline/${id}`, {
+            const formData = new URLSearchParams();
+            formData.append('level', nodeData.level);
+            formData.append('xAxis', nodeData.x);
+            formData.append('yAxis', nodeData.y);
+            formData.append('type', nodeData.type);
+            formData.append('tick', nodeData.ticked);
+            formData.append('dueTime', nodeData.due_time);
+            formData.append('content', nodeData.content);
+            formData.append('detail', nodeData.nodeDetail);
+            formData.append('timeline', id);
+
+            const response = await fetch('http://localhost:3004/node/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                //console.log('Node added:', data);
+                return data.data
+            } else {
+                console.error('Failed to add node. Status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const filterTimelineNode = async (id, data) => {
+        //console.log("Nodes: ", data)
+        const commentData = await fetchNodeComment(data.id);
+        //console.log("commentData: ", commentData)
+        if (commentData) {
+            const filteredComments = commentData.map(comment => ({
+                userId: comment.poster?.id,
+                username: comment.poster?.fullName,
+                title: comment.title,
+                content: comment.content,
+                id: id,
+            }));
+            // console.log("filteredComments", filteredComments)
+            // console.log("Hehe: ", {
+            //     id: id,
+            //     level: data.level,
+            //     x: data.xAxis,
+            //     y: data.yAxis,
+            //     type: data.type,
+            //     ticked: data.tick,
+            //     due_time: data.dueTime,
+            //     content: data.content,
+            //     nodeDetail: data.detail,
+            //     nodeComment: filteredComments,
+            // })
+            return {
+                id: id + 1,
+                level: data.level,
+                x: data.xAxis,
+                y: data.yAxis,
+                type: data.type,
+                ticked: data.tick,
+                due_time: data.dueTime,
+                content: data.content,
+                nodeDetail: data.detail,
+                nodeComment: filteredComments,
+            }
+        }
+    }
+
+    // const fetchAllNodeInTimeline = async () => {
+    //     try {
+    //         const response = await fetch(`http://localhost:3004/node/all/timeline/${id}`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Authorization': `Bearer ${getToken()}`,
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         });
+
+    //         const data = await response.json();
+    //         if (response.ok) {
+    //             console.log("All Node: ", data)
+    //             // for (let i = 0; i < data.data.length; i++) { }
+    //             // setNodes(filterTimelineNode(data.data))
+    //             console.log("Nodes after fetching: ", nodes);
+    //         } else {
+    //             const errorData = await response.json();
+    //             console.error('Error:', errorData.message);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //     }
+    // };
+
+    const fetchDelAllNodeInTimeline = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/node/timeline/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log(data);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchNewNodeComment = async (nodeId, comment) => {
+        try {
+            //console.log("Title hehe: ", comment)
+            const body = new URLSearchParams({
+                content: comment.content,
+                poster: comment.userId,
+                title: comment.title,
+                node: nodeId
+            }).toString();
+            //console.log("Body: ", body)
+
+            const response = await fetch('http://localhost:3004/comment/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: body,
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log("Comment added: ", data)
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Node Comment Error:', error);
+        }
+    };
+
+    const fetchDelNodeComment = async (commentId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log("Node comment deleted: ", data)
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Node Comment Error:', error);
+        }
+    };
+
+    const fetchNodeComment = async (nodeId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/comment/node/${nodeId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -173,19 +342,20 @@ function Timeline() {
 
             const data = await response.json();
             if (response.ok) {
-                setNodes(filterTimelineNode(data.data))
-                console.log("Nodes after fetching: ", nodes);
+                return data.data;
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Fetch Node Comment Error:', error);
         }
     };
 
+
     useEffect(() => {
         const fetchData = async () => {
+            //console.log("Id: ", id)
             const fetchedProfile = await fetchProfile();
             const fetchedTimelineData = await fetchTimelineData();
             const fetchedGroupDivisonData = await fetchGetGroupDivisionByTimeline();
@@ -195,7 +365,7 @@ function Timeline() {
                     const groupDivision = fetchedGroupDivisonData.groupDivisions[i];
 
                     if (fetchedProfile.id === groupDivision.user.id) {
-                        console.log("groupDivision role: ", groupDivision.role)
+                        //console.log("groupDivision role: ", groupDivision.role)
                         switch (groupDivision.role) {
                             case 1:
                                 setUserType("Administrator");
@@ -206,19 +376,16 @@ function Timeline() {
                             case 3:
                                 setUserType("Viewer");
                                 break;
-                            case 4:
-                                setUserType("onPending");
-                                break;
                             default:
-                                console.warn("Unknown role:", groupDivision.role);
+                                navigate('/home')
                         }
                     }
                 }
-                console.log(userType)
+                //console.log(userType)
             }
         }
         fetchData();
-    }, [])
+    }, [id])
 
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
@@ -326,6 +493,7 @@ function Timeline() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = {
             id: newId,
             x: x,
@@ -335,7 +503,7 @@ function Timeline() {
             ticked: false,
             due_time: 2,
             content: 'Write something...',
-            nodeComment: null,
+            nodeComment: [],
         };
 
         setNodes((prevLevels) => {
@@ -348,15 +516,18 @@ function Timeline() {
                     ? [...prevLevels, newLevel]
                     : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
+
+            // // Cập nhật id cho các node phía dưới
+            // return updatedNodes.map((node, idx) => {
+            //     return idx > index ? { ...node, id: node.id + 1 } : node;
+            // });
         });
     };
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = {
             id: newId,
             x: x + width + 200,
@@ -366,7 +537,7 @@ function Timeline() {
             ticked: false,
             due_time: 2,
             content: 'Write something...',
-            nodeComment: null,
+            nodeComment: [],
         };
 
         setNodes((prevLevels) => {
@@ -379,10 +550,12 @@ function Timeline() {
                     ? [...prevLevels, newLevel]
                     : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
+
+            // // Cập nhật id cho các node phía dưới
+            // return updatedNodes.map((node, idx) => {
+            //     return idx > index ? { ...node, id: node.id + 1 } : node;
+            // });
         });
     };
 
@@ -411,19 +584,20 @@ function Timeline() {
             newNodes[index] = updatedNode;
             return newNodes;
         });
-        console.log(nodes);
+        //console.log(nodes);
         setTimeout(() => setHoveredIndex(null), 0);
     };
 
     const updateNodeComment = (nodeId, action, commentData = null, commentIndex = null) => {
         setNodes((prevNodes) => {
             return prevNodes.map((node) => {
+                console.log(node.id, "  ", nodeId)
                 if (node.id === nodeId) {
                     let updatedComments = node.nodeComment ? [...node.nodeComment] : [];
 
                     switch (action) {
                         case 'add':
-                            console.log('add');
+                            console.log("Add")
                             if (commentData) {
                                 updatedComments.push(commentData);
                             }
@@ -448,7 +622,6 @@ function Timeline() {
                             console.error('Invalid action:', action);
                             return node;
                     }
-                    console.log(node);
                     return { ...node, nodeComment: updatedComments.length > 0 ? updatedComments : null };
                 }
                 return node;
@@ -488,9 +661,35 @@ function Timeline() {
         }
     };
 
+    const handleSave = async () => {
+        await fetchDelAllNodeInTimeline()
+        for (let i = 0; i < nodes.length; i++) {
+            const nodeId = await fetchNewNode(nodes[i])
+            //console.log("Nodes new: ", nodeId)
+
+            // Fetch comment
+            if (nodeId) {
+                if (Array.isArray(nodes[i].nodeComment)) {
+                    for (let j = 0; j < nodes[i].nodeComment.length; j++) {
+                        // Del old comment if id is not null
+                        if (nodes[i].nodeComment[j].id !== null) {
+                            //console.log("Node comment del id: ", nodes[i].nodeComment[j].id);
+                            await fetchDelNodeComment(nodes[i].nodeComment[j].id);
+                        }
+                        // Post new comment
+                        await fetchNewNodeComment(nodeId.id, nodes[i].nodeComment[j]);
+                    }
+                }
+            }
+        }
+
+        handleMakeDialog('Save', null)
+    }
+    console.log(nodes)
+
     return (
         <div className={cx('wrapper')}>
-            <div className={cx('timeline-section')}>
+            <div className={cx('timeline-section', { chatextend: chatExtended })}>
                 <div className={cx('important-section')}>
                     <div className={cx('title-container')}>
                         {userType === 'Administrator' ? (
@@ -522,7 +721,7 @@ function Timeline() {
 
                     {userType !== 'Viewer' && (
                         <div className={cx('save-setting')}>
-                            <button className={cx('save-btn')} onClick={() => handleMakeDialog('Save', null)}>
+                            <button className={cx('save-btn')} onClick={handleSave}>
                                 Save
                             </button>
                             <FontAwesomeIcon
@@ -617,12 +816,14 @@ function Timeline() {
                 </div>
             </div>
 
-            {chatExtended && !toggle && (
-                <div className={cx('chat-section', { show: chatExtended })}>
-                    <ChatSection profile={profile} groupData={groupData} />
-                </div>
-            )}
-        </div>
+            {
+                chatExtended && !toggle && (
+                    <div className={cx('chat-section', { show: chatExtended })}>
+                        <ChatSection profile={profile} groupData={groupData} />
+                    </div>
+                )
+            }
+        </div >
     );
 }
 

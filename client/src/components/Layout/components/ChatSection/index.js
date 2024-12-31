@@ -8,11 +8,22 @@ import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
+const filterMessage = (data) => {
+    return [...data].reverse().map((item) => ({
+        id: item.id,
+        user: item.sender.fullName,
+        avatar: item.sender.avatar ? item.sender.avatar.substring(0, item.sender.avatar.indexOf('.jpg') + 4) : '',
+        date: item.createdAt.substring(0, 10),
+        content: item.content
+    }));
+}
+
 function ChatSection({ profile, groupData }) {
     const navigate = useNavigate()
 
     const [chatContent, setChatContent] = useState('');
     const allMessagesRef = useRef(null);
+    const [chats, setChats] = useState([])
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -26,25 +37,25 @@ function ChatSection({ profile, groupData }) {
 
     const fetchNewMessage = async () => {
         try {
-            const body = {
+            const body = new URLSearchParams({
                 content: chatContent,
                 check: 1,
                 senderId: profile.id,
-                teamId: groupData.team.id,
-            };
-
-            const response = await fetch('http://localhost:3004/comment/new', {
+                teamId: groupData[0].team.id,
+            }).toString();
+            const response = await fetch('http://localhost:3004/message/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify(body),
+                body: body,
             });
 
             const data = await response.json();
             if (response.ok) {
                 console.log(data);
+                return data.data.id;
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -54,6 +65,38 @@ function ChatSection({ profile, groupData }) {
         }
     };
 
+    const fetchGetAllMessage = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/message/team/${groupData[0].team.id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log(data)
+                const messages = filterMessage(data.data);
+                //console.log("message: ", messages);
+                setChats(messages)
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchGetAllMessage()
+        }
+        fetchData()
+    }, [groupData[0]])
+
     // Sử dụng useEffect để cuộn xuống dưới cùng khi có thay đổi trong chatContent
     useEffect(() => {
         if (allMessagesRef.current) {
@@ -61,43 +104,46 @@ function ChatSection({ profile, groupData }) {
         }
     }, [chatContent]);
 
-    let source = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmHLNP-oKgWYyHOZU7IdKi2wkyBfEncCFAaQ&s'
-    const [chats, setChats] = useState([
-        {
-            id: 0,
-            user: 'KoPhaiVu',
-            avatar: source,
-            date: '26/06/2024',
-            content: 'Các cậu làm tới đâu rồi'
-        },
-        {
-            id: 1,
-            user: 'KoPhaiLoan',
-            avatar: source,
-            date: '27/06/2024',
-            content: 'Tớ chưa làm. Các cậu báo cáo tiến độ đi nhíe!!!! Tớ khò khò đây các condilon'
-        },
-        {
-            id: 2,
-            user: 'KoPhaiVinh',
-            avatar: source,
-            date: '28/06/2024',
-            content: 'zzzzz'
-        },
-    ])
+    // let source = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmHLNP-oKgWYyHOZU7IdKi2wkyBfEncCFAaQ&s'
+    // const [chats, setChats] = useState([
+    //     {
+    //         id: 0,
+    //         user: 'KoPhaiVu',
+    //         avatar: source,
+    //         date: '26/06/2024',
+    //         content: 'Các cậu làm tới đâu rồi'
+    //     },
+    //     {
+    //         id: 1,
+    //         user: 'KoPhaiLoan',
+    //         avatar: source,
+    //         date: '27/06/2024',
+    //         content: 'Tớ chưa làm. Các cậu báo cáo tiến độ đi nhíe!!!! Tớ khò khò đây các condilon'
+    //     },
+    //     {
+    //         id: 2,
+    //         user: 'KoPhaiVinh',
+    //         avatar: source,
+    //         date: '28/06/2024',
+    //         content: 'zzzzz'
+    //     },
+    // ])
 
     // Hàm gửi tin nhắn
-    const handleSendMessage = () => {
+    const handleSendMessage = async () => {
         if (chatContent.trim() !== '') {
-            const newMessage = {
-                id: chats.length,
-                user: profile.fullName,
-                avatar: profile.avatar,
-                date: new Date().toLocaleDateString(),
-                content: chatContent
-            };
-            setChats([...chats, newMessage]);
-            setChatContent('');
+            const newMessageId = await fetchNewMessage()
+            if (newMessageId) {
+                const newMessage = {
+                    id: newMessageId,
+                    user: profile.fullName,
+                    avatar: profile.avatar ? profile.avatar.substring(0, profile.avatar.indexOf('.jpg') + 4) : '',
+                    date: new Date().toLocaleDateString(),
+                    content: chatContent
+                };
+                setChats([...chats, newMessage]);
+                setChatContent('');
+            }
         }
     };
 

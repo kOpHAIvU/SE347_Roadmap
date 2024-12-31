@@ -46,3 +46,9 @@
         transform: scale(0.9);
     }
 }
+
+.card.active {
+    border: 2px solid var(--main-color); /* Viền đen cho trang hiện tại */
+    font-weight: bold;
+    background-color: #f0f0f0;
+}

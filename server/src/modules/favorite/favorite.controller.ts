@@ -54,10 +54,7 @@ export class FavoriteController {
 
     @Get('roadmap/:id')
     @UseGuards(JwtAuthGuard)
-    async findFavoriteByRoadmap(
-        @Req() req: any,
-        @Param('id', ParseIntPipe) id: number
-    ) {
+    async findFavoriteByRoadmap(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
         return await this.favoriteService.CheckOutUserFavoriteRoadmap(req.user.userId, id);
     }
 }

@@ -9,7 +9,7 @@ import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.
 import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.js';
 import SettingRoadmap from '~/components/Layout/components/Dialog/SettingRoadmap/index.js';
 import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.js';
-import { CantClone } from '~/components/Layout/components/MiniNotification/index.js';
+import { CantClone, ReportSended } from '~/components/Layout/components/MiniNotification/index.js';
 import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
 import { useNavigate, useParams } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
@@ -102,7 +102,7 @@ function OwnRoadmap() {
             const data = await response.json();
             if (response.ok) {
                 setRoadmapData(data.data);
-                setVisibility(data.data.isPublic ? "Pubic" : "Private");
+                setVisibility(data.data.isPublic ? "Release" : "Private");
                 console.log("Roadmap data: ", data.data);
 
                 setNodes(filterRoadmapNode(data.data.node))
@@ -117,6 +117,28 @@ function OwnRoadmap() {
             console.error('Fetch Roadmap Error:', error);
         }
     };
+
+    const fetchPatchRoadmap = async (data) => {
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Updated roadmap after react toggle: ', data);
+            } else {
+                console.error('Failed to update react value');
+            }
+        } catch (error) {
+            console.error('Error while patching react value:', error);
+        }
+    }
 
     const fetchDelRoadmap = async () => {
         try {
@@ -426,6 +448,7 @@ function OwnRoadmap() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -443,6 +466,7 @@ function OwnRoadmap() {
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -513,27 +537,7 @@ function OwnRoadmap() {
             fetchNewFavourite(profile.id)
         }
 
-        try {
-            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    react: newReactValue,
-                }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Updated roadmap after react toggle: ', data);
-            } else {
-                console.error('Failed to update react value');
-            }
-        } catch (error) {
-            console.error('Error while patching react value:', error);
-        }
+        await fetchPatchRoadmap({ react: newReactValue })
     }
 
     const handleClone = () => {
@@ -542,6 +546,13 @@ function OwnRoadmap() {
         else {
             setCreateTimelineDialog(true)
         }
+    }
+
+    const handleSetVisibility = async (data) => {
+        setVisibility(data)
+        const isPublic = data === "Private" ? 0 : 1;
+        console.log("isPublic: ", isPublic)
+        await fetchPatchRoadmap({ isPublic: isPublic })
     }
 
     return (
@@ -595,7 +606,7 @@ function OwnRoadmap() {
             {showSetting &&
                 <SettingRoadmap
                     visibility={visibility}
-                    setVisibility={setVisibility}
+                    setVisibility={handleSetVisibility}
                     setShowSetting={setShowSetting}
                     handleOutsideClick={handleOutsideClick}
                     handleDeleteRoadmap={handleDeleteRoadmap} />}
@@ -677,6 +688,9 @@ function OwnRoadmap() {
                         <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
                     ) : dialog.type === 'Saved' ? (
                         <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ) : dialog.type === 'Report' ? (
+                        <ReportSended />
+
                     ) : null
                 ))}
             </div>
@@ -691,11 +705,14 @@ function OwnRoadmap() {
                     handleOutsideClick={handleOutsideClick}
                     setShowDialog={setCreateTimelineDialog}
                 />}
-            {createReportDialog && <ReportTimelineRoadmap
-                type='roadmap'
-                name={roadName}
-                handleOutsideClick={handleOutsideClick}
-                setShowSetting={setCreateReportDialog} />}
+            {createReportDialog &&
+                <ReportTimelineRoadmap
+                    type='roadmap'
+                    profile={profile}
+                    roadmapData={roadmapData}
+                    handleOutsideClick={handleOutsideClick}
+                    setShowSetting={setCreateReportDialog}
+                    handleMakeDialog={handleMakeDialog} />}
             <Comment />
         </div>
     );

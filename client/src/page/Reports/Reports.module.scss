@@ -1,0 +1,28 @@
+.wrapper {
+    background-color: white;
+}
+
+.page-title {
+    margin: 5px 0 0 10px;
+    font-size: 1.8rem;
+    text-decoration: underline;
+    text-decoration-color: rgb(145, 145, 145);
+    text-decoration-thickness: 2px;
+    padding: 5px 10px;
+}
+
+.report-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mini-notify {
+    width: 300px;
+    margin: 60px 15px 0 0;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    background-color: transparent;
+}

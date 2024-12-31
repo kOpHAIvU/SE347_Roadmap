@@ -47,6 +47,7 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     const [showDialog, setShowDialog] = useState(false);
     const [title, setTitle] = useState(children.title);
     const [content, setContent] = useState(children.content);
+    const [loveState, setLoveState] = useState(children.loved.loveState);
 
     const handleOutsideClick = (e) => {
         if (String(e.target.className).includes('modal-overlay')) {
@@ -61,8 +62,6 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
     };
 
     const handleCloneClick = () => {
-        console.log(children);
-        console.log(children.nodeCount);
         if (children.nodeCount < 5) {
             const newDialog = { id: Date.now() };
             setErrorDialogs((prevDialogs) => [...prevDialogs, newDialog]);
@@ -98,8 +97,9 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
                         onClick={(e) => {
                             e.stopPropagation();
                             onLoveChange();
+                            setLoveState(!loveState);
                         }}
-                        icon={children.loved.loveState ? faHeart : faSolidHeart}
+                        icon={loveState ? faSolidHeart : faHeart}
                         className={cx('love')}
                     />
 

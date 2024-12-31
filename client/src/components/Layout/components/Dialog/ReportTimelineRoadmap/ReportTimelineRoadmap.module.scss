@@ -76,4 +76,9 @@
     margin-left: auto;
     text-align: center;
     cursor: pointer;
+    transition: var(--transform);
+
+    &:active {
+        transform: scale(0.9);
+    }
 }
