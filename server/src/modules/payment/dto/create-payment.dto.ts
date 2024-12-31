@@ -5,4 +5,5 @@ export class CreatePaymentDto {
     type: string;
     status: boolean;
     isActive?: boolean;
+    image?: string;
 }

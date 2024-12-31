@@ -12,10 +12,11 @@ export class Payment {
     @Column({default: "null"})
     code: string;
 
+    // type be in ['zalopay', 'banking']
     @Column()
     type: string;
 
-    @Column()
+    @Column({default: "null"})
     oderurl: string;
 
     @ManyToOne(() => User, user => user.payment)
@@ -26,6 +27,9 @@ export class Payment {
 
     @Column({default: false})
     status: boolean;
+
+    @Column({default: "null"})
+    image: string;
 
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;

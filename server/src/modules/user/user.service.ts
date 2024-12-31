@@ -28,7 +28,7 @@ export class UserService {
         console.log('File to upload:', file);
         let avatarUrl: string;
         try {
-            if (createUserDto.avatar) {
+            if (typeof createUserDto.avatar !== 'undefined') {
                 const uploadResponse = await this.cloudinaryService.uploadImage(file);
                 avatarUrl = uploadResponse.secure_url.toString() + ' ' + uploadResponse.public_id.toString();
             }
@@ -181,26 +181,12 @@ export class UserService {
                 public_id = url[1];
                 secure_url = url[0];
                 let deleteResponse;
-                // if (deleteResponse.statusCode !== 200) {
-                //   return {
-                //     statusCode: 500,
-                //     message: 'Error when updating avatar',
-                //     data: null
-                //   }
-                // }
                 try {
                     deleteResponse = await this.cloudinaryService.deleteImage(public_id);
                 } catch {
                     throw new Error('Error when deleting image');
                 }
                 let uploadResponse;
-                // if (uploadResponse.statusCode !== 200) {
-                //   return {
-                //     statusCode: 500,
-                //     message: 'Error when updating avatar',
-                //     data: null
-                //   }
-                // }
                 try {
                     uploadResponse = await this.cloudinaryService.uploadImage(file);
                 } catch (error) {

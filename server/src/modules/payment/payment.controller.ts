@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Req, ParseIntPipe, UploadedFile } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -11,16 +11,28 @@ export class PaymentController {
     private readonly momoService: MomoService
   ) {}
 
-  @Post('new')
-  @UseGuards(JwtAuthGuard)
+  @Post('new/zalopay')
+   @UseGuards(JwtAuthGuard)
   create(
     @Body() createPaymentDto: CreatePaymentDto,
     @Req() request,
   ) {
     const userId = request.user.userId;
     createPaymentDto.userId = userId;
-    return this.paymentService.create(createPaymentDto);
+    return this.paymentService.createByZalopay(createPaymentDto);
   }
+
+  @Post('new/banking')
+  @UseGuards(JwtAuthGuard)
+  createByBanking(
+    @Req() request,
+    @Body() createPaymentDto: CreatePaymentDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const userId = request.user.userId;
+    createPaymentDto.userId = userId;
+    return this.paymentService.createByBanking(createPaymentDto, file);
+  } 
 
   @Get('all')
   @UseGuards(JwtAuthGuard)
@@ -39,7 +51,12 @@ export class PaymentController {
 
   @Patch('item/:id')
   @UseGuards(JwtAuthGuard)
-  update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
+  update(
+    @Param('id') id: string, 
+    @Body() updatePaymentDto: UpdatePaymentDto,
+    @Req() request,
+  ) {
+    updatePaymentDto.userId = request.user.userId;
     return this.paymentService.update(+id, updatePaymentDto);
   }
 
@@ -85,6 +102,16 @@ export class PaymentController {
         data: null
       }
     }
+  }
+
+  @Get('type/:type')
+  @UseGuards(JwtAuthGuard)
+  async findAllByType(
+    @Param('type') type: string,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return this.paymentService.findAllPaymentByType(type, page, limit);
   }
 }
 //241219_cb55e220-be27-11ef-bbc4-e1112c7842b8
