@@ -53,6 +53,7 @@ export class FirebaseService implements OnModuleInit {
     };
 
     try {
+      console.log("Send notification to device:", message);
       const response = await admin.messaging().send(message);
       console.log('Notification sent:', response);
       return response;

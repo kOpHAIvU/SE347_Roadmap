@@ -66,4 +66,10 @@ export class UserController {
     async search(@Param('name') name: string) {
         return await this.userService.findUserByName(name);
     }
+
+    @Get('all')
+    
+    async findAll() {
+        return await this.userService.findAllFirebase();
+    }
 }

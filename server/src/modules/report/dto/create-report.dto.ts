@@ -20,5 +20,5 @@ export class CreateReportDto {
 
     @IsBoolean()
     @IsOptional()
-    isActive: boolean;
+    isActive?: boolean;
 }

@@ -32,20 +32,22 @@ export class NotificationController {
     The title of roadmap is: ${newRoadmap.title}\n
     Please check it out and let us know if you have any feedback or questions.\n`;
 
-    const usersResponse = await this.userService.findAll();
+    const usersResponse = await this.userService.findAllFirebase();
     const users = Array.isArray(usersResponse.data) 
                         ? usersResponse.data 
                         : [usersResponse.data];
-
+    console.log("Users:", users);
     for (let i = 0; i < users.length; i++) {
       console.log("User get notification:", users[i]);
       if (users[i].deviceToken) {
        // console.log("User get notifications: ", users[i].email);
         let deviceToken = users[i].deviceToken;
         const response = await this.firebaseService.sendPushNotification(deviceToken, notificationTitle, notificationContent);
+        console.log("Send notification to device:", response);
       }
       if (users[i].email) {
         const sendGmail = await this.gmailService.sendEmail(users[i].email, notificationTitle, notificationContent);
+        console.log("Send Gmail:", sendGmail);
       }
     }
 

@@ -16,7 +16,7 @@
 
     <script>
 
-        const socketGateway2 = io('http://localhost:3004/newReport', {
+        const socketGateway2 = io('http://localhost:3004', {
             transports: ['websocket'],
             reconnect: true,
         });
@@ -24,8 +24,8 @@
         socketGateway2.on('connect', () => {
             console.log("Connected to report socket successfully");
 
-            socketGateway2.on('SendReport', function(data) {
-                console.log("New report notification received:", data);
+            socketGateway2.on('send_message', function(data) {
+                
             });
 
             socketGateway2.on('disconnect', () => {
@@ -107,7 +107,7 @@
           
         if ("serviceWorker" in navigator) {
         navigator.serviceWorker
-            .register("../firebase-messaging-sw.js")
+            .register("./firebase-messaging-sw.js")
             .then((registration) => {
                 console.log("Service Worker registered with scope:", registration.scope);
             })

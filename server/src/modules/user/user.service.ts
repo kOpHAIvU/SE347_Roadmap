@@ -216,6 +216,39 @@ export class UserService {
         }
     }
 
+    async findAllFirebase(): Promise<{
+        statusCode: number;
+        message: string;
+        data: User[];
+    }> {
+        try {
+            const users = await this.usersRepository
+                .createQueryBuilder('user')
+                .leftJoinAndSelect('user.role', 'role')
+                .where('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .getMany();
+            if (!users) {
+                return {
+                    statusCode: 404,
+                    message: 'User not found',
+                    data: null,
+                }
+            }
+            return {
+                statusCode: 200,
+                message: 'Get user successfully',
+                data: users,
+            }
+        } catch(error) {
+            return {
+                statusCode: 500,
+                message: error.message,
+                data: null,
+            }
+        }
+    }
+
     async findAll(
         page: number = 1,
         limit: number = 10,
