@@ -25,8 +25,6 @@ export class Report {
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
 
-    @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
-    isActive: boolean;
 
     @ManyToOne(() => User, receiver => receiver.receiverReport, {eager: true})
     receive: User;
@@ -34,4 +32,6 @@ export class Report {
     @ManyToOne(() => Roadmap,  roadmap => roadmap.report, {eager: true})
     roadmap: Roadmap;
 
+    @Column({default: false})
+    isChecked: boolean;
 }
