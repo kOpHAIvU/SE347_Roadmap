@@ -81,7 +81,7 @@ export class ReportController {
   }
 
   @Post('ban/:idRoadmap')
- // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   async banUser(
     @Param('idRoadmap', ParseIntPipe) idRoadmap: string
   ) {
