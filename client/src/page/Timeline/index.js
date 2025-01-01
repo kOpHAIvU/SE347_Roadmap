@@ -28,11 +28,11 @@ function Timeline() {
     const id = decryptId(encryptedId);
 
     const [profile, setProfile] = useState(null);
-    const [userType, setUserType] = useState("Viewer")
+    const [userType, setUserType] = useState('Viewer');
     const [roadName, setRoadName] = useState('Name not given');
     const [titleText, setTitleText] = useState('Make some description');
     const [nodes, setNodes] = useState([]);
-    const [groupData, setGroupData] = useState([])
+    const [groupData, setGroupData] = useState([]);
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -42,14 +42,14 @@ function Timeline() {
             return;
         }
         return token;
-    }
+    };
 
     const fetchProfile = async () => {
         try {
             const response = await fetch('http://localhost:3004/auth/profile', {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -73,15 +73,15 @@ function Timeline() {
             const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
 
             const data = await response.json();
             if (response.ok) {
-                setRoadName(data.data.title)
-                setTitleText(data.data.content)
+                setRoadName(data.data.title);
+                setTitleText(data.data.content);
                 const nodesArray = [];
                 for (const [i, node] of data.data.node.entries()) {
                     const filteredNode = await filterTimelineNode(i, node);
@@ -107,8 +107,8 @@ function Timeline() {
             const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     title: roadName,
@@ -119,7 +119,7 @@ function Timeline() {
 
             if (response.ok) {
                 //console.log(data);
-                return data.data
+                return data.data;
             } else {
                 console.error(data);
             }
@@ -133,17 +133,17 @@ function Timeline() {
             const response = await fetch(`http://localhost:3004/group-division/timelineId/${id}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    Authorization: `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
                 },
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                setGroupData(data.data.groupDivisions)
+                setGroupData(data.data.groupDivisions);
                 //console.log(data);
-                return data.data
+                return data.data;
             } else {
                 console.error(data);
             }
@@ -168,7 +168,7 @@ function Timeline() {
             const response = await fetch('http://localhost:3004/node/new', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: formData.toString(),
@@ -178,7 +178,7 @@ function Timeline() {
 
             if (response.ok) {
                 //console.log('Node added:', data);
-                return data.data
+                return data.data;
             } else {
                 console.error('Failed to add node. Status:', response.status);
             }
@@ -192,7 +192,7 @@ function Timeline() {
         const commentData = await fetchNodeComment(data.id);
         //console.log("commentData: ", commentData)
         if (commentData) {
-            const filteredComments = commentData.map(comment => ({
+            const filteredComments = commentData.map((comment) => ({
                 userId: comment.poster?.id,
                 username: comment.poster?.fullName,
                 title: comment.title,
@@ -223,9 +223,9 @@ function Timeline() {
                 content: data.content,
                 nodeDetail: data.detail,
                 nodeComment: filteredComments,
-            }
+            };
         }
-    }
+    };
 
     // const fetchAllNodeInTimeline = async () => {
     //     try {
@@ -257,7 +257,7 @@ function Timeline() {
             const response = await fetch(`http://localhost:3004/node/timeline/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -281,14 +281,14 @@ function Timeline() {
                 content: comment.content,
                 poster: comment.userId,
                 title: comment.title,
-                node: nodeId
+                node: nodeId,
             }).toString();
             //console.log("Body: ", body)
 
             const response = await fetch('http://localhost:3004/comment/new', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: body,
@@ -312,7 +312,7 @@ function Timeline() {
             const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -335,7 +335,7 @@ function Timeline() {
             const response = await fetch(`http://localhost:3004/comment/node/${nodeId}`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
@@ -352,7 +352,6 @@ function Timeline() {
         }
     };
 
-
     useEffect(() => {
         const fetchData = async () => {
             //console.log("Id: ", id)
@@ -368,24 +367,24 @@ function Timeline() {
                         //console.log("groupDivision role: ", groupDivision.role)
                         switch (groupDivision.role) {
                             case 1:
-                                setUserType("Administrator");
+                                setUserType('Administrator');
                                 break;
                             case 2:
-                                setUserType("Editor");
+                                setUserType('Editor');
                                 break;
                             case 3:
-                                setUserType("Viewer");
+                                setUserType('Viewer');
                                 break;
                             default:
-                                navigate('/home')
+                                navigate('/home');
                         }
                     }
                 }
                 //console.log(userType)
             }
-        }
+        };
         fetchData();
-    }, [id])
+    }, [id]);
 
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
@@ -493,7 +492,7 @@ function Timeline() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
-        console.log('newId: ', newId)
+        console.log('newId: ', newId);
         const newLevel = {
             id: newId,
             x: x,
@@ -527,7 +526,7 @@ function Timeline() {
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
-        console.log('newId: ', newId)
+        console.log('newId: ', newId);
         const newLevel = {
             id: newId,
             x: x + width + 200,
@@ -591,13 +590,13 @@ function Timeline() {
     const updateNodeComment = (nodeId, action, commentData = null, commentIndex = null) => {
         setNodes((prevNodes) => {
             return prevNodes.map((node) => {
-                console.log(node.id, "  ", nodeId)
+                console.log(node.id, '  ', nodeId);
                 if (node.id === nodeId) {
                     let updatedComments = node.nodeComment ? [...node.nodeComment] : [];
 
                     switch (action) {
                         case 'add':
-                            console.log("Add")
+                            console.log('Add');
                             if (commentData) {
                                 updatedComments.push(commentData);
                             }
@@ -662,9 +661,9 @@ function Timeline() {
     };
 
     const handleSave = async () => {
-        await fetchDelAllNodeInTimeline()
+        await fetchDelAllNodeInTimeline();
         for (let i = 0; i < nodes.length; i++) {
-            const nodeId = await fetchNewNode(nodes[i])
+            const nodeId = await fetchNewNode(nodes[i]);
             //console.log("Nodes new: ", nodeId)
 
             // Fetch comment
@@ -683,9 +682,9 @@ function Timeline() {
             }
         }
 
-        handleMakeDialog('Save', null)
-    }
-    console.log(nodes)
+        handleMakeDialog('Save', null);
+    };
+    console.log(nodes);
 
     return (
         <div className={cx('wrapper')}>
@@ -701,10 +700,8 @@ function Timeline() {
                                     if (roadName === 'Name not given') setRoadName('');
                                 }}
                                 onBlur={async () => {
-                                    if (roadName.trim() === '')
-                                        setRoadName('Name not given');
-                                    if (roadName !== 'Name not given')
-                                        await fetchUpdateTimelineTitleContent()
+                                    if (roadName.trim() === '') setRoadName('Name not given');
+                                    if (roadName !== 'Name not given') await fetchUpdateTimelineTitleContent();
                                 }}
                             />
                         ) : (
@@ -727,7 +724,7 @@ function Timeline() {
                             <FontAwesomeIcon
                                 icon={faGear}
                                 className={cx('setting-btn')}
-                                onClick={() => navigate(`/timeline/${id}/setting`)}
+                                onClick={() => navigate(`/timeline/${encryptedId}/setting`)}
                             />
                             <FontAwesomeIcon
                                 className={cx('extend-chat')}
@@ -816,14 +813,12 @@ function Timeline() {
                 </div>
             </div>
 
-            {
-                chatExtended && !toggle && (
-                    <div className={cx('chat-section', { show: chatExtended })}>
-                        <ChatSection profile={profile} groupData={groupData} />
-                    </div>
-                )
-            }
-        </div >
+            {chatExtended && !toggle && (
+                <div className={cx('chat-section', { show: chatExtended })}>
+                    <ChatSection profile={profile} groupData={groupData} />
+                </div>
+            )}
+        </div>
     );
 }
 
