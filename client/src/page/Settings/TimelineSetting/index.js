@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import styles from './TimelineSetting.module.scss';
@@ -29,7 +29,7 @@ function TimelineSetting() {
     const location = useLocation();
     // const { id } = useParams();
 
-    const getToken = () => {
+    const getToken = useCallback(() => {
         const token = localStorage.getItem('vertexToken');
 
         if (!token) {
@@ -37,7 +37,7 @@ function TimelineSetting() {
             return;
         }
         return token;
-    };
+    }, [navigate]);
 
     useEffect(() => {
         const fetchUserList = async () => {
@@ -84,7 +84,7 @@ function TimelineSetting() {
         };
 
         fetchUserList();
-    }, [id]);
+    }, [id, getToken]);
 
     useEffect(() => {
         if (location.pathname === `/timeline/${encryptedId}/setting/invite`) {
@@ -301,7 +301,141 @@ function TimelineSetting() {
         };
 
         fetchProfileAndCheckRole();
-    }, [id]);
+    }, [id, getToken]);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [results, setResults] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const debounceRef = useRef(null);
+
+    const handleSearchChange = (e) => {
+        const term = e.target.value;
+        setSearchTerm(term);
+
+        if (debounceRef.current) {
+            clearTimeout(debounceRef.current);
+        }
+
+        debounceRef.current = setTimeout(() => {
+            performSearch(term);
+        }, 500);
+    };
+    useEffect(() => {
+        return () => {
+            if (debounceRef.current) {
+                clearTimeout(debounceRef.current);
+            }
+        };
+    }, []);
+
+    const performSearch = async (term) => {
+        setError('');
+
+        // if (term.trim() === '') {
+        //     setResults([]);
+        //     return;
+        // }
+        if (!term.trim()) {
+            console.error('Search term is empty');
+            setError('Search term cannot be empty');
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            console.log('Search :', term);
+            //            const response = await fetch(`http://localhost:3004/user/search/${term}`, {
+
+            const response = await fetch(`http://localhost:3004/user/search/${term}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${getToken}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            console.log('Fetch Response:', response);
+            const data = await response.json();
+            console.log('data: ', data);
+
+            if (response.ok) {
+                if (data.data?.users) {
+                    setResults(data.data.users);
+                }
+            } else {
+                setResults([]);
+                setError(data.message || 'No users found.');
+            }
+        } catch (err) {
+            console.error('Fetch Error:', err);
+            setError('Error fetching search results.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // const handleSearch = async (e) => {
+    //     const term = e.target.value;
+    //     setSearchTerm(term);
+    //     setError('');
+
+    //     if (term.trim() === '') {
+    //         setResults([]);
+    //         return;
+    //     }
+
+    //     setIsLoading(true);
+
+    //     try {
+    //         console.log('Starting fetch for term:', term);
+
+    //         const response = await fetch(`http://localhost:3004/user/search/${term}`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 Authorization: `Bearer ${getToken}`,
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         });
+
+    //         console.log('Fetch Response:', response);
+    //         const data = await response.json();
+    //         console.log('data: ', data);
+
+    //         if (response.ok) {
+    //             if (data.data?.users) {
+    //                 setResults(data.data.users);
+    //             }
+    //         } else {
+    //             setResults([]);
+    //             setError(data.message || 'No users found.');
+    //         }
+    //     } catch (err) {
+    //         console.error('Fetch Error:', err);
+    //         setError('Error fetching search results.');
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
+    const handleSelectUser = (user) => {
+        setSelectedUser(user);
+    };
+
+    const handleAddToTimeline = () => {
+        if (selectedUser) {
+            alert(`User ${selectedUser.username} added to timeline!`);
+            setSearchTerm('');
+            setResults([]);
+            setSelectedUser(null);
+        }
+    };
+
+    // if (!isInviteFormVisible) return null;
 
     return (
         <>
@@ -419,50 +553,53 @@ function TimelineSetting() {
             {/* Form mời bạn */}
             {isInviteFormVisible && (
                 <div className={cx('inviteForm')}>
-                    <div className={cx('header-form')}>
-                        <h2>Invite Member</h2>
-                        <FontAwesomeIcon icon={faXmark} className={cx('closeIcon')} onClick={handleCloseInviteForm} />
-                    </div>
+                    <div className={cx('modal')}>
+                        <h2 className={cx('form-name')}>
+                            Add People to Timeline
+                            <button className={cx('close-btn')} onClick={handleCloseInviteForm}>
+                                <FontAwesomeIcon icon={faXmark} />
+                            </button>
+                        </h2>
 
-                    <form className={cx('contentForm')}>
-                        <label>
-                            <strong>Username:</strong>
-                            <input type="text" name="username" />
-                        </label>
+                        <div className={cx('form-group')}>
+                            <label className={cx('search-title')}>Search by username</label>
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                placeholder="Search..."
+                            />
+                        </div>
 
-                        <label>
-                            <strong>Email Address:</strong>
-                            <input type="email" name="email" />
-                        </label>
+                        {isLoading && <div className={cx('loading')}>Loading...</div>}
+                        {error && <div className={cx('error')}>{error}</div>}
 
-                        <label>
-                            <strong>Role:</strong>
-                            <div className={cx('roleRadioGroup')}>
-                                {/* <label>
-                                    <input type="radio" name="role" value="Administrator" /> Administrator
-                                </label> */}
-                                <label>
-                                    <input type="radio" name="role" value="Editor" /> Editor
-                                </label>
-                                <label>
-                                    <input type="radio" name="role" value="Viewer" /> Viewer
-                                </label>
-                            </div>
-                        </label>
+                        <div className={cx('results')}>
+                            {results.map((user) => (
+                                <div
+                                    key={user.id}
+                                    className={cx('result-item', {
+                                        selected: selectedUser?.id === user.id,
+                                    })}
+                                    onClick={() => handleSelectUser(user)}
+                                >
+                                    <span>{user.username}</span>
+                                </div>
+                            ))}
+                        </div>
 
-                        <label>
-                            <strong>Message</strong> (Optional):
-                            <textarea name="message"></textarea>
-                        </label>
-                    </form>
-
-                    <div className={cx('footer-form')}>
-                        <button type="button" onClick={handleCloseInviteForm} className={cx('btnCancel')}>
-                            Cancel
-                        </button>
-                        <button type="submit" className={cx('btnSubmit')}>
-                            Invite
-                        </button>
+                        <div className={cx('button-group')}>
+                            <button
+                                className={cx('cancel-btn')}
+                                onClick={handleCloseInviteForm}
+                                // disabled={!selectedUser}
+                            >
+                                Cancel
+                            </button>
+                            <button className={cx('add-btn')} onClick={handleAddToTimeline} disabled={!selectedUser}>
+                                Add to timline
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -471,3 +608,51 @@ function TimelineSetting() {
 }
 
 export default TimelineSetting;
+
+// <div className={cx('inviteForm')}>
+//                     <div className={cx('header-form')}>
+//                         <h2>Invite Member</h2>
+//                         <FontAwesomeIcon icon={faXmark} className={cx('closeIcon')} onClick={handleCloseInviteForm} />
+//                     </div>
+
+//                     <form className={cx('contentForm')}>
+//                         <label>
+//                             <strong>Username:</strong>
+//                             <input type="text" name="username" />
+//                         </label>
+
+//                         <label>
+//                             <strong>Email Address:</strong>
+//                             <input type="email" name="email" />
+//                         </label>
+
+//                         <label>
+//                             <strong>Role:</strong>
+//                             <div className={cx('roleRadioGroup')}>
+//                                 {/* <label>
+//                                     <input type="radio" name="role" value="Administrator" /> Administrator
+//                                 </label> */}
+//                                 <label>
+//                                     <input type="radio" name="role" value="Editor" /> Editor
+//                                 </label>
+//                                 <label>
+//                                     <input type="radio" name="role" value="Viewer" /> Viewer
+//                                 </label>
+//                             </div>
+//                         </label>
+
+//                         <label>
+//                             <strong>Message</strong> (Optional):
+//                             <textarea name="message"></textarea>
+//                         </label>
+//                     </form>
+
+//                     <div className={cx('footer-form')}>
+//                         <button type="button" onClick={handleCloseInviteForm} className={cx('btnCancel')}>
+//                             Cancel
+//                         </button>
+//                         <button type="submit" className={cx('btnSubmit')}>
+//                             Invite
+//                         </button>
+//                     </div>
+//                 </div>
