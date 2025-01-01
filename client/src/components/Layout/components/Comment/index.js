@@ -78,7 +78,7 @@ function Comment() {
 
     const fetchGetAllCommentInRoadmap = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/comment/all/roadmap/${id}?page=1&limit=20`, {
+            const response = await fetch(`http://localhost:3004/comment/all/roadmap/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -271,8 +271,6 @@ function Comment() {
             handleAddComment();
         }
     };
-
-    console.log(profile)
 
     return (
         <div className={cx('wrapper')}>

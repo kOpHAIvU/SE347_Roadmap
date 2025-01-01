@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import ReactQuill from 'react-quill';
 import "react-quill/dist/quill.snow.css";
 import NodeDetailComment from '../NodeDetailComment/index.js';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -25,12 +25,54 @@ const modules = {
 }
 
 function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail, handleOutsideClick, updateNodeComment }) {
-    const currentUsername = 'KoPhaiVu';
-    const currentUserId = '1';
     const location = useLocation();
+    const navigate = useNavigate();
     const [text, setText] = useState(nodeDetail);
     const [selectedText, setSelectedText] = useState('');
     const [isCommentAdded, setIsCommentAdded] = useState(false);
+    const [profile, setProfile] = useState(null);
+
+
+    const getToken = () => {
+        const token = localStorage.getItem('vertexToken');
+
+        if (!token) {
+            navigate(`/login`);
+            return;
+        }
+        return token;
+    }
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch('http://localhost:3004/auth/profile', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setProfile(data.data);
+                //console.log(data.data)
+                return data.data;
+            } else {
+                console.error('Error:', data.message || 'Failed to fetch profile data.');
+            }
+        } catch (error) {
+            console.error('Fetch Profile Error:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchProfile();
+        }
+        fetchData();
+    }, [])
 
     const handleSelectionChange = (range, source, editor) => {
         if (range && range.length > 0) {
@@ -50,6 +92,7 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
             return () => clearTimeout(timer);
         }
     }, [isCommentAdded]);
+
 
     return (
         <div
@@ -83,8 +126,8 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
                                     nodeIndex={index}
                                     item={item}
                                     userType={userType}
-                                    currentUserId={currentUserId}
-                                    currentUsername={currentUsername}
+                                    currentUserId={profile?.id}
+                                    currentUsername={profile?.fullName}
                                     isCommentAdded={isCommentAdded}
                                     updateNodeComment={updateNodeComment} />
                             ))}
@@ -92,12 +135,14 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
                         <button
                             onClick={() => {
                                 if (selectedText.trim() !== '') {
+                                    console.log("Hehe")
                                     updateNodeComment(index, 'add', {
-                                        userId: currentUserId,
-                                        username: currentUsername,
-                                        text: selectedText,
-                                        comment: null
-                                    }, nodeComment.length);
+                                        userId: profile.id,
+                                        username: profile.fullName,
+                                        title: selectedText,
+                                        content: null,
+                                        id: null
+                                    }, nodeComment?.length || 0);
                                 }
                             }}
                             className={cx('add-comment-btn')}>

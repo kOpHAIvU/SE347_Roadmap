@@ -1,7 +1,7 @@
 import styles from './Sidebar.module.scss';
 import classNames from 'classnames/bind';
 import { Menu } from 'antd';
-import { HomeOutlined, BranchesOutlined, LaptopOutlined, HeartFilled, CloudUploadOutlined } from '@ant-design/icons';
+import { HomeOutlined, BranchesOutlined, LaptopOutlined, HeartFilled, CloudUploadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import images from '~/assets/images/index.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -24,6 +24,8 @@ function Sidebar({ collapsed }) {
             navigate('/favourite');
         } else if (e.key === 'upgrade') {
             navigate('/upgrade');
+        } else if (e.key === 'reportRoadmap') {
+            navigate('/reportRoadmap');
         }
     };
 
@@ -33,6 +35,7 @@ function Sidebar({ collapsed }) {
         if (location.pathname.startsWith('/your_roadmap')) return 'your-roadmap';
         if (location.pathname.startsWith('/favourite')) return 'favourite';
         if (location.pathname.startsWith('/upgrade')) return 'upgrade';
+        if (location.pathname.startsWith('/reportRoadmap')) return 'reportRoadmap';
         return ''; // Không có mục nào được chọn
     };
 
@@ -63,6 +66,9 @@ function Sidebar({ collapsed }) {
                 <div className={cx('divider')} />
                 <Menu.Item className={cx('item')} key="upgrade" icon={<CloudUploadOutlined className={cx('icon')} />}>
                     Upgrade account
+                </Menu.Item>
+                <Menu.Item className={cx('item')} key="reportRoadmap" icon={<ExclamationCircleOutlined className={cx('icon')} />}>
+                    Reports
                 </Menu.Item>
             </Menu>
         </div>

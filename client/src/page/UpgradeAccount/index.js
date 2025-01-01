@@ -24,9 +24,7 @@ function UpgradeAccount() {
                                     <path d="M4.5 12.75l6 6 9-13.5" strokeLinejoin="round" strokeLinecap="round"></path>
                                 </svg>
                             </span>
-                            <p>
-                                Maximum 15 roadmaps
-                            </p>
+                            <p>Maximum 15 roadmaps</p>
                         </li>
                         <li className={cx('list')}>
                             <span>

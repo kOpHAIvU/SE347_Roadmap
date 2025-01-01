@@ -10,7 +10,7 @@ const cx = classNames.bind(styles);
 function NodeDetailComment({ idx, nodeIndex, item, userType, currentUserId, currentUsername, isCommentAdded, updateNodeComment }) {
     const [isEditing, setIsEditing] = useState(false);
     const textareaRef = useRef(null);
-    const [comments, setComments] = useState(item.comment);
+    const [comments, setComments] = useState(item.content);
 
     useEffect(() => {
         if (isEditing && textareaRef.current) {
@@ -25,7 +25,7 @@ function NodeDetailComment({ idx, nodeIndex, item, userType, currentUserId, curr
                 {userType !== "Viewer" && <FontAwesomeIcon className={cx('delete')} icon={faTrashCan}
                     onClick={() => updateNodeComment(idx, 'delete', null, idx)} />}
             </div>
-            <div className={cx('text-commented')}><strong>{item.text}</strong></div>
+            <div className={cx('text-commented')}><strong>{item.title}</strong></div>
             {isEditing ?
                 (<textarea
                     ref={textareaRef}
@@ -36,13 +36,13 @@ function NodeDetailComment({ idx, nodeIndex, item, userType, currentUserId, curr
                     placeholder="Add comment..."
                     onBlur={() => {
                         setIsEditing(false);
-                        updateNodeComment(nodeIndex, 'edit', { comment: comments }, idx);
+                        updateNodeComment(nodeIndex, 'edit', { content: comments }, idx);
                     }}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
                             setIsEditing(false);
-                            updateNodeComment(nodeIndex, 'edit', { comment: comments }, idx);
+                            updateNodeComment(nodeIndex, 'edit', { content: comments }, idx);
                         }
                     }} />
                 ) : (

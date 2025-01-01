@@ -1,0 +1,53 @@
+.wrapper {
+    border-radius: 5px;
+    border: 3px solid var(--color-red);
+    width: 600px;
+    min-height: 70px;
+    margin: 5px 10px 5px 10px;
+    display: flex;
+    align-items: center;
+}
+
+.roadmap-avatar {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: var(--transform);
+
+    &:hover {
+        content: url('https://cdn.pixabay.com/photo/2017/01/13/01/22/ok-1976099_1280.png');
+    }
+
+    &:active {
+        transform: scale(0.9);
+    }
+}
+
+.title-content {
+    margin-left: 10px;
+    padding: 5px 5px 5px 0;
+}
+
+.title {
+}
+
+.username {
+    font-weight: 500;
+}
+
+.roadmapName {
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--main-color);
+    }
+}
+
+.content {
+    font-size: 1.3rem;
+    font-weight: 400;
+}
