@@ -5,7 +5,7 @@ import defaultavatar from '~/assets/images/defaultavatar.jpg';
 
 const cx = classNames.bind(styles);
 
-const SettingItem = ({ item, onUpdateValue }) => {
+const SettingItem = ({ item, onUpdateValue, onButtonClick }) => {
     const defaultPhotoUrl = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
 
     const [photo, setPhoto] = useState(item.value);
@@ -154,7 +154,9 @@ const SettingItem = ({ item, onUpdateValue }) => {
             ) : item.sercurity ? (
                 <div className={cx('input-group-custom')}>
                     <span className={cx('value')}>{item.value}</span>
-                    <button className={cx('edit-btn')}>{item.button}</button>
+                    <button className={cx('edit-btn')} onClick={() => onButtonClick(item)}>
+                        {item.button}
+                    </button>
                 </div>
             ) : (
                 <div className={cx('input-group')}>

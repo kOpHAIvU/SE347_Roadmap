@@ -13,7 +13,7 @@
         <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
 
         <script>
-            const socketGateway2 = io('http://localhost:3004/send_message', {
+            const socketGateway2 = io('http://localhost:3004', {
                 transports: ['websocket'],
                 reconnect: true,
             });
@@ -101,7 +101,7 @@
 
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker
-                    .register('../firebase-messaging-sw.js')
+                    .register('./firebase-messaging-sw.js')
                     .then((registration) => {
                         console.log('Service Worker registered with scope:', registration.scope);
                     })

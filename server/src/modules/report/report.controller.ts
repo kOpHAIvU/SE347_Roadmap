@@ -24,6 +24,7 @@ export class ReportController {
 
   @EventPattern('Create_new_report')
   async handleNotification(@Payload() data: Report) {
+    console.log("Create new report");
     await this.reportService.handleNotificationFromRabbitMQ(data);
   }
 
@@ -77,5 +78,13 @@ export class ReportController {
     @Query('limit', ParseIntPipe) limit: number = 10,
   ) {
     return await this.reportService.getReportsByType(type, page, limit);
+  }
+
+  @Post('ban/:idRoadmap')
+ // @UseGuards(JwtAuthGuard)
+  async banUser(
+    @Param('idRoadmap', ParseIntPipe) idRoadmap: string
+  ) {
+    return await this.reportService.banRoadmap(+idRoadmap);
   }
 }

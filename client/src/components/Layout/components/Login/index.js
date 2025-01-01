@@ -5,7 +5,7 @@ import images from '~/assets/images';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import road1 from '~/assets/images/road01.png';
 import road2 from '~/assets/images/road02.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
@@ -16,6 +16,33 @@ function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const checkToken = async () => {
+            const token = localStorage.getItem('vertexToken');
+            if (token) {
+                try {
+                    const response = await fetch('http://localhost:3004/auth/profile', {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        navigate('/home'); // Điều hướng nếu token hợp lệ
+                    } else {
+                        console.error('Invalid token or session expired.');
+                    }
+                } catch (error) {
+                    console.error('Error validating token:', error);
+                }
+            }
+        };
+
+        checkToken();
+    }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -94,7 +121,13 @@ function Login() {
                 <h1 className={cx('login-title')}>Log in</h1>
                 <p className={cx('login-welcome')}>Welcome back to VertexOps😍!!!</p>
 
-                <button type="button" className={cx('google-btn')}>
+                <button
+                    type="button"
+                    className={cx('google-btn')}
+                    onClick={() => {
+                        window.location.href = 'http://localhost:3004/auth/google/callback';
+                    }}
+                >
                     <img src={images.google} alt="Google Logo" className={cx('google-logo')} />
                     <strong>Log in with Google</strong>
                 </button>

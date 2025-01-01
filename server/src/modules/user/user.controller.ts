@@ -60,4 +60,16 @@ export class UserController {
     async remove(@Param('id') id: string) {
         return await this.userService.remove(+id);
     }
+
+    @Get('search/:name')
+    @UseGuards(JwtAuthGuard)
+    async search(@Param('name') name: string) {
+        return await this.userService.findUserByName(name);
+    }
+
+    @Get('all')
+    
+    async findAll() {
+        return await this.userService.findAllFirebase();
+    }
 }
