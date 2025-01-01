@@ -68,7 +68,6 @@ export class UserController {
     }
 
     @Get('all')
-    
     async findAll() {
         return await this.userService.findAllFirebase();
     }

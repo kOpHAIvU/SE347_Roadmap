@@ -1,9 +1,11 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './Reports.module.scss';
 import classNames from 'classnames/bind';
 import CryptoJS from 'crypto-js';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReportItem from '~/components/Layout/components/ReportItem/index.js';
+import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
 
@@ -111,13 +113,49 @@ function Reports() {
     return (
         <div className={cx('wrapper')}>
             <h1 className={cx('page-title')}>Reports</h1>
+            <div className={cx('status-numeric')}>
+                <div className={cx('numeric-item')}>
+                    <h1 className={cx('status-title')}>Total record</h1>
+                    <h2 className={cx('report-status')}>10</h2>
+                </div>
+                <div className={cx('numeric-item')}>
+                    <h1 className={cx('status-title')}>Solved</h1>
+                    <h2 className={cx('solved-status')}>10</h2>
+                </div>
+                <div className={cx('numeric-item')}>
+                    <h1 className={cx('status-title')}>Remain</h1>
+                    <h2 className={cx('remain-status')}>10</h2>
+                </div>
+            </div>
             <div className={cx('report-container')}>
-                {reportsData.map((item, idx) => (
-                    <ReportItem key={idx} reportData={item} handleDelete={() => handleDelete(idx)} />
-                ))}
+                <div className={cx('report-header')}>
+                    <h1 className={cx('roadmap')}>Roadmap</h1>
+                    <h1 className={cx('sender')}>Sender</h1>
+                    <h1 className={cx('date')}>Date</h1>
+                    <h1 className={cx('descrip')}>Description</h1>
+                </div>
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+                <ReportItem />
+            </div>
+            <div className={cx('page')}>
+                <h1 className={cx('page-num')}>Page 1 / 12</h1>
+                <div>
+                    <FontAwesomeIcon icon={faCaretLeft} className={cx('switch-page')} />
+                    <FontAwesomeIcon icon={faCaretRight} className={cx('switch-page')} />
+                </div>
             </div>
             <div className={cx('mini-notify')}>
-                
+
             </div>
         </div>
     );
