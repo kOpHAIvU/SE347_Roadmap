@@ -87,4 +87,13 @@ export class ReportController {
   ) {
     return await this.reportService.banRoadmap(+idRoadmap);
   }
+
+  @Post('checkReport/:idReport')
+  //@UseGuards(JwtAuthGuard)
+  async checkReport(
+    @Param('idReport', ParseIntPipe) idReport: string
+  ) {
+    return await this.reportService.checkReport(+idReport);
+  }
+
 }
