@@ -84,28 +84,28 @@
 
 .confirm,
 .deny {
-    width: 20px;
-    height: 20px;
+    width: 17px;
+    height: 17px;
     padding: 5px;
-    border-radius: 7px;
-    margin-left: 5px;
+    border-radius: 5px;
+    margin-left: 7px;
     align-self: center;
     cursor: pointer;
 }
 
 .confirm {
-    border: 3.5px solid #03d418;
-    color: #03d418;
+    border: 3px solid #069b15;
+    color: #069b15;
 
     &:active {
         color: white;
-        background-color: #03d418;
+        background-color: #069b15;
     }
 }
 
 .deny {
-    border: 3.5px solid #cd0202;
-    color: #cd0202;
+    border: 3px solid #8a0909;
+    color: #8a0909;
 
     &:active {
         color: white;

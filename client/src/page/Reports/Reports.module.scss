@@ -95,6 +95,11 @@
     &:hover {
         background-color: #c0c0c0;
     }
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 }
 
 .mini-notify {
