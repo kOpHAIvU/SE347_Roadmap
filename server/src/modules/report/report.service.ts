@@ -24,7 +24,6 @@ export class ReportService {
     private reportRepository: Repository<Report>,
     private userService: UserService,
     private configService: ConfigService,
-    private reportGateway: ReportGateway,
     private firebaseService: FirebaseService,
     private gmailService: GmailNotificationStrategy,
     private roadmapService: RoadmapService,
@@ -186,7 +185,8 @@ export class ReportService {
     statusCode: number,
     message: string,
     data: {
-      total: number,
+      totalRecord: number,
+      totalCheck: number,
       reports: Report[]
     }
   }> {
@@ -206,6 +206,10 @@ export class ReportService {
                      // .where("report.isActive = :isActive", { isActive: 1 })
                       .andWhere('report.deletedAt is null')
                       .getCount();
+      const checkedReport = await this.reportRepository
+                      .createQueryBuilder('report')
+                      .where('report.isChecked = true')
+                      .getCount();
       if (reports.length == 0) {
         return {
           statusCode: 404,
@@ -217,7 +221,8 @@ export class ReportService {
         statusCode: 200,
         message: 'Get all reports successfully',
         data: {
-          total,
+          totalRecord: total,
+          totalCheck: checkedReport,
           reports
         }
       };
