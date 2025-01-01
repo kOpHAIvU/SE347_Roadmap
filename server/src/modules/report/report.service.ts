@@ -196,6 +196,7 @@ export class ReportService {
                       .leftJoinAndSelect('report.reporter', 'reporter')
                       .leftJoinAndSelect('report.receive', 'receive')
                       //.where("report.isActive = :isActive", { isActive: 1 })
+                      .where("report.isChecked = false")
                       .andWhere('report.deletedAt is null')
                       .orderBy('report.createdAt', 'DESC')
                       .skip((page - 1) * limit)  
