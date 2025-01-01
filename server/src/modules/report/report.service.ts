@@ -127,7 +127,7 @@ export class ReportService {
                       .createQueryBuilder('report')
                       .leftJoinAndSelect('report.reporter', 'reporter')
                       .leftJoinAndSelect('report.receive', 'receive')
-                      .where("report.isActive = :isActive", { isActive: 1 })
+                      //.where("report.isActive = :isActive", { isActive: 1 })
                       .andWhere('report.deletedAt is null')
                       .andWhere('report.type = :type', { type })
                       .orderBy('report.createdAt', 'DESC')
@@ -136,7 +136,7 @@ export class ReportService {
                       .getMany();
       const total = await this.reportRepository
                       .createQueryBuilder('report')
-                      .where("report.isActive = :isActive", { isActive: 1 })
+                     // .where("report.isActive = :isActive", { isActive: 1 })
                       .andWhere('report.deletedAt is null')
                       .andWhere('report.type = :type', { type })
                       .getCount();
@@ -195,7 +195,7 @@ export class ReportService {
                       .createQueryBuilder('report')
                       .leftJoinAndSelect('report.reporter', 'reporter')
                       .leftJoinAndSelect('report.receive', 'receive')
-                      .where("report.isActive = :isActive", { isActive: 1 })
+                      //.where("report.isActive = :isActive", { isActive: 1 })
                       .andWhere('report.deletedAt is null')
                       .orderBy('report.createdAt', 'DESC')
                       .skip((page - 1) * limit)  
@@ -203,7 +203,7 @@ export class ReportService {
                       .getMany();
       const total = await this.reportRepository
                       .createQueryBuilder('report')
-                      .where("report.isActive = :isActive", { isActive: 1 })
+                     // .where("report.isActive = :isActive", { isActive: 1 })
                       .andWhere('report.deletedAt is null')
                       .getCount();
       if (reports.length == 0) {
@@ -286,7 +286,7 @@ export class ReportService {
     try {
       const report = await this.reportRepository.findOneBy({ 
         id,
-        isActive: true,
+       // isActive: true,
         deletedAt: IsNull(),
       });
       if (!report) {
@@ -381,7 +381,7 @@ export class ReportService {
           data: null
         }
       }
-      report.isActive = false;
+      // report.isActive = false;
       report.deletedAt = new Date();
       const result = await this.reportRepository.save(report);
       return {
@@ -412,6 +412,7 @@ export class ReportService {
       const numberOfReport = await this.reportRepository
                             .createQueryBuilder('report')
                             .where('report.roadmap = :idRoadmap', {idRoadmap})
+                            .andWhere('report.isChecked = true')
                             .getCount();
       if (numberOfReport >= 3) {
         const result = await this.roadmapService.removeById(idRoadmap);
@@ -438,6 +439,38 @@ export class ReportService {
         statusCode: 200,
         message: "The roadmap's ban count is not enough to delete",
         data: null
+      }
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
+
+  async checkReport(
+    id: number
+  ): Promise<ResponseDto> {
+    try {
+      const reportResponse = await this.findOne(id);
+      const report = Array.isArray(reportResponse.data) 
+        ? reportResponse.data[0] 
+        : reportResponse.data;
+
+      if (!report) {
+        return {
+          statusCode: 404,
+          message: 'Report not found',
+          data: null
+        }
+      }
+      report.isChecked = true;
+      const result = await this.reportRepository.save(report);
+      return {
+        statusCode: 200,
+        message: 'Check report successfully',
+        data: result,
       }
     } catch (error) {
       return {

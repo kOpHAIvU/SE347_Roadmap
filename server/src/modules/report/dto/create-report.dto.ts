@@ -18,7 +18,4 @@ export class CreateReportDto {
     @IsString()
     roadmapId?: number;
 
-    @IsBoolean()
-    @IsOptional()
-    isActive?: boolean;
 }
