@@ -112,7 +112,7 @@ function RoadmapItem({ children, onLoveChange, onClick }) {
 
             {showDialog && (
                 <CreateTimeline
-                    newId={'Haha'}
+                    children={children}
                     title={title}
                     setTitle={setTitle}
                     content={content}

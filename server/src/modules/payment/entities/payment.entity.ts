@@ -1,5 +1,13 @@
-import { User } from "src/modules/user/entities/user.entity";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { User } from 'src/modules/user/entities/user.entity';
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Payment {
@@ -9,7 +17,7 @@ export class Payment {
     @Column()
     totalPayment: number;
 
-    @Column({default: "null"})
+    @Column({ default: 'null' })
     code: string;
 
     @Column()
@@ -18,16 +26,16 @@ export class Payment {
     @Column()
     oderurl: string;
 
-    @ManyToOne(() => User, user => user.payment)
+    @ManyToOne(() => User, (user) => user.payment)
     user: User;
 
-    @CreateDateColumn()  
-    createdAt:Date
+    @CreateDateColumn()
+    createdAt: Date;
 
-    @Column({default: false})
+    @Column({ default: false })
     status: boolean;
 
-    @DeleteDateColumn({ nullable: true })  
+    @DeleteDateColumn({ nullable: true })
     deletedAt: Date | null;
 
     @Column({ type: 'boolean', default: true }) // Default status is 1 (true)

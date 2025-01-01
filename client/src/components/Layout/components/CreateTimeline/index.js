@@ -54,7 +54,6 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
             console.error('Fetch Profile Error:', error);
         }
     };
-
     const fetchCloneRoadmap = async () => {
         try {
             const response = await fetch(`http://localhost:3004/timeline/clone/${children.id}`, {
@@ -185,7 +184,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
             }
         }
     };
-
+    
     return (
         <div
             className={cx('modal-overlay')}
