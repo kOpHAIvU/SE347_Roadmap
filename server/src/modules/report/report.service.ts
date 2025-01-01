@@ -195,6 +195,7 @@ export class ReportService {
                       .createQueryBuilder('report')
                       .leftJoinAndSelect('report.reporter', 'reporter')
                       .leftJoinAndSelect('report.receive', 'receive')
+                      .leftJoinAndSelect('report.roadmap', 'roadmap')
                       //.where("report.isActive = :isActive", { isActive: 1 })
                       .where("report.isChecked = false")
                       .andWhere('report.deletedAt is null')
