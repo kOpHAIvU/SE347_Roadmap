@@ -131,3 +131,37 @@
         }
     }
 }
+
+.load-more {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+
+    button {
+        background-color: #e2e5e9; 
+        color: #000000; 
+        font-size: 16px; 
+        font-weight: bold;
+        padding: 10px 20px; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background-color: #bfc0c2; 
+            // transform: scale(1.05);
+
+            &:active {
+                background-color: #6c6d6d; 
+                transform: scale(0.95);
+            }
+
+            &:focus {
+                outline: none; 
+                box-shadow: 0 0 5px rgba(202, 206, 210, 0.5);
+            }
+        }
+    }
+}
