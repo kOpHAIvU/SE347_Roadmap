@@ -58,7 +58,7 @@ export class TimelineController {
     async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto) {
         return await this.timelineService.update(+id, updateTimelineDto);
     }
-    
+
     @Delete('item/:id')
     @UseGuards(JwtAuthGuard)
     async remove(@Param('id', ParseIntPipe) id: string) {
@@ -74,11 +74,10 @@ export class TimelineController {
     @Get('search/:name')
     @UseGuards(JwtAuthGuard)
     async search(
-        @Param('name') name: string, 
-        @Query('page', ParseIntPipe) page: number = 1, 
-        @Query('limit', ParseIntPipe) limit: number = 10
+        @Param('name') name: string,
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
     ) {
         return await this.timelineService.findTimelineByTitle(name, page, limit);
     }
-
 }

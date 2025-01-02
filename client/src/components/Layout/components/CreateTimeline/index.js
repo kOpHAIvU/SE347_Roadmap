@@ -20,7 +20,10 @@ const encryptId = (id) => {
 function CreateTimeline({ children, title, setTitle, content, setContent, handleOutsideClick, setShowDialog }) {
     const navigate = useNavigate();
 
-    const [profile, setProfile] = useState(null)
+    const [profile, setProfile] = useState(null);
+    const [role, setRole] = useState('user')
+    const [proEdit, setProEdit] = useState(false)
+    const [roadmapRecords, setRoadmapRecords] = useState(0)
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -49,6 +52,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
             }
 
             const data = await response.json();
+            setRole(data.data.role.name)
             return data.data.id;
         } catch (error) {
             console.error('Fetch Profile Error:', error);
@@ -187,27 +191,79 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         }
     };
 
+    const fetchPaymentStatus = async (profileId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/payment/user/${profileId}?page=1&limit=1`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log("Payment status: ", data);
+                if (data && data.data && data.data.length > 0)
+                    setProEdit(true)
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchOwnRoadmapData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/owner?page=1&limit=12`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setRoadmapRecords(data.data.totalRecord)
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
+                navigate(`/login`);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchProfile();
             setProfile(data);
+            await fetchOwnRoadmapData()
+            if (data)
+                await fetchPaymentStatus(data)
         };
         fetchData();
     }, []);
 
     const handleCreate = async () => {
         if (title && content) {
-            const timelineData = await fetchCloneRoadmap()
-            console.log("Timeline: ", timelineData)
-            const teamId = await fetchNewTeam("Team for study")
-            await fetchGroupDivisionTeam(teamId, timelineData.id)
-            await fetchUpdateTimelineTitleContent(timelineData.id, title, content)
+            if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
+                const timelineData = await fetchCloneRoadmap()
+                console.log("Timeline: ", timelineData)
+                const teamId = await fetchNewTeam("Team for study")
+                await fetchGroupDivisionTeam(teamId, timelineData.id)
+                await fetchUpdateTimelineTitleContent(timelineData.id, title, content)
 
-            if (timelineData && teamId) {
-                const encryptedId = encryptId(timelineData.id);
-                navigate(`/timeline/${encryptedId}`);
-            } else {
-                console.error("Failed to create new timeline.");
+                if (timelineData && teamId) {
+                    const encryptedId = encryptId(timelineData.id);
+                    navigate(`/timeline/${encryptedId}`);
+                } else {
+                    console.error("Failed to create new timeline.");
+                }
             }
         }
     };

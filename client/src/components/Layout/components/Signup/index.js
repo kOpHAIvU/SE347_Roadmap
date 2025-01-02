@@ -27,8 +27,8 @@ function Signup() {
             const emailError = !value
                 ? 'Please enter your email!'
                 : !/\S+@\S+\.\S+/.test(value)
-                ? 'Invalid email!'
-                : '';
+                    ? 'Invalid email!'
+                    : '';
 
             setErrors((prev) => ({ ...prev, email: emailError }));
         }

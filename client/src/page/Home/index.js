@@ -116,6 +116,7 @@ function Home() {
 
                 setRoadmapRecords(data.data.totalRecord);
                 setRoadmaps(filteredData);
+                console.log('Filter: ', filteredData)
                 return filteredData;
             } else {
                 const errorData = await response.json();
