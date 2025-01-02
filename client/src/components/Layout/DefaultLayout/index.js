@@ -26,7 +26,7 @@ function DefaultLayout({ children }) {
                     <Content className={cx('content', { collapsed: collapsed })}>{children}</Content>
                 </Layout>
             </Layout>
-            <Footer />
+            {/* <Footer /> */}
         </>
     );
 }

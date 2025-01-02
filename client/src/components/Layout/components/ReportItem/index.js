@@ -17,9 +17,8 @@ const encryptId = (id) => {
 };
 
 function ReportItem({ children }) {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
-
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -49,7 +48,7 @@ function ReportItem({ children }) {
             }
 
             const data = await response.json();
-            setProfile(data.data.id)
+            setProfile(data.data.id);
         } catch (error) {
             console.error('Fetch Profile Error:', error);
         }
@@ -67,7 +66,7 @@ function ReportItem({ children }) {
             const response = await fetch(`http://localhost:3004/report/item/${children.id}`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ isChecked: true }),
@@ -75,8 +74,8 @@ function ReportItem({ children }) {
 
             const data = await response.json();
             if (response.ok) {
-                await fetchBannedRoadmap()
-                console.log(data)
+                await fetchBannedRoadmap();
+                console.log(data);
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -91,14 +90,14 @@ function ReportItem({ children }) {
             const response = await fetch(`http://localhost:3004/report/item/${children.id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
 
             const data = await response.json();
             if (response.ok) {
-                console.log(data)
+                console.log(data);
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -113,18 +112,18 @@ function ReportItem({ children }) {
             const response = await fetch(`http://localhost:3004/report/ban/${children.roadmap.id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/json',
                 },
             });
 
             const data = await response.json();
             if (response.ok) {
-                console.log('Banned', data)
+                console.log('Banned', data);
                 if (data.message === 'Ban roadmap successfully') {
-                    await fetchNewNotification(children.roadmap.title, 'Blocked')
+                    await fetchNewNotification(children.roadmap.title, 'Blocked');
                 } else {
-                    await fetchNewNotification(children.roadmap.title, 'Report')
+                    await fetchNewNotification(children.roadmap.title, 'Report');
                 }
             } else {
                 const errorData = await response.json();
@@ -139,19 +138,20 @@ function ReportItem({ children }) {
         try {
             const body = new URLSearchParams({
                 title: roadmapName + type === 'Blocked' ? ' have been banned.' : ' have been reported.',
-                content: type === 'Blocked'
-                    ? 'Due to community standards violation, your roadmap has been deleted.'
-                    : 'Your Roadmap has been reported for community standards, please take note.',
+                content:
+                    type === 'Blocked'
+                        ? 'Due to community standards violation, your roadmap has been deleted.'
+                        : 'Your Roadmap has been reported for community standards, please take note.',
                 type: type,
                 posterId: profile,
                 receiverId: children.receive.id,
                 isCheck: 0,
-                isActive: 1
+                isActive: 1,
             }).toString();
             const response = await fetch('http://localhost:3004/notification/new', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: body,
@@ -174,7 +174,12 @@ function ReportItem({ children }) {
             <div className={cx('roadmap')}>
                 <img
                     className={cx('roadmap-avatar')}
-                    src={children.roadmap.avatar ? children.roadmap.avatar.substring(0, children.roadmap.avatar.indexOf('.jpg') + 4) : ''} />
+                    src={
+                        children.roadmap.avatar
+                            ? children.roadmap.avatar.substring(0, children.roadmap.avatar.indexOf('.jpg') + 4)
+                            : ''
+                    }
+                />
                 <h1 className={cx('roadmap-name')}>{children.roadmap.title}</h1>
             </div>
             <h1 className={cx('sender')}>{children.reporter.fullName}</h1>
@@ -186,7 +191,7 @@ function ReportItem({ children }) {
                         className={cx('confirm')}
                         icon={faCheck}
                         onClick={async () => {
-                            await fetchConfirmReport()
+                            await fetchConfirmReport();
                             //window.location.reload();
                         }}
                     />
@@ -194,7 +199,7 @@ function ReportItem({ children }) {
                         className={cx('deny')}
                         icon={faXmark}
                         onClick={async () => {
-                            await fetchDeleteReport()
+                            await fetchDeleteReport();
                             //window.location.reload();
                         }}
                     />

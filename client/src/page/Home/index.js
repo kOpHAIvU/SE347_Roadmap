@@ -113,9 +113,10 @@ function Home() {
             const data = await response.json();
             if (response.ok) {
                 const filteredData = await filterRoadmapData(data.data.roadmap);
-
+                console.log("Roadmap: ", data)
                 setRoadmapRecords(data.data.totalRecord);
                 setRoadmaps(filteredData);
+                console.log('Filter: ', filteredData)
                 return filteredData;
             } else {
                 const errorData = await response.json();

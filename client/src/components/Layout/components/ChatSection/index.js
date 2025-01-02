@@ -5,6 +5,7 @@ import classNames from 'classnames/bind';
 import styles from './ChatSection.module.scss';
 import ChatItem from '../ChatItem/index.js';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
 
 const cx = classNames.bind(styles);
 
@@ -18,7 +19,7 @@ const filterMessage = (data) => {
         avatar: item.sender.avatar ? item.sender.avatar.substring(0, item.sender.avatar.indexOf('.jpg') + 4) : '',
         date: item.createdAt.substring(0, 10),
         content: item.content,
-    }));
+    })).reverse();
 }
 
 function ChatSection({ profile, groupData }) {
@@ -27,6 +28,8 @@ function ChatSection({ profile, groupData }) {
     const [chatContent, setChatContent] = useState('');
     const allMessagesRef = useRef(null);
     const [chats, setChats] = useState([])
+
+    const socket = useRef(null);
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -80,7 +83,7 @@ function ChatSection({ profile, groupData }) {
 
             const data = await response.json();
             if (response.ok) {
-                console.log(data)
+                //console.log(data)
                 const messages = filterMessage(data.data);
                 //console.log("message: ", messages);
                 setChats(messages)
@@ -92,6 +95,63 @@ function ChatSection({ profile, groupData }) {
             console.error('Error:', error);
         }
     };
+
+    // Config web socket
+    useEffect(() => {
+        if (groupData[0]) {
+            // Khởi tạo socket
+            socket.current = io('http://localhost:3004/message', {
+                query: {
+                    teamId: groupData[0]?.team?.id,
+                    userId: profile.id,
+                },
+                transports: ['websocket'], // Sử dụng WebSocket
+                reconnect: true, // Tự động kết nối lại
+                timeout: 5000, // Thời gian chờ kết nối
+            });
+
+            // Xử lý sự kiện khi socket kết nối
+            socket.current.on('connect', () => {
+                console.log('Connected to socket');
+            });
+
+            // Lắng nghe sự kiện nhận tin nhắn từ server
+            socket.current.on('send_message', (newMessage) => {
+                console.log('New message received: ', newMessage); // Debug log
+
+            });
+
+            socket.current.on('message', (message) => {
+                console.log("New message nè: ", message)
+                console.log("avatar", message.data.sender)
+                const newMessage = {
+                    id: message.data.id,
+                    user: message.data.sender?.fullName,
+                    avatar: message.data.sender?.avatar ? message.data.sender?.avatar.substring(0, message.data.sender?.avatar.indexOf('.jpg') + 4) : '',
+                    date: message.data.createdAt.substring(0, 10),
+                    content: message.data.content,
+                };
+                setChats((prevChats) => {
+                    const updatedChats = [...prevChats, newMessage];
+                    return updatedChats;
+                });
+            });
+
+            // Xử lý lỗi kết nối
+            socket.current.on('connect_error', (error) => {
+                console.error('Socket connection error:', error);
+            });
+
+            // Cleanup khi component unmount
+            return () => {
+                if (socket.current) {
+                    socket.current.off('send_message'); // Hủy lắng nghe sự kiện 'send_message'
+                    socket.current.off('message');      // Hủy lắng nghe sự kiện 'message'
+                    socket.current.disconnect();        // Ngắt kết nối socket
+                }
+            };
+        }
+    }, [groupData[0]?.team?.id, profile?.id]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -137,6 +197,7 @@ function ChatSection({ profile, groupData }) {
         if (chatContent.trim() !== '') {
             const newMessageId = await fetchNewMessage()
             if (newMessageId) {
+                console.log(newMessageId)
                 const newMessage = {
                     id: newMessageId,
                     user: profile.fullName,
@@ -144,9 +205,13 @@ function ChatSection({ profile, groupData }) {
                     date: new Date().toLocaleDateString(),
                     content: chatContent
                 };
+
+                // Emit the message to the server using socket.io
+                socket.current.emit('send_message', { message: chatContent });
+
                 setChats((prevChats) => {
                     const updatedChats = [...prevChats, newMessage];
-                    console.log('Updated chats:', updatedChats); // Log giá trị mới
+                    //console.log('Updated chats:', updatedChats); // Log giá trị mới
                     return updatedChats;
                 });
                 setChatContent('');

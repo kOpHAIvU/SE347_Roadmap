@@ -363,9 +363,7 @@ function Timeline() {
             if (fetchedProfile && fetchedTimelineData && fetchedGroupDivisonData) {
                 for (let i = 0; i < fetchedGroupDivisonData.totalRecords; i++) {
                     const groupDivision = fetchedGroupDivisonData.groupDivisions[i];
-
                     if (fetchedProfile.id === groupDivision.user.id) {
-                        //console.log("groupDivision role: ", groupDivision.role)
                         switch (groupDivision.role) {
                             case 1:
                                 setUserType("Administrator");
@@ -493,7 +491,7 @@ function Timeline() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
-        console.log('newId: ', newId)
+        //console.log('newId: ', newId)
         const newLevel = {
             id: newId,
             x: x,
@@ -527,7 +525,7 @@ function Timeline() {
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
-        console.log('newId: ', newId)
+        //console.log('newId: ', newId)
         const newLevel = {
             id: newId,
             x: x + width + 200,
@@ -591,7 +589,7 @@ function Timeline() {
     const updateNodeComment = (nodeId, action, commentData = null, commentIndex = null) => {
         setNodes((prevNodes) => {
             return prevNodes.map((node) => {
-                console.log(node.id, "  ", nodeId)
+                //console.log(node.id, "  ", nodeId)
                 if (node.id === nodeId) {
                     let updatedComments = node.nodeComment ? [...node.nodeComment] : [];
 
@@ -685,7 +683,6 @@ function Timeline() {
 
         handleMakeDialog('Save', null)
     }
-    console.log(nodes)
 
     return (
         <div className={cx('wrapper')}>

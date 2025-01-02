@@ -4,7 +4,7 @@ import styles from './ChatItem.module.scss';
 const cx = classNames.bind(styles);
 
 function ChatItem({ children }) {
-    console.log("Chat item: ", children)
+    //console.log("Chat item: ", children)
     return (
         <div className={cx('wrapper')}>
             <img

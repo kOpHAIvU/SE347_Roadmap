@@ -91,6 +91,10 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     const [userId, setUserId] = useState(null);
     const secretKey = 'kophaivu'; // Khóa bí mật
 
+    const [role, setRole] = useState('user')
+    const [proEdit, setProEdit] = useState(false)
+    const [roadmapRecords, setRoadmapRecords] = useState(0)
+
     const getToken = () => {
         return localStorage.getItem('vertexToken');
     };
@@ -118,10 +122,59 @@ function HeaderLogged({ collapsed, setCollapsed }) {
             }
 
             if (data?.data?.id) {
+                setRole(data.data.role.name)
                 setUserId(data?.data?.id);
+                return data.data.id
             }
         } catch (error) {
             console.error('Fetch Profile Error:', error);
+        }
+    };
+
+    const fetchOwnRoadmapData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/owner?page=1&limit=12`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setRoadmapRecords(data.data.totalRecord)
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
+                navigate(`/login`);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchPaymentStatus = async (profileId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/payment/user/${profileId}?page=1&limit=1`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log("Payment status: ", data);
+                if (data && data.data && data.data.length > 0)
+                    setProEdit(true)
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     };
 
@@ -133,7 +186,13 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     };
 
     useEffect(() => {
-        fetchProfile();
+        const fetchData = async () => {
+            const id = await fetchProfile();
+            await fetchOwnRoadmapData()
+            if (id)
+                await fetchPaymentStatus(id)
+        };
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -145,44 +204,47 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const handleCreate = async () => {
         if (name && description && image && userId) {
-            const formData = new FormData();
-            formData.append('title', name);
-            formData.append('content', description);
-            formData.append('file', image);
-            formData.append('owner', userId);
-            formData.append('clone', 0);
-            formData.append('react', 0);
-            formData.append('type', 'IT');
+            console.log(role)
+            if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
+                const formData = new FormData();
+                formData.append('title', name);
+                formData.append('file', image);
+                formData.append('content', description);
+                formData.append('owner', userId);
+                formData.append('clone', 0);
+                formData.append('react', 0);
+                formData.append('type', 'IT');
 
-            try {
-                const response = await fetch('http://localhost:3004/roadmap/new_roadmap', {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${getToken()}`, // Thêm token xác thực
-                    },
-                    body: formData, // Gửi dữ liệu dưới dạng form
-                });
+                try {
+                    const response = await fetch('http://localhost:3004/roadmap/new_roadmap', {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${getToken()}`, // Thêm token xác thực
+                        },
+                        body: formData, // Gửi dữ liệu dưới dạng form
+                    });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('Roadmap created:', data);
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Roadmap created:', data);
 
-                    // Điều hướng đến roadmap vừa tạo dựa trên id
-                    if (data?.data?.id) {
-                        const encryptedId = encryptId(data.data.id);
-                        navigate(`/roadmap/${encryptedId}`);
+                        // Điều hướng đến roadmap vừa tạo dựa trên id
+                        if (data?.data?.id) {
+                            const encryptedId = encryptId(data.data.id);
+                            navigate(`/roadmap/${encryptedId}`);
+                        }
+
+                        setShowForm(false);
+                        setName('');
+                        setDescription('');
+                        setImage(null);
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Failed to create roadmap:', errorData.message);
                     }
-
-                    setShowForm(false);
-                    setName('');
-                    setDescription('');
-                    setImage(null);
-                } else {
-                    const errorData = await response.json();
-                    console.error('Failed to create roadmap:', errorData.message);
+                } catch (error) {
+                    console.error('Error creating roadmap:', error);
                 }
-            } catch (error) {
-                console.error('Error creating roadmap:', error);
             }
         } else {
             console.error('Please fill in all required fields.');

@@ -4,6 +4,7 @@ import { Menu } from 'antd';
 import { HomeOutlined, BranchesOutlined, LaptopOutlined, HeartFilled, CloudUploadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import images from '~/assets/images/index.js';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 
 const cx = classNames.bind(styles);
@@ -11,6 +12,76 @@ const cx = classNames.bind(styles);
 function Sidebar({ collapsed }) {
     const navigate = useNavigate();
     const location = useLocation();
+
+    const [profile, setProfile] = useState(null);
+    const [hideUpgrade, setHideUpgrade] = useState(false)
+
+    const getToken = () => {
+        const token = localStorage.getItem('vertexToken');
+
+        if (!token) {
+            navigate(`/login`);
+            return;
+        }
+        return token;
+    }
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch('http://localhost:3004/auth/profile', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to fetch profile data.');
+                navigate(`/login`);
+                return;
+            }
+
+            const data = await response.json();
+            setProfile(data.data.id)
+            return data.data.id
+        } catch (error) {
+            console.error('Fetch Profile Error:', error);
+        }
+    };
+
+    const fetchPaymentStatus = async (profileId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/payment/user/${profileId}?page=1&limit=1`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log("Payment status: ", data.data);
+                setHideUpgrade(data.data.length > 0);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const profileId = await fetchProfile();
+            if (profileId)
+                await fetchPaymentStatus(profileId);
+        };
+        fetchData();
+    }, []);
 
     const handleMenuClick = (e) => {
         // Điều hướng đến URL tương ứng với key của menu
@@ -44,6 +115,7 @@ function Sidebar({ collapsed }) {
             <div className={cx('link')} onClick={() => navigate('/home')}>
                 <img src={images.logo} alt="VertexOps" className={cx('logo')} />
                 <h1 className={cx('web-name', { hidden: collapsed })}>VertexOps</h1>
+                <span className={cx('pro-edition')}>Pro</span>
             </div>
             <Menu
                 theme='light'
@@ -64,9 +136,9 @@ function Sidebar({ collapsed }) {
                     Your Favourite
                 </Menu.Item>
                 <div className={cx('divider')} />
-                <Menu.Item className={cx('item')} key="upgrade" icon={<CloudUploadOutlined className={cx('icon')} />}>
+                {!hideUpgrade && <Menu.Item className={cx('item')} key="upgrade" icon={<CloudUploadOutlined className={cx('icon')} />}>
                     Upgrade account
-                </Menu.Item>
+                </Menu.Item>}
                 <Menu.Item className={cx('item')} key="reportRoadmap" icon={<ExclamationCircleOutlined className={cx('icon')} />}>
                     Reports
                 </Menu.Item>
