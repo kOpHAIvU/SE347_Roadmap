@@ -55,6 +55,31 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         }
     };
 
+    const fetchRoadmapData = async (roadmapData) => {
+        try {
+            const updatedClone = roadmapData.clone + 1;
+
+            const response = await fetch(`http://localhost:3004/roadmap/item/${roadmapData.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ clone: updatedClone }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
     const fetchCloneRoadmap = async () => {
         try {
             const response = await fetch(`http://localhost:3004/timeline/clone/${children.id}`, {
@@ -69,6 +94,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
             if (response.ok) {
                 console.log(data);
+                await fetchRoadmapData(data.data.roadmap)
                 return data.data
             } else {
                 console.error(data);

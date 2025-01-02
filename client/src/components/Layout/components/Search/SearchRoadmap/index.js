@@ -21,12 +21,12 @@ function SearchRoadmap() {
         const value = e.target.value;
         setSearch(value);
 
-        // Hiển thị kết quả nếu có từ khóa
-        if (value) {
-            setVisible(true);
-        } else {
-            setVisible(false);
-        }
+        // // Hiển thị kết quả nếu có từ khóa
+        // if (value) {
+        //     setVisible(true);
+        // } else {
+        //     setVisible(false);
+        // }
     };
 
     const handleClickOutside = (event) => {
@@ -103,10 +103,18 @@ function SearchRoadmap() {
                     <input placeholder='Find roadmap'
                         value={search}
                         onChange={handleInputChange}
-                        onFocus={() => search && setVisible(true)}
+                        onKeyDown={(e) => {
+                            if (search && e.key === 'Enter') {
+                                setVisible(true);
+                            }
+                        }}
                     />
 
-                    <button className={cx('search-btn')}>
+                    <button
+                        className={cx('search-btn')}
+                        onClick={() => {
+                            setVisible(true);
+                        }}>
                         <FontAwesomeIcon icon={faMagnifyingGlass} />
                     </button>
                 </div>

@@ -11,10 +11,95 @@
     padding: 5px 10px;
 }
 
-.report-container {
+.status-numeric {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
+    justify-content: space-between;
+    margin: 20px 40px 10px 40px;
+}
+.numeric-item {
+    width: 200px;
+    justify-items: center;
+}
+.status-title {
+    font-size: 3.2rem;
+}
+.report-status,
+.solved-status,
+.remain-status {
+    font-size: 2.8rem;
+}
+.report-status {
+    color: var(--main-color);
+}
+.solved-status {
+    color: var(--color-red);
+}
+.remain-status {
+    color: #f8d703;
+}
+
+.report-container {
+    margin: 20px 20px 0 20px;
+    border: 2px solid black;
+    height: 57vh;
+    overflow-y: auto;
+}
+
+.report-header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    font-size: 0.7rem;
+    font-weight: 400;
+    background-color: #eaeaea;
+    padding: 5px;
+    text-align: center;
+    border-bottom: 1px solid #6c6c6c;
+}
+
+.roadmap {
+    width: 20%;
+    border-right: 1px solid #6c6c6c;
+}
+.sender {
+    width: 15%;
+    border-right: 1px solid #6c6c6c;
+}
+.date {
+    width: 15%;
+    border-right: 1px solid #6c6c6c;
+}
+.descrip {
+    width: 50%;
+}
+
+.page {
+    margin: 5px 20px;
+    display: flex;
+    justify-content: space-between;
+}
+.page-num {
+    font-weight: 400;
+    font-size: 1.3rem;
+    color: #515050;
+}
+.switch-page {
+    width: 20px;
+    height: 20px;
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid black;
+    margin-left: 5px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #c0c0c0;
+    }
+
+    &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 }
 
 .mini-notify {

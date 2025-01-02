@@ -727,8 +727,7 @@ function Timeline() {
                             <FontAwesomeIcon
                                 icon={faGear}
                                 className={cx('setting-btn')}
-                                onClick={() => navigate(`/timeline/${id}/setting`)}
-                            />
+                                onClick={() => navigate(`/timeline/${encryptedId}/setting`)} />
                             <FontAwesomeIcon
                                 className={cx('extend-chat')}
                                 icon={chatExtended ? faChevronRight : faChevronLeft}

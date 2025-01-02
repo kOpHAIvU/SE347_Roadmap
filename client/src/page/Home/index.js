@@ -12,7 +12,6 @@ const secretKey = 'kophaivu'; // Khóa bí mật
 // Hàm mã hóa
 const encryptId = (id) => {
     let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-    // Thay thế ký tự đặc biệt
     return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
 

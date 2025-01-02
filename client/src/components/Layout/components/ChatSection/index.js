@@ -9,12 +9,15 @@ import { useNavigate } from 'react-router-dom';
 const cx = classNames.bind(styles);
 
 const filterMessage = (data) => {
-    return [...data].reverse().map((item) => ({
+    if (!Array.isArray(data))
+        return [];
+
+    return data.map((item) => ({
         id: item.id,
         user: item.sender.fullName,
         avatar: item.sender.avatar ? item.sender.avatar.substring(0, item.sender.avatar.indexOf('.jpg') + 4) : '',
         date: item.createdAt.substring(0, 10),
-        content: item.content
+        content: item.content,
     }));
 }
 
@@ -141,11 +144,21 @@ function ChatSection({ profile, groupData }) {
                     date: new Date().toLocaleDateString(),
                     content: chatContent
                 };
-                setChats([...chats, newMessage]);
+                setChats((prevChats) => {
+                    const updatedChats = [...prevChats, newMessage];
+                    console.log('Updated chats:', updatedChats); // Log giá trị mới
+                    return updatedChats;
+                });
                 setChatContent('');
             }
         }
     };
+
+    useEffect(() => {
+        if (allMessagesRef.current) {
+            allMessagesRef.current.scrollTop = allMessagesRef.current.scrollHeight;
+        }
+    }, [chats]);
 
     return (
         <div className={cx('wrapper')}>
@@ -160,7 +173,7 @@ function ChatSection({ profile, groupData }) {
                     value={chatContent}
                     placeholder='Type something...'
                     onChange={(e) => setChatContent(e.target.value)}
-                    rows={2} // Đặt số dòng mặc định
+                    rows={2}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
