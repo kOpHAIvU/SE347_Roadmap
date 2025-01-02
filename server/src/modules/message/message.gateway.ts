@@ -75,7 +75,8 @@ export class MessageGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: { message: string }
   ): Promise<void> {
-
+    const userId = client.data.userId;
+    const teamId = client.data.teamId;
 
     // console.log('Received message:', {
     //   teamId: client.data.teamId,
@@ -88,11 +89,11 @@ export class MessageGateway
       client.emit('error', 'Message cannot be empty');
       return;
     }
-
+    console.log("Sender Id: ",this.userId)
     try {
       const newMessage = await this.messageService.create({
-        senderId: this.userId,
-        teamId: this.teamId,
+        senderId: userId,
+        teamId: teamId,
         check: false,
         content: payload.message,
       });
@@ -105,7 +106,7 @@ export class MessageGateway
       // this.server.to(this.teamId.toString())
       //           .emit('message', newMessage);
       //client.broadcast.to(this.teamId.toString()).emit('message', newMessage);
-      client.broadcast.to(this.teamId.toString()).emit('message', {message: newMessage, senderId: this.userId});
+      client.broadcast.to(this.teamId.toString()).emit('message', {message: newMessage, senderId: userId});
     } catch (error) {
       console.log('Failed to delete message:', error.message);
       this.server.to(this.teamId.toString()).emit('error', {
