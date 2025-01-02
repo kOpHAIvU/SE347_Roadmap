@@ -176,6 +176,8 @@ function SearchRoadmap() {
     const handleSearch = async (e) => {
         if (search && e.key === 'Enter') {
             setVisible(true);
+            setRoadmaps([])
+            setTimelines([])
             await fetchSearchRoadmap(profile)
             await fetchSearchTimeline(profile)
         }

@@ -122,6 +122,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
             }
 
             if (data?.data?.id) {
+                setRole(data.data.role.name)
                 setUserId(data?.data?.id);
                 return data.data.id
             }
@@ -203,11 +204,12 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const handleCreate = async () => {
         if (name && description && image && userId) {
+            console.log(role)
             if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
                 const formData = new FormData();
                 formData.append('title', name);
-                formData.append('content', description);
                 formData.append('file', image);
+                formData.append('content', description);
                 formData.append('owner', userId);
                 formData.append('clone', 0);
                 formData.append('react', 0);
