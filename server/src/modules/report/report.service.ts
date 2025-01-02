@@ -216,7 +216,11 @@ export class ReportService {
         return {
           statusCode: 404,
           message: 'Report not found',
-          data: null
+          data: {
+            totalRecord: total,
+            totalCheck: 0,
+            reports: null
+          }
         }
       }
       return {

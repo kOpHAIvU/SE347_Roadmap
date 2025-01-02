@@ -399,4 +399,40 @@ export class PaymentService {
       }
     }
   }
+
+  async getBillByUserId(
+    idUser: number,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    try {
+      const payments = await this.paymentRepository
+                                .createQueryBuilder('payment')
+                                .leftJoinAndSelect('payment.user', 'user')
+                                .where('payment.user.id = :idUser', { idUser })
+                                .andWhere('payment.deletedAt IS NULL')
+                               // .andWhere('payment.isActive = true')
+                                .skip((page - 1) * limit)
+                                .take(limit)
+                                .getMany()
+      if (payments.length === 0) {
+        return {
+          status: 404,
+          message: "No payment found",
+          data: payments
+        }
+      }
+      return {
+        status: 200,
+        message: "Get this list of payments successfully",
+        data: payments
+      }
+    } catch(error) {
+      return {
+        status: 500,
+        message: error.message,
+        data: null
+      }
+    }
+  }
 }

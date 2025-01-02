@@ -117,5 +117,15 @@ export class PaymentController {
   ) {
     return this.paymentService.findAllPaymentByType(type, page, limit);
   }
+
+  @Get('user/:id')
+  @UseGuards(JwtAuthGuard)
+  async findAllByUser(
+    @Param('id') id: string,
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ) {
+    return this.paymentService.getBillByUserId(+id, page, limit);
+  }
 }
 //241219_cb55e220-be27-11ef-bbc4-e1112c7842b8
