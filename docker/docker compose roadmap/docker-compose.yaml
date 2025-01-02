@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  database-mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Thien@123
+      MYSQL_DATABASE: roadmap
+      MYSQL_USER: roadmap
+      MYSQL_PASSWORD: Thien@123
+    ports:
+      - "3307:3306"
+    expose:
+      - 3306
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
+
+  backend:
+    build:
+      context: ../../server
+      dockerfile: Dockerfile  
+    restart: unless-stopped
+    environment:
+      DB_HOST: database-mysql 
+      DB_PORT: 3306
+    ports:
+      - "3004:3004"
+    depends_on:
+      - database-mysql
+
+  frontend:
+    build:
+      context: ../../client
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      REACT_APP_API_URL: http://localhost:3004 # URL backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
