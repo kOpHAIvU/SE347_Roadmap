@@ -12,9 +12,14 @@ services:
       - "3307:3306"
     expose:
       - 3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
 
   backend:
     build:
@@ -27,7 +32,31 @@ services:
     ports:
       - "3004:3004"
     depends_on:
-      - database-mysql
+      database-mysql:
+        condition: service_healthy
+
+  seeder:
+    image: mysql:8.0
+    command: >
+      sh -c "
+      echo 'Waiting for MySQL to be ready...';
+      until mysqladmin ping -h database-mysql --silent; do
+        sleep 5;
+      done;
+      echo 'MySQL is ready. Waiting for backend to complete migration...';
+      until mysql -h database-mysql -u roadmap -pThien@123 -e 'SELECT * FROM role LIMIT 1;' roadmap; do
+        echo 'Waiting for table role...';
+        sleep 5;
+      done;
+      echo 'Table role is ready. Running seed script...';
+      mysql -h database-mysql -u roadmap -pThien@123 roadmap < /docker-entrypoint-initdb.d/seed.sql"
+    volumes:
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    depends_on:
+      database-mysql:
+        condition: service_healthy
+      backend:
+        condition: service_started
 
   frontend:
     build:
@@ -35,7 +64,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      REACT_APP_API_URL: http://localhost:3004 # URL backend
+      REACT_APP_API_URL: http://localhost:3004
     ports:
       - "3000:3000"
     depends_on:

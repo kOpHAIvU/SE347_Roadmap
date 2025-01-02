@@ -1,5 +1,5 @@
-# Chọn base image phù hợp với Node.js
-FROM node:18 AS builder
+# Chọn base image cho Node.js
+FROM node:18
 
 # Thiết lập thư mục làm việc trong container
 WORKDIR /webroadmap/frontend
@@ -13,17 +13,11 @@ RUN npm install
 # Sao chép toàn bộ mã nguồn vào container
 COPY . .
 
-# Build ứng dụng (bao gồm build SCSS nếu cần)
+# Build SCSS thành CSS
 RUN npm run build
 
-# Stage 2: Runtime Stage
-FROM nginx:alpine
+# Expose cổng để frontend chạy (nếu cần dùng server)
+EXPOSE 3000
 
-# Copy build output từ stage trước vào thư mục phục vụ của Nginx
-COPY --from=builder /webroadmap/frontend/build /usr/share/nginx/html
-
-# Expose cổng Nginx mặc định
-EXPOSE 80
-
-# Chạy Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Chạy frontend (thay bằng server nếu dùng server để preview)
+CMD ["npm", "run", "start"]
