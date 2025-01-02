@@ -16,6 +16,8 @@
 
     <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
     <script> 
+
+        
         
         const socket = io('http://localhost:3004/message', {
             query: {
@@ -58,7 +60,6 @@
 
         socket1.on('connect', () => {
             console.log('Connected to WebSocket server:', socket.id);
-          
 
             // Lắng nghe sự kiện 'message' từ server
             socket1.on('message', function (data) {
