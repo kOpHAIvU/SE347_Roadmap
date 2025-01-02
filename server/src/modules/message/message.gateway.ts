@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -52,6 +53,11 @@ export class MessageGateway
       client.disconnect();
       return;
     }
+    client.data.teamId = this.teamId;
+    client.data.userId = this.userId;
+
+    console.log("Client information:", client.data);
+
     client.join(this.teamId.toString());
 
   }
@@ -66,16 +72,16 @@ export class MessageGateway
 
   @SubscribeMessage('send_message')
   async handleSendMessage(
-    client: Socket,
+    @ConnectedSocket() client: Socket,
     @MessageBody() payload: { message: string }
   ): Promise<void> {
-  
 
-    console.log('Received message:', {
-      teamId: this.teamId,
-      userId :this.userId,
-      message: payload.message,
-    });
+
+    // console.log('Received message:', {
+    //   teamId: client.data.teamId,
+    //   userId :this.userId,
+    //   message: payload.message,
+    // });
 
     if (!payload.message || payload.message.trim() === '') {
       console.error('Empty message received from client:', client.id);
@@ -96,9 +102,10 @@ export class MessageGateway
       //   timestamp: new Date(),
       // });
 
-      this.server.to(this.teamId.toString())
-                .emit('message', newMessage);
-
+      // this.server.to(this.teamId.toString())
+      //           .emit('message', newMessage);
+      //client.broadcast.to(this.teamId.toString()).emit('message', newMessage);
+      client.broadcast.to(this.teamId.toString()).emit('message', {message: newMessage, senderId: this.userId});
     } catch (error) {
       console.log('Failed to delete message:', error.message);
       this.server.to(this.teamId.toString()).emit('error', {
@@ -111,14 +118,15 @@ export class MessageGateway
 
   @SubscribeMessage('delete_message')
   async handleDeleteMessage(
-    client: Socket,
+    @ConnectedSocket() client: Socket,
     @MessageBody() payload: { message: string }
   ): Promise<void> {
     const messageId = Number(payload.message);
     try {
       const deletedMessage = await this.messageService.remove(messageId);
-      this.server.to(this.teamId.toString()).emit('message', deletedMessage);
-      console.log('Message deleted:', deletedMessage);
+     // this.server.to(this.teamId.toString()).emit('message', deletedMessage);
+     client.broadcast.to(this.teamId.toString()).emit('message', {message: deletedMessage, senderId: this.userId}); 
+     console.log('Message deleted:', deletedMessage);
     } catch(error) {
       console.log('Failed to delete message:', error.message);
       this.server.to(this.teamId.toString()).emit('error', {
@@ -131,7 +139,7 @@ export class MessageGateway
 
   @SubscribeMessage('update_message')
   async handleUpdateMessage(
-    client: Socket,
+    @ConnectedSocket() client: Socket,
     @MessageBody() payload: { 
       id: number, 
       updateMessage: UpdateMessageDto
@@ -142,7 +150,8 @@ export class MessageGateway
       if (updateResponse.statusCode !== 200) {
         this.server.to(this.teamId.toString()).emit('error', 'Failed to save message');
       }
-      this.server.to(this.teamId.toString()).emit('message', updateResponse);
+      //this.server.to(this.teamId.toString()).emit('message', updateResponse);
+      client.broadcast.to(this.teamId.toString()).emit('message', {message: updateResponse, senderId: this.userId});
     } catch(error) {
       console.log('Failed to delete message:', error.message);
       this.server.to(this.teamId.toString()).emit('error', {

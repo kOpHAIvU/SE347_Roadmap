@@ -3,7 +3,7 @@ import { CreateRoadmapDto } from './dto/create-roadmap.dto';
 import { UpdateRoadmapDto } from './dto/update-roadmap.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Roadmap } from './entities/roadmap.entity';
-import { IsNull, Repository } from 'typeorm';
+import { Brackets, IsNull, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/roadmap.interface';
 import { ClientProxy } from '@nestjs/microservices';
@@ -133,25 +133,63 @@ export class RoadmapService {
                     .getCount();
                 // role is user
             } else {
+                // roadmap = await this.roadmapRepository
+                //     .createQueryBuilder('roadmap')
+                //     .leftJoinAndSelect('roadmap.owner', 'owner')
+                //     .leftJoinAndSelect('roadmap.node', 'node')
+                //     .leftJoinAndSelect('owner.comment', 'comment')
+                //     .where('roadmap.isActive = :isActive', { isActive: 1 })
+                //     .andWhere('roadmap.deletedAt is null')
+                //     .andWhere('roadmap.owner = :owner', { owner: user.id })
+                //     .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                //     .orderBy('roadmap.createdAt', 'DESC')
+                //     .skip((page - 1) * limit)
+                //     .take(limit)
+                //     .getMany();
+                // totalRecord = await this.roadmapRepository
+                //     .createQueryBuilder('roadmap')
+                //     .where('roadmap.isActive = :isActive', { isActive: 1 })
+                //     .andWhere('roadmap.deletedAt is null')
+                //     .andWhere('roadmap.owner = :owner', { owner: user.id })
+                //     .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                //     .getCount();
                 roadmap = await this.roadmapRepository
-                    .createQueryBuilder('roadmap')
-                    .leftJoinAndSelect('roadmap.owner', 'owner')
-                    .leftJoinAndSelect('roadmap.node', 'node')
-                    .leftJoinAndSelect('owner.comment', 'comment')
-                    .where('roadmap.isActive = :isActive', { isActive: 1 })
-                    .andWhere('roadmap.deletedAt is null')
-                    .andWhere('roadmap.owner = :owner', { owner: user.id })
-                    .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
-                    .orderBy('roadmap.createdAt', 'DESC')
-                    .skip((page - 1) * limit)
-                    .take(limit)
-                    .getMany();
+                                            .createQueryBuilder('roadmap')
+                                            .leftJoinAndSelect('roadmap.owner', 'owner')
+                                            .leftJoinAndSelect('roadmap.node', 'node')
+                                            .leftJoinAndSelect('owner.comment', 'comment')
+                                            .where('roadmap.isActive = :isActive', { isActive: 1 })
+                                            .andWhere('roadmap.deletedAt is null')
+                                            .andWhere(
+                                                new Brackets((qb) => {
+                                                    qb.where('roadmap.owner = :owner', { owner: user.id })
+                                                        .orWhere(
+                                                            new Brackets((qb2) => {
+                                                                qb2.where('roadmap.owner != :owner', { owner: user.id })
+                                                                    .andWhere('roadmap.isPublic = :isPublic', { isPublic: true });
+                                                            }),
+                                                        );
+                                                }),
+                                            )
+                                            .orderBy('roadmap.createdAt', 'DESC')
+                                            .skip((page - 1) * limit)
+                                            .take(limit)
+                                            .getMany();
                 totalRecord = await this.roadmapRepository
                     .createQueryBuilder('roadmap')
                     .where('roadmap.isActive = :isActive', { isActive: 1 })
                     .andWhere('roadmap.deletedAt is null')
-                    .andWhere('roadmap.owner = :owner', { owner: user.id })
-                    .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                    .andWhere(
+                        new Brackets((qb) => {
+                            qb.where('roadmap.owner = :owner', { owner: user.id })
+                                .orWhere(
+                                    new Brackets((qb2) => {
+                                        qb2.where('roadmap.owner != :owner', { owner: user.id })
+                                            .andWhere('roadmap.isPublic = :isPublic', { isPublic: true });
+                                    }),
+                                );
+                        }),
+                    )
                     .getCount();
             }
             if (!roadmap) {
@@ -562,6 +600,7 @@ export class RoadmapService {
             const roadmaps = await this.roadmapRepository
                 .createQueryBuilder('roadmap')
                 .leftJoinAndSelect('roadmap.node', 'node')
+                .leftJoinAndSelect('roadmap.owner', 'owner')
                 .where('roadmap.isActive = :isActive', { isActive: 1 })
                 .andWhere('roadmap.deletedAt is null')
                 .andWhere('roadmap.title like :name', { name: `%${name}%` })
