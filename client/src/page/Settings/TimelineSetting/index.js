@@ -27,6 +27,7 @@ function TimelineSetting() {
     const [inviteList, setInviteList] = useState(invites);
     const [isInviteFormVisible, setIsInviteFormVisible] = useState(false);
     const location = useLocation();
+    const [profile, setProfile] = useState(null);
     // const { id } = useParams();
 
     const getToken = useCallback(() => {
@@ -61,7 +62,7 @@ function TimelineSetting() {
                         email: group.user.email,
                         avatar: group.user.avatar.split(' ')[0],
                         role: group.role,
-                        // teamName: group.team.name,
+                        teamName: group.team.id,
                     }));
 
                     transformedData.forEach((user) => {
@@ -99,12 +100,11 @@ function TimelineSetting() {
 
     const handleCloseInviteForm = () => {
         setIsInviteFormVisible(false);
+        setSearchTerm('');
+        setResults([]);
         navigate(`/timeline/${encryptedId}/setting`);
     };
 
-    // const handleRevokeInvite = (inviteId) => {
-    //     setInviteList((prevInvites) => prevInvites.filter((invite) => invite.id !== inviteId));
-    // };
     const handleRevokeInvite = async (inviteId) => {
         const confirmRevoke = window.confirm('Are you sure you want to revoke this invite?');
         if (!confirmRevoke) return;
@@ -134,27 +134,6 @@ function TimelineSetting() {
     };
 
     const [dialogs, setDialogs] = useState([]);
-
-    // const handleDeleteUser = (userId) => {
-
-    //     setUserList((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-
-    //     const userToDelete = userList.find((user) => user.id === userId);
-
-    //     if (userToDelete) {
-    //         // Xóa user khỏi danh sách
-    //         setUserList((prevList) => prevList.filter((user) => user.id !== userId));
-
-    //         // Hiển thị thông báo xóa
-    //         const newDialog = { id: Date.now(), username: userToDelete.name };
-    //         setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
-
-    //         // Tự động ẩn thông báo sau 3 giây
-    //         setTimeout(() => {
-    //             setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
-    //         }, 3000);
-    //     }
-    // };
 
     const handleDeleteUser = async (groupId) => {
         const confirmDelete = window.confirm('Are you sure you want to delete this user?');
@@ -266,6 +245,7 @@ function TimelineSetting() {
                 const profileData = await profileResponse.json();
 
                 if (profileResponse.ok) {
+                    setProfile(profileData.data);
                     const userIdFromProfile = profileData.data.id;
 
                     // Fetch group-division data
@@ -333,44 +313,36 @@ function TimelineSetting() {
 
     const performSearch = async (term) => {
         setError('');
-
-        // if (term.trim() === '') {
-        //     setResults([]);
-        //     return;
-        // }
-        if (!term.trim()) {
-            console.error('Search term is empty');
-            setError('Search term cannot be empty');
-            setIsLoading(false);
-            return;
-        }
-
         setIsLoading(true);
 
         try {
-            console.log('Search :', term);
-            //            const response = await fetch(`http://localhost:3004/user/search/${term}`, {
+            if (!term.trim()) {
+                setError('Search term cannot be empty');
+                return;
+            }
+
+            const token = getToken();
+            if (!token) {
+                setError('Authorization token is missing');
+                return;
+            }
 
             const response = await fetch(`http://localhost:3004/user/search/${term}`, {
                 method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${getToken}`,
+                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
             });
 
-            console.log('Fetch Response:', response);
-            const data = await response.json();
-            console.log('data: ', data);
-
-            if (response.ok) {
-                if (data.data?.users) {
-                    setResults(data.data.users);
-                }
-            } else {
-                setResults([]);
-                setError(data.message || 'No users found.');
+            if (!response.ok) {
+                const errorData = await response.json();
+                setError(errorData.message || 'Failed to fetch data');
+                return;
             }
+
+            const data = await response.json();
+            setResults(data.data?.users || []);
         } catch (err) {
             console.error('Fetch Error:', err);
             setError('Error fetching search results.');
@@ -379,63 +351,96 @@ function TimelineSetting() {
         }
     };
 
-    // const handleSearch = async (e) => {
-    //     const term = e.target.value;
-    //     setSearchTerm(term);
-    //     setError('');
-
-    //     if (term.trim() === '') {
-    //         setResults([]);
-    //         return;
-    //     }
-
-    //     setIsLoading(true);
-
-    //     try {
-    //         console.log('Starting fetch for term:', term);
-
-    //         const response = await fetch(`http://localhost:3004/user/search/${term}`, {
-    //             method: 'GET',
-    //             headers: {
-    //                 Authorization: `Bearer ${getToken}`,
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         });
-
-    //         console.log('Fetch Response:', response);
-    //         const data = await response.json();
-    //         console.log('data: ', data);
-
-    //         if (response.ok) {
-    //             if (data.data?.users) {
-    //                 setResults(data.data.users);
-    //             }
-    //         } else {
-    //             setResults([]);
-    //             setError(data.message || 'No users found.');
-    //         }
-    //     } catch (err) {
-    //         console.error('Fetch Error:', err);
-    //         setError('Error fetching search results.');
-    //     } finally {
-    //         setIsLoading(false);
-    //     }
-    // };
-
     const handleSelectUser = (user) => {
         setSelectedUser(user);
+        console.log('dddd', user);
     };
 
-    const handleAddToTimeline = () => {
-        if (selectedUser) {
-            alert(`User ${selectedUser.username} added to timeline!`);
-            setSearchTerm('');
-            setResults([]);
-            setSelectedUser(null);
+    const fetchNewNotification = async (timelineName, type) => {
+        try {
+            const body = new URLSearchParams({
+                title: timelineName + ' was invited successfully.',
+                content: `${profile.username} has invited you to join the timeline ${timelineName}.`,
+                type: type,
+                posterId: profile.id,
+                receiverId: selectedUser.id,
+                isCheck: 0,
+                isActive: 1,
+            }).toString();
+
+            const response = await fetch('http://localhost:3004/notification/new', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: body,
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log('fetchNewNotification', data);
+            } else {
+                console.error('Error:', data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
     };
 
-    // if (!isInviteFormVisible) return null;
+    const handleAddToTimeline = async () => {
+        if (!selectedUser) {
+            alert('Please select a user to add to the timeline.');
+            return;
+        }
+
+        try {
+            const token = getToken();
+            if (!token) return;
+            if (!userList.length) {
+                console.error('userList is empty');
+                return;
+            }
+            const firstUser = userList[0];
+            const payload = {
+                teamId: firstUser.teamName,
+                userId: selectedUser.id,
+                timelineId: id,
+                role: 4,
+            };
+
+            const response = await fetch('http://localhost:3004/group-division/new', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                const updatedUser = await response.json();
+                console.log('User added to timeline successfully:', updatedUser);
+                const groupDivisionId = updatedUser.data.id;
+
+                setInviteList((prev) => [...prev, updatedUser]);
+                setSearchTerm('');
+                setResults([]);
+                console.log('ds', updatedUser.data.timeline.title);
+                await fetchNewNotification(
+                    updatedUser.data.timeline.title, // Tên hoặc thông tin liên quan đến timeline
+                    `Added ${groupDivisionId}`, // Loại thông báo, bạn có thể thay đổi tùy mục đích
+                );
+            } else {
+                const data = await response.json();
+                console.error('Failed to add user to timeline:', data.message);
+                alert(`Error: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error adding user to timeline:', error);
+            alert('An error occurred while adding the user to the timeline. Please try again.');
+        }
+    };
 
     return (
         <>
@@ -608,51 +613,3 @@ function TimelineSetting() {
 }
 
 export default TimelineSetting;
-
-// <div className={cx('inviteForm')}>
-//                     <div className={cx('header-form')}>
-//                         <h2>Invite Member</h2>
-//                         <FontAwesomeIcon icon={faXmark} className={cx('closeIcon')} onClick={handleCloseInviteForm} />
-//                     </div>
-
-//                     <form className={cx('contentForm')}>
-//                         <label>
-//                             <strong>Username:</strong>
-//                             <input type="text" name="username" />
-//                         </label>
-
-//                         <label>
-//                             <strong>Email Address:</strong>
-//                             <input type="email" name="email" />
-//                         </label>
-
-//                         <label>
-//                             <strong>Role:</strong>
-//                             <div className={cx('roleRadioGroup')}>
-//                                 {/* <label>
-//                                     <input type="radio" name="role" value="Administrator" /> Administrator
-//                                 </label> */}
-//                                 <label>
-//                                     <input type="radio" name="role" value="Editor" /> Editor
-//                                 </label>
-//                                 <label>
-//                                     <input type="radio" name="role" value="Viewer" /> Viewer
-//                                 </label>
-//                             </div>
-//                         </label>
-
-//                         <label>
-//                             <strong>Message</strong> (Optional):
-//                             <textarea name="message"></textarea>
-//                         </label>
-//                     </form>
-
-//                     <div className={cx('footer-form')}>
-//                         <button type="button" onClick={handleCloseInviteForm} className={cx('btnCancel')}>
-//                             Cancel
-//                         </button>
-//                         <button type="submit" className={cx('btnSubmit')}>
-//                             Invite
-//                         </button>
-//                     </div>
-//                 </div>
