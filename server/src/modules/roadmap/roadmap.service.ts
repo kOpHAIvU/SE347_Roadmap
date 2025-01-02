@@ -69,12 +69,12 @@ export class RoadmapService {
                 const rabbit = this.rabbitClient.emit('Create_new_roadmap', result);
                 rabbit.subscribe({
                     next: (response) => {
-                        console.log('Event successfully emitted:', response);
+                      console.log('Event successfully emitted:', response);
                     },
                     error: (error) => {
-                        console.error('Error emitting event:', error);
+                      console.error('Error emitting event:', error);
                     },
-                });
+                  });
             }
             return {
                 statusCode: 201,
@@ -90,16 +90,16 @@ export class RoadmapService {
     }
 
     async findAll(
-        page = 1,
-        limit = 10,
-        idUser: number,
+        page = 1, 
+        limit = 10, 
+        idUser: number
     ): Promise<{
-        statusCode: number;
-        message: string;
+        statusCode: number,
+        message: string,
         data: {
-            roadmap: Roadmap[];
-            totalRecord: number;
-        };
+            roadmap: Roadmap[],
+            totalRecord: number
+        }
     }> {
         try {
             const userResponse = await this.userService.findOneById(idUser);
@@ -133,35 +133,63 @@ export class RoadmapService {
                     .getCount();
                 // role is user
             } else {
-                const roadmapUsers = await this.roadmapRepository
-                    .createQueryBuilder('roadmap')
-                    .leftJoinAndSelect('roadmap.owner', 'owner')
-                    .leftJoinAndSelect('roadmap.node', 'node')
-                    .leftJoinAndSelect('owner.comment', 'comment')
-                    .where('roadmap.isActive = :isActive', { isActive: 1 })
-                    .andWhere('roadmap.deletedAt is null')
-                    .andWhere(
-                        new Brackets((qb) => {
-                            qb.where('roadmap.owner = :owner', { owner: user.id }).orWhere(
-                                new Brackets((qb2) => {
-                                    qb2.where('roadmap.owner != :owner', { owner: user.id }).andWhere(
-                                        'roadmap.isPublic = :isPublic',
-                                        { isPublic: true },
-                                    );
-                                }),
-                            );
-                        }),
-                    )
-                    .orderBy('roadmap.createdAt', 'DESC')
-                    .skip((page - 1) * limit)
-                    .take(limit)
-                    .getMany();
+                // roadmap = await this.roadmapRepository
+                //     .createQueryBuilder('roadmap')
+                //     .leftJoinAndSelect('roadmap.owner', 'owner')
+                //     .leftJoinAndSelect('roadmap.node', 'node')
+                //     .leftJoinAndSelect('owner.comment', 'comment')
+                //     .where('roadmap.isActive = :isActive', { isActive: 1 })
+                //     .andWhere('roadmap.deletedAt is null')
+                //     .andWhere('roadmap.owner = :owner', { owner: user.id })
+                //     .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                //     .orderBy('roadmap.createdAt', 'DESC')
+                //     .skip((page - 1) * limit)
+                //     .take(limit)
+                //     .getMany();
+                // totalRecord = await this.roadmapRepository
+                //     .createQueryBuilder('roadmap')
+                //     .where('roadmap.isActive = :isActive', { isActive: 1 })
+                //     .andWhere('roadmap.deletedAt is null')
+                //     .andWhere('roadmap.owner = :owner', { owner: user.id })
+                //     .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                //     .getCount();
+                roadmap = await this.roadmapRepository
+                                            .createQueryBuilder('roadmap')
+                                            .leftJoinAndSelect('roadmap.owner', 'owner')
+                                            .leftJoinAndSelect('roadmap.node', 'node')
+                                            .leftJoinAndSelect('owner.comment', 'comment')
+                                            .where('roadmap.isActive = :isActive', { isActive: 1 })
+                                            .andWhere('roadmap.deletedAt is null')
+                                            .andWhere(
+                                                new Brackets((qb) => {
+                                                    qb.where('roadmap.owner = :owner', { owner: user.id })
+                                                        .orWhere(
+                                                            new Brackets((qb2) => {
+                                                                qb2.where('roadmap.owner != :owner', { owner: user.id })
+                                                                    .andWhere('roadmap.isPublic = :isPublic', { isPublic: true });
+                                                            }),
+                                                        );
+                                                }),
+                                            )
+                                            .orderBy('roadmap.createdAt', 'DESC')
+                                            .skip((page - 1) * limit)
+                                            .take(limit)
+                                            .getMany();
                 totalRecord = await this.roadmapRepository
                     .createQueryBuilder('roadmap')
                     .where('roadmap.isActive = :isActive', { isActive: 1 })
                     .andWhere('roadmap.deletedAt is null')
-                    .andWhere('roadmap.owner = :owner', { owner: user.id })
-                    .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
+                    .andWhere(
+                        new Brackets((qb) => {
+                            qb.where('roadmap.owner = :owner', { owner: user.id })
+                                .orWhere(
+                                    new Brackets((qb2) => {
+                                        qb2.where('roadmap.owner != :owner', { owner: user.id })
+                                            .andWhere('roadmap.isPublic = :isPublic', { isPublic: true });
+                                    }),
+                                );
+                        }),
+                    )
                     .getCount();
             }
             if (!roadmap) {
@@ -450,22 +478,22 @@ export class RoadmapService {
     }
 
     async findRoadmapsByOwner(
-        owner: string,
-        page: number = 1,
-        limit: number = 10,
+        owner: string, 
+        page: number = 1, 
+        limit: number = 10
     ): Promise<{
-        statusCode: number;
-        message: string;
+        statusCode: number,
+        message: string,
         data: {
-            roadmap: Roadmap[];
-            totalRecord: number;
-        };
+            roadmap: Roadmap[],
+            totalRecord: number
+        }
     }> {
         try {
             const roadmaps = await this.roadmapRepository
                 .createQueryBuilder('roadmap')
                 .leftJoinAndSelect('roadmap.node', 'node')
-                // .where('roadmap.isActive = :isActive', { isActive: 1 })
+               // .where('roadmap.isActive = :isActive', { isActive: 1 })
                 .andWhere('roadmap.deletedAt is null')
                 .andWhere('roadmap.owner = :owner', { owner })
                 .orderBy('roadmap.createdAt', 'DESC')
@@ -503,16 +531,16 @@ export class RoadmapService {
     }
 
     async findRoadmapsByType(
-        type: string,
-        page: number = 1,
-        limit: number = 10,
+        type: string, 
+        page: number = 1, 
+        limit: number = 10
     ): Promise<{
-        statusCode: number;
-        message: string;
+        statusCode: number,
+        message: string,
         data: {
-            roadmap: Roadmap[];
-            totalRecord: number;
-        };
+            roadmap: Roadmap[],
+            totalRecord: number
+        }
     }> {
         try {
             const roadmap = await this.roadmapRepository
@@ -527,7 +555,7 @@ export class RoadmapService {
                 .getMany();
             const totalRecord = await this.roadmapRepository
                 .createQueryBuilder('roadmap')
-                // .where('roadmap.isActive = :isActive', { isActive: 1 })
+               // .where('roadmap.isActive = :isActive', { isActive: 1 })
                 .andWhere('roadmap.deletedAt is null')
                 .andWhere('roadmap.type = :type', { type })
                 .getCount();
@@ -559,19 +587,20 @@ export class RoadmapService {
     async findRoadmapsByTitle(
         name: string,
         page: number = 1,
-        limit: number = 10,
+        limit: number = 10
     ): Promise<{
-        statusCode: number;
-        message: string;
+        statusCode: number,
+        message: string,
         data: {
-            roadmap: Roadmap[];
-            totalRecord: number;
-        };
+            roadmap: Roadmap[],
+            totalRecord: number 
+        }
     }> {
         try {
             const roadmaps = await this.roadmapRepository
                 .createQueryBuilder('roadmap')
                 .leftJoinAndSelect('roadmap.node', 'node')
+                .leftJoinAndSelect('roadmap.owner', 'owner')
                 .where('roadmap.isActive = :isActive', { isActive: 1 })
                 .andWhere('roadmap.deletedAt is null')
                 .andWhere('roadmap.title like :name', { name: `%${name}%` })
@@ -599,13 +628,13 @@ export class RoadmapService {
                     roadmap: roadmaps,
                     totalRecord: totalRecord,
                 },
-            };
-        } catch (error) {
+            }
+        } catch(error) {
             return {
                 statusCode: 500,
                 message: 'Failed to get roadmap by title',
                 data: null,
-            };
+            }
         }
     }
 }
