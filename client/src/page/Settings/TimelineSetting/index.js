@@ -481,7 +481,7 @@ function TimelineSetting() {
                                     >
                                         {/* <option value="Administrator">Administrator</option> */}
                                         <option value="2">Editor</option>
-                                        <option value="3">Reviewer</option>
+                                        <option value="3">Viewer</option>
                                     </select>
                                 )}
                                 {user.role !== 1 && isAdmin && (

@@ -29,7 +29,7 @@ const SERCURITY_ITEM = [
         sercurity: true,
         label: 'Delete your account',
         value: '  By deleting your account, you’ll no longer be able to access any of your designs or log in to VertexOps. Your VertexOps account was created at 01:22 AM, Oct 17, 2024.',
-        button: 'Sign out from all devices',
+        button: 'Delete your account',
     },
 ];
 
@@ -76,7 +76,7 @@ const Sercurity = () => {
 
                 if (response.ok) {
                     console.log('Account deleted successfully!');
-                    navigate('/');
+                    navigate('/login');
                 } else {
                     console.error('Failed to delete account');
                 }

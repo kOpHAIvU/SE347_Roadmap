@@ -14,6 +14,7 @@ function Sidebar({ collapsed }) {
     const location = useLocation();
 
     const [profile, setProfile] = useState(null);
+    const [role, setRole] = useState('user')
     const [hideUpgrade, setHideUpgrade] = useState(false)
 
     const getToken = () => {
@@ -45,6 +46,7 @@ function Sidebar({ collapsed }) {
 
             const data = await response.json();
             setProfile(data.data.id)
+            setRole(data.data.role.name)
             return data.data.id
         } catch (error) {
             console.error('Fetch Profile Error:', error);
@@ -115,7 +117,9 @@ function Sidebar({ collapsed }) {
             <div className={cx('link')} onClick={() => navigate('/home')}>
                 <img src={images.logo} alt="VertexOps" className={cx('logo')} />
                 <h1 className={cx('web-name', { hidden: collapsed })}>VertexOps</h1>
-                <span className={cx('pro-edition')}>Pro</span>
+                {hideUpgrade &&
+                    <span className={cx('pro-edition')}>Pro</span>
+                }
             </div>
             <Menu
                 theme='light'
@@ -139,9 +143,12 @@ function Sidebar({ collapsed }) {
                 {!hideUpgrade && <Menu.Item className={cx('item')} key="upgrade" icon={<CloudUploadOutlined className={cx('icon')} />}>
                     Upgrade account
                 </Menu.Item>}
-                <Menu.Item className={cx('item')} key="reportRoadmap" icon={<ExclamationCircleOutlined className={cx('icon')} />}>
-                    Reports
-                </Menu.Item>
+                {role === "admin" && (
+                    <Menu.Item className={cx('item')} key="reportRoadmap" icon={<ExclamationCircleOutlined className={cx('icon')} />}>
+                        Reports
+                    </Menu.Item>
+                )}
+
             </Menu>
         </div>
     );

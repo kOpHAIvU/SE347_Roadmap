@@ -112,13 +112,14 @@ function Timeline() {
                 },
                 body: JSON.stringify({
                     title: roadName,
+                    content: titleText
                 }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                //console.log(data);
+                console.log("PATCH: ",data);
                 return data.data
             } else {
                 console.error(data);
@@ -151,6 +152,8 @@ function Timeline() {
             console.error('Error:', error);
         }
     };
+
+    console.log(nodes)
 
     const fetchNewNode = async (nodeData) => {
         try {

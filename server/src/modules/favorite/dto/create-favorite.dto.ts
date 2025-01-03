@@ -1,7 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 import { time } from 'console';
 export class CreateFavoriteDto {
-
     @IsNotEmpty()
     time?: Date;
 
@@ -12,5 +11,4 @@ export class CreateFavoriteDto {
     @IsNumber()
     @IsNotEmpty()
     roadmapId: number;
-
 }

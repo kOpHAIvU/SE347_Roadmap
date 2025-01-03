@@ -57,7 +57,7 @@ function Reports() {
 
     const fetchGetReportData = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/report/all?page=${currentPageNumber}&limit=8`, {
+            const response = await fetch(`http://localhost:3004/report/all?page=${currentPageNumber}&limit=6`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -90,18 +90,23 @@ function Reports() {
 
     const toNextPage = async () => {
         const maxPage = Math.floor(remain / 8) + 1;
-        if (currentPageNumber < maxPage) {
+        if (currentPageNumber <= maxPage) {
             setCurrentPageNumber((prev) => prev + 1);
-            await fetchGetReportData();
         }
     }
 
     const toPrevPage = async () => {
         if (currentPageNumber > 1) {
             setCurrentPageNumber((prev) => prev - 1);
-            await fetchGetReportData();
         }
     }
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchGetReportData();
+        }
+        fetchData();
+    }, [currentPageNumber])
 
     return (
         <div className={cx('wrapper')}>
@@ -139,11 +144,11 @@ function Reports() {
                     <FontAwesomeIcon
                         icon={faCaretLeft}
                         className={cx('switch-page', { disabled: currentPageNumber === 1 })}
-                        onClick={toNextPage} />
+                        onClick={toPrevPage} />
                     <FontAwesomeIcon
                         icon={faCaretRight}
                         className={cx('switch-page', { disabled: currentPageNumber === Math.floor(remain / 8) + 1 })}
-                        onClick={toPrevPage} />
+                        onClick={toNextPage} />
                 </div>
             </div>
             <div className={cx('mini-notify')}>

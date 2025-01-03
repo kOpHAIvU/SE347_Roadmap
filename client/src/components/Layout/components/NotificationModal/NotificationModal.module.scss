@@ -52,8 +52,9 @@
 }
 
 .notification-content {
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto; 
+    // height: 70vh;
     padding-right: 8px; 
     scrollbar-width: thin;
     scrollbar-color: #ccc #f9f9f9; 
@@ -120,9 +121,9 @@
         }
 
         .accept-btn, .decline-btn {
-            padding: 10px 14px;
+            padding: 8px 16px;
             border-radius: 5px;
-            width: auto;
+            // width: auto;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
@@ -165,3 +166,74 @@
         }
     }
 }
+
+
+.notification-item {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+    line-height: 2rem;
+
+}
+
+.added-accept-notification {
+    background-color: #e6f7ff; 
+    color: #0050b3; 
+}
+
+.added-decline-notification {
+    background-color: #fff1f0; 
+    color: #a8071a; 
+}
+
+// .gmail-notification {
+//     background-color: #fffbe6; 
+//     color: #d48806; 
+// }
+
+.report-notification {
+    background-color: #fff1f0; 
+    color: #a8071a; 
+}
+
+.blocked-notification {
+    background-color: #f9f0ff;
+    color: #531dab; 
+}
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 25px;
+    width: auto;
+    margin-top: 10px;
+
+    .prev-btn,
+    .next-btn {
+        background-color: #ffffff;
+        color: #a3a3a3;
+        border: 1px solid #a3a3a3;
+        border-radius: 4px;
+        padding: 6px 12px;
+        margin: 0 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+
+        &:disabled {
+            background-color: #d6d6d6;
+            cursor: not-allowed;
+        }
+    }
+
+    .page-info {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+    }
+}
+

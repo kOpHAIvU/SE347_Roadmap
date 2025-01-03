@@ -36,7 +36,7 @@ function Roadmap({ children, setVisible }) {
                     <span>{children.title}</span>
                 </p>
                 <div className={cx('line-two')}>
-                    <span className={cx('author-name')}>"Hehe"</span>
+                    <span className={cx('author-name')}>{children.owner.fullName}</span>
                     <div>
                         <span className={cx('count')}>{children.clone} clones</span>
                         <FontAwesomeIcon className={cx('clones-icon')} icon={faBoltLightning} />
