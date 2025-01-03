@@ -20,52 +20,53 @@ export class NodeService {
 
     async create(createNodeDto: CreateNodeDto): Promise<ResponseDto> {
         try {
-            const node = await this.nodeRepository.create({
+            const node = this.nodeRepository.create({
                 ...createNodeDto,
                 roadmap: null,
-                timeline: null,
+                timeline: null
             });
-            const roadmapResponse = await this.roadmapService.findOneById(createNodeDto.roadmap);
-            const roadmap = Array.isArray(roadmapResponse.data) ? roadmapResponse.data[0] : roadmapResponse.data;
-            if (!roadmap && typeof createNodeDto.roadmap !== 'undefined') {
-                return {
-                    statusCode: 404,
-                    message: 'Roadmap not found',
-                    data: null,
-                };
-            }
-            if (createNodeDto.roadmap !== null) {
+            if (typeof createNodeDto.roadmap !== 'undefined') {
+                const roadmapResponse = await this.roadmapService.findOneById(createNodeDto.roadmap);
+                if (roadmapResponse.statusCode !== 200) {
+                    return {
+                        statusCode: 404,
+                        message: 'Roadmap not found',
+                        data: null,
+                    };
+                }
+                const roadmap = Array.isArray(roadmapResponse.data) 
+                                    ? roadmapResponse.data[0] 
+                                    : roadmapResponse.data;
                 node.roadmap = roadmap;
             }
-
-            console.log('createNodeDto.timeline', createNodeDto.timeline);
-            const timelineResponse = await this.timelineService.findOneById(createNodeDto.timeline);
-            const timeline = Array.isArray(timelineResponse.data) ? timelineResponse.data[0] : timelineResponse.data;
-            if (!timeline && typeof createNodeDto.timeline !== 'undefined') {
-                return {
-                    statusCode: 404,
-                    message: 'Timeline not found',
-                    data: null,
-                };
-            }
-
-            if (createNodeDto.timeline !== null) {
+            if (typeof createNodeDto.timeline !== 'undefined') {
+                const timelineResponse = await this.timelineService.findOneById(createNodeDto.timeline);
+                if (timelineResponse.statusCode !== 200) {
+                    return {
+                        statusCode: 404,
+                        message: 'Timeline not found',
+                        data: null,
+                    };
+                }
+                const timeline = Array.isArray(timelineResponse.data) 
+                                    ? timelineResponse.data[0] 
+                                    : timelineResponse.data;
                 node.timeline = timeline;
             }
-
-            const savedNode = await this.nodeRepository.save(node);
-
+            node.tick = createNodeDto.tick;
+            const result = await this.nodeRepository.save(node);
+            console.log("Tick: ", node.tick);
             return {
-                statusCode: 201,
+                statusCode: 200,
                 message: 'Node created successfully',
-                data: savedNode,
-            };
-        } catch (error) {
+                data: result,
+            }
+        } catch(error) {
             return {
                 statusCode: 500,
                 message: error.message,
                 data: null,
-            };
+            }
         }
     }
 
