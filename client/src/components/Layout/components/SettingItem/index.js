@@ -6,6 +6,7 @@ import defaultavatar from '~/assets/images/defaultavatar.jpg';
 const cx = classNames.bind(styles);
 
 const SettingItem = ({ item, onUpdateValue, onButtonClick, isAdmin }) => {
+    console.log('ammminn', isAdmin);
     const defaultPhotoUrl = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
 
     const [photo, setPhoto] = useState(item.value);

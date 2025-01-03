@@ -46,6 +46,7 @@ const ACCOUNT_ITEMS = [
 
 const Account = () => {
     //const [accountData, setAccountData] = useState(ACCOUNT_ITEMS); // Lưu trữ dữ liệu tài khoản
+    const [decryptedId, setDecryptedId] = useState('');
     const [isAdmin, setIsAdmin] = useState(false);
     const [accountData, setAccountData] = useState([]);
 
@@ -61,13 +62,17 @@ const Account = () => {
     useEffect(() => {
         const checkAdminStatus = async () => {
             const encryptedId = window.location.pathname.split('/')[2]; // Lấy encryptedId từ URL
-            console.log(encryptedId);
-            const decryptedId = decryptId(encryptedId);
+            console.log('Encrypted ID:', encryptedId);
+            const decryptedValue = decryptId(encryptedId);
+            console.log('decrypt ', decryptedValue);
 
-            if (!decryptedId) {
+            if (!decryptedValue) {
                 console.error('Invalid encryptedId');
                 return;
             }
+
+            setDecryptedId(decryptedValue);
+            console.log(decryptedValue, 'decryptedId');
 
             try {
                 const response = await fetch('http://localhost:3004/auth/profile', {
@@ -81,10 +86,9 @@ const Account = () => {
                 if (response.ok) {
                     const profileData = await response.json();
                     const currentUserId = profileData.data.id;
-                    console.log('currentUserId', currentUserId, ' ', decryptedId);
+                    console.log('currentUserId', currentUserId, 'decryptedId', decryptedValue);
 
-                    setIsAdmin(currentUserId === decryptedId);
-                    console.log(isAdmin);
+                    setIsAdmin(String(currentUserId) === decryptedValue);
                 } else {
                     console.error('Failed to fetch profile for admin check');
                 }
@@ -111,8 +115,9 @@ const Account = () => {
         return localStorage.getItem('vertexToken');
     };
     const fetchProfile = async () => {
+        console.log('fetch profile', decryptedId);
         try {
-            const response = await fetch('http://localhost:3004/auth/profile', {
+            const response = await fetch(`http://localhost:3004/user/item/${decryptedId}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -173,8 +178,10 @@ const Account = () => {
     };
 
     useEffect(() => {
-        fetchProfile();
-    }, []);
+        if (decryptedId) {
+            fetchProfile();
+        }
+    }, [decryptedId]);
 
     const updateProfile = async (updatedData, isFormData = false) => {
         try {
