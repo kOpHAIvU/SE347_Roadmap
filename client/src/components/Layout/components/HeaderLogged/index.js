@@ -38,13 +38,26 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     const toggleNotification = () => {
         setIsNotificationOpen((prev) => !prev);
     };
-
+    const secretKey = 'kophaivu';
+    // Hàm mã hóa
+    const encryptId = (id) => {
+        let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+        return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    };
     const location = useLocation();
 
     const handleLogout = () => {
         localStorage.removeItem('vertexToken'); // Xóa token khỏi localStorage
         console.log('Token removed');
         navigate('/'); // Điều hướng đến trang chủ
+    };
+
+    const handleToAccount = async () => {
+        const id = await fetchProfile();
+        if (id) {
+            const encryptedId = encryptId(id); // Biến encryptedId cần được khai báo đúng
+            navigate(`/account/${encryptedId}`); // Template string nội suy
+        }
     };
 
     useEffect(() => {
@@ -64,7 +77,8 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                     {
                         icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faUser} />,
                         title: 'Your account',
-                        to: '/account/${encryptedId}',
+                        onClick: handleToAccount,
+                        // to: '/account/${encryptedId}',
                     },
                     // {
                     //     icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faLock} />,
@@ -106,7 +120,6 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const [avatar, setAvatar] = useState('');
     const [userId, setUserId] = useState(null);
-    const secretKey = 'kophaivu'; // Khóa bí mật
 
     const [role, setRole] = useState('user');
     const [proEdit, setProEdit] = useState(false);
@@ -192,13 +205,6 @@ function HeaderLogged({ collapsed, setCollapsed }) {
         } catch (error) {
             console.error('Error:', error);
         }
-    };
-
-    // Hàm mã hóa
-    const encryptId = (id) => {
-        let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-        // Thay thế ký tự đặc biệt
-        return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     };
 
     useEffect(() => {

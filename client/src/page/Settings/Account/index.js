@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './Account.module.scss';
 import SettingAccountItem from '~/components/Layout/components/SettingItem';
+import CryptoJS from 'crypto-js';
 
 const cx = classNames.bind(styles);
 
@@ -45,8 +46,56 @@ const ACCOUNT_ITEMS = [
 
 const Account = () => {
     //const [accountData, setAccountData] = useState(ACCOUNT_ITEMS); // Lưu trữ dữ liệu tài khoản
-
+    const [isAdmin, setIsAdmin] = useState(false);
     const [accountData, setAccountData] = useState([]);
+
+    const secretKey = 'kophaivu'; // Khóa bí mật
+
+    // Hàm giải mã
+    const decryptId = (encryptedId) => {
+        const normalizedEncryptedId = encryptedId.replace(/-/g, '+').replace(/_/g, '/');
+        const bytes = CryptoJS.AES.decrypt(normalizedEncryptedId, secretKey);
+        return bytes.toString(CryptoJS.enc.Utf8);
+    };
+
+    useEffect(() => {
+        const checkAdminStatus = async () => {
+            const encryptedId = window.location.pathname.split('/')[2]; // Lấy encryptedId từ URL
+            console.log(encryptedId);
+            const decryptedId = decryptId(encryptedId);
+
+            if (!decryptedId) {
+                console.error('Invalid encryptedId');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3004/auth/profile', {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const profileData = await response.json();
+                    const currentUserId = profileData.data.id;
+                    console.log('currentUserId', currentUserId, ' ', decryptedId);
+
+                    setIsAdmin(currentUserId === decryptedId);
+                    console.log(isAdmin);
+                } else {
+                    console.error('Failed to fetch profile for admin check');
+                }
+            } catch (error) {
+                console.error('Admin check error:', error);
+            }
+        };
+
+        checkAdminStatus();
+    }, []);
+
     const getAvatarUrl = (avatar) => {
         const defaultAvatar = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
 
@@ -209,6 +258,7 @@ const Account = () => {
                     item={item}
                     onUpdateValue={(newValue) => handleUpdateValue(index, newValue)} // Truyền callback
                     allowFileUpload={item.label === 'Profile Photo'}
+                    isAdmin={isAdmin}
                 />
             ))}
         </div>
