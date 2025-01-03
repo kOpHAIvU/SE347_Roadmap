@@ -32,25 +32,47 @@ function YourFavourite() {
         return token;
     }
 
-    const filterRoadmapData = (data) => {
+    const filterRoadmapData = async (data) => {
         console.log("Filter: ", data)
-        return data.map((item) => {
-            return {
-                id: item.roadmap.id,
-                title: item.roadmap.title,
-                content: item.roadmap.content,
-                clone: item.roadmap.clone,
-                avatar: item.roadmap.avatar
-                    ? item.roadmap.avatar.substring(0, item.roadmap.avatar.indexOf('.jpg') + 4)
-                    : '',
-                loved: {
-                    loveId: item.id,
-                    loveState: true,
-                },
-                react: item.roadmap.react,
-                nodeCount: item.roadmap.node?.length || 0,
-            };
-        });
+
+        const mappedData = await Promise.all(
+            data.map(async (item) => {
+                try {
+                    return {
+                        id: item.id,
+                        title: item.title,
+                        content: item.content,
+                        clone: item.clone,
+                        avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
+                        loved: {
+                            loveId: item.id,
+                            loveState: true,
+                        },
+                        react: item.react,
+                        nodeCount: item.node?.length || 0, // Xử lý nếu node bị undefined
+                    };
+                } catch (error) {
+                    console.error(`Error fetching favorite data for item ${item.id}:`, error);
+                    return {
+                        id: item.id,
+                        title: item.title,
+                        content: item.content,
+                        clone: item.clone,
+                        avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
+                        loved: {
+                            loveId: item.id,
+                            loveState: true,
+                        },
+                        react: item.react,
+                        nodeCount: item.node?.length || 0,
+                    };
+                }
+            }),
+        );
+
+        console.log(mappedData)
+
+        return mappedData;
     };
 
     const fetchRoadmapData = async (pageNumber) => {
@@ -65,7 +87,8 @@ function YourFavourite() {
 
             const data = await response.json();
             if (response.ok) {
-                const filteredData = filterRoadmapData(data.data.favorite, data.data.favorite.id);
+                console.log(data.data)
+                const filteredData = filterRoadmapData(data.data.favorite);
                 setRoadmapRecords(data.data.total)
                 setRoadmaps(filteredData)
             } else {

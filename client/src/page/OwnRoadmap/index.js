@@ -103,10 +103,10 @@ function OwnRoadmap() {
             if (response.ok) {
                 setRoadmapData(data.data);
                 setVisibility(data.data.isPublic ? "Release" : "Private");
-                console.log("Roadmap data: ", data.data);
+                //console.log("Roadmap data: ", data.data);
 
                 setNodes(filterRoadmapNode(data.data.node))
-                console.log("Nodes after fetching: ", nodes);
+                //console.log("Nodes after fetching: ", nodes);
 
                 return data.data;
             } else {
@@ -164,7 +164,7 @@ function OwnRoadmap() {
 
     const fetchFavoriteData = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/favorite/all/owner?page=1&limit=10`, {
+            const response = await fetch(`http://localhost:3004/favorite/roadmap/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -174,14 +174,12 @@ function OwnRoadmap() {
 
             const data = await response.json();
             if (response.ok) {
-                if (data && Array.isArray(data.data)) {
-                    for (let i = 0; i < data.data.length; i++) {
-                        if (String(data.data[i].roadmap.id) === id) {
-                            setLoved(true)
-                            setLoveId(data.data[i].id)
-                        }
-                    }
+                console.log(data)
+                if (data.data !== null) {
+                    setLoved(true)
+                    setLoveId(data.data.id)
                 }
+
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -279,7 +277,7 @@ function OwnRoadmap() {
             const data = await response.json();
             if (response.ok) {
                 setNodes(filterRoadmapNode(data.data))
-                console.log("Nodes after fetching: ", nodes);
+                //console.log("Nodes after fetching: ", nodes);
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -316,9 +314,9 @@ function OwnRoadmap() {
         const fetchData = async () => {
             const fetchedProfile = await fetchProfile();
             const fetchedRoadmapData = await fetchRoadmapData();
-            await fetchFavoriteData()
 
             if (fetchedProfile && fetchedRoadmapData) {
+                await fetchFavoriteData(fetchedRoadmapData.id)
                 setUserType(
                     fetchedProfile.id === fetchedRoadmapData.owner.id
                         ? "Administrator"
@@ -361,11 +359,12 @@ function OwnRoadmap() {
     };
 
     // Handle blur on title text textarea
-    const handleTitleBlur = () => {
+    const handleTitleBlur = async () => {
         setIsEditing(false)
         if (titleText.trim() === '') {
             setTitleText('Make some description'); // Reset to "Make some description" if textarea is empty
         }
+        await fetchPatchRoadmap({ content: titleText })
     };
 
     const handleDeleteRoadmap = async () => {
@@ -568,10 +567,11 @@ function OwnRoadmap() {
                                 if (roadName === 'Name not given')
                                     setRoadName('');
                             }}
-                            onBlur={() => {
+                            onBlur={async () => {
                                 if (roadName.trim() === '') {
                                     setRoadName('Name not given');
                                 }
+                                await fetchPatchRoadmap({ title: roadName })
                             }}
                         />
                     ) : (
