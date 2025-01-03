@@ -45,8 +45,8 @@ export class NotificationController {
         const notificationContent = `Welcome to the latest updates! We just released a new Roadmap to help you easily track and plan for the future of the system.\n
                 The title of roadmap is: ${newRoadmap.title}\n
                 Please check it out and let us know if you have any feedback or questions.\n`;
-        const urlRoadmap = `${process.env.WEBSITE_DOMAIN}/roadmap/` + newRoadmap.id;
-    const notificationHtml = `
+        const urlRoadmap = `${process.env.WEBSITE_DOMAIN}/roadmap/ + newRoadmap.id`;
+        const notificationHtml = `
                 <!DOCTYPE html>
                 <html lang="en">
                 <head>

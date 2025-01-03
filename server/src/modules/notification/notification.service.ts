@@ -1,58 +1,74 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
-import { CreateTimelineDto } from './dto/create-timeline.dto';
-import { UpdateTimelineDto } from './dto/update-timeline.dto';
-import { Timeline } from './entities/timeline.entity';
-import { Repository } from 'typeorm';
+import { mock } from 'node:test';
+import { create } from 'domain';
+import { Inject, Injectable } from '@nestjs/common';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { RoadmapService } from '../roadmap/roadmap.service';
+import { IsNull, Repository } from 'typeorm';
+import { Notification } from './entities/notification.entity';
 import { ResponseDto } from './common/response.interface';
 import { UserService } from '../user/user.service';
-import { NodeService } from '../node/node.service';
-import { User } from '../user/entities/user.entity';
+import { Server } from 'socket.io';
+import { Subject } from 'rxjs';
+import { NotificationGateway } from './notification.gateway';
+import { ThrottlerStorageService } from '@nestjs/throttler';
+import { FirebaseService } from '../firebase/firebase.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class TimelineService {
+export class NotificationService {
+    private notificationSubject = new Subject<MessageEvent>();
+    private readonly firebaseService: FirebaseService;
+
     constructor(
-        @InjectRepository(Timeline)
-        private timelineRepository: Repository<Timeline>,
-        private roadmapService: RoadmapService,
-        private userService: UserService,
-        @Inject(forwardRef(() => NodeService))
-        private nodeService: NodeService,
+        @InjectRepository(Notification)
+        private readonly notificationRepository: Repository<Notification>,
+        private readonly userService: UserService,
+        // private readonly notificationGateway: NotificationGateway,
     ) {}
 
-    async create(createTimelineDto: CreateTimelineDto): Promise<ResponseDto> {
+    async create(createNotificationDto: CreateNotificationDto): Promise<ResponseDto> {
         try {
-            const leaderResponse = await this.userService.findOneById(createTimelineDto.leader);
-            const leader = Array.isArray(leaderResponse.data) ? leaderResponse.data[0] : leaderResponse.data;
-            if (!leader) {
-                return {
-                    statusCode: 404,
-                    message: 'User not found',
-                    data: null,
-                };
-            }
-
-            const roadmapResponse = await this.roadmapService.findOneById(createTimelineDto.roadmap);
-            const roadmap = Array.isArray(roadmapResponse.data) ? roadmapResponse.data[0] : roadmapResponse.data;
-
-            if (!roadmap) {
-                return {
-                    statusCode: 404,
-                    message: 'Roadmap not found',
-                    data: null,
-                };
-            }
-
-            const timeline = await this.timelineRepository.create({
-                ...createTimelineDto,
-                roadmap: roadmap,
-                creator: leader,
+            const notification = this.notificationRepository.create({
+                ...createNotificationDto,
             });
-            const result = await this.timelineRepository.save(timeline);
+
+            const posterResponse = await this.userService.findOneById(createNotificationDto.posterId);
+            const owner = Array.isArray(posterResponse.data) ? posterResponse.data[0] : posterResponse.data;
+
+            if (!owner && createNotificationDto.posterId !== null) {
+                return {
+                    statusCode: 404,
+                    message: 'Poster not found',
+                    data: null,
+                };
+            }
+            notification.postNotification = owner;
+
+            const receiverResponse = await this.userService.findOneById(createNotificationDto.receiverId);
+            const receiver = Array.isArray(receiverResponse.data) ? receiverResponse.data[0] : receiverResponse.data;
+            if (!receiver && createNotificationDto.receiverId !== null) {
+                return {
+                    statusCode: 404,
+                    message: 'Receiver not found',
+                    data: null,
+                };
+            }
+            notification.receiver = receiver;
+
+            const result = await this.notificationRepository.save(notification);
+            if (!result) {
+                return {
+                    statusCode: 500,
+                    message: 'Failed to create notification',
+                    data: null,
+                };
+            }
+
+            //this.notificationGateway.handleSendNotificationWhenHavingNewRoadmap(result);
             return {
                 statusCode: 201,
-                message: 'Create timeline successfully',
+                message: 'Create notification successfully',
                 data: result,
             };
         } catch (error) {
@@ -64,303 +80,94 @@ export class TimelineService {
         }
     }
 
-    async findAll(
-        page: number,
-        limit: number,
-        userId: number,
-    ): Promise<{
-        statusCode: number;
-        message: string;
-        data: {
-            timeline: Timeline[];
-            totalRecord: number;
-        };
-    }> {
-        try {
-            const userResponse = await this.userService.findOneById(userId);
-            if (userResponse.statusCode !== 200) {
-                return {
-                    statusCode: 404,
-                    message: 'User not found',
-                    data: null,
-                };
-            }
-            
-            const user = Array.isArray(userResponse.data) 
-                            ? userResponse.data[0] 
-                            : userResponse.data;
-            let timelines=[], totalRecord=0;
-            if (user.role.id === 1)  {
-                timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
-                totalRecord = await this.timelineRepository
-                    .createQueryBuilder('timeline')
-                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                    .andWhere('timeline.deletedAt is null')
-                    .getCount();
-
-            } else {
-                timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                   // .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
-                totalRecord = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .getCount();
-            }
-            if (timelines.length === 0) {
-                return {
-                    statusCode: 404,
-                    message: 'Timelines not found',
-                    data: null,
-                };
-            }
-            return {
-                statusCode: 200,
-                message: 'Get list of timelines successfully',
-                data: {
-                    timeline: timelines,
-                    totalRecord: totalRecord,
-                },
-            };
-        } catch (error) {
-            return {
-                statusCode: 500,
-                message: error.message,
-                data: null,
-            };
-        }
+    getNotifications() {
+        return this.notificationSubject.asObservable();
     }
 
-    async findOneById(id: number): Promise<ResponseDto> {
-        try {
-            const timeline = await this.timelineRepository
-                .createQueryBuilder('timeline')
-                .leftJoinAndSelect('timeline.roadmap', 'roadmap')
-                .leftJoinAndSelect('timeline.creator', 'creator')
-                .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                .leftJoinAndSelect('timeline.node', 'node')
-                .where('timeline.id = :id', { id })
-                .andWhere('timeline.isActive = :isActive', { isActive: true })
-                .andWhere('timeline.deletedAt is null')
-                .getOne();
-
-            if (!timeline) {
-                return {
-                    statusCode: 404,
-                    message: 'Timeline not found',
-                    data: null,
-                };
-            }
-
-            return {
-                statusCode: 200,
-                message: 'Get timeline successfully',
-                data: timeline,
-            };
-        } catch (error) {
-            return {
-                statusCode: 500,
-                message: 'Server error when finding timeline',
-            };
-        }
+    // Gửi thông báo qua SSE
+    sendNotification(notification: any): void {
+        this.notificationSubject.next({
+            data: notification,
+        } as MessageEvent);
+        console.log('Notification sent:', notification);
     }
 
-    async findOneByIdGrant(
-        idTimeline: number,
-        userId?: number,
-    ): Promise<ResponseDto> {
+    async findAll(page = 1, limit = 10): Promise<ResponseDto> {
         try {
-            const userResponse = await this.userService.findOneById(userId);
-            if (userResponse.statusCode !== 200) {
-                return {
-                    statusCode: 404,
-                    message: 'User not found',
-                    data: null,
-                };
-            }
-            
-            const user = Array.isArray(userResponse.data) 
-                            ? userResponse.data[0] 
-                            : userResponse.data;
-            let timeline, totalRecord=0;
-            if (user.role.id === 1 )  {
-                timeline = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                   // .where('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.id = :id', { id: idTimeline })  
-                                    .getOne();
-            } else {
-                console.log('userId', userId);
-                timeline = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .andWhere('timeline.id = :id', { id: idTimeline }) 
-                                    .getOne();
-            }
-            if (!timeline) {
-                return {
-                    statusCode: 404,
-                    message: 'Timelines not found',
-                    data: null,
-                };
-            }
-            return {
-                statusCode: 200,
-                message: 'Get list of timelines successfully',
-                data: timeline
-            };
-        } catch (error) {
-            return {
-                statusCode: 500,
-                message: error.message,
-                data: null,
-            };
-        }
-    }
-
-    async findTimelinesByUserId(
-        userId: number,
-        page: number = 1,
-        limit: number = 10
-    ): Promise<{
-        statusCode: number;
-        message: string;
-        data: {
-            timeline: Timeline[];
-            totalRecord: number;
-        };
-    }> {
-        try {
-            const timelines = await this.timelineRepository
-                .createQueryBuilder('timeline')
-                .leftJoinAndSelect('timeline.roadmap', 'roadmap')
-                .leftJoinAndSelect('timeline.node', 'node')
-                .where('timeline.creatorId = :userId', { userId: userId })
-                .andWhere('timeline.isActive = :isActive', { isActive: true })
-                .andWhere('timeline.deletedAt is null')
+            const notifications = await this.notificationRepository
+                .createQueryBuilder('notification')
+                .leftJoinAndSelect('notification.postNotification', 'postNotification')
+                .leftJoinAndSelect('notification.receiver', 'receiver')
+                .where('notification.isActive = :isActive', { isActive: 1 })
+                .andWhere('notification.deletedAt is null')
+                .orderBy('notification.createdAt', 'DESC')
                 .skip((page - 1) * limit)
                 .take(limit)
                 .getMany();
-            const totalRecord = await this.timelineRepository
-                .createQueryBuilder('timeline')
-                .where('timeline.creatorId = :userId', { userId: userId })
-                .andWhere('timeline.isActive = :isActive', { isActive: true })
-                .andWhere('timeline.deletedAt is null')
-                .getCount();
-            if (timelines.length === 0) {
+            if (!notifications) {
                 return {
                     statusCode: 404,
-                    message: 'The list of timeline of this person is not found',
+                    message: 'Notification not found',
                     data: null,
                 };
             }
             return {
                 statusCode: 200,
-                message: 'Get list of timelines of this person successfully',
-                data: {
-                    timeline: timelines,
-                    totalRecord: totalRecord,
-                },
+                message: 'Get all notifications successfully',
+                data: notifications,
             };
         } catch (error) {
             return {
                 statusCode: 500,
-                message: 'The list timelines of this user is not found',
+                message: 'Failed to get notifications',
                 data: null,
             };
         }
     }
 
-    async update(id: number, updateTimelineDto: UpdateTimelineDto, userId: number): Promise<ResponseDto> {
-        const timelineResponse = await this.findOneById(id);
-        const timeline = Array.isArray(timelineResponse.data) ? timelineResponse.data[0] : timelineResponse.data;
-
-        if (!timeline) {
-            return {
-                statusCode: 404,
-                message: 'Timeline not found',
-            };
-        }
-
+    async findNotificationsByUser(
+        id: number,
+        page: number = 1,
+        limit: number = 10,
+    ): Promise<{
+        statusCode: number;
+        message: string;
+        data: {
+            total: number;
+            data: Notification[];
+        };
+    }> {
         try {
-            // const roadmapResponse = await this.roadmapService.findOneById(updateTimelineDto.roadmap);
-            // const roadmap = Array.isArray(roadmapResponse.data)
-            //                 ? roadmapResponse.data[0]
-            //                 : roadmapResponse.data;
-            // if (!roadmap) {
-            //   return {
-            //     statusCode: 404,
-            //     message: 'Roadmap not found'
-            //   }
-            // }
-
-            // const leaderResponse = await this.userService.findOneById(updateTimelineDto.leader);
-            // const leader = Array.isArray(leaderResponse.data)
-            //               ? leaderResponse.data[0]
-            //               : leaderResponse.data;
-            // if (!leader) {
-            //   return {
-            //     statusCode: 404,
-            //     message: 'User not found',
-            //   }
-            // }
-
-            const newTimeline = this.timelineRepository.create({
-                ...timeline,
-                ...updateTimelineDto,
-                roadmap: timeline.roadmap,
-                creator: timeline.creator,
-            });
-
-            let leaderResponse = null;
-            if (typeof updateTimelineDto.leader !== 'undefined') {
-                leaderResponse = await this.userService.findOneById(updateTimelineDto.leader);
-                const leader = Array.isArray(leaderResponse.data) ? leaderResponse.data[0] : leaderResponse.data;
-                if (!leader) {
-                    return {
-                        statusCode: 404,
-                        message: 'User not found',
-                    };
-                }
-                newTimeline.creator = leader;
+            const notifications = await this.notificationRepository
+                .createQueryBuilder('notification')
+                .leftJoinAndSelect('notification.postNotification', 'postNotification')
+                .leftJoinAndSelect('notification.receiver', 'receiver')
+                .where('notification.isActive = :isActive', { isActive: 1 })
+                .andWhere('notification.deletedAt is null')
+                .andWhere('notification.receiverId = :id', { id })
+                .skip((page - 1) * limit)
+                .take(limit)
+                .getMany();
+            const total = await this.notificationRepository
+                .createQueryBuilder('notification')
+                .where('notification.isActive = :isActive', { isActive: 1 })
+                .andWhere('notification.deletedAt is null')
+                .andWhere('notification.receiverId = :id', { id })
+                .getCount();
+            if (!notifications) {
+                return {
+                    statusCode: 404,
+                    message: 'Notification not found',
+                    data: null,
+                };
             }
-
-            const result = await this.timelineRepository.save(newTimeline);
-
             return {
                 statusCode: 200,
-                message: 'Update timeline successfully',
-                data: result,
+                message: 'Get all notifications successfully',
+                data: {
+                    total,
+                    data: notifications,
+                },
             };
         } catch (error) {
             return {
@@ -371,45 +178,50 @@ export class TimelineService {
         }
     }
 
-    async remove(id: number): Promise<ResponseDto> {
-        const timelineResponse = await this.findOneById(id);
-        const timeline = Array.isArray(timelineResponse.data) ? timelineResponse.data[0] : timelineResponse.data;
-        if (!timeline) {
-            return {
-                statusCode: 404,
-                message: 'Timeline not found',
-            };
-        }
+    async findOne(id: number): Promise<ResponseDto> {
         try {
-            timeline.isActive = false;
-            timeline.deletedAt = new Date();
-            const result = await this.timelineRepository.save(timeline);
+            const notification = await this.notificationRepository.findOneBy({
+                id,
+                isActive: true,
+                deletedAt: IsNull(),
+            });
+            if (!notification) {
+                return {
+                    statusCode: 404,
+                    message: 'Notification not found',
+                    data: null,
+                };
+            }
             return {
-                statusCode: 204,
-                message: 'Remove timeline successfully',
-                data: result,
+                statusCode: 200,
+                message: 'Get notification successfully',
+                data: notification,
             };
         } catch (error) {
             return {
                 statusCode: 500,
-                message: 'Server error when removing timeline',
+                message: 'Server error when getting notification',
+                data: null,
             };
         }
     }
 
-    async cloneRoadmap(roadmapId: number, ownerId: number): Promise<ResponseDto> {
+    async update(id: number, updateNotificationDto: UpdateNotificationDto): Promise<ResponseDto> {
         try {
-            const roadmapResponse = await this.roadmapService.findOneById(roadmapId);
-            const roadmap = Array.isArray(roadmapResponse.data) ? roadmapResponse.data[0] : roadmapResponse.data;
-            if (!roadmap) {
+            const notificationResponse = await this.findOne(id);
+            const notification = Array.isArray(notificationResponse.data)
+                ? notificationResponse.data[0]
+                : notificationResponse.data;
+
+            if (!notification) {
                 return {
                     statusCode: 404,
-                    message: 'Roadmap not found',
-                    data: null,
+                    message: 'Notification not found',
                 };
             }
-            const ownerResponse = await this.userService.findOneById(ownerId);
-            const owner = Array.isArray(ownerResponse.data) ? ownerResponse.data[0] : ownerResponse.data;
+
+            const posterResponse = await this.userService.findOneById(updateNotificationDto.posterId);
+            const owner = Array.isArray(posterResponse.data) ? posterResponse.data[0] : posterResponse.data;
             if (!owner) {
                 return {
                     statusCode: 404,
@@ -417,142 +229,59 @@ export class TimelineService {
                     data: null,
                 };
             }
-            const timeline = await this.timelineRepository.create({
-                title: roadmap.title,
-                content: roadmap.content,
-                roadmap: roadmap,
-                creator: owner,
-                isActive: true,
-                avatar: roadmap.avatar,
+
+            const receiverResponse = await this.userService.findOneById(updateNotificationDto.receiverId);
+            const receiver = Array.isArray(receiverResponse.data) ? receiverResponse.data[0] : receiverResponse.data;
+            notification.receiver = receiver;
+
+            const updateData = this.notificationRepository.create({
+                ...notification,
+                ...updateNotificationDto,
+                postNotification: owner,
+                receiver,
             });
-            const result = await this.timelineRepository.save(timeline);
 
-            const node = roadmap.node;
-            for (let i = 0; i < node.length; i++) {
-                const nodeResponse = await this.nodeService.create({
-                    level: node[i].level,
-                    xAxis: node[i].xAxis,
-                    yAxis: node[i].yAxis,
-                    type: node[i].type,
-                    tick: node[i].tick,
-                    dueTime: node[i].dueTime,
-                    content: node[i].content,
-                    detail: node[i].detail,
-                    timeline: result.id,
-                });
-                if (nodeResponse.data === null) {
-                    return {
-                        statusCode: 500,
-                        message: 'Clone node on timeline error',
-                        data: null,
-                    };
-                }
-            }
-
+            console.log(updateData);
+            const result = await this.notificationRepository.save(updateData);
             return {
-                statusCode: 201,
-                message: 'Clone roadmap successfully',
+                statusCode: 200,
+                message: 'Update notification successfully',
                 data: result,
             };
         } catch (error) {
             return {
                 statusCode: 500,
-                message: error.message,
+                message: 'Server error when updating notification',
                 data: null,
             };
         }
     }
 
-    async findTimelineByTitle(
-        name: string,
-        page: number = 1,
-        limit: number = 10,
-        userId: number
-    ): Promise<{
-        statusCode: number;
-        message: string;
-        data: {
-            timeline: Timeline[];
-            totalRecord: number;
-        };
-    }> {
+    async remove(id: number): Promise<ResponseDto> {
         try {
-            const userResponse = await this.userService.findOneById(userId);
-            if (userResponse.statusCode !== 200) {
-                return {
-                    statusCode: 404,
-                    message: 'User not found',
-                    data: null,
-                };
-            }
-            
-            const user = Array.isArray(userResponse.data) 
-                            ? userResponse.data[0] 
-                            : userResponse.data;
-            let timelines=[], totalRecord=0;
-            if (user.role.id === 1)  {
-                timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .andWhere('timeline.title like :name', { name: `%${name}%` })
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
-                totalRecord = await this.timelineRepository
-                    .createQueryBuilder('timeline')
-                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                    .andWhere('timeline.deletedAt is null')
-                    .andWhere('timeline.title like :name', { name: `%${name}%` })
-                    .getCount();
+            const notificationResponse = await this.findOne(id);
+            const notification = Array.isArray(notificationResponse.data)
+                ? notificationResponse.data[0]
+                : notificationResponse.data;
 
-            } else {
-                timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                   // .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .andWhere('timeline.title like :name', { name: `%${name}%` })
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
-                totalRecord = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.title like :name', { name: `%${name}%` })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .getCount();
-            }
-            if (timelines.length === 0) {
+            if (!notification) {
                 return {
                     statusCode: 404,
-                    message: 'Timelines not found',
+                    message: 'Notification not found',
                     data: null,
                 };
             }
+            notification.deletedAt = new Date();
+            const result = await this.notificationRepository.save(notification);
             return {
                 statusCode: 200,
-                message: 'Get list of timelines successfully',
-                data: {
-                    timeline: timelines,
-                    totalRecord: totalRecord,
-                },
+                message: 'Delete notification successfully',
+                data: result,
             };
         } catch (error) {
             return {
                 statusCode: 500,
-                message: error.message,
+                message: 'Server error when deleting notification',
                 data: null,
             };
         }

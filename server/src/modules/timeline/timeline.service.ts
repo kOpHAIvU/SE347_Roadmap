@@ -245,7 +245,7 @@ export class TimelineService {
     async findTimelinesByUserId(
         userId: number,
         page: number = 1,
-        limit: number = 10
+        limit: number = 10,
     ): Promise<{
         statusCode: number;
         message: string;
@@ -461,7 +461,7 @@ export class TimelineService {
         name: string,
         page: number = 1,
         limit: number = 10,
-        userId: number
+        userId: number,
     ): Promise<{
         statusCode: number;
         message: string;
@@ -479,54 +479,52 @@ export class TimelineService {
                     data: null,
                 };
             }
-            
-            const user = Array.isArray(userResponse.data) 
-                            ? userResponse.data[0] 
-                            : userResponse.data;
-            let timelines=[], totalRecord=0;
-            if (user.role.id === 1)  {
+
+            const user = Array.isArray(userResponse.data) ? userResponse.data[0] : userResponse.data;
+            let timelines = [],
+                totalRecord = 0;
+            if (user.role.id === 1) {
                 timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .andWhere('timeline.title like :name', { name: `%${name}%` })
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    .where('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.deletedAt is null')
+                    .andWhere('timeline.title like :name', { name: `%${name}%` })
+                    .orderBy('timeline.createdAt', 'DESC')
+                    .skip((page - 1) * limit)
+                    .take(limit)
+                    .getMany();
                 totalRecord = await this.timelineRepository
                     .createQueryBuilder('timeline')
                     .where('timeline.isActive = :isActive', { isActive: 1 })
                     .andWhere('timeline.deletedAt is null')
                     .andWhere('timeline.title like :name', { name: `%${name}%` })
                     .getCount();
-
             } else {
                 timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                   // .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .andWhere('timeline.title like :name', { name: `%${name}%` })
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
+                    .where('groupDivision.user = :userId', { userId: userId })
+                    // .andWhere('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.deletedAt is null')
+                    .andWhere('timeline.title like :name', { name: `%${name}%` })
+                    .orderBy('timeline.createdAt', 'DESC')
+                    .skip((page - 1) * limit)
+                    .take(limit)
+                    .getMany();
                 totalRecord = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.title like :name', { name: `%${name}%` })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .getCount();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
+                    .where('groupDivision.user = :userId', { userId: userId })
+                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.title like :name', { name: `%${name}%` })
+                    .andWhere('timeline.deletedAt is null')
+                    .getCount();
             }
             if (timelines.length === 0) {
                 return {

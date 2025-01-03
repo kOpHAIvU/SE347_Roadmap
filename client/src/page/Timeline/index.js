@@ -58,7 +58,7 @@ function Timeline() {
 
             if (response.ok) {
                 setProfile(data.data);
-                //console.log(data.data)
+                console.log("Profile", data.data)
                 return data.data;
             } else {
                 console.error('Error:', data.message || 'Failed to fetch profile data.');
@@ -97,6 +97,7 @@ function Timeline() {
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
+                navigate('/home')
             }
         } catch (error) {
             console.error('Fetch Roadmap Error:', error);
@@ -143,9 +144,9 @@ function Timeline() {
             const data = await response.json();
 
             if (response.ok) {
+                console.log("gr: ", data.data.groupDivisions)
                 setGroupData(data.data.groupDivisions)
-                //console.log(data);
-                return data.data
+                return data.data;
             } else {
                 console.error(data);
             }
@@ -153,8 +154,6 @@ function Timeline() {
             console.error('Error:', error);
         }
     };
-
-    console.log(nodes)
 
     const fetchNewNode = async (nodeData) => {
         try {
@@ -203,19 +202,6 @@ function Timeline() {
                 content: comment.content,
                 id: id,
             }));
-            // console.log("filteredComments", filteredComments)
-            // console.log("Hehe: ", {
-            //     id: id,
-            //     level: data.level,
-            //     x: data.xAxis,
-            //     y: data.yAxis,
-            //     type: data.type,
-            //     ticked: data.tick,
-            //     due_time: data.dueTime,
-            //     content: data.content,
-            //     nodeDetail: data.detail,
-            //     nodeComment: filteredComments,
-            // })
             return {
                 id: id + 1,
                 level: data.level,
@@ -230,31 +216,6 @@ function Timeline() {
             }
         }
     }
-
-    // const fetchAllNodeInTimeline = async () => {
-    //     try {
-    //         const response = await fetch(`http://localhost:3004/node/all/timeline/${id}`, {
-    //             method: 'GET',
-    //             headers: {
-    //                 'Authorization': `Bearer ${getToken()}`,
-    //                 'Content-Type': 'application/json',
-    //             },
-    //         });
-
-    //         const data = await response.json();
-    //         if (response.ok) {
-    //             console.log("All Node: ", data)
-    //             // for (let i = 0; i < data.data.length; i++) { }
-    //             // setNodes(filterTimelineNode(data.data))
-    //             console.log("Nodes after fetching: ", nodes);
-    //         } else {
-    //             const errorData = await response.json();
-    //             console.error('Error:', errorData.message);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error:', error);
-    //     }
-    // };
 
     const fetchDelAllNodeInTimeline = async () => {
         try {
@@ -363,34 +324,31 @@ function Timeline() {
             const fetchedProfile = await fetchProfile();
             const fetchedTimelineData = await fetchTimelineData();
             const fetchedGroupDivisonData = await fetchGetGroupDivisionByTimeline();
-
             if (fetchedProfile && fetchedTimelineData && fetchedGroupDivisonData) {
+                console.log("fetc: ", fetchedGroupDivisonData)
                 for (let i = 0; i < fetchedGroupDivisonData.totalRecords; i++) {
                     const groupDivision = fetchedGroupDivisonData.groupDivisions[i];
                     if (fetchedProfile.id === groupDivision.user.id) {
-                        console.log('role', groupDivision.role)
                         switch (groupDivision.role) {
                             case 1:
                                 setUserType("Administrator");
-                                break;
+                                return;
                             case 2:
                                 setUserType("Editor");
-                                break;
+                                return;
                             case 3:
                                 setUserType("Viewer");
-                                break;
+                                return;
                             default:
                                 navigate('/home')
                         }
                     }
+                    navigate('/home')
                 }
-                //console.log(userType)
             }
         }
         fetchData();
     }, [id])
-
-    console.log(userType)
 
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
@@ -698,8 +656,6 @@ function Timeline() {
 
         return () => clearInterval(intervalId);
     }, []);
-
-    console.log(id)
 
     return (
         <div className={cx('wrapper')}>
