@@ -165,3 +165,36 @@
         }
     }
 }
+
+
+.notification-item {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+    line-height: 2rem;
+
+}
+
+.added-accept-notification {
+    background-color: #e6f7ff; 
+    color: #0050b3; 
+}
+
+.added-decline-notification {
+    background-color: #fff1f0; 
+    color: #a8071a; 
+}
+
+// .gmail-notification {
+//     background-color: #fffbe6; 
+//     color: #d48806; 
+// }
+
+.report-notification {
+    background-color: #fff1f0; 
+    color: #a8071a; 
+}
+
+.blocked-notification {
+    background-color: #f9f0ff;
+    color: #531dab; 
+}

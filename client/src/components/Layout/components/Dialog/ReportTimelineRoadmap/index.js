@@ -33,8 +33,6 @@ function ReportTimelineRoadmap({ type, profile, roadmapData, handleOutsideClick,
                 roadmapId: roadmapData.id,
             }).toString();
 
-            console.log('Body: ', body);
-
             const response = await fetch('http://localhost:3004/report/new', {
                 method: 'POST',
                 headers: {

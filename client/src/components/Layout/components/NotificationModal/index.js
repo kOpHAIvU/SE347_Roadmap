@@ -18,7 +18,7 @@ function NotificationModal() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
-    const limit = 100;
+    const limit = 5;
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -219,32 +219,88 @@ function NotificationModal() {
                 {notifications.map((notification) => {
                     const { firstWord, middleText, lastWord } = formatNotificationText(notification.text);
                     return (
-                        <div key={notification.id} className={cx('notification-item')}>
-                            <div className={cx('title-notifi')}>
-                                <img src={notification.avatar} alt="Avatar" className={cx('avatar')} />
+                        <div key={notification.id}>
+                            <p>
+                                {notification.type.startsWith('Added') && notification.status === null ? (
+                                    <div className={cx('notification-item')}>
+                                        <div className={cx('title-notifi')}>
+                                            <img src={notification.avatar} alt="Avatar" className={cx('avatar')} />
+                                            <div className={cx('main-content')}>
+                                                <strong>{firstWord}</strong> {middleText} <strong>{lastWord}</strong>
+                                            </div>
+                                        </div>
+                                        <div className={cx('actions')}>
+                                            <button
+                                                className={cx('accept-btn')}
+                                                onClick={() =>
+                                                    handleResponse(
+                                                        notification.id,
+                                                        'accept',
+                                                        extractGroupDivisionId(notification.type),
+                                                    )
+                                                }
+                                            >
+                                                Accept
+                                            </button>
+                                            <button
+                                                className={cx('decline-btn')}
+                                                onClick={() =>
+                                                    handleResponse(
+                                                        notification.id,
+                                                        'decline',
+                                                        extractGroupDivisionId(notification.type),
+                                                    )
+                                                }
+                                            >
+                                                Decline
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : notification.type.startsWith('Added') && notification.status === 'accept' ? (
+                                    <div className={cx('notification-item', 'added-accept-notification')}>
+                                        <div className={cx('title-notifi')}>
+                                            <img src={notification.avatar} alt="Avatar" className={cx('avatar')} />
+                                            <div className={cx('main-content')}>
+                                                You have successfully joined this timeline.
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : notification.type.startsWith('Added') && notification.status === 'decline' ? (
+                                    <div className={cx('notification-item', 'added-decline-notification')}>
+                                        <div className={cx('title-notifi')}>
+                                            <img src={notification.avatar} alt="Avatar" className={cx('avatar')} />
+                                            <div className={cx('main-content')}>
+                                                You have declined the invitation to join this timeline.
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : notification.type.startsWith('gmail') ? (
+                                    <div className={cx('notification-item')}>
+                                        <div className={cx('title-notifi')}>
+                                            <img src={notification.avatar} alt="Avatar" className={cx('avatar')} />
+                                            <div className={cx('main-content')}>
+                                                <strong>{notification.username}: </strong>A {notification.titles}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : notification.type.startsWith('Report') ? (
+                                    <div className={cx('notification-item', 'report-notification')}>
+                                        <div className={cx('title-notifi')}>
+                                            <img src={notification.avatar} alt="Avatar" className={cx('avatar')} />
+                                            <div className={cx('main-content')}>{notification.text}</div>
+                                        </div>
+                                    </div>
+                                ) : notification.type.startsWith('Blocked') ? (
+                                    <div className={cx('notification-item', 'blocked-notification')}>
+                                        <div className={cx('title-notifi')}>
+                                            <img src={notification.avatar} alt="Avatar" className={cx('avatar')} />
+                                            <div className={cx('main-content')}>{notification.text}</div>
+                                        </div>
+                                    </div>
+                                ) : null}
+                            </p>
 
-                                <p>
-                                    {notification.type.startsWith('Added') && notification.status === null ? (
-                                        <div className={cx('main-content')}>
-                                            <strong>{firstWord}</strong> {middleText} <strong>{lastWord}</strong>
-                                        </div>
-                                    ) : notification.type.startsWith('Added') && notification.status === 'accept' ? (
-                                        <div className={cx('main-content')}>
-                                            You have successfully joined this timeline.
-                                        </div>
-                                    ) : notification.type.startsWith('Added') && notification.status === 'decline' ? (
-                                        <div className={cx('main-content')}>
-                                            You have declined the invitation to join this timeline.
-                                        </div>
-                                    ) : notification.type.startsWith('gmail') ? (
-                                        <div className={cx('main-content')}>
-                                            <strong>{notification.username}: </strong>A {notification.titles}
-                                        </div>
-                                    ) : null}
-                                </p>
-                            </div>
-
-                            {/* Show actions for invite notifications */}
+                            {/* Show actions for invite notifications
                             {notification.type.startsWith('Added') && notification.status === null && (
                                 <div className={cx('actions')}>
                                     <button
@@ -272,7 +328,7 @@ function NotificationModal() {
                                         Decline
                                     </button>
                                 </div>
-                            )}
+                            )} */}
                         </div>
                     );
                 })}
