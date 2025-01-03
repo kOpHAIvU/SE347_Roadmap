@@ -243,7 +243,7 @@ export class TimelineService {
     async findTimelinesByUserId(
         userId: number,
         page: number = 1,
-        limit: number = 10,
+        limit: number = 10
     ): Promise<{
         statusCode: number;
         message: string;

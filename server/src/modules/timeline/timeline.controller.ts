@@ -47,14 +47,15 @@ export class TimelineController {
         return await this.timelineService.findOneByIdGrant(+id, req.user.userId);
     }
 
-    @Get('user/:userId')
+    @Get('owner')
     @UseGuards(JwtAuthGuard)
     async findTimelinesByUserId(
         @Param('userId', ParseIntPipe) idUser: number,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
     ) {
-        return await this.timelineService.findTimelinesByUserId(idUser, page, limit);
+        return await this.timelineService.findTimelinesByUserId(req.user.userId, page, limit);
     }
 
     @Patch('item/:id')
