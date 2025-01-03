@@ -16,9 +16,34 @@
 
     <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
     <script> 
+        
+        const socket1 = io('http://localhost:3004/message', {
+            query: {
+                teamId: 2, 
+                userId: 15, 
+            },
+            timeout: 5000,
+            reconnect: true
+        });
 
         
-        
+
+        socket1.on('connect', () => {
+            console.log('Connected to WebSocket server:', socket.id);
+            
+            setTimeout(() => {
+                socket1.emit('send_message', { message: 'Hello' });
+              }, 100);
+            // Lắng nghe sự kiện 'message' từ server
+            socket1.on('message', function (data) {
+                console.log("Message", data);
+            });
+
+            socket1.on("error", (error) => {
+                console.error('Error:', error.message);
+            });
+          }); 
+
         const socket = io('http://localhost:3004/message', {
             query: {
                 teamId: 2, 
@@ -30,11 +55,9 @@
 
         socket.on('connect', () => {
             console.log('Connected to WebSocket server:', socket.id);
-          
+            
             // Đợi kết nối hoàn tất trước khi gửi tin nhắn
-            setTimeout(() => {
-              socket.emit('send_message', { message: 'Hello' });
-            }, 100);
+            
 
             // Lắng nghe sự kiện 'message' từ server
             socket.on('message', function (data) {
@@ -49,27 +72,7 @@
             });
           }); 
 
-          const socket1 = io('http://localhost:3004/message', {
-            query: {
-                teamId: 2, 
-                userId: 15, 
-            },
-            timeout: 5000,
-            reconnect: true
-        });
-
-        socket1.on('connect', () => {
-            console.log('Connected to WebSocket server:', socket.id);
-
-            // Lắng nghe sự kiện 'message' từ server
-            socket1.on('message', function (data) {
-                console.log("Message", data);
-            });
-
-            socket1.on("error", (error) => {
-                console.error('Error:', error.message);
-            });
-          }); 
+          
 
         // Gửi tin nhắn tới server
         function sendMessage() {

@@ -19,6 +19,12 @@ export class Timeline {
     @ManyToOne(() => User, creator => creator.timeline, { eager: true })
     creator: User;
 
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    startTime: Date;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    dueTime: Date;
+
     @ManyToOne(() => Roadmap, roadmap => roadmap.timeline, { eager: true })
     roadmap: Roadmap;
 
