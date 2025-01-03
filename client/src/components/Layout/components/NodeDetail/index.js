@@ -104,8 +104,8 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
                 handleOutsideClick(e)
             }}
         >
-            <div className={cx('modal')}>
-                <div className={cx('editor-container')}>
+            <div className={cx('modal', { timeline: location.pathname.startsWith('/timeline/') })} >
+                <div className={cx('editor-container', { timeline: location.pathname.startsWith('/timeline/') })}>
                     <ReactQuill
                         className={cx('editor')}
                         theme="snow"
@@ -113,6 +113,7 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
                         onChange={setText}
                         onChangeSelection={handleSelectionChange}
                         modules={modules}
+                        style={{ height: '400px' }}
                     />
                 </div>
                 {location.pathname.startsWith('/timeline/') && (
@@ -151,7 +152,7 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }
 

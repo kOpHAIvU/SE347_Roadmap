@@ -169,6 +169,8 @@ function ReportItem({ children }) {
         }
     };
 
+    console.log("Child: ", children)
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('roadmap')}>
@@ -179,10 +181,28 @@ function ReportItem({ children }) {
                             ? children.roadmap.avatar.substring(0, children.roadmap.avatar.indexOf('.jpg') + 4)
                             : ''
                     }
+                    alt={children.roadmap.avatar ? 'Roadmap avatar' : 'Default avatar'}
+                    onClick={() => {
+                        const encryptedId = encryptId(children.roadmap.id);
+                        navigate(`/roadmap/${encryptedId}`);
+                    }}
                 />
-                <h1 className={cx('roadmap-name')}>{children.roadmap.title}</h1>
+                <h1
+                    className={cx('roadmap-name')}
+                    onClick={() => {
+                        const encryptedId = encryptId(children.roadmap.id);
+                        navigate(`/roadmap/${encryptedId}`);
+                    }}
+                >{children.roadmap.title}</h1>
             </div>
-            <h1 className={cx('sender')}>{children.reporter.fullName}</h1>
+            <h1
+                className={cx('sender')}
+                onClick={() => {
+                    const encryptedId = encryptId(children.roadmap.id);
+                    navigate(`/account/${encryptedId}`);
+                }}
+            >{children.reporter.fullName}
+            </h1>
             <h1 className={cx('date')}>{children.createdAt.substring(0, 10)}</h1>
             <div className={cx('descrip-container')}>
                 <h1 className={cx('description')}>{children.content}</h1>

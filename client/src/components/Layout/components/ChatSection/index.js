@@ -96,6 +96,10 @@ function ChatSection({ profile, groupData }) {
         }
     };
 
+    const setMessage = (message) => {
+
+    }
+
     // Config web socket
     useEffect(() => {
         if (groupData[0]) {
@@ -122,20 +126,26 @@ function ChatSection({ profile, groupData }) {
             });
 
             socket.current.on('message', (message) => {
-                console.log("New message nè: ", message)
-                console.log("avatar", message.data.sender)
-                const newMessage = {
-                    id: message.data.id,
-                    user: message.data.sender?.fullName,
-                    avatar: message.data.sender?.avatar ? message.data.sender?.avatar.substring(0, message.data.sender?.avatar.indexOf('.jpg') + 4) : '',
-                    date: message.data.createdAt.substring(0, 10),
-                    content: message.data.content,
-                };
-                setChats((prevChats) => {
-                    const updatedChats = [...prevChats, newMessage];
-                    return updatedChats;
-                });
+                if (message?.data) {  // Check if message.data is not undefined
+                    console.log("New message:", message);
+
+                    const newMessage = {
+                        id: message.data.id,
+                        user: message.data.sender?.fullName || 'Unknown',  // Add a fallback value
+                        avatar: message.data.sender?.avatar ? message.data.sender.avatar.substring(0, message.data.sender.avatar.indexOf('.jpg') + 4) : '',
+                        date: message.data.createdAt?.substring(0, 10) || 'Unknown',  // Fallback for date
+                        content: message.data.content || 'No content',  // Fallback for content
+                    };
+
+                    setChats((prevChats) => {
+                        const updatedChats = [...prevChats, newMessage];
+                        return updatedChats;
+                    });
+                } else {
+                    console.error('Invalid message data received:', message);
+                }
             });
+
 
             // Xử lý lỗi kết nối
             socket.current.on('connect_error', (error) => {

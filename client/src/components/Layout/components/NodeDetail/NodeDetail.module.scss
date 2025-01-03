@@ -14,7 +14,6 @@
     background: white;
     padding: 20px;
     border-radius: 8px;
-    width: 60%;
     height: 100%;
     position: relative;
     display: flex;
@@ -22,10 +21,19 @@
     transform: translateX(100%);
     animation: slideIn 0.3s ease forwards;
     overflow-y: auto;
+    width: 40%;
+
+    &:timeline {
+        width: 60%;
+    }
 }
 
 .editor-container {
-    width: 70%;
+    width: 100%;
+
+    &:timeline {
+        width: 70%;
+    }
 }
 
 .comment-section {
