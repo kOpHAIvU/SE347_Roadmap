@@ -32,7 +32,6 @@ export class TimelineController {
 
     @Get('all')
     @UseGuards(JwtAuthGuard)
-    @Roles('user')
     async findAll(
         @Query('page', ParseIntPipe) page: number = 1, 
         @Query('limit', ParseIntPipe) limit: number = 10,

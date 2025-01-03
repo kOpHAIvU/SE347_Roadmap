@@ -43,8 +43,8 @@ export class Timeline {
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
 
-    @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
-    groupDivision: GroupDivision;
+    @OneToMany(() => GroupDivision, groupDivision => groupDivision.timeline)
+    groupDivision: GroupDivision[];
 
     @OneToMany(() => Node, node => node.timeline)
     node: Node[];

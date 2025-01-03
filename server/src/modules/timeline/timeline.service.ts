@@ -87,47 +87,35 @@ export class TimelineService {
             }
 
             const user = Array.isArray(userResponse.data) ? userResponse.data[0] : userResponse.data;
+          // console.log('userId', user);
+
             let timelines = [],
                 totalRecord = 0;
-            if (user.role.id === 1) {
                 timelines = await this.timelineRepository
+                .createQueryBuilder('timeline')
+                .leftJoinAndSelect('timeline.creator', 'creator') // Join với creator
+                .leftJoinAndSelect('timeline.node', 'node') // Join với node
+                .leftJoinAndSelect('timeline.groupDivision', 'groupDivision') // Join với groupDivision
+                .leftJoinAndSelect('groupDivision.user', 'user') // Join với user trong groupDivision
+                .where('user.id = :userId', {userId }) // Lọc theo userId
+                .andWhere('timeline.deletedAt IS NULL') // Kiểm tra timeline chưa bị xóa mềm
+                .orderBy('timeline.createdAt', 'DESC') // Sắp xếp theo thời gian tạo
+                .skip((page - 1) * limit) // Phân trang
+                .take(limit) // Giới hạn số lượng kết quả
+                .getMany();
+totalRecord = await this.timelineRepository
                     .createQueryBuilder('timeline')
-                    .leftJoinAndSelect('timeline.creator', 'creator')
-                    .leftJoinAndSelect('timeline.node', 'node')
-                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                    .andWhere('timeline.deletedAt is null')
-                    .orderBy('timeline.createdAt', 'DESC')
-                    .skip((page - 1) * limit)
-                    .take(limit)
-                    .getMany();
-                totalRecord = await this.timelineRepository
-                    .createQueryBuilder('timeline')
-                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                    .andWhere('timeline.deletedAt is null')
+                    .leftJoinAndSelect('timeline.creator', 'creator') // Join với creator
+                    .leftJoinAndSelect('timeline.node', 'node') // Join với node
+                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision') // Join với groupDivision
+                    .leftJoinAndSelect('groupDivision.user', 'user') // Join với user trong groupDivision
+                    .where('user.id = :userId', {userId }) // Lọc theo userId
+                    .andWhere('timeline.deletedAt IS NULL') // Kiểm tra timeline chưa bị xóa mềm
+                    .orderBy('timeline.createdAt', 'DESC') // Sắp xếp theo thời gian tạo
+                    .skip((page - 1) * limit) // Phân trang
+                    .take(limit) // Giới hạn số lượng kết quả
                     .getCount();
-            } else {
-                timelines = await this.timelineRepository
-                    .createQueryBuilder('timeline')
-                    .leftJoinAndSelect('timeline.creator', 'creator')
-                    .leftJoinAndSelect('timeline.node', 'node')
-                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                    .where('groupDivision.user = :userId', { userId: userId })
-                    // .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                    .andWhere('timeline.deletedAt is null')
-                    .orderBy('timeline.createdAt', 'DESC')
-                    .skip((page - 1) * limit)
-                    .take(limit)
-                    .getMany();
-                totalRecord = await this.timelineRepository
-                    .createQueryBuilder('timeline')
-                    .leftJoinAndSelect('timeline.creator', 'creator')
-                    .leftJoinAndSelect('timeline.node', 'node')
-                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                    .where('groupDivision.user = :userId', { userId: userId })
-                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                    .andWhere('timeline.deletedAt is null')
-                    .getCount();
-            }
+                    
             if (timelines.length === 0) {
                 return {
                     statusCode: 404,

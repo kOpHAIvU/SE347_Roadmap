@@ -69,8 +69,8 @@ export class User {
     @OneToMany( () => Notification, poster => poster.postNotification)
     poster: Report[]
 
-    @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
-    groupDivision: GroupDivision;
+    @OneToMany(() => GroupDivision, groupDivision => groupDivision.user)
+    groupDivision: GroupDivision[];
 
     @OneToMany(() => Message, messages => messages.sender)
     messages: Message[];

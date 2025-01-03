@@ -13,7 +13,6 @@ import { Subject } from 'rxjs';
 import { NotificationGateway } from './notification.gateway';
 import { ThrottlerStorageService } from '@nestjs/throttler';
 import { FirebaseService } from '../firebase/firebase.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class NotificationService {
@@ -125,18 +124,7 @@ export class NotificationService {
         }
     }
 
-    async findNotificationsByUser(
-        id: number,
-        page: number = 1,
-        limit: number = 10,
-    ): Promise<{
-        statusCode: number;
-        message: string;
-        data: {
-            total: number;
-            data: Notification[];
-        };
-    }> {
+    async findNotificationsByUser(id: number, page: number = 1, limit: number = 10): Promise<ResponseDto> {
         try {
             const notifications = await this.notificationRepository
                 .createQueryBuilder('notification')
@@ -148,12 +136,6 @@ export class NotificationService {
                 .skip((page - 1) * limit)
                 .take(limit)
                 .getMany();
-            const total = await this.notificationRepository
-                .createQueryBuilder('notification')
-                .where('notification.isActive = :isActive', { isActive: 1 })
-                .andWhere('notification.deletedAt is null')
-                .andWhere('notification.receiverId = :id', { id })
-                .getCount();
             if (!notifications) {
                 return {
                     statusCode: 404,
@@ -164,10 +146,7 @@ export class NotificationService {
             return {
                 statusCode: 200,
                 message: 'Get all notifications successfully',
-                data: {
-                    total,
-                    data: notifications,
-                },
+                data: notifications,
             };
         } catch (error) {
             return {
