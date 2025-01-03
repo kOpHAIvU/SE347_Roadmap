@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class LoginDto {
     // @IsEmail()
@@ -10,12 +10,12 @@ export class LoginDto {
     // username: string;
 
     @IsString()
-  @IsOptional() // Cho phép không bắt buộc
-  username?: string;
+    @IsOptional() // Cho phép không bắt buộc
+    username?: string;
 
-  @IsEmail()
-  @IsOptional() // Cho phép không bắt buộc
-  email?: string;
+    @IsEmail()
+    @IsOptional() // Cho phép không bắt buộc
+    email?: string;
 
     @IsString()
     @IsNotEmpty()

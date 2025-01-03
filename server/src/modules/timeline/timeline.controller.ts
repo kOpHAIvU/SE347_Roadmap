@@ -33,8 +33,12 @@ export class TimelineController {
     @Get('all')
     @UseGuards(JwtAuthGuard)
     @Roles('user')
-    async findAll(@Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 10) {
-        return await this.timelineService.findAll(page, limit);
+    async findAll(
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
+    ) {
+        return await this.timelineService.findAll(page, limit, req.user.userId);
     }
 
     @Get('item/:id')

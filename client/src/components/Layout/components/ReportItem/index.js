@@ -198,7 +198,8 @@ function ReportItem({ children }) {
             <h1
                 className={cx('sender')}
                 onClick={() => {
-                    const encryptedId = encryptId(children.roadmap.id);
+                    console.log(children)
+                    const encryptedId = encryptId(children.reporter.id);
                     navigate(`/account/${encryptedId}`);
                 }}
             >{children.reporter.fullName}

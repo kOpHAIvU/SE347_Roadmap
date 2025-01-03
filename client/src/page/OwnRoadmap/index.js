@@ -238,7 +238,7 @@ function OwnRoadmap() {
             formData.append('xAxis', nodeData.x);
             formData.append('yAxis', nodeData.y);
             formData.append('type', nodeData.type);
-            formData.append('tick', nodeData.ticked);
+            formData.append('tick', nodeData.ticked ? '1' : '0');
             formData.append('dueTime', nodeData.due_time);
             formData.append('content', nodeData.content);
             formData.append('detail', nodeData.nodeDetail);
@@ -496,6 +496,15 @@ function OwnRoadmap() {
 
         handleMakeDialog('Saved')
     }
+
+    // Tự động lưu mỗi 5 phút
+    useEffect(() => {
+        const intervalId = setInterval(async () => {
+            await handleSave();
+        }, 5 * 60 * 1000);
+    
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleOutsideClick = (e) => {
         if (String(e.target.className).includes('modal-overlay')) {
