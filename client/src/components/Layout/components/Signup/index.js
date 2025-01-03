@@ -86,7 +86,7 @@ function Signup() {
             // Kiểm tra nếu defaultFile tồn tại
             if (!defaultFile) {
                 console.error('Default file is not available.');
-                alert('Failed to load default avatar. Please try again.');
+                //alert('Failed to load default avatar. Please try again.');
                 return;
             }
 
@@ -114,7 +114,7 @@ function Signup() {
                 const data = await response.json();
                 console.log('data: ', data);
                 if (response.ok) {
-                    alert('Sign up successful!');
+                    //alert('Sign up successful!');
                     e.preventDefault(); // Ngăn hành vi reload trang
                     const newErrors = validate();
                     if (Object.keys(newErrors).length > 0) {
@@ -151,11 +151,11 @@ function Signup() {
                     }
                     // navigate('/home'); // Navigate to Home
                 } else {
-                    alert(data.message || 'Signup failed!'); // Display error message
+                    //alert(data.message || 'Signup failed!'); // Display error message
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                //alert('An error occurred. Please try again.');
             }
         }
     };

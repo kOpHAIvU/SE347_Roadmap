@@ -103,6 +103,7 @@ function Timeline() {
             console.error('Fetch Roadmap Error:', error);
         }
     };
+    console.log(userType)
 
     const fetchUpdateTimelineTitleContent = async () => {
         try {
@@ -343,8 +344,8 @@ function Timeline() {
                                 navigate('/home')
                         }
                     }
-                    navigate('/home')
                 }
+                navigate('/home')
             }
         }
         fetchData();
@@ -551,16 +552,19 @@ function Timeline() {
         setTimeout(() => setHoveredIndex(null), 0);
     };
 
+    console.log(nodes)
+
     const updateNodeComment = (nodeId, action, commentData = null, commentIndex = null) => {
         setNodes((prevNodes) => {
             return prevNodes.map((node) => {
                 //console.log(node.id, "  ", nodeId)
-                if (node.id === nodeId) {
+                if (node.id === nodeId + 1) {
                     let updatedComments = node.nodeComment ? [...node.nodeComment] : [];
+                    console.log("Up: ", updatedComments)
 
                     switch (action) {
                         case 'add':
-                            console.log("Add")
+                            console.log("Add", commentData)
                             if (commentData) {
                                 updatedComments.push(commentData);
                             }

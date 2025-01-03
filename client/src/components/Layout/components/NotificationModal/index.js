@@ -21,7 +21,6 @@ function NotificationModal() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
-    const limit = 5;
     const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
@@ -35,7 +34,7 @@ function NotificationModal() {
                     throw new Error('Access token is missing. Please log in.');
                 }
                 const response = await fetch(
-                    `http://localhost:3004/notification/all/owner?page=${page}&limit=${limit}`,
+                    `http://localhost:3004/notification/all/owner?page=${page}&limit=5`,
                     {
                         method: 'GET',
                         headers: {
@@ -49,7 +48,7 @@ function NotificationModal() {
                 if (response.ok) {
                     const totalNotifications = responseData.data.total;
                     console.log('Response data:', responseData);
-                    const notificationsData = responseData.data.data; // Truy cập đúng mảng dữ liệu
+                    const notificationsData = responseData.data; // Truy cập đúng mảng dữ liệu
                     const formattedData = notificationsData.map((item) => ({
                         id: item.id,
                         type: item.type,
@@ -64,11 +63,12 @@ function NotificationModal() {
                     formattedData.sort((a, b) => b.createdAt - a.createdAt);
                     console.log('Formatted notifications: ', formattedData);
                     setNotifications(formattedData);
-                    setTotalPages(Math.ceil(totalNotifications / limit));
+                    setTotalPages(Math.ceil(totalNotifications / 5));
                     console.log('total', totalPages);
                     console.log('Formatted', notifications);
                 } else {
                     const errorData = await response.json();
+                    console.error("Err", errorData)
                     throw new Error(errorData.message || 'Failed to fetch notifications');
                 }
             } catch (err) {
@@ -87,13 +87,14 @@ function NotificationModal() {
             if (action === 'accept') {
                 if (groupDivisionId) {
                     await updateRole(groupDivisionId, 3);
+                    await deleteNotifi(notificationId);
                     console.log(`Accepted notification with ID: ${notificationId}`);
                 } else {
                     console.error('GroupDivision ID is missing for accept action');
                 }
             } else if (action === 'decline') {
                 if (groupDivisionId) {
-                    await declineNotifi(groupDivisionId);
+                    await declineNotifi(notificationId);
                     console.log(`Declined notification with ID: ${notificationId}`);
                 } else {
                     console.error('GroupDivision ID is missing for decline action');
@@ -130,13 +131,14 @@ function NotificationModal() {
         });
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
+    // if (isLoading) {
+    //     return <div>Loading...</div>;
+    // }
 
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
+    // if (error) {
+    //     return <div>Error: {error}</div>;
+    // }
+
     const extractGroupDivisionId = (type) => {
         const parts = type.split(' ');
         return parts.length > 1 ? parts[1] : null; // Lấy phần tử thứ hai sau 'Added'
@@ -158,11 +160,11 @@ function NotificationModal() {
             } else {
                 const data = await response.json();
                 console.error('Failed to update role:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error updating role:', error);
-            alert('An error occurred while updating the role. Please try again.');
+            //alert('An error occurred while updating the role. Please try again.');
         }
     };
 
@@ -181,11 +183,11 @@ function NotificationModal() {
             } else {
                 const data = await response.json();
                 console.error('Failed to Decline:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error during decline:', error);
-            alert('An error occurred while decline. Please try again.');
+            //alert('An error occurred while decline. Please try again.');
         }
     };
 
@@ -204,11 +206,11 @@ function NotificationModal() {
             } else {
                 const data = await response.json();
                 console.error('Failed to Delete:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error during Delete:', error);
-            alert('An error occurred while Delete. Please try again.');
+            //alert('An error occurred while Delete. Please try again.');
         }
     };
 

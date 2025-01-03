@@ -125,11 +125,11 @@ function TimelineSetting() {
             } else {
                 const data = await response.json();
                 console.error('Failed to revoke invite:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error during invite revocation:', error);
-            alert('An error occurred while revoking the invite. Please try again.');
+            //alert('An error occurred while revoking the invite. Please try again.');
         }
     };
 
@@ -165,11 +165,11 @@ function TimelineSetting() {
             } else {
                 const data = await response.json();
                 console.error('Failed to delete user:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error during deletion:', error);
-            alert('An error occurred while deleting the user. Please try again.');
+            //alert('An error occurred while deleting the user. Please try again.');
         }
     };
 
@@ -193,11 +193,11 @@ function TimelineSetting() {
             } else {
                 const data = await response.json();
                 console.error('Failed to delete timeline:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error during timeline deletion:', error);
-            alert('An error occurred while deleting the timeline. Please try again.');
+            //alert('An error occurred while deleting the timeline. Please try again.');
         }
     };
 
@@ -220,11 +220,11 @@ function TimelineSetting() {
             } else {
                 const data = await response.json();
                 console.error('Failed to update role:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error updating role:', error);
-            alert('An error occurred while updating the role. Please try again.');
+            //alert('An error occurred while updating the role. Please try again.');
         }
     };
 
@@ -390,7 +390,7 @@ function TimelineSetting() {
 
     const handleAddToTimeline = async () => {
         if (!selectedUser) {
-            alert('Please select a user to add to the timeline.');
+            //alert('Please select a user to add to the timeline.');
             return;
         }
 
@@ -434,11 +434,11 @@ function TimelineSetting() {
             } else {
                 const data = await response.json();
                 console.error('Failed to add user to timeline:', data.message);
-                alert(`Error: ${data.message}`);
+                //alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error('Error adding user to timeline:', error);
-            alert('An error occurred while adding the user to the timeline. Please try again.');
+            //alert('An error occurred while adding the user to the timeline. Please try again.');
         }
     };
 

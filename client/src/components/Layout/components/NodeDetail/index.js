@@ -93,7 +93,6 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
         }
     }, [isCommentAdded]);
 
-
     return (
         <div
             className={cx('modal-overlay')}
@@ -136,7 +135,6 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
                         <button
                             onClick={() => {
                                 if (selectedText.trim() !== '') {
-                                    console.log("Hehe")
                                     updateNodeComment(index, 'add', {
                                         userId: profile.id,
                                         username: profile.fullName,

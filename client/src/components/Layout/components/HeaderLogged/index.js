@@ -375,7 +375,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                                     ) {
                                         setImage(file); // setImage là state chứa file ảnh
                                     } else {
-                                        alert('Please select a JPG image.');
+                                        //('Please select a JPG image.');
                                         e.target.value = ''; // Reset input nếu không phải ảnh JPG
                                     }
                                 }}
@@ -398,6 +398,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                     </div>
                 </div>
             )}
+
             <div className={cx('mini-notify')}>
                 {dialogs.map((dialog) => (
                     <CantCloneDialogTooMany

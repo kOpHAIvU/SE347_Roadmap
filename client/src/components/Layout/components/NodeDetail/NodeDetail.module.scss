@@ -23,7 +23,7 @@
     overflow-y: auto;
     width: 40%;
 
-    &:timeline {
+    &.timeline {
         width: 60%;
     }
 }
@@ -31,13 +31,13 @@
 .editor-container {
     width: 100%;
 
-    &:timeline {
-        width: 70%;
+    &.timeline {
+        width: 100%;
     }
 }
 
 .comment-section {
-    width: 30%;
+    width: 40%;
     padding-left: 10px;
     border-left: 2px solid #ccc;
 }
