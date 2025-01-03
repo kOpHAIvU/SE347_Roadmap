@@ -636,7 +636,8 @@ export class RoadmapService {
     async findRoadmapsByTitle(
         name: string,
         page: number = 1,
-        limit: number = 10
+        limit: number = 10,
+        idUser: number
     ): Promise<{
         statusCode: number,
         message: string,
@@ -646,44 +647,101 @@ export class RoadmapService {
         }
     }> {
         try {
-            const roadmaps = await this.roadmapRepository
-                .createQueryBuilder('roadmap')
-                .leftJoinAndSelect('roadmap.node', 'node')
-                .leftJoinAndSelect('roadmap.owner', 'owner')
-                .where('roadmap.isActive = :isActive', { isActive: 1 })
-                .andWhere('roadmap.deletedAt is null')
-                .andWhere('roadmap.title like :name', { name: `%${name}%` })
-                .orderBy('roadmap.createdAt', 'DESC')
-                .skip((page - 1) * limit)
-                .take(limit)
-                .getMany();
-            if (!roadmaps) {
+            const userResponse = await this.userService.findOneById(idUser);
+            if (userResponse.statusCode !== 200) {
+                return {
+                    statusCode: 404,
+                    message: 'User not found',
+                    data: null,
+                };
+            }
+            const user = Array.isArray(userResponse.data) ? userResponse.data[0] : userResponse.data;
+
+            let roadmap: Roadmap[], totalRecord: number;
+            if (user.role.id === 1) {
+                // role is admin
+                roadmap = await this.roadmapRepository
+                    .createQueryBuilder('roadmap')
+                    .leftJoinAndSelect('roadmap.owner', 'owner')
+                    .leftJoinAndSelect('roadmap.node', 'node')
+                    .leftJoinAndSelect('owner.comment', 'comment')
+                    .where('roadmap.isActive = :isActive', { isActive: true })
+                    .andWhere('roadmap.deletedAt is null')
+                    .andWhere('roadmap.title like :name', { name: `%${name}%` })
+                    .orderBy('roadmap.createdAt', 'DESC')
+                    .skip((page - 1) * limit)
+                    .take(limit)
+                    .getMany();
+                totalRecord = await this.roadmapRepository
+                    .createQueryBuilder('roadmap')
+                    .where('roadmap.isActive = :isActive', { isActive: 1 })
+                    .andWhere('roadmap.deletedAt is null')
+                    .andWhere('roadmap.title like :name', { name: `%${name}%` })
+                    .getCount();
+            } else {
+                roadmap = await this.roadmapRepository
+                                            .createQueryBuilder('roadmap')
+                                            .leftJoinAndSelect('roadmap.owner', 'owner')
+                                            .leftJoinAndSelect('roadmap.node', 'node')
+                                            .leftJoinAndSelect('owner.comment', 'comment')
+                                            .where('roadmap.isActive = :isActive', { isActive: 1 })
+                                            .andWhere('roadmap.deletedAt is null')
+                                            .andWhere('roadmap.title like :name', { name: `%${name}%` })
+                                            .andWhere(
+                                                new Brackets((qb) => {
+                                                    qb.where('roadmap.owner = :owner', { owner: user.id })
+                                                        .orWhere(
+                                                            new Brackets((qb2) => {
+                                                                qb2.where('roadmap.owner != :owner', { owner: user.id })
+                                                                    .andWhere('roadmap.isPublic = :isPublic', { isPublic: true });
+                                                            }),
+                                                        );
+                                                }),
+                                            )
+                                            .orderBy('roadmap.createdAt', 'DESC')
+                                            .skip((page - 1) * limit)
+                                            .take(limit)
+                                            .getMany();
+                totalRecord = await this.roadmapRepository
+                    .createQueryBuilder('roadmap')
+                    .where('roadmap.isActive = :isActive', { isActive: 1 })
+                    .andWhere('roadmap.deletedAt is null')
+                    .andWhere('roadmap.title like :name', { name: `%${name}%` })
+                    .andWhere(
+                        new Brackets((qb) => {
+                            qb.where('roadmap.owner = :owner', { owner: user.id })
+                                .orWhere(
+                                    new Brackets((qb2) => {
+                                        qb2.where('roadmap.owner != :owner', { owner: user.id })
+                                            .andWhere('roadmap.isPublic = :isPublic', { isPublic: true });
+                                    }),
+                                );
+                        }),
+                    )
+                    .getCount();
+            }
+            if (!roadmap) {
                 return {
                     statusCode: 404,
                     message: 'Roadmap not found',
                     data: null,
                 };
             }
-            const totalRecord = await this.roadmapRepository
-                .createQueryBuilder('roadmap')
-                .where('roadmap.isActive = :isActive', { isActive: 1 })
-                .andWhere('roadmap.deletedAt is null')
-                .andWhere('roadmap.title like :name', { name: `%${name}%` })
-                .getCount();
+
             return {
                 statusCode: 200,
-                message: 'Get roadmap by title successfully',
+                message: 'Get this of roadmap successfully',
                 data: {
-                    roadmap: roadmaps,
                     totalRecord: totalRecord,
+                    roadmap: roadmap,
                 },
-            }
-        } catch(error) {
+            };
+        } catch (error) {
             return {
                 statusCode: 500,
-                message: 'Failed to get roadmap by title',
+                message: error.message,
                 data: null,
-            }
+            };
         }
     }
 }

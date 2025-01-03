@@ -89,7 +89,8 @@ export class TimelineController {
         @Param('name') name: string,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
     ) {
-        return await this.timelineService.findTimelineByTitle(name, page, limit);
+        return await this.timelineService.findTimelineByTitle(name, page, limit, req.user.userId);
     }
 }
