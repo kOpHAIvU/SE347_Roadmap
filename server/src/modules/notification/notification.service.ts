@@ -13,6 +13,7 @@ import { Subject } from 'rxjs';
 import { NotificationGateway } from './notification.gateway';
 import { ThrottlerStorageService } from '@nestjs/throttler';
 import { FirebaseService } from '../firebase/firebase.service';
+import { ConfigService } from '@nestjs/config';
  
 @Injectable()
 export class NotificationService {
@@ -24,8 +25,9 @@ export class NotificationService {
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
     private readonly userService: UserService,
+    private readonly configService: ConfigService 
    // private readonly notificationGateway: NotificationGateway,
-  ) {}
+  ) {} 
 
   async create(
     createNotificationDto: CreateNotificationDto
