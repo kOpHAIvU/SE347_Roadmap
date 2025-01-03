@@ -695,6 +695,8 @@ function Timeline() {
         return () => clearInterval(intervalId);
     }, []);
 
+    console.log(id)
+
     return (
         <div className={cx('wrapper')}>
             <div className={cx('timeline-section', { chatextend: chatExtended })}>

@@ -43,8 +43,8 @@ export class TimelineController {
 
     @Get('item/:id')
     @UseGuards(JwtAuthGuard)
-    async findOne(@Param('id', ParseIntPipe) id: string) {
-        return await this.timelineService.findOneById(+id);
+    async findOne(@Param('id', ParseIntPipe) id: string, @Req() req: any) {
+        return await this.timelineService.findOneByIdGrant(+id, req.user.userId);
     }
 
     @Get('user/:userId')
@@ -59,8 +59,8 @@ export class TimelineController {
 
     @Patch('item/:id')
     @UseGuards(JwtAuthGuard)
-    async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto) {
-        return await this.timelineService.update(+id, updateTimelineDto);
+    async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto, @Req() req: any) {
+        return await this.timelineService.update(+id, updateTimelineDto, req.user.userId);
     }
 
     @Delete('item/:id')

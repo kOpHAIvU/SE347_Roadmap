@@ -24,6 +24,8 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
     const [role, setRole] = useState('user')
     const [proEdit, setProEdit] = useState(false)
     const [roadmapRecords, setRoadmapRecords] = useState(0)
+    const [layoutTitle, setLayoutTitle] = useState(title)
+    const [layoutContent, setLayoutContent] = useState(content)
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -125,7 +127,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
             const data = await response.json();
 
             if (response.ok) {
-                console.log(data);
+                console.log("Update timeline: ", data);
                 return data.data
             } else {
                 console.error(data);
@@ -250,13 +252,13 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
     }, []);
 
     const handleCreate = async () => {
-        if (title && content) {
+        if (layoutTitle && layoutContent) {
             if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
                 const timelineData = await fetchCloneRoadmap()
                 console.log("Timeline: ", timelineData)
                 const teamId = await fetchNewTeam("Team for study")
                 await fetchGroupDivisionTeam(teamId, timelineData.id)
-                await fetchUpdateTimelineTitleContent(timelineData.id, title, content)
+                await fetchUpdateTimelineTitleContent(timelineData.id, layoutTitle, layoutContent)
 
                 if (timelineData && teamId) {
                     const encryptedId = encryptId(timelineData.id);
@@ -284,12 +286,12 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
                 <div className={cx('form-group')}>
                     <label>Timeline Name</label>
-                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+                    <input type="text" value={layoutTitle} onChange={(e) => setLayoutTitle(e.target.value)} />
                 </div>
 
                 <div className={cx('form-group')}>
                     <label>Description</label>
-                    <textarea className={cx('description')} value={content} onChange={(e) => setContent(e.target.value)} />
+                    <textarea className={cx('description')} value={layoutContent} onChange={(e) => setLayoutContent(e.target.value)} />
                 </div>
 
                 <div className={cx('button-group')}>
@@ -300,7 +302,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
                     <button
                         className={cx('create-btn')}
                         onClick={handleCreate}
-                        disabled={!title || !content}
+                        disabled={!layoutTitle || !layoutContent}
                     >
                         Create
                     </button>
