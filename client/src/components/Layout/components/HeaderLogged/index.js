@@ -131,7 +131,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://localhost:3004/auth/profile', {
+            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -163,7 +163,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const fetchOwnRoadmapData = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/roadmap/owner?page=1&limit=12`, {
+            const response = await fetch(`http://44.245.39.225:3004/roadmap/owner?page=1&limit=12`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -186,7 +186,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const fetchPaymentStatus = async (profileId) => {
         try {
-            const response = await fetch(`http://localhost:3004/payment/user/${profileId}?page=1&limit=1`, {
+            const response = await fetch(`http://44.245.39.225:3004/payment/user/${profileId}?page=1&limit=1`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -235,7 +235,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
             formData.append('type', 'IT');
 
             try {
-                const response = await fetch('http://localhost:3004/roadmap/new_roadmap', {
+                const response = await fetch('http://44.245.39.225:3004/roadmap/new_roadmap', {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${getToken()}`, // Thêm token xác thực

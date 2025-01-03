@@ -64,7 +64,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      REACT_APP_API_URL: http://localhost:3004
+      REACT_APP_API_URL: http://44.245.39.225:3004
     ports:
       - "3000:3000"
     depends_on:

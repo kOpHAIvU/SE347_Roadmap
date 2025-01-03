@@ -75,7 +75,7 @@ const Account = () => {
             console.log(decryptedValue, 'decryptedId');
 
             try {
-                const response = await fetch('http://localhost:3004/auth/profile', {
+                const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${getToken()}`,
@@ -117,7 +117,7 @@ const Account = () => {
     const fetchProfile = async () => {
         console.log('fetch profile', decryptedId);
         try {
-            const response = await fetch(`http://localhost:3004/user/item/${decryptedId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/user/item/${decryptedId}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -192,7 +192,7 @@ const Account = () => {
                 headers['Content-Type'] = 'application/json';
             }
 
-            const response = await fetch('http://localhost:3004/user/updateProfile', {
+            const response = await fetch('http://44.245.39.225:3004/user/updateProfile', {
                 method: 'PATCH',
                 headers,
                 body: isFormData ? updatedData : JSON.stringify(updatedData),

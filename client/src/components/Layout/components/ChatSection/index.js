@@ -50,7 +50,7 @@ function ChatSection({ profile, groupData }) {
                 senderId: profile.id,
                 teamId: groupData[0].team.id,
             }).toString();
-            const response = await fetch('http://localhost:3004/message/new', {
+            const response = await fetch('http://44.245.39.225:3004/message/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -74,7 +74,7 @@ function ChatSection({ profile, groupData }) {
 
     const fetchGetAllMessage = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/message/team/${groupData[0].team.id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/message/team/${groupData[0].team.id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -101,7 +101,7 @@ function ChatSection({ profile, groupData }) {
     useEffect(() => {
         if (groupData[0]) {
             // Khởi tạo socket
-            socket.current = io('http://localhost:3004/message', {
+            socket.current = io('http://44.245.39.225:3004/message', {
                 query: {
                     teamId: groupData[0]?.team?.id,
                     userId: profile.id,
