@@ -55,7 +55,7 @@ function Comment() {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://localhost:3004/auth/profile', {
+            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -78,7 +78,7 @@ function Comment() {
 
     const fetchGetAllCommentInRoadmap = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/comment/all/roadmap/${id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/comment/all/roadmap/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -113,7 +113,7 @@ function Comment() {
                 body.parentComment = parentId;
             }
 
-            const response = await fetch('http://localhost:3004/comment/new', {
+            const response = await fetch('http://44.245.39.225:3004/comment/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -137,7 +137,7 @@ function Comment() {
 
     const fetchPatchComment = async (commentId, content) => {
         try {
-            const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/comment/item/${commentId}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -160,7 +160,7 @@ function Comment() {
 
     const fetchDelComment = async (commentId) => {
         try {
-            const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/comment/item/${commentId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

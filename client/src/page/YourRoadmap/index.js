@@ -35,7 +35,7 @@ function YourRoadmap() {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://localhost:3004/auth/profile', {
+            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -107,7 +107,7 @@ function YourRoadmap() {
 
     const fetchRoadmapData = async (pageNumber) => {
         try {
-            const response = await fetch(`http://localhost:3004/roadmap/owner?page=${pageNumber}&limit=12`, {
+            const response = await fetch(`http://44.245.39.225:3004/roadmap/owner?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -133,7 +133,7 @@ function YourRoadmap() {
 
     const fetchFavoriteData = async (roadmapId) => {
         try {
-            const response = await fetch(`http://localhost:3004/favorite/roadmap/${roadmapId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/favorite/roadmap/${roadmapId}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -163,7 +163,7 @@ function YourRoadmap() {
                 roadmapId: roadmapId,
             }).toString();
 
-            const response = await fetch('http://localhost:3004/favorite/new', {
+            const response = await fetch('http://44.245.39.225:3004/favorite/new', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -192,7 +192,7 @@ function YourRoadmap() {
 
     const fetchDelFavourite = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3004/favorite/item/${id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/favorite/item/${id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -282,7 +282,7 @@ function YourRoadmap() {
         }
 
         try {
-            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/roadmap/item/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

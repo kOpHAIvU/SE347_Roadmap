@@ -34,7 +34,7 @@ function NotificationModal() {
                     throw new Error('Access token is missing. Please log in.');
                 }
                 const response = await fetch(
-                    `http://localhost:3004/notification/all/owner?page=${page}&limit=5`,
+                    `http://44.245.39.225:3004/notification/all/owner?page=${page}&limit=5`,
                     {
                         method: 'GET',
                         headers: {
@@ -146,7 +146,7 @@ function NotificationModal() {
 
     const updateRole = async (groupId, newRole) => {
         try {
-            const response = await fetch(`http://localhost:3004/group-division/item/${groupId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/group-division/item/${groupId}`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -170,7 +170,7 @@ function NotificationModal() {
 
     const declineNotifi = async (inviteId) => {
         try {
-            const response = await fetch(`http://localhost:3004/group-division/item/${inviteId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/group-division/item/${inviteId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -193,7 +193,7 @@ function NotificationModal() {
 
     const deleteNotifi = async (notifiId) => {
         try {
-            const response = await fetch(`http://localhost:3004/notification/item/${notifiId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/notification/item/${notifiId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
