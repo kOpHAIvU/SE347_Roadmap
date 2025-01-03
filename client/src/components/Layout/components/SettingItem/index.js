@@ -5,7 +5,7 @@ import defaultavatar from '~/assets/images/defaultavatar.jpg';
 
 const cx = classNames.bind(styles);
 
-const SettingItem = ({ item, onUpdateValue, onButtonClick }) => {
+const SettingItem = ({ item, onUpdateValue, onButtonClick, isAdmin }) => {
     const defaultPhotoUrl = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
 
     const [photo, setPhoto] = useState(item.value);
@@ -97,22 +97,23 @@ const SettingItem = ({ item, onUpdateValue, onButtonClick }) => {
             {item.label === 'Profile Photo' ? (
                 <div className={cx('profile-photo')}>
                     <img src={photo} alt="Profile" className={cx('profile-img')} />
+                    {isAdmin && (
+                        <div className={cx('photo-actions')}>
+                            <button onClick={handleRemovePhoto} className={cx('remove-btn')}>
+                                Remove Photo
+                            </button>
 
-                    <div className={cx('photo-actions')}>
-                        <button onClick={handleRemovePhoto} className={cx('remove-btn')}>
-                            Remove Photo
-                        </button>
-
-                        <label className={cx('change-btn')}>
-                            Change Photo
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleChangePhoto}
-                                style={{ display: 'none' }}
-                            />
-                        </label>
-                    </div>
+                            <label className={cx('change-btn')}>
+                                Change Photo
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleChangePhoto}
+                                    style={{ display: 'none' }}
+                                />
+                            </label>
+                        </div>
+                    )}
                 </div>
             ) : item.label === 'Connected social accounts' ? (
                 <div className={cx('social-account')}>
@@ -122,10 +123,11 @@ const SettingItem = ({ item, onUpdateValue, onButtonClick }) => {
                         <span className={cx('social-name')}>{item.value.platform}</span>
                         <span className={cx('social-username')}>{item.value.username}</span>
                     </div>
-
-                    <button onClick={handleDisconnect} className={cx('disconnect-btn')}>
-                        Disconnect
-                    </button>
+                    {isAdmin && (
+                        <button onClick={handleDisconnect} className={cx('disconnect-btn')}>
+                            Disconnect
+                        </button>
+                    )}
                 </div>
             ) : item.label === 'Login' ? (
                 <div className={cx('item-details')}>
@@ -146,6 +148,7 @@ const SettingItem = ({ item, onUpdateValue, onButtonClick }) => {
                                 value={option}
                                 checked={selectedValue === option}
                                 onChange={handleOptionChange}
+                                disabled={!isAdmin}
                             />
                             {option}
                         </label>
@@ -154,9 +157,11 @@ const SettingItem = ({ item, onUpdateValue, onButtonClick }) => {
             ) : item.sercurity ? (
                 <div className={cx('input-group-custom')}>
                     <span className={cx('value')}>{item.value}</span>
-                    <button className={cx('edit-btn')} onClick={() => onButtonClick(item)}>
-                        {item.button}
-                    </button>
+                    {isAdmin && (
+                        <button className={cx('edit-btn')} onClick={() => onButtonClick(item)}>
+                            {item.button}
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className={cx('input-group')}>
@@ -178,7 +183,7 @@ const SettingItem = ({ item, onUpdateValue, onButtonClick }) => {
                     ) : (
                         <>
                             <span className={cx('value')}>{item.value}</span>
-                            {item.edit && (
+                            {isAdmin && item.edit && (
                                 <button onClick={handleEdit} className={cx('edit-btn')}>
                                     Edit
                                 </button>

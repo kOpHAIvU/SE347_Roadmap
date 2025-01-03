@@ -42,7 +42,6 @@ export class UserController {
     // View profile of user: Feature of admin right
     @Get('item/:id')
     @UseGuards(JwtAuthGuard)
-    @Roles('admin')
     async findOneById(@Param('id', ParseIntPipe) id: number) {
         return await this.userService.findOneById(+id);
     }
