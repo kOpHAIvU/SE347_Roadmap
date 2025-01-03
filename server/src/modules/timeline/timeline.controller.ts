@@ -34,7 +34,7 @@ export class TimelineController {
     @UseGuards(JwtAuthGuard)
     @Roles('user')
     async findAll(
-        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('page', ParseIntPipe) page: number = 1, 
         @Query('limit', ParseIntPipe) limit: number = 10,
         @Req() req: any,
     ) {
@@ -43,8 +43,11 @@ export class TimelineController {
 
     @Get('item/:id')
     @UseGuards(JwtAuthGuard)
-    async findOne(@Param('id', ParseIntPipe) id: string, @Req() req: any) {
-        return await this.timelineService.findOneByIdGrant(+id, req.user.userId);
+    async findOne(
+        @Param('id', ParseIntPipe) id: string,
+        @Req() req: any,
+    ) {
+        return await this.timelineService.findOneById(+id);
     }
 
     @Get('owner')
@@ -59,7 +62,11 @@ export class TimelineController {
 
     @Patch('item/:id')
     @UseGuards(JwtAuthGuard)
-    async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto, @Req() req: any) {
+    async update(
+        @Param('id', ParseIntPipe) id: string, 
+        @Body() updateTimelineDto: UpdateTimelineDto,
+        @Req() req: any,
+    ) {
         return await this.timelineService.update(+id, updateTimelineDto, req.user.userId);
     }
 
@@ -71,7 +78,8 @@ export class TimelineController {
 
     @Post('clone/:roadmapId')
     @UseGuards(JwtAuthGuard)
-    async cloneRoadmap(@Param('roadmapId', ParseIntPipe) roadmapId: string, @Req() req: any) {
+    async cloneRoadmap(
+        @Param('roadmapId', ParseIntPipe) roadmapId: string, @Req() req: any) {
         return await this.timelineService.cloneRoadmap(+roadmapId, req.user.userId);
     }
 

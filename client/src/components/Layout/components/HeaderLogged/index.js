@@ -398,13 +398,12 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                     </div>
                 </div>
             )}
-
             <div className={cx('mini-notify')}>
                 {dialogs.map((dialog) => (
                     <CantCloneDialogTooMany
                         key={dialog.id}
                         handleClose={handleClose}
-                        type='timelines'
+                        type='roadmaps'
                         count={roadmapRecords}
                     />
                 ))}

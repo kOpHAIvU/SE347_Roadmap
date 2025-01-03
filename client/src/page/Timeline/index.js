@@ -80,19 +80,20 @@ function Timeline() {
 
             const data = await response.json();
             if (response.ok) {
-                setRoadName(data.data.title)
-                setTitleText(data.data.content)
-                const nodesArray = [];
-                for (const [i, node] of data.data.node.entries()) {
-                    const filteredNode = await filterTimelineNode(i, node);
-                    nodesArray.push(filteredNode);
+                if (data.statusCode !== 404) {
+                    setRoadName(data.data.title)
+                    setTitleText(data.data.content)
+                    const nodesArray = [];
+                    for (const [i, node] of data.data.node.entries()) {
+                        const filteredNode = await filterTimelineNode(i, node);
+                        nodesArray.push(filteredNode);
+                    }
+
+                    setNodes(nodesArray);
+
+                    return data.data;
                 }
-
-                setNodes(nodesArray);
-                // console.log("Nodes after fetching: ", nodes);
-                // console.log("Timeline data: ", data.data)
-
-                return data.data;
+                navigate('/home')
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -367,6 +368,7 @@ function Timeline() {
                 for (let i = 0; i < fetchedGroupDivisonData.totalRecords; i++) {
                     const groupDivision = fetchedGroupDivisonData.groupDivisions[i];
                     if (fetchedProfile.id === groupDivision.user.id) {
+                        console.log('role', groupDivision.role)
                         switch (groupDivision.role) {
                             case 1:
                                 setUserType("Administrator");
@@ -387,6 +389,8 @@ function Timeline() {
         }
         fetchData();
     }, [id])
+
+    console.log(userType)
 
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
