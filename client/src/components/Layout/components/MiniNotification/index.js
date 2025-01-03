@@ -1,4 +1,5 @@
 export { default as CantClone } from './CantClone'
+export { default as CantCloneTooMany } from './CantCloneTooMany'
 export { default as Saved } from './Saved'
 export { default as NewCollab } from './NewCollab'
 export { default as DeleteCollab } from './DeleteCollab'

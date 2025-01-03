@@ -119,7 +119,7 @@ function Timeline() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log("PATCH: ",data);
+                console.log("PATCH: ", data);
                 return data.data
             } else {
                 console.error(data);
@@ -162,7 +162,7 @@ function Timeline() {
             formData.append('xAxis', nodeData.x);
             formData.append('yAxis', nodeData.y);
             formData.append('type', nodeData.type);
-            formData.append('tick', nodeData.ticked);
+            formData.append('tick', nodeData.ticked ? '1' : '0');
             formData.append('dueTime', nodeData.due_time);
             formData.append('content', nodeData.content);
             formData.append('detail', nodeData.nodeDetail);
@@ -180,7 +180,7 @@ function Timeline() {
             const data = await response.json();
 
             if (response.ok) {
-                //console.log('Node added:', data);
+                console.log('Node added:', data);
                 return data.data
             } else {
                 console.error('Failed to add node. Status:', response.status);
@@ -666,7 +666,7 @@ function Timeline() {
         await fetchDelAllNodeInTimeline()
         for (let i = 0; i < nodes.length; i++) {
             const nodeId = await fetchNewNode(nodes[i])
-            //console.log("Nodes new: ", nodeId)
+            console.log("Nodes new: ", nodeId)
 
             // Fetch comment
             if (nodeId) {
@@ -686,6 +686,16 @@ function Timeline() {
 
         handleMakeDialog('Save', null)
     }
+
+    useEffect(() => {
+        const intervalId = setInterval(async () => {
+            await handleSave();
+        }, 5 * 60 * 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+    console.log(id)
 
     return (
         <div className={cx('wrapper')}>

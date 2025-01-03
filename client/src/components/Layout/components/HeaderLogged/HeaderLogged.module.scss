@@ -46,6 +46,8 @@
     font-size: 0.7rem;
     align-items: center;
     padding: 3px 10px;
+    width: 200px;
+    visibility: visible;
 
     &:hover {
         background-color: #f5f5f5;
@@ -58,6 +60,13 @@
 
     &:active {
         background-color: #d8d8d8;
+    }
+}
+
+/* Ẩn .add-roadmap khi không đủ không gian */
+@media (max-width: 1000px) {
+    .add-roadmap {
+        visibility: hidden;
     }
 }
 
@@ -225,4 +234,14 @@
 
 .logout-icon {
     color: var(--color-red);
+}
+
+.mini-notify {
+    width: 300px;
+    margin: 60px 15px 0 0;
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    right: 0;
+    background-color: transparent;
 }

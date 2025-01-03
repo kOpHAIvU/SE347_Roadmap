@@ -100,15 +100,20 @@ function OwnRoadmap() {
             });
 
             const data = await response.json();
+            console.log("Hehe: ", data)
             if (response.ok) {
-                setRoadmapData(data.data);
-                setVisibility(data.data.isPublic ? "Release" : "Private");
-                //console.log("Roadmap data: ", data.data);
+                if (data.statusCode !== 404) {
+                    setRoadmapData(data.data);
+                    setVisibility(data.data.isPublic ? "Release" : "Private");
+                    //console.log("Roadmap data: ", data.data);
 
-                setNodes(filterRoadmapNode(data.data.node))
-                //console.log("Nodes after fetching: ", nodes);
+                    setNodes(filterRoadmapNode(data.data.node))
+                    //console.log("Nodes after fetching: ", nodes);
 
-                return data.data;
+                    return data.data;
+                }
+                navigate('/home')
+
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -238,7 +243,7 @@ function OwnRoadmap() {
             formData.append('xAxis', nodeData.x);
             formData.append('yAxis', nodeData.y);
             formData.append('type', nodeData.type);
-            formData.append('tick', nodeData.ticked);
+            formData.append('tick', nodeData.ticked ? '1' : '0');
             formData.append('dueTime', nodeData.due_time);
             formData.append('content', nodeData.content);
             formData.append('detail', nodeData.nodeDetail);
@@ -496,6 +501,16 @@ function OwnRoadmap() {
 
         handleMakeDialog('Saved')
     }
+    console.log(id)
+
+    // Tự động lưu mỗi 5 phút
+    useEffect(() => {
+        const intervalId = setInterval(async () => {
+            await handleSave();
+        }, 5 * 60 * 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleOutsideClick = (e) => {
         if (String(e.target.className).includes('modal-overlay')) {

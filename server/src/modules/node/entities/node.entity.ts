@@ -1,6 +1,15 @@
 import { Roadmap } from '../../roadmap/entities/roadmap.entity';
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-import {Comment} from  '../../comment/entities/comment.entity'  
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    ManyToOne,
+    OneToMany,
+    PrimaryColumn,
+    PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Comment } from '../../comment/entities/comment.entity';
 import { Progress } from '../../progress/entities/progress.entity';
 import { Timeline } from 'src/modules/timeline/entities/timeline.entity';
 
@@ -9,50 +18,48 @@ export class Node {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({nullable: false})
+    @Column({ nullable: false })
     level: number;
 
-    @Column({nullable: false})
+    @Column({ nullable: false })
     xAxis: number;
 
-    @Column({nullable: false})
+    @Column({ nullable: false })
     yAxis: number;
 
-    @Column({nullable: false})
+    @Column({ nullable: false })
     type: string;
 
-    @Column({ type: 'boolean'})
+    @Column({ type: 'boolean' })
     tick: boolean;
 
-    @Column({default: null})
+    @Column({ default: null })
     dueTime?: number;
 
     @Column()
     content: string;
 
-    @Column({nullable: false})
-    detail: string; 
+    @Column({ nullable: false })
+    detail: string;
 
-    @ManyToOne(() => Roadmap, roadmap => roadmap.node, { eager: true })
+    @ManyToOne(() => Roadmap, (roadmap) => roadmap.node, { eager: true })
     roadmap: Roadmap;
 
-    @OneToMany(() => Comment, comment => comment.node, { eager: true })
+    @OneToMany(() => Comment, (comment) => comment.node, { eager: true })
     comment: Comment[];
 
-    @Column({ type: 'boolean', default: true }) 
+    @Column({ type: 'boolean', default: true })
     isActive: boolean;
 
-    @CreateDateColumn()  
+    @CreateDateColumn()
     createdAt: Date;
 
-    @DeleteDateColumn({ nullable: true })  
+    @DeleteDateColumn({ nullable: true })
     deletedAt: Date | null;
 
-    @OneToMany(() => Progress, progress => progress.node)
+    @OneToMany(() => Progress, (progress) => progress.node)
     progress: Progress[];
 
-    @ManyToOne(() => Timeline, timeline => timeline.node, { eager: true })
+    @ManyToOne(() => Timeline, (timeline) => timeline.node, { eager: true })
     timeline: Timeline;
-
-    
 }

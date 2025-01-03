@@ -33,30 +33,34 @@ export class TimelineController {
     @Get('all')
     @UseGuards(JwtAuthGuard)
     @Roles('user')
-    async findAll(@Query('page', ParseIntPipe) page: number = 1, @Query('limit', ParseIntPipe) limit: number = 10) {
-        return await this.timelineService.findAll(page, limit);
+    async findAll(
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
+    ) {
+        return await this.timelineService.findAll(page, limit, req.user.userId);
     }
 
     @Get('item/:id')
     @UseGuards(JwtAuthGuard)
-    async findOne(@Param('id', ParseIntPipe) id: string) {
-        return await this.timelineService.findOneById(+id);
+    async findOne(@Param('id', ParseIntPipe) id: string, @Req() req: any) {
+        return await this.timelineService.findOneByIdGrant(+id, req.user.userId);
     }
 
-    @Get('user/:userId')
+    @Get('owner')
     @UseGuards(JwtAuthGuard)
     async findTimelinesByUserId(
-        @Param('userId', ParseIntPipe) idUser: number,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
     ) {
-        return await this.timelineService.findTimelinesByUserId(idUser, page, limit);
+        return await this.timelineService.findTimelinesByUserId(req.user.userId, page, limit);
     }
 
     @Patch('item/:id')
     @UseGuards(JwtAuthGuard)
-    async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto) {
-        return await this.timelineService.update(+id, updateTimelineDto);
+    async update(@Param('id', ParseIntPipe) id: string, @Body() updateTimelineDto: UpdateTimelineDto, @Req() req: any) {
+        return await this.timelineService.update(+id, updateTimelineDto, req.user.userId);
     }
 
     @Delete('item/:id')
@@ -77,7 +81,8 @@ export class TimelineController {
         @Param('name') name: string,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
     ) {
-        return await this.timelineService.findTimelineByTitle(name, page, limit);
+        return await this.timelineService.findTimelineByTitle(name, page, limit, req.user.userId);
     }
 }

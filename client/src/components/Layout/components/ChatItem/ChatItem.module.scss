@@ -1,5 +1,4 @@
 .wrapper {
-    cursor: pointer;
     height: auto;
     width: 100%;
     display: flex;
@@ -29,6 +28,7 @@
     width: var(--avatar-size);
     border-radius: 50%;
     object-fit: cover;
+    cursor: pointer;
 }
 
 .send-info {
@@ -45,11 +45,17 @@
 
 .username {
     font-size: 1.5rem;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--main-color);
+        text-decoration: underline;
+    }
 }
 
 .date-send {
     margin-right: 5px;
-    color: #b1b1b1;
+    color: #727272;
     margin-left: 5px;
 }
 

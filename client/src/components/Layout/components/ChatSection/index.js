@@ -16,6 +16,7 @@ const filterMessage = (data) => {
     return data.map((item) => ({
         id: item.id,
         user: item.sender.fullName,
+        userId: item.sender.id,
         avatar: item.sender.avatar ? item.sender.avatar.substring(0, item.sender.avatar.indexOf('.jpg') + 4) : '',
         date: item.createdAt.substring(0, 10),
         content: item.content,
@@ -96,10 +97,6 @@ function ChatSection({ profile, groupData }) {
         }
     };
 
-    const setMessage = (message) => {
-
-    }
-
     // Config web socket
     useEffect(() => {
         if (groupData[0]) {
@@ -122,30 +119,36 @@ function ChatSection({ profile, groupData }) {
             // Lắng nghe sự kiện nhận tin nhắn từ server
             socket.current.on('send_message', (newMessage) => {
                 console.log('New message received: ', newMessage); // Debug log
-
             });
 
-            socket.current.on('message', (message) => {
-                if (message?.data) {  // Check if message.data is not undefined
-                    console.log("New message:", message);
+            socket.current.on('message', async (message) => {
+                console.log('Message received:', message);  // Log message để kiểm tra
+                try {
+                    if (message) {
+                        console.log("data: ", message.message.data)
+                        // Giả sử bạn cần thực hiện thao tác bất đồng bộ tại đây (ví dụ: lấy thêm dữ liệu từ server)
+                        const newMessage = {
+                            id: message.message.data.id || 'Unknown',
+                            user: message.message.data.sender.fullName || 'Unknown',
+                            userId: message.message.data.sender.id,
+                            avatar: message.message.data.sender.avatar
+                                ? message.message.data.sender.avatar.substring(0, message.message.data.sender.avatar.indexOf('.jpg') + 4)
+                                : 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg',
+                            date: message.message.data.createdAt?.substring(0, 10) || 'Unknown',
+                            content: message.message.data.content || 'No content',
+                        };
 
-                    const newMessage = {
-                        id: message.data.id,
-                        user: message.data.sender?.fullName || 'Unknown',  // Add a fallback value
-                        avatar: message.data.sender?.avatar ? message.data.sender.avatar.substring(0, message.data.sender.avatar.indexOf('.jpg') + 4) : '',
-                        date: message.data.createdAt?.substring(0, 10) || 'Unknown',  // Fallback for date
-                        content: message.data.content || 'No content',  // Fallback for content
-                    };
+                        // Nếu có thao tác bất đồng bộ cần chờ trước khi thêm message vào chats
+                        // await someAsyncFunction(newMessage); // Ví dụ, bạn có thể gọi một hàm async tại đây
 
-                    setChats((prevChats) => {
-                        const updatedChats = [...prevChats, newMessage];
-                        return updatedChats;
-                    });
-                } else {
-                    console.error('Invalid message data received:', message);
+                        setChats(prevChats => [...prevChats, newMessage]);
+                    } else {
+                        console.error('Invalid message data:', message);
+                    }
+                } catch (error) {
+                    console.error('Error while handling message:', error);
                 }
             });
-
 
             // Xử lý lỗi kết nối
             socket.current.on('connect_error', (error) => {
@@ -155,13 +158,14 @@ function ChatSection({ profile, groupData }) {
             // Cleanup khi component unmount
             return () => {
                 if (socket.current) {
-                    socket.current.off('send_message'); // Hủy lắng nghe sự kiện 'send_message'
-                    socket.current.off('message');      // Hủy lắng nghe sự kiện 'message'
-                    socket.current.disconnect();        // Ngắt kết nối socket
+                    socket.current.off('send_message');
+                    socket.current.off('message');
+                    socket.current.disconnect();
                 }
             };
         }
-    }, [groupData[0]?.team?.id, profile?.id]);
+    }, [groupData[0]]);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -207,12 +211,12 @@ function ChatSection({ profile, groupData }) {
         if (chatContent.trim() !== '') {
             const newMessageId = await fetchNewMessage()
             if (newMessageId) {
-                console.log(newMessageId)
                 const newMessage = {
                     id: newMessageId,
                     user: profile.fullName,
+                    userId: profile.id,
                     avatar: profile.avatar ? profile.avatar.substring(0, profile.avatar.indexOf('.jpg') + 4) : '',
-                    date: new Date().toLocaleDateString(),
+                    date: new Date().toLocaleDateString('en-CA'),
                     content: chatContent
                 };
 
