@@ -80,19 +80,20 @@ function Timeline() {
 
             const data = await response.json();
             if (response.ok) {
-                setRoadName(data.data.title)
-                setTitleText(data.data.content)
-                const nodesArray = [];
-                for (const [i, node] of data.data.node.entries()) {
-                    const filteredNode = await filterTimelineNode(i, node);
-                    nodesArray.push(filteredNode);
+                if (data.statusCode !== 404) {
+                    setRoadName(data.data.title)
+                    setTitleText(data.data.content)
+                    const nodesArray = [];
+                    for (const [i, node] of data.data.node.entries()) {
+                        const filteredNode = await filterTimelineNode(i, node);
+                        nodesArray.push(filteredNode);
+                    }
+
+                    setNodes(nodesArray);
+
+                    return data.data;
                 }
-
-                setNodes(nodesArray);
-                // console.log("Nodes after fetching: ", nodes);
-                // console.log("Timeline data: ", data.data)
-
-                return data.data;
+                navigate('/home')
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -119,7 +120,7 @@ function Timeline() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log("PATCH: ",data);
+                console.log("PATCH: ", data);
                 return data.data
             } else {
                 console.error(data);
@@ -162,7 +163,7 @@ function Timeline() {
             formData.append('xAxis', nodeData.x);
             formData.append('yAxis', nodeData.y);
             formData.append('type', nodeData.type);
-            formData.append('tick', nodeData.ticked);
+            formData.append('tick', nodeData.ticked ? '1' : '0');
             formData.append('dueTime', nodeData.due_time);
             formData.append('content', nodeData.content);
             formData.append('detail', nodeData.nodeDetail);
@@ -180,7 +181,7 @@ function Timeline() {
             const data = await response.json();
 
             if (response.ok) {
-                //console.log('Node added:', data);
+                console.log('Node added:', data);
                 return data.data
             } else {
                 console.error('Failed to add node. Status:', response.status);
@@ -367,6 +368,7 @@ function Timeline() {
                 for (let i = 0; i < fetchedGroupDivisonData.totalRecords; i++) {
                     const groupDivision = fetchedGroupDivisonData.groupDivisions[i];
                     if (fetchedProfile.id === groupDivision.user.id) {
+                        console.log('role', groupDivision.role)
                         switch (groupDivision.role) {
                             case 1:
                                 setUserType("Administrator");
@@ -387,6 +389,8 @@ function Timeline() {
         }
         fetchData();
     }, [id])
+
+    console.log(userType)
 
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
@@ -666,7 +670,7 @@ function Timeline() {
         await fetchDelAllNodeInTimeline()
         for (let i = 0; i < nodes.length; i++) {
             const nodeId = await fetchNewNode(nodes[i])
-            //console.log("Nodes new: ", nodeId)
+            console.log("Nodes new: ", nodeId)
 
             // Fetch comment
             if (nodeId) {
@@ -686,6 +690,16 @@ function Timeline() {
 
         handleMakeDialog('Save', null)
     }
+
+    useEffect(() => {
+        const intervalId = setInterval(async () => {
+            await handleSave();
+        }, 5 * 60 * 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+    console.log(id)
 
     return (
         <div className={cx('wrapper')}>

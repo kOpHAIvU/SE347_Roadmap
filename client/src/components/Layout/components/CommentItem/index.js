@@ -4,10 +4,21 @@ import classNames from 'classnames/bind';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { useEffect, useState } from 'react';
 import { faChevronDown, faChevronUp, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import CryptoJS from 'crypto-js';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
 function CommentItem({ children, replies, onAddReply, onDelete }) {
+    const navigate = useNavigate()
     const [show, setShow] = useState(false);
     const [makeResponse, setMakeResponse] = useState(false);
     const [replyText, setReplyText] = useState("");
@@ -45,7 +56,12 @@ function CommentItem({ children, replies, onAddReply, onDelete }) {
                     src={children.avatar} />
                 <div className={cx('cmt-infor')}>
                     <div className={cx('cmt-status')}>
-                        <h1 className={cx('cmt-author')}>{children.poster.fullName}</h1>
+                        <h1 className={cx('cmt-author')}
+                            onClick={() => {
+                                const encryptedId = encryptId(children.poster.id);
+                                navigate(`/account/${encryptedId}`);
+                            }}
+                        >{children.poster.fullName}</h1>
                         <span className={cx('cmt-date')}>{children.day}</span>
                     </div>
                     <h2 className={cx('cmt-content')}>{children.content}</h2>

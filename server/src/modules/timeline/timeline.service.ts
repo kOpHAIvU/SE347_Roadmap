@@ -85,50 +85,48 @@ export class TimelineService {
                     data: null,
                 };
             }
-            
-            const user = Array.isArray(userResponse.data) 
-                            ? userResponse.data[0] 
-                            : userResponse.data;
-            let timelines=[], totalRecord=0;
-            if (user.role.id === 1)  {
+
+            const user = Array.isArray(userResponse.data) ? userResponse.data[0] : userResponse.data;
+            let timelines = [],
+                totalRecord = 0;
+            if (user.role.id === 1) {
                 timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .where('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    .where('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.deletedAt is null')
+                    .orderBy('timeline.createdAt', 'DESC')
+                    .skip((page - 1) * limit)
+                    .take(limit)
+                    .getMany();
                 totalRecord = await this.timelineRepository
                     .createQueryBuilder('timeline')
                     .where('timeline.isActive = :isActive', { isActive: 1 })
                     .andWhere('timeline.deletedAt is null')
                     .getCount();
-
             } else {
                 timelines = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                   // .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .orderBy('timeline.createdAt', 'DESC')
-                                    .skip((page - 1) * limit)
-                                    .take(limit)
-                                    .getMany();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
+                    .where('groupDivision.user = :userId', { userId: userId })
+                    // .andWhere('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.deletedAt is null')
+                    .orderBy('timeline.createdAt', 'DESC')
+                    .skip((page - 1) * limit)
+                    .take(limit)
+                    .getMany();
                 totalRecord = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .getCount();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
+                    .where('groupDivision.user = :userId', { userId: userId })
+                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.deletedAt is null')
+                    .getCount();
             }
             if (timelines.length === 0) {
                 return {
@@ -188,10 +186,7 @@ export class TimelineService {
         }
     }
 
-    async findOneByIdGrant(
-        idTimeline: number,
-        userId?: number,
-    ): Promise<ResponseDto> {
+    async findOneByIdGrant(idTimeline: number, userId?: number): Promise<ResponseDto> {
         try {
             const userResponse = await this.userService.findOneById(userId);
             if (userResponse.statusCode !== 200) {
@@ -201,31 +196,30 @@ export class TimelineService {
                     data: null,
                 };
             }
-            
-            const user = Array.isArray(userResponse.data) 
-                            ? userResponse.data[0] 
-                            : userResponse.data;
-            let timeline, totalRecord=0;
-            if (user.role.id === 1 )  {
+
+            const user = Array.isArray(userResponse.data) ? userResponse.data[0] : userResponse.data;
+            let timeline,
+                totalRecord = 0;
+            if (user.role.id === 1) {
                 timeline = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                   // .where('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.id = :id', { id: idTimeline })  
-                                    .getOne();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    // .where('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.id = :id', { id: idTimeline })
+                    .getOne();
             } else {
                 console.log('userId', userId);
                 timeline = await this.timelineRepository
-                                    .createQueryBuilder('timeline')
-                                    .leftJoinAndSelect('timeline.creator', 'creator')
-                                    .leftJoinAndSelect('timeline.node', 'node')
-                                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
-                                    .where('groupDivision.user = :userId', { userId: userId })
-                                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
-                                    .andWhere('timeline.deletedAt is null')
-                                    .andWhere('timeline.id = :id', { id: idTimeline }) 
-                                    .getOne();
+                    .createQueryBuilder('timeline')
+                    .leftJoinAndSelect('timeline.creator', 'creator')
+                    .leftJoinAndSelect('timeline.node', 'node')
+                    .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
+                    .where('groupDivision.user = :userId', { userId: userId })
+                    .andWhere('timeline.isActive = :isActive', { isActive: 1 })
+                    .andWhere('timeline.deletedAt is null')
+                    .andWhere('timeline.id = :id', { id: idTimeline })
+                    .getOne();
             }
             if (!timeline) {
                 return {
@@ -237,7 +231,7 @@ export class TimelineService {
             return {
                 statusCode: 200,
                 message: 'Get list of timelines successfully',
-                data: timeline
+                data: timeline,
             };
         } catch (error) {
             return {

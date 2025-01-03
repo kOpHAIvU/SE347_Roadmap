@@ -68,12 +68,12 @@ function YourTimeline() {
                     title: item.title,
                     content: item.content,
                     avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                    contributors: contributorCount
+                    contributors: contributorCount,
+                    node: item.node
                 };
             })
         )
-        console.log("Timeline: ", mappedData)
-
+        
         return mappedData;
     }
 

@@ -32,52 +32,31 @@ function YourFavourite() {
         return token;
     }
 
-    const filterRoadmapData = async (data) => {
+    const filterRoadmapData = (data) => {
         console.log("Filter: ", data)
 
-        const mappedData = await Promise.all(
-            data.map(async (item) => {
-                try {
-                    return {
-                        id: item.id,
-                        title: item.title,
-                        content: item.content,
-                        clone: item.clone,
-                        avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                        loved: {
-                            loveId: item.id,
-                            loveState: true,
-                        },
-                        react: item.react,
-                        nodeCount: item.node?.length || 0, // Xử lý nếu node bị undefined
-                    };
-                } catch (error) {
-                    console.error(`Error fetching favorite data for item ${item.id}:`, error);
-                    return {
-                        id: item.id,
-                        title: item.title,
-                        content: item.content,
-                        clone: item.clone,
-                        avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
-                        loved: {
-                            loveId: item.id,
-                            loveState: true,
-                        },
-                        react: item.react,
-                        nodeCount: item.node?.length || 0,
-                    };
-                }
-            }),
-        );
-
-        console.log(mappedData)
-
-        return mappedData;
+        return data
+            .filter(item => item.roadmap && item.roadmap.id)
+            .map((item) => {
+                return {
+                    id: item.roadmap.id,
+                    title: item.roadmap.title,
+                    content: item.roadmap.content,
+                    clone: item.roadmap.clone,
+                    avatar: item.roadmap.avatar ? item.roadmap.avatar.substring(0, item.roadmap.avatar.indexOf('.jpg') + 4) : '',
+                    loved: {
+                        loveId: item.id,
+                        loveState: true,
+                    },
+                    react: item.roadmap.react,
+                    nodeCount: item.roadmap.node?.length || 0, // Xử lý nếu node bị undefined
+                };
+            })
     };
 
     const fetchRoadmapData = async (pageNumber) => {
         try {
-            const response = await fetch(`http://localhost:3004/favorite/all?page=${pageNumber}&limit=12`, {
+            const response = await fetch(`http://localhost:3004/favorite/all/owner?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -220,14 +199,16 @@ function YourFavourite() {
     };
 
     useEffect(() => {
+        console.log("Current", currentPageNumber)
         fetchRoadmapData(currentPageNumber);
     }, [currentPageNumber]);
+
 
     return (
         <div className={cx('wrapper')}>
             <h1 className={cx('page-title')}>Your favourite Roadmaps</h1>
             <div className={cx('container')} >
-                {roadmaps?.length > 0 &&
+                {roadmaps.length > 0 &&
                     roadmaps.map((roadmap) => (
                         <RoadmapItem
                             key={roadmap.id}
