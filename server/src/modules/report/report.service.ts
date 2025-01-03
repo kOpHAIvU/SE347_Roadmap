@@ -427,7 +427,7 @@ export class ReportService {
                             .andWhere('report.isChecked = true')
                             .getCount();
       if (numberOfReport >= 3) {
-        const result = await this.roadmapService.removeById(idRoadmap, idUser);
+        const result = await this.roadmapService.removeById(idRoadmap);
         if (result.statusCode !== 200) {
           return {
             statusCode: 500,

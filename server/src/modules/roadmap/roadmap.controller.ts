@@ -106,10 +106,9 @@ export class RoadmapController {
     async removeById(
         @Param('id', ParseIntPipe) id: number,
         @Req() req: any,
-         @UploadedFile() file?: Express.Multer.File,
-
+        @UploadedFile() file?: Express.Multer.File,
         ) {
-        return await this.roadmapService.removeById(+id, req.user.userId);
+        return await this.roadmapService.removeById(+id);
     }
 
     @Delete('code/:code')
