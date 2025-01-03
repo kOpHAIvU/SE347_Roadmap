@@ -25,7 +25,6 @@ export class NotificationService {
     @InjectRepository(Notification)
     private readonly notificationRepository: Repository<Notification>,
     private readonly userService: UserService,
-    private readonly configService: ConfigService 
    // private readonly notificationGateway: NotificationGateway,
   ) {} 
 

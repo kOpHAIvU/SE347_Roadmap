@@ -160,6 +160,7 @@ export class TimelineService {
                 .createQueryBuilder('timeline')
                 .leftJoinAndSelect('timeline.roadmap', 'roadmap')
                 .leftJoinAndSelect('timeline.creator', 'creator')
+                .leftJoinAndSelect('timeline.groupDivision', 'groupDivision')
                 .leftJoinAndSelect('timeline.node', 'node')
                 .where('timeline.id = :id', { id })
                 .andWhere('timeline.isActive = :isActive', { isActive: true })
@@ -214,6 +215,7 @@ export class TimelineService {
                                     .andWhere('timeline.id = :id', { id: idTimeline })  
                                     .getOne();
             } else {
+                console.log('userId', userId);
                 timeline = await this.timelineRepository
                                     .createQueryBuilder('timeline')
                                     .leftJoinAndSelect('timeline.creator', 'creator')

@@ -47,13 +47,12 @@ export class TimelineController {
         @Param('id', ParseIntPipe) id: string,
         @Req() req: any,
     ) {
-        return await this.timelineService.findOneByIdGrant(+id, req.user.userId);
+        return await this.timelineService.findOneById(+id);
     }
 
     @Get('owner')
     @UseGuards(JwtAuthGuard)
     async findTimelinesByUserId(
-        @Param('userId', ParseIntPipe) idUser: number,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
         @Req() req: any,
