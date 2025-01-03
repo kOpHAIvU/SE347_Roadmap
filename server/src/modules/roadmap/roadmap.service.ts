@@ -238,6 +238,7 @@ export class RoadmapService {
                     .leftJoinAndSelect('owner.comment', 'comment')
                     .where('roadmap.isActive = :isActive', { isActive: true })
                     .andWhere('roadmap.deletedAt is null')
+                    .andWhere('roadmap.id = :id', { id })
                     .getOne();
             } else {
                 roadmap = await this.roadmapRepository
@@ -247,6 +248,7 @@ export class RoadmapService {
                                             .leftJoinAndSelect('owner.comment', 'comment')
                                             .where('roadmap.isActive = :isActive', { isActive: 1 })
                                             .andWhere('roadmap.deletedAt is null')
+                                            .andWhere('roadmap.id = :id', { id })
                                             .andWhere(
                                                 new Brackets((qb) => {
                                                     qb.where('roadmap.owner = :owner', { owner: user.id })
