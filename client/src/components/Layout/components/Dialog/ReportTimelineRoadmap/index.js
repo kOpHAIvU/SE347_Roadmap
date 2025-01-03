@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const cx = classNames.bind(styles);
 
 function ReportTimelineRoadmap({ type, profile, roadmapData, handleOutsideClick, setShowSetting, handleMakeDialog }) {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const [reportContent, setReportContent] = useState('');
 
     const getToken = () => {
@@ -19,7 +19,7 @@ function ReportTimelineRoadmap({ type, profile, roadmapData, handleOutsideClick,
             return;
         }
         return token;
-    }
+    };
 
     const fetchNewReport = async () => {
         try {
@@ -28,15 +28,17 @@ function ReportTimelineRoadmap({ type, profile, roadmapData, handleOutsideClick,
                 type: type,
                 content: reportContent,
                 posterId: profile.id,
-                receiverId: 10,
+                receiverId: roadmapData.owner.id,
                 isActive: 1,
                 roadmapId: roadmapData.id,
             }).toString();
 
+            console.log('Body: ', body);
+
             const response = await fetch('http://localhost:3004/report/new', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: body,
@@ -44,7 +46,7 @@ function ReportTimelineRoadmap({ type, profile, roadmapData, handleOutsideClick,
 
             if (response.ok) {
                 const data = await response.json();
-                console.log('Favorite added:', data); // Xử lý dữ liệu nếu cần
+                console.log('Report added:', data); // Xử lý dữ liệu nếu cần
             } else {
                 console.error('Failed to add favorite. Status:', response.status);
             }
@@ -53,14 +55,14 @@ function ReportTimelineRoadmap({ type, profile, roadmapData, handleOutsideClick,
         }
     };
 
-
     return (
         <div
             className={cx('modal-overlay')}
             onClick={(e) => {
                 e.stopPropagation();
-                handleOutsideClick(e)
-            }}>
+                handleOutsideClick(e);
+            }}
+        >
             <div className={cx('modal')}>
                 <button className={cx('close-btn')} onClick={() => setShowSetting(false)}>
                     <FontAwesomeIcon icon={faTimes} />
@@ -82,15 +84,14 @@ function ReportTimelineRoadmap({ type, profile, roadmapData, handleOutsideClick,
                         e.preventDefault();
                         e.stopPropagation();
                         if (reportContent.trim() !== '') {
-                            await fetchNewReport()
-                            handleMakeDialog("Report");
+                            await fetchNewReport();
+                            handleMakeDialog('Report');
                             setShowSetting(false);
                         }
                     }}
                 >
                     Submit
                 </h1>
-
             </div>
         </div>
     );
