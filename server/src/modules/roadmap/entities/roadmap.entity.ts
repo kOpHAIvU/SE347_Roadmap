@@ -17,8 +17,8 @@ export class Roadmap {
     @Column({nullable: false })
     title: string;
 
-    @Column({nullable: false })
-    type: string;
+    // @Column({nullable: false })
+    // type: string;
 
     @Column()
     avatar: string;

@@ -10,6 +10,9 @@ export class CreateTimelineDto {
     content: string;
 
     avatar?: string;
+
+    startTime?: Date;
+    dueTime?: Date;
     
     roadmap: number;
 
