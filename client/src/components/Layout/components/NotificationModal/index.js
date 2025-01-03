@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from './NotificationModal.module.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCaretLeft, faCaretRight } from '@fortawesome/free-solid-svg-icons';
+
 import classNames from 'classnames/bind';
 
 const cx = classNames.bind(styles);
@@ -19,6 +22,7 @@ function NotificationModal() {
     const [error, setError] = useState(null);
     const [page, setPage] = useState(1);
     const limit = 5;
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -43,6 +47,7 @@ function NotificationModal() {
                 const responseData = await response.json();
 
                 if (response.ok) {
+                    const totalNotifications = responseData.data.total;
                     console.log('Response data:', responseData);
                     const notificationsData = responseData.data.data; // Truy cập đúng mảng dữ liệu
                     const formattedData = notificationsData.map((item) => ({
@@ -59,6 +64,8 @@ function NotificationModal() {
                     formattedData.sort((a, b) => b.createdAt - a.createdAt);
                     console.log('Formatted notifications: ', formattedData);
                     setNotifications(formattedData);
+                    setTotalPages(Math.ceil(totalNotifications / limit));
+                    console.log('total', totalPages);
                     console.log('Formatted', notifications);
                 } else {
                     const errorData = await response.json();
@@ -72,7 +79,7 @@ function NotificationModal() {
         };
 
         fetchNotifications();
-    }, [11]);
+    }, [page]);
 
     const handleResponse = async (notificationId, action, groupDivisionId) => {
         console.log(`Notification ID: ${notificationId}, Action: ${action}, GroupDivision ID: ${groupDivisionId}`);
@@ -113,6 +120,15 @@ function NotificationModal() {
     };
 
     const loadMore = () => setPage((prevPage) => prevPage + 1);
+    const handlePageChange = (direction) => {
+        setPage((prevPage) => {
+            const newPage = prevPage + direction;
+            if (newPage < 1 || newPage > totalPages) {
+                return prevPage; // Không thay đổi nếu vượt ngoài giới hạn
+            }
+            return newPage; // Cập nhật nếu trong giới hạn
+        });
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -299,46 +315,25 @@ function NotificationModal() {
                                     </div>
                                 ) : null}
                             </p>
-
-                            {/* Show actions for invite notifications
-                            {notification.type.startsWith('Added') && notification.status === null && (
-                                <div className={cx('actions')}>
-                                    <button
-                                        className={cx('accept-btn')}
-                                        onClick={() =>
-                                            handleResponse(
-                                                notification.id,
-                                                'accept',
-                                                extractGroupDivisionId(notification.type),
-                                            )
-                                        }
-                                    >
-                                        Accept
-                                    </button>
-                                    <button
-                                        className={cx('decline-btn')}
-                                        onClick={() =>
-                                            handleResponse(
-                                                notification.id,
-                                                'decline',
-                                                extractGroupDivisionId(notification.type),
-                                            )
-                                        }
-                                    >
-                                        Decline
-                                    </button>
-                                </div>
-                            )} */}
                         </div>
                     );
                 })}
+            </div>
 
-                {/* Load more button */}
-                {notifications.length >= limit && (
-                    <div className={cx('load-more')}>
-                        <button onClick={loadMore}>Show more</button>
-                    </div>
-                )}
+            <div className={cx('pagination')}>
+                <FontAwesomeIcon
+                    icon={faCaretLeft}
+                    className={cx('prev-btn', { disabled: page === 1 })}
+                    onClick={() => handlePageChange(-1)}
+                    disabled={page === 1}
+                />
+                <span className={cx('page-info')}>{page}</span>
+                <FontAwesomeIcon
+                    icon={faCaretRight}
+                    className={cx('next-btn', { disabled: page === totalPages })}
+                    onClick={() => handlePageChange(1)}
+                    disabled={page === totalPages}
+                />
             </div>
         </div>
     );

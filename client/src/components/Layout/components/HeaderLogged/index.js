@@ -65,16 +65,16 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                         title: 'Your account',
                         to: '/account/${encryptedId}',
                     },
-                    {
-                        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faLock} />,
-                        title: 'Login & security',
-                        to: '/security',
-                    },
-                    {
-                        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faFlag} />,
-                        title: 'Report a problem',
-                        to: '/report',
-                    },
+                    // {
+                    //     icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faLock} />,
+                    //     title: 'Login & security',
+                    //     to: '/security',
+                    // },
+                    // {
+                    //     icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faFlag} />,
+                    //     title: 'Report a problem',
+                    //     to: '/report',
+                    // },
                 ],
             },
         },
@@ -107,9 +107,9 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     const [userId, setUserId] = useState(null);
     const secretKey = 'kophaivu'; // Khóa bí mật
 
-    const [role, setRole] = useState('user')
-    const [proEdit, setProEdit] = useState(false)
-    const [roadmapRecords, setRoadmapRecords] = useState(0)
+    const [role, setRole] = useState('user');
+    const [proEdit, setProEdit] = useState(false);
+    const [roadmapRecords, setRoadmapRecords] = useState(0);
 
     const getToken = () => {
         return localStorage.getItem('vertexToken');
@@ -138,9 +138,9 @@ function HeaderLogged({ collapsed, setCollapsed }) {
             }
 
             if (data?.data?.id) {
-                setRole(data.data.role.name)
+                setRole(data.data.role.name);
                 setUserId(data?.data?.id);
-                return data.data.id
+                return data.data.id;
             }
         } catch (error) {
             console.error('Fetch Profile Error:', error);
@@ -159,7 +159,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
             const data = await response.json();
             if (response.ok) {
-                setRoadmapRecords(data.data.totalRecord)
+                setRoadmapRecords(data.data.totalRecord);
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
@@ -175,7 +175,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
             const response = await fetch(`http://localhost:3004/payment/user/${profileId}?page=1&limit=1`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${getToken()}`,
+                    Authorization: `Bearer ${getToken()}`,
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
             });
@@ -183,8 +183,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
             const data = await response.json();
             if (response.ok) {
                 //console.log("Payment status: ", data);
-                if (data && data.data && data.data.length > 0)
-                    setProEdit(true)
+                if (data && data.data && data.data.length > 0) setProEdit(true);
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -204,9 +203,8 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     useEffect(() => {
         const fetchData = async () => {
             const id = await fetchProfile();
-            await fetchOwnRoadmapData()
-            if (id)
-                await fetchPaymentStatus(id)
+            await fetchOwnRoadmapData();
+            if (id) await fetchPaymentStatus(id);
         };
         fetchData();
     }, []);
@@ -220,7 +218,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const handleCreate = async () => {
         if (name && description && image && userId) {
-            console.log(role)
+            console.log(role);
             if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
                 const formData = new FormData();
                 formData.append('title', name);

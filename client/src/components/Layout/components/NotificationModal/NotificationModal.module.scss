@@ -52,8 +52,9 @@
 }
 
 .notification-content {
-    max-height: 400px;
+    max-height: 350px;
     overflow-y: auto; 
+    // height: 70vh;
     padding-right: 8px; 
     scrollbar-width: thin;
     scrollbar-color: #ccc #f9f9f9; 
@@ -198,3 +199,41 @@
     background-color: #f9f0ff;
     color: #531dab; 
 }
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 25px;
+    width: auto;
+    margin-top: 10px;
+
+    .prev-btn,
+    .next-btn {
+        background-color: #ffffff;
+        color: #a3a3a3;
+        border: 1px solid #a3a3a3;
+        border-radius: 4px;
+        padding: 6px 12px;
+        margin: 0 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+
+        &:disabled {
+            background-color: #d6d6d6;
+            cursor: not-allowed;
+        }
+    }
+
+    .page-info {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+    }
+}
+
