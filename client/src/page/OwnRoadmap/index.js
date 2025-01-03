@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear, faXmark, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faA, faCircleDown, faSitemap, faSquarePlus, faPenToSquare as penSolid, faHeart as faHeartSolid, faGear, faXmark, faHeart, faBug } from '@fortawesome/free-solid-svg-icons';
 import { faHeart as faHeartRegular } from '@fortawesome/free-regular-svg-icons';
 import Comment from '~/components/Layout/components/Comment/index.js';
 import styles from './OwnRoadmap.module.scss';
@@ -9,10 +9,11 @@ import RoadmapSection from '~/components/Layout/components/RoadmapSection/index.
 import AdvanceRoadmap from '~/components/Layout/components/AdvanceRoadmap/index.js';
 import SettingRoadmap from '~/components/Layout/components/Dialog/SettingRoadmap/index.js';
 import CreateTimeline from '~/components/Layout/components/CreateTimeline/index.js';
-import { CantClone } from '~/components/Layout/components/MiniNotification/index.js';
+import { CantClone, ReportSended } from '~/components/Layout/components/MiniNotification/index.js';
 import Saved from '~/components/Layout/components/MiniNotification/Saved/index.js';
 import { useNavigate, useParams } from 'react-router-dom';
 import CryptoJS from 'crypto-js';
+import { ReportTimelineRoadmap } from '~/components/Layout/components/Dialog/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -25,7 +26,7 @@ const decryptId = (encryptedId) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-const filterRoadmapData = (data) => {
+const filterRoadmapNode = (data) => {
     return data.map((item, index) => ({
         id: index,
         level: item.level,
@@ -46,7 +47,7 @@ function OwnRoadmap() {
 
     const [profile, setProfile] = useState(null);
     const [roadmapData, setRoadmapData] = useState(null);
-    const [nodes, setNodes] = useState(null);
+    const [nodes, setNodes] = useState([]);
 
     const [userType, setUserType] = useState("Viewer")
     const [roadName, setRoadName] = useState('Name not given');
@@ -99,15 +100,20 @@ function OwnRoadmap() {
             });
 
             const data = await response.json();
+            console.log("Hehe: ", data)
             if (response.ok) {
-                setRoadmapData(data.data);
-                setVisibility(data.data.isPublic ? "Pubic" : "Private");
-                console.log("Roadmap data: ", data.data);
+                if (data.statusCode !== 404) {
+                    setRoadmapData(data.data);
+                    setVisibility(data.data.isPublic ? "Release" : "Private");
+                    //console.log("Roadmap data: ", data.data);
 
-                setNodes(filterRoadmapData(data.data.node))
-                console.log("Nodes after fetching: ", nodes);
+                    setNodes(filterRoadmapNode(data.data.node))
+                    //console.log("Nodes after fetching: ", nodes);
 
-                return data.data;
+                    return data.data;
+                }
+                navigate('/home')
+
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -116,6 +122,28 @@ function OwnRoadmap() {
             console.error('Fetch Roadmap Error:', error);
         }
     };
+
+    const fetchPatchRoadmap = async (data) => {
+        try {
+            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Updated roadmap after react toggle: ', data);
+            } else {
+                console.error('Failed to update react value');
+            }
+        } catch (error) {
+            console.error('Error while patching react value:', error);
+        }
+    }
 
     const fetchDelRoadmap = async () => {
         try {
@@ -141,7 +169,7 @@ function OwnRoadmap() {
 
     const fetchFavoriteData = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/favorite/all/owner?page=1&limit=10`, {
+            const response = await fetch(`http://localhost:3004/favorite/roadmap/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -151,14 +179,12 @@ function OwnRoadmap() {
 
             const data = await response.json();
             if (response.ok) {
-                if (data && Array.isArray(data.data)) {
-                    for (let i = 0; i < data.data.length; i++) {
-                        if (String(data.data[i].roadmap.id) === id) {
-                            setLoved(true)
-                            setLoveId(data.data[i].id)
-                        }
-                    }
+                console.log(data)
+                if (data.data !== null) {
+                    setLoved(true)
+                    setLoveId(data.data.id)
                 }
+
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -217,7 +243,7 @@ function OwnRoadmap() {
             formData.append('xAxis', nodeData.x);
             formData.append('yAxis', nodeData.y);
             formData.append('type', nodeData.type);
-            formData.append('tick', nodeData.ticked);
+            formData.append('tick', nodeData.ticked ? '1' : '0');
             formData.append('dueTime', nodeData.due_time);
             formData.append('content', nodeData.content);
             formData.append('detail', nodeData.nodeDetail);
@@ -255,8 +281,8 @@ function OwnRoadmap() {
 
             const data = await response.json();
             if (response.ok) {
-                setNodes(filterRoadmapData(data.data))
-                console.log("Nodes after fetching: ", nodes);
+                setNodes(filterRoadmapNode(data.data))
+                //console.log("Nodes after fetching: ", nodes);
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -293,9 +319,9 @@ function OwnRoadmap() {
         const fetchData = async () => {
             const fetchedProfile = await fetchProfile();
             const fetchedRoadmapData = await fetchRoadmapData();
-            await fetchFavoriteData()
 
             if (fetchedProfile && fetchedRoadmapData) {
+                await fetchFavoriteData(fetchedRoadmapData.id)
                 setUserType(
                     fetchedProfile.id === fetchedRoadmapData.owner.id
                         ? "Administrator"
@@ -315,6 +341,7 @@ function OwnRoadmap() {
     const [toggle, setToggle] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
     const [createTimelineDialog, setCreateTimelineDialog] = useState(false);
+    const [createReportDialog, setCreateReportDialog] = useState(false);
 
     const adjustTextareaHeight = () => {
         if (textareaRef.current) {
@@ -337,11 +364,12 @@ function OwnRoadmap() {
     };
 
     // Handle blur on title text textarea
-    const handleTitleBlur = () => {
+    const handleTitleBlur = async () => {
         setIsEditing(false)
         if (titleText.trim() === '') {
             setTitleText('Make some description'); // Reset to "Make some description" if textarea is empty
         }
+        await fetchPatchRoadmap({ content: titleText })
     };
 
     const handleDeleteRoadmap = async () => {
@@ -424,6 +452,7 @@ function OwnRoadmap() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = { id: newId, x: x, y: y + 100, level, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -441,6 +470,7 @@ function OwnRoadmap() {
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map(node => node.id), 0) + 1 : 0;
+        console.log('newId: ', newId)
         const newLevel = { id: newId, x: x + width + 200, y: y, level: level + 1, type, ticked: false, due_time: 2, content: 'Write something...', nodeDetail: '' };
 
         setNodes((prevLevels) => {
@@ -471,11 +501,22 @@ function OwnRoadmap() {
 
         handleMakeDialog('Saved')
     }
+    console.log(id)
+
+    // Tự động lưu mỗi 5 phút
+    useEffect(() => {
+        const intervalId = setInterval(async () => {
+            await handleSave();
+        }, 5 * 60 * 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
 
     const handleOutsideClick = (e) => {
         if (String(e.target.className).includes('modal-overlay')) {
             setShowSetting(false);
             setCreateTimelineDialog(false);
+            setCreateReportDialog(false);
         }
     }
 
@@ -510,27 +551,7 @@ function OwnRoadmap() {
             fetchNewFavourite(profile.id)
         }
 
-        try {
-            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    react: newReactValue,
-                }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Updated roadmap after react toggle: ', data);
-            } else {
-                console.error('Failed to update react value');
-            }
-        } catch (error) {
-            console.error('Error while patching react value:', error);
-        }
+        await fetchPatchRoadmap({ react: newReactValue })
     }
 
     const handleClone = () => {
@@ -539,6 +560,13 @@ function OwnRoadmap() {
         else {
             setCreateTimelineDialog(true)
         }
+    }
+
+    const handleSetVisibility = async (data) => {
+        setVisibility(data)
+        const isPublic = data === "Private" ? 0 : 1;
+        console.log("isPublic: ", isPublic)
+        await fetchPatchRoadmap({ isPublic: isPublic })
     }
 
     return (
@@ -554,10 +582,11 @@ function OwnRoadmap() {
                                 if (roadName === 'Name not given')
                                     setRoadName('');
                             }}
-                            onBlur={() => {
+                            onBlur={async () => {
                                 if (roadName.trim() === '') {
                                     setRoadName('Name not given');
                                 }
+                                await fetchPatchRoadmap({ title: roadName })
                             }}
                         />
                     ) : (
@@ -571,22 +600,28 @@ function OwnRoadmap() {
                         title={toggle ? 'Draw' : 'Collumn'}
                     />
                 </div>
+                <div className={cx('report-ss')}>
+                    <FontAwesomeIcon
+                        className={cx('report')}
+                        icon={faBug}
+                        onClick={() => setCreateReportDialog(true)} />
+                    {userType !== 'Viewer' && (
+                        <div className={cx('save-setting')}>
+                            <button className={cx('save-btn')} onClick={handleSave}>Save</button>
+                            <FontAwesomeIcon
+                                icon={faGear}
+                                className={cx('setting-btn')}
+                                onClick={() => setShowSetting(true)} />
+                        </div>
+                    )}
+                </div>
 
-                {userType !== 'Viewer' && (
-                    <div className={cx('save-setting')}>
-                        <button className={cx('save-btn')} onClick={handleSave}>Save</button>
-                        <FontAwesomeIcon
-                            icon={faGear}
-                            className={cx('setting-btn')}
-                            onClick={() => setShowSetting(true)} />
-                    </div>
-                )}
             </div>
 
             {showSetting &&
                 <SettingRoadmap
                     visibility={visibility}
-                    setVisibility={setVisibility}
+                    setVisibility={handleSetVisibility}
                     setShowSetting={setShowSetting}
                     handleOutsideClick={handleOutsideClick}
                     handleDeleteRoadmap={handleDeleteRoadmap} />}
@@ -668,6 +703,9 @@ function OwnRoadmap() {
                         <CantClone key={dialog.id} handleClose={() => handleClose(dialog.id)} />
                     ) : dialog.type === 'Saved' ? (
                         <Saved key={dialog.id} handleClose={() => handleClose(dialog.id)} />
+                    ) : dialog.type === 'Report' ? (
+                        <ReportSended />
+
                     ) : null
                 ))}
             </div>
@@ -682,6 +720,14 @@ function OwnRoadmap() {
                     handleOutsideClick={handleOutsideClick}
                     setShowDialog={setCreateTimelineDialog}
                 />}
+            {createReportDialog &&
+                <ReportTimelineRoadmap
+                    type='roadmap'
+                    profile={profile}
+                    roadmapData={roadmapData}
+                    handleOutsideClick={handleOutsideClick}
+                    setShowSetting={setCreateReportDialog}
+                    handleMakeDialog={handleMakeDialog} />}
             <Comment />
         </div>
     );

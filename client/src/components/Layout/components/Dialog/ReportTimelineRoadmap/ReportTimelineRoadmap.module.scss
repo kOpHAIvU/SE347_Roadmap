@@ -1,0 +1,84 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 600px;
+    max-width: 90%;
+    position: relative;
+
+    .close-btn {
+        margin: 10px 10px 0 0;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        width: auto;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #333;
+        z-index: 1;
+        padding: 0;
+
+        &:hover {
+            color: var(--color-red);
+        }
+    }
+}
+
+.report-content {
+    width: 100%;
+    height: 90px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 5px 0px;
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+.alert-icon {
+    color: var(--color-red);
+    height: 20px;
+    width: 20px;
+}
+
+.form-name {
+    display: block;
+    line-height: 30px;
+}
+
+.submit-form {
+    background-color: var(--main-color);
+    font-size: 1.7rem;
+    width: 80px;
+    padding: 5px;
+    align-self: center;
+    border-radius: 10px;
+    color: white;
+    margin-left: auto;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transform);
+
+    &:active {
+        transform: scale(0.9);
+    }
+}

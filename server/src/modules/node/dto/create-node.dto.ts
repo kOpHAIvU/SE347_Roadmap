@@ -18,7 +18,6 @@ export class CreateNodeDto {
     @IsNotEmpty()
     type: string;
 
-    @IsNotEmpty()
     @IsBoolean()
     tick: boolean;
 

@@ -58,4 +58,10 @@ export class GroupDivisionController {
     async remove(@Param('id') id: string) {
         return await this.groupDivisionService.remove(+id);
     }
+
+    @Get('timelineId/:timelineId')
+    @UseGuards(JwtAuthGuard)
+    async getRoadmapByTimelineId(@Param('timelineId', ParseIntPipe) timelineId: string) {
+        return await this.groupDivisionService.findGroupDivisionByTimelineId(+timelineId);
+    }
 }

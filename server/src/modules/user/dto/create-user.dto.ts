@@ -23,7 +23,6 @@ export class CreateUserDto {
     @IsString()
     avatar: string;
 
-    @IsString()
-    deviceToken: string;
+    deviceToken?: string;
 
 }

@@ -1,3 +1,4 @@
+import { Roadmap } from "src/modules/roadmap/entities/roadmap.entity";
 import { User } from "../../user/entities/user.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
@@ -24,10 +25,13 @@ export class Report {
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
 
-    @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
-    isActive: boolean;
 
     @ManyToOne(() => User, receiver => receiver.receiverReport, {eager: true})
-    receive: User
+    receive: User;
 
+    @ManyToOne(() => Roadmap,  roadmap => roadmap.report, {eager: true})
+    roadmap: Roadmap;
+
+    @Column({default: false})
+    isChecked: boolean;
 }

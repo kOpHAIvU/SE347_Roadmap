@@ -12,8 +12,8 @@ export class Team {
     @Column({nullable: false})
     name: string;
 
-    @Column()
-    avatar: string;
+    @Column({default: "avatar.png"})
+    avatar?: string;
 
     @ManyToOne(() => User, leader => leader.team, { eager: true })
     leader: User;   

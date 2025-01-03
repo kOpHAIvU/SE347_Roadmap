@@ -31,13 +31,13 @@ export class User {
     @Column()
     avatar: string;
 
-    @Column()
+    @Column({default: "device_token"})
     deviceToken: string;
 
     @Column({ length: 100, unique: true, nullable: false })
     email: string;
 
-    @Column({ type: 'boolean', default: true }) // Default status is 0 (false)
+    @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
     isActive: boolean;
 
     @CreateDateColumn()  
@@ -69,8 +69,8 @@ export class User {
     @OneToMany( () => Notification, poster => poster.postNotification)
     poster: Report[]
 
-    @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
-    groupDivision: GroupDivision;
+    @OneToMany(() => GroupDivision, groupDivision => groupDivision.user)
+    groupDivision: GroupDivision[];
 
     @OneToMany(() => Message, messages => messages.sender)
     messages: Message[];

@@ -19,6 +19,12 @@ export class Timeline {
     @ManyToOne(() => User, creator => creator.timeline, { eager: true })
     creator: User;
 
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    startTime: Date;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    dueTime: Date;
+
     @ManyToOne(() => Roadmap, roadmap => roadmap.timeline, { eager: true })
     roadmap: Roadmap;
 
@@ -28,7 +34,7 @@ export class Timeline {
     @Column({ type: 'boolean', default: true }) 
     isActive: boolean;
 
-    @Column()
+    @Column({default: "avatar.png"})
     avatar: string;
 
     @CreateDateColumn()  
@@ -37,8 +43,8 @@ export class Timeline {
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
 
-    @OneToMany(() => GroupDivision, groupDivision => groupDivision.team)
-    groupDivision: GroupDivision;
+    @OneToMany(() => GroupDivision, groupDivision => groupDivision.timeline)
+    groupDivision: GroupDivision[];
 
     @OneToMany(() => Node, node => node.timeline)
     node: Node[];

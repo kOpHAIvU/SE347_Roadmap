@@ -36,18 +36,20 @@ export class RoadmapController {
     @Get('all')
     @UseGuards(JwtAuthGuard)
     async findAll(
-        @Query('page', ParseIntPipe) page: number = 1, 
+        @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 100,
-        @Req() req: any
+        @Req() req: any,
     ) {
-        return await this.roadmapService.findAll(page, limit, req.user.id);
+        return await this.roadmapService.findAll(page, limit, req.user.userId);
     }
-
 
     @Get('id/:id')
     @UseGuards(JwtAuthGuard)
-    async findOneById(@Param('id', ParseIntPipe) id: number) {
-        return await this.roadmapService.findOneById(+id);
+    async findOneById(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: any,
+    ) {
+        return await this.roadmapService.findOneByIdGrant(+id, req.user.userId);
     }
 
     @Get('code/:code')
@@ -66,14 +68,14 @@ export class RoadmapController {
         return await this.roadmapService.findRoadmapsByType(type, page, limit);
     }
 
-    @Get('owner/:owner')
+    @Get('owner')
     @UseGuards(JwtAuthGuard)
     async findRoadmapByOwner(
-        @Param('owner') owner: string,
+        @Req() req: any,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 100,
     ) {
-        return await this.roadmapService.findRoadmapsByOwner(owner, page, limit);
+        return await this.roadmapService.findRoadmapsByOwner(req.user.userId, page, limit);
     }
 
     @Patch('item/:id')
@@ -82,28 +84,52 @@ export class RoadmapController {
     async updateById(
         @Param('id', ParseIntPipe) id: string,
         @Body() updateRoadmapDto: UpdateRoadmapDto,
+        @Req() req: any,
         @UploadedFile() file?: Express.Multer.File,
     ) {
-        return await this.roadmapService.updateById(+id, updateRoadmapDto, file);
+        return await this.roadmapService.updateById(+id, updateRoadmapDto, file, req.user.userId);
     }
 
     @Patch('code/:code')
     @UseGuards(JwtAuthGuard)
-    async updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
+    async updateByCode(
+        @Param('code') code: string, 
+        @Body() updateRoadmapDto: UpdateRoadmapDto,
+
+    ) {
         return await this.roadmapService.updateByCode(code, updateRoadmapDto);
     }
 
     @Delete('item/:id')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
-    async removeById(@Param('id', ParseIntPipe) id: number, @UploadedFile() file?: Express.Multer.File) {
+    async removeById(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: any,
+        @UploadedFile() file?: Express.Multer.File,
+        ) {
         return await this.roadmapService.removeById(+id);
     }
 
     @Delete('code/:code')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
-    async removeByCode(@Param('code') code: string, @UploadedFile() file?: Express.Multer.File) {
+    async removeByCode(
+        @Param('code') code: string, 
+        @Req() req: any,
+        @UploadedFile() file?: Express.Multer.File
+    ) {
         return await this.roadmapService.removeByCode(code);
+    }
+
+    @Get('search/:name')
+    @UseGuards(JwtAuthGuard)
+    async searchRoadmap(
+        @Param('name') name: string,
+        @Query('page', ParseIntPipe) page: number = 1,
+        @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
+    ) {
+        return await this.roadmapService.findRoadmapsByTitle(name, page, limit, req.user.userId);
     }
 }

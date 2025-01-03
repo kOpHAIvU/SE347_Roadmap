@@ -16,29 +16,15 @@ const encryptId = (id) => {
     return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 };
 
-const formatTimelineData = (data, src) => {
-    if (!Array.isArray(data)) {
-        return [];
-    }
-
-    return data.map(item => {
-        return {
-            id: item.id,
-            title: item.title,
-            content: item.content,
-            avatar: src,
-            contributors: 3
-        }
-    })
-}
-
 function YourTimeline() {
     const navigate = useNavigate();
 
     const [profile, setProfile] = useState(null);
     const [timelines, setTimelines] = useState([]);
+    const [timelineRecords, setTimelineRecords] = useState(0);
+    const [currentPageNumber, setCurrentPageNumber] = useState(1);
 
-    let source = "https://i.ebayimg.com/images/g/XI0AAOSw~HJker7R/s-l1200.jpg"
+    //let source = "https://i.ebayimg.com/images/g/XI0AAOSw~HJker7R/s-l1200.jpg"
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -73,9 +59,28 @@ function YourTimeline() {
         }
     };
 
-    const fetchTimelineData = async () => {
+    const filterTimelineData = async (data) => {
+        const mappedData = await Promise.all(
+            data.map(async (item) => {
+                const contributorCount = await fetchGetGroupDivisionByTimeline(item.id)
+                return {
+                    id: item.id,
+                    title: item.title,
+                    content: item.content,
+                    avatar: item.avatar ? item.avatar.substring(0, item.avatar.indexOf('.jpg') + 4) : '',
+                    contributors: contributorCount,
+                    node: item.node
+                };
+            })
+        )
+        
+        return mappedData;
+    }
+
+
+    const fetchTimelineData = async (pageNumber) => {
         try {
-            const response = await fetch('http://localhost:3004/timeline/all?page=1&limit=20', {
+            const response = await fetch(`http://localhost:3004/timeline/all?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -86,8 +91,9 @@ function YourTimeline() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log(data);
-                return formatTimelineData(data.data, source);
+                const formatTimelineData = await filterTimelineData(data.data.timeline);
+                setTimelineRecords(data.data.totalRecord)
+                setTimelines(formatTimelineData)
             } else {
                 console.error('Error:', data.message || 'Failed to fetch profile data.');
             }
@@ -96,14 +102,32 @@ function YourTimeline() {
         }
     };
 
+    const fetchGetGroupDivisionByTimeline = async (timelineId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/group-division/timelineId/${timelineId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                return data.data.groupDivisions.length
+            } else {
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
 
     useEffect(() => {
         const fetchData = async () => {
-            const data = await fetchTimelineData();
-            if (data) {
-                setTimelines(data);
-                console.log("Timeline after fetch: ", data)
-            }
+            await fetchTimelineData(currentPageNumber);
         };
         fetchData();
     }, []);
@@ -145,6 +169,14 @@ function YourTimeline() {
         navigate(`/timeline/${encryptedId}`);
     };
 
+    const handlePageChange = async (pageNumber) => {
+        setCurrentPageNumber(pageNumber);
+    };
+
+    useEffect(() => {
+        fetchTimelineData(currentPageNumber);
+    }, [currentPageNumber]);
+
     return (
         <div className={cx('wrapper')}>
             <h1 className={cx('page-title')}>Your Timeline</h1>
@@ -156,6 +188,17 @@ function YourTimeline() {
                         onClick={() => handleClickTimeline(timeline.id)}
                     />
                 })}
+            </div>
+            <div className={cx('numeric')}>
+                {Array.from({ length: Math.ceil(timelineRecords / 12) }, (_, index) => (
+                    <div
+                        key={index + 1}
+                        className={cx('card', { active: currentPageNumber === index + 1 })}
+                        onClick={() => handlePageChange(index + 1)}
+                    >
+                        {index + 1}
+                    </div>
+                ))}
             </div>
         </div>
     );

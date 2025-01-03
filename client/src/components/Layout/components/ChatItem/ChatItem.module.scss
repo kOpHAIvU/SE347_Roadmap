@@ -1,11 +1,24 @@
 .wrapper {
-    cursor: pointer;
     height: auto;
     width: 100%;
     display: flex;
     padding: 5px;
+    transform: translateX(100%);
+    animation: slide-in 0.5s ease-in-out forwards;
+
     &:hover {
         background-color: rgba(101, 128, 235, 0.15);
+    }
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
     }
 }
 
@@ -15,6 +28,7 @@
     width: var(--avatar-size);
     border-radius: 50%;
     object-fit: cover;
+    cursor: pointer;
 }
 
 .send-info {
@@ -31,11 +45,17 @@
 
 .username {
     font-size: 1.5rem;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--main-color);
+        text-decoration: underline;
+    }
 }
 
 .date-send {
     margin-right: 5px;
-    color: #b1b1b1;
+    color: #727272;
     margin-left: 5px;
 }
 

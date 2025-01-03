@@ -9,9 +9,11 @@ export class Comment {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({default: ""})
+    title: string;
+
     @Column({nullable: false})
     content: string;
-
 
     @Column({default: -1})
     left: number;
@@ -44,7 +46,7 @@ export class Comment {
     @Exclude()
     deletedAt: Date | null;
 
-    @ManyToOne(() => Node,  node => node.comment, { eager: true })
+    @ManyToOne(() => Node,  node => node.comment)
     node: Node 
 
 }

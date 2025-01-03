@@ -41,6 +41,7 @@ function Comment() {
 
     const [titleText, setTitleText] = useState('');
     const [comments, setComments] = useState([]);
+    const [commentCount, setCommentCount] = useState(0);
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -77,7 +78,7 @@ function Comment() {
 
     const fetchGetAllCommentInRoadmap = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/comment/all/roadmap/${id}?page=10&limit=20`, {
+            const response = await fetch(`http://localhost:3004/comment/all/roadmap/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -90,6 +91,7 @@ function Comment() {
                 //console.log(data);
                 setComments(formatComment(data.data))
                 console.log("Comments after fetching: ", comments);
+                setCommentCount(data.data.length)
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -275,13 +277,13 @@ function Comment() {
             <div className={cx('inner')}>
                 <div className={cx('title')}>
                     <h1 className={cx('title-text')}>Comment</h1>
-                    <h1 className={cx('title-count')}>123</h1>
+                    <h1 className={cx('title-count')}>{commentCount}</h1>
                 </div>
                 <div className={cx('write-cmt-section')}>
                     <img
                         className={cx('avatar')}
                         alt="avatar"
-                        src="https://us-tuna-sounds-images.voicemod.net/b962568b-a0e4-4ccc-b041-2f230293d740-1661361350797.jpg"
+                        src={profile?.avatar?.substring(0, profile.avatar.indexOf('.jpg') + 4) ?? 'https://i.pinimg.com/736x/8f/1c/a2/8f1ca2029e2efceebd22fa05cca423d7.jpg'}
                     />
                     <textarea
                         className={cx('write-cmt')}

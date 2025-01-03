@@ -5,6 +5,7 @@ import styles from './CreateTimeline.module.scss';
 import classNames from 'classnames/bind';
 import CryptoJS from 'crypto-js';
 import { useEffect, useState } from 'react';
+import CantCloneDialogTooMany from '../MiniNotification/CantCloneTooMany/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -20,7 +21,12 @@ const encryptId = (id) => {
 function CreateTimeline({ children, title, setTitle, content, setContent, handleOutsideClick, setShowDialog }) {
     const navigate = useNavigate();
 
-    const [profile, setProfile] = useState(null)
+    const [profile, setProfile] = useState(null);
+    const [role, setRole] = useState('user')
+    const [proEdit, setProEdit] = useState(false)
+    const [roadmapRecords, setRoadmapRecords] = useState(0)
+    const [layoutTitle, setLayoutTitle] = useState(title)
+    const [layoutContent, setLayoutContent] = useState(content)
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -49,32 +55,53 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
             }
 
             const data = await response.json();
+            setRole(data.data.role.name)
             return data.data.id;
         } catch (error) {
             console.error('Fetch Profile Error:', error);
         }
     };
 
-    const fetchNewTimeline = async (title, content, id) => {
+    const fetchRoadmapData = async (roadmapData) => {
         try {
-            const response = await fetch('http://localhost:3004/timeline/new', {
+            const updatedClone = roadmapData.clone + 1;
+
+            const response = await fetch(`http://localhost:3004/roadmap/item/${roadmapData.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ clone: updatedClone }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchCloneRoadmap = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/timeline/clone/${children.id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    title: title,
-                    content: content,
-                    roadmap: id,
-                    leader: profile
-                }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                //console.log(data);
+                console.log(data);
+                await fetchRoadmapData(data.data.roadmap)
                 return data.data
             } else {
                 console.error(data);
@@ -84,7 +111,34 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         }
     };
 
-    const fetchNewTeam = async (name, avatar) => {
+    const fetchUpdateTimelineTitleContent = async (timelineId, title, content) => {
+        try {
+            const response = await fetch(`http://localhost:3004/timeline/item/${timelineId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    content: content,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log("Update timeline: ", data);
+                return data.data
+            } else {
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchNewTeam = async (name) => {
         try {
             const response = await fetch('http://localhost:3004/team/new', {
                 method: 'POST',
@@ -94,10 +148,8 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
                 },
                 body: JSON.stringify({
                     name: name,
-                    avatar: 'avatar',
                     leader: profile,
                     isActive: 1,
-                    file: avatar
                 }),
             });
 
@@ -116,22 +168,22 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchGroupDivisionTeam = async (teamId, timelineId) => {
         try {
+            const body = new URLSearchParams({
+                teamId: teamId,
+                userId: profile,
+                timelineId: timelineId,
+                role: 1
+            }).toString();
             const response = await fetch('http://localhost:3004/group-division/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: JSON.stringify({
-                    nateamIde: teamId,
-                    userId: profile,
-                    timelineId: timelineId,
-                    role: 1
-                }),
+                body: body,
             });
 
             const data = await response.json();
-
             if (response.ok) {
                 console.log(data);
             } else {
@@ -142,29 +194,102 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         }
     };
 
+    const fetchPaymentStatus = async (profileId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/payment/user/${profileId}?page=1&limit=1`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                console.log("Payment status: ", data);
+                if (data && data.data && data.data.length > 0)
+                    setProEdit(true)
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchOwnRoadmapData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/timeline/owner?page=1&limit=3`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setRoadmapRecords(data.data.totalRecord)
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message || 'Failed to fetch roadmap data.');
+                navigate(`/login`);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             const data = await fetchProfile();
             setProfile(data);
+            await fetchOwnRoadmapData()
+            if (data)
+                await fetchPaymentStatus(data)
         };
         fetchData();
     }, []);
 
     const handleCreate = async () => {
-        if (title && content) {
-            const timelineData = await fetchNewTimeline(title, content, children.id)
-            const teamId = await fetchNewTeam("Team for study",
-                timelineData.roadmap.avatar ? timelineData.roadmap.avatar.substring(0, timelineData.roadmap.avatar.indexOf('.jpg') + 4) : '',
-            )
-            await fetchGroupDivisionTeam(teamId, timelineData.id)
+        if (layoutTitle && layoutContent) {
+            if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
+                const timelineData = await fetchCloneRoadmap()
+                console.log("Timeline: ", timelineData)
+                const teamId = await fetchNewTeam("Team for study")
+                await fetchGroupDivisionTeam(teamId, timelineData.id)
+                await fetchUpdateTimelineTitleContent(timelineData.id, layoutTitle, layoutContent)
 
-            if (timelineData && teamId) {
-                const encryptedId = encryptId(timelineData.id);
-                navigate(`/timeline/${encryptedId}`);
+                if (timelineData && teamId) {
+                    const encryptedId = encryptId(timelineData.id);
+                    navigate(`/timeline/${encryptedId}`);
+                } else {
+                    console.error("Failed to create new timeline.");
+                }
             } else {
-                console.error("Failed to create new timeline.");
+                console.log("roadmapRecords", roadmapRecords)
+                handleMakeDialog()
             }
         }
+    };
+
+    const [dialogs, setDialogs] = useState([]);
+
+    const handleMakeDialog = () => {
+        const newDialog = { id: Date.now() };
+        setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+
+        // Automatically remove the CantClone after 3 seconds
+        setTimeout(() => {
+            setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+        }, 3000);
+
+        return;
+    };
+
+    const handleClose = (id) => {
+        setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
     };
 
     return (
@@ -183,12 +308,12 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
                 <div className={cx('form-group')}>
                     <label>Timeline Name</label>
-                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+                    <input type="text" value={layoutTitle} onChange={(e) => setLayoutTitle(e.target.value)} />
                 </div>
 
                 <div className={cx('form-group')}>
                     <label>Description</label>
-                    <textarea className={cx('description')} value={content} onChange={(e) => setContent(e.target.value)} />
+                    <textarea className={cx('description')} value={layoutContent} onChange={(e) => setLayoutContent(e.target.value)} />
                 </div>
 
                 <div className={cx('button-group')}>
@@ -198,12 +323,22 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
                     <button
                         className={cx('create-btn')}
-                        onClick={handleCreate}
-                        disabled={!title || !content}
+                        onClick={() => handleCreate()}
+                        disabled={!layoutTitle || !layoutContent}
                     >
                         Create
                     </button>
                 </div>
+            </div>
+            <div className={cx('mini-notify')}>
+                {dialogs.map((dialog) => (
+                    <CantCloneDialogTooMany
+                        key={dialog.id}
+                        handleClose={handleClose}
+                        type='timelines'
+                        count={roadmapRecords}
+                    />
+                ))}
             </div>
         </div>
     );

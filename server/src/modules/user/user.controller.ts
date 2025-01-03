@@ -42,7 +42,6 @@ export class UserController {
     // View profile of user: Feature of admin right
     @Get('item/:id')
     @UseGuards(JwtAuthGuard)
-    @Roles('admin')
     async findOneById(@Param('id', ParseIntPipe) id: number) {
         return await this.userService.findOneById(+id);
     }
@@ -59,5 +58,16 @@ export class UserController {
     @UseGuards(JwtAuthGuard)
     async remove(@Param('id') id: string) {
         return await this.userService.remove(+id);
+    }
+
+    @Get('search/:name')
+    @UseGuards(JwtAuthGuard)
+    async search(@Param('name') name: string) {
+        return await this.userService.findUserByName(name);
+    }
+
+    @Get('all')
+    async findAll() {
+        return await this.userService.findAllFirebase();
     }
 }

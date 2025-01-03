@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ChatSection from '~/components/Layout/components/ChatSection/index.js';
 import classNames from 'classnames/bind';
 import styles from './Timeline.module.scss';
@@ -28,6 +28,11 @@ function Timeline() {
     const id = decryptId(encryptedId);
 
     const [profile, setProfile] = useState(null);
+    const [userType, setUserType] = useState("Viewer")
+    const [roadName, setRoadName] = useState('Name not given');
+    const [titleText, setTitleText] = useState('Make some description');
+    const [nodes, setNodes] = useState([]);
+    const [groupData, setGroupData] = useState([])
 
     const getToken = () => {
         const token = localStorage.getItem('vertexToken');
@@ -53,6 +58,7 @@ function Timeline() {
 
             if (response.ok) {
                 setProfile(data.data);
+                //console.log(data.data)
                 return data.data;
             } else {
                 console.error('Error:', data.message || 'Failed to fetch profile data.');
@@ -62,69 +68,388 @@ function Timeline() {
         }
     };
 
-    const authority = 'Administrator';
-    let roadmapName = 'Name not given';
-    let title =
-        'GitHub là một hệ thống quản lý dự án và phiên bản code, hoạt động giống như một mạng xã hội cho lập trình viên. Các lập trình viên có thể clone lại mã nguồn từ một repository và Github chính là một dịch vụ máy chủ repository công cộng, mỗi người có thể tạo tài khoản trên đó để tạo ra các kho chứa của riêng mình để có thể làm việc. GitHub có 2 phiên bản: miễn phí và trả phí. Với phiên bản có phí thường được các doanh nghiệp sử dụng để tăng khả năng quản lý team cũng như phân quyền bảo mật dự án. Còn lại thì phần lớn chúng ta đều sử dụng Github với tài khoản miễn phí để lưu trữ source code.';
-    const [roadName, setRoadName] = useState(roadmapName);
+    const fetchTimelineData = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                if (data.statusCode !== 404) {
+                    setRoadName(data.data.title)
+                    setTitleText(data.data.content)
+                    const nodesArray = [];
+                    for (const [i, node] of data.data.node.entries()) {
+                        const filteredNode = await filterTimelineNode(i, node);
+                        nodesArray.push(filteredNode);
+                    }
+
+                    setNodes(nodesArray);
+
+                    return data.data;
+                }
+                navigate('/home')
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchUpdateTimelineTitleContent = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: roadName,
+                    content: titleText
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log("PATCH: ", data);
+                return data.data
+            } else {
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const fetchGetGroupDivisionByTimeline = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/group-division/timelineId/${id}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setGroupData(data.data.groupDivisions)
+                //console.log(data);
+                return data.data
+            } else {
+                console.error(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    console.log(nodes)
+
+    const fetchNewNode = async (nodeData) => {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('level', nodeData.level);
+            formData.append('xAxis', nodeData.x);
+            formData.append('yAxis', nodeData.y);
+            formData.append('type', nodeData.type);
+            formData.append('tick', nodeData.ticked ? '1' : '0');
+            formData.append('dueTime', nodeData.due_time);
+            formData.append('content', nodeData.content);
+            formData.append('detail', nodeData.nodeDetail);
+            formData.append('timeline', id);
+
+            const response = await fetch('http://localhost:3004/node/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData.toString(),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Node added:', data);
+                return data.data
+            } else {
+                console.error('Failed to add node. Status:', response.status);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const filterTimelineNode = async (id, data) => {
+        //console.log("Nodes: ", data)
+        const commentData = await fetchNodeComment(data.id);
+        //console.log("commentData: ", commentData)
+        if (commentData) {
+            const filteredComments = commentData.map(comment => ({
+                userId: comment.poster?.id,
+                username: comment.poster?.fullName,
+                title: comment.title,
+                content: comment.content,
+                id: id,
+            }));
+            // console.log("filteredComments", filteredComments)
+            // console.log("Hehe: ", {
+            //     id: id,
+            //     level: data.level,
+            //     x: data.xAxis,
+            //     y: data.yAxis,
+            //     type: data.type,
+            //     ticked: data.tick,
+            //     due_time: data.dueTime,
+            //     content: data.content,
+            //     nodeDetail: data.detail,
+            //     nodeComment: filteredComments,
+            // })
+            return {
+                id: id + 1,
+                level: data.level,
+                x: data.xAxis,
+                y: data.yAxis,
+                type: data.type,
+                ticked: data.tick,
+                due_time: data.dueTime,
+                content: data.content,
+                nodeDetail: data.detail,
+                nodeComment: filteredComments,
+            }
+        }
+    }
+
+    // const fetchAllNodeInTimeline = async () => {
+    //     try {
+    //         const response = await fetch(`http://localhost:3004/node/all/timeline/${id}`, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Authorization': `Bearer ${getToken()}`,
+    //                 'Content-Type': 'application/json',
+    //             },
+    //         });
+
+    //         const data = await response.json();
+    //         if (response.ok) {
+    //             console.log("All Node: ", data)
+    //             // for (let i = 0; i < data.data.length; i++) { }
+    //             // setNodes(filterTimelineNode(data.data))
+    //             console.log("Nodes after fetching: ", nodes);
+    //         } else {
+    //             const errorData = await response.json();
+    //             console.error('Error:', errorData.message);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //     }
+    // };
+
+    const fetchDelAllNodeInTimeline = async () => {
+        try {
+            const response = await fetch(`http://localhost:3004/node/timeline/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log(data);
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Roadmap Error:', error);
+        }
+    };
+
+    const fetchNewNodeComment = async (nodeId, comment) => {
+        try {
+            //console.log("Title hehe: ", comment)
+            const body = new URLSearchParams({
+                content: comment.content,
+                poster: comment.userId,
+                title: comment.title,
+                node: nodeId
+            }).toString();
+            //console.log("Body: ", body)
+
+            const response = await fetch('http://localhost:3004/comment/new', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: body,
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log("Comment added: ", data)
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Node Comment Error:', error);
+        }
+    };
+
+    const fetchDelNodeComment = async (commentId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                //console.log("Node comment deleted: ", data)
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Node Comment Error:', error);
+        }
+    };
+
+    const fetchNodeComment = async (nodeId) => {
+        try {
+            const response = await fetch(`http://localhost:3004/comment/node/${nodeId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                return data.data;
+            } else {
+                const errorData = await response.json();
+                console.error('Error:', errorData.message);
+            }
+        } catch (error) {
+            console.error('Fetch Node Comment Error:', error);
+        }
+    };
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            //console.log("Id: ", id)
+            const fetchedProfile = await fetchProfile();
+            const fetchedTimelineData = await fetchTimelineData();
+            const fetchedGroupDivisonData = await fetchGetGroupDivisionByTimeline();
+
+            if (fetchedProfile && fetchedTimelineData && fetchedGroupDivisonData) {
+                for (let i = 0; i < fetchedGroupDivisonData.totalRecords; i++) {
+                    const groupDivision = fetchedGroupDivisonData.groupDivisions[i];
+                    if (fetchedProfile.id === groupDivision.user.id) {
+                        console.log('role', groupDivision.role)
+                        switch (groupDivision.role) {
+                            case 1:
+                                setUserType("Administrator");
+                                break;
+                            case 2:
+                                setUserType("Editor");
+                                break;
+                            case 3:
+                                setUserType("Viewer");
+                                break;
+                            default:
+                                navigate('/home')
+                        }
+                    }
+                }
+                //console.log(userType)
+            }
+        }
+        fetchData();
+    }, [id])
+
+    console.log(userType)
+
     const [contentExpanded, setIsContentExpanded] = useState(false);
     const [toggle, setToggle] = useState(false);
     const [showSetting, setShowSetting] = useState(false);
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [chatExtended, setChatExtended] = useState(true);
 
-    const nodeDetail = `
-    <h2>What is GitHub?</h2>
-    <p><span style="background-color: rgb(246, 249, 252); color: rgb(33, 51, 67);">GitHub is an online software development platform. It's used for storing, tracking, and collaborating on software projects. </span></p>
-    <p>It makes it easy for developers to share code files and collaborate with fellow developers on open-source projects. GitHub also serves as a social networking site where developers can openly network, collaborate, and pitch their work.</p>
-    <p>Since its founding in 2008, GitHub has acquired millions of users and established itself as a go-to platform for collaborative software projects. This free service comes with several helpful features for sharing code and working with others in real time.</p>
-    <p>On top of its code-Srelated functions, GitHub encourages users to build a personal profile and brand for themselves. You can visit anyone’s profile and see what projects they own and contribute to. This makes GitHub a type of social network for programmers and fosters a collaborative approach to software and <a href="https://blog.hubspot.com/website/website-development?hubs_content=blog.hubspot.com/website/what-is-github-used-for&amp;hubs_content-cta=website%20development" rel="noopener noreferrer" target="_blank" style="color: var(--cl-anchor-color,#0068b1);"><strong>website development</strong></a>.</p>
-    <h3>How does GitHub work?</h3>
-    <p>GitHub users create accounts, upload files, and create coding projects. But the real work of GitHub happens when users begin to collaborate.</p>
-    <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
-    `;
+    // const nodeDetail = `
+    // <h2>What is GitHub?</h2>
+    // <p><span style="background-color: rgb(246, 249, 252); color: rgb(33, 51, 67);">GitHub is an online software development platform. It's used for storing, tracking, and collaborating on software projects. </span></p>
+    // <p>It makes it easy for developers to share code files and collaborate with fellow developers on open-source projects. GitHub also serves as a social networking site where developers can openly network, collaborate, and pitch their work.</p>
+    // <p>Since its founding in 2008, GitHub has acquired millions of users and established itself as a go-to platform for collaborative software projects. This free service comes with several helpful features for sharing code and working with others in real time.</p>
+    // <p>On top of its code-Srelated functions, GitHub encourages users to build a personal profile and brand for themselves. You can visit anyone’s profile and see what projects they own and contribute to. This makes GitHub a type of social network for programmers and fosters a collaborative approach to software and <a href="https://blog.hubspot.com/website/website-development?hubs_content=blog.hubspot.com/website/what-is-github-used-for&amp;hubs_content-cta=website%20development" rel="noopener noreferrer" target="_blank" style="color: var(--cl-anchor-color,#0068b1);"><strong>website development</strong></a>.</p>
+    // <h3>How does GitHub work?</h3>
+    // <p>GitHub users create accounts, upload files, and create coding projects. But the real work of GitHub happens when users begin to collaborate.</p>
+    // <p>While anyone can code independently, teams of people build most development projects. Sometimes these teams are all in one place at once time, but more often they work asynchronously. There are many challenges to creating collaborative projects with distributed teams. GitHub makes this process much simpler in a few different ways.</p>
+    // `;
 
-    // State for the list of levels
-    const [nodes, setNodes] = useState([
-        {
-            id: 0,
-            level: 1,
-            x: 50,
-            y: 50,
-            type: 'Checkbox',
-            due_time: 2,
-            content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
-            ticked: false,
-            nodeDetail: nodeDetail,
-            nodeComment: [
-                {
-                    userId: '1',
-                    username: 'KoPhaiVu',
-                    text: 'haha',
-                    comment: 'whao',
-                },
-                {
-                    userId: '2',
-                    username: 'KoPhaiThien',
-                    text: 'mcc',
-                    comment: 'whao',
-                },
-            ],
-        },
-        {
-            id: 1,
-            level: 1,
-            x: 50,
-            y: 150,
-            type: 'Checkbox',
-            due_time: 2,
-            content:
-                'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
-            ticked: true,
-            nodeDetail: '',
-            nodeComment: null,
-        },
-    ]);
+    // // State for the list of levels
+    // const [nodes, setNodes] = useState([
+    //     {
+    //         id: 0,
+    //         level: 1,
+    //         x: 50,
+    //         y: 50,
+    //         type: 'Checkbox',
+    //         due_time: 2,
+    //         content: 'Write something... Chiều cao dựa trên chiều cao của văn bản hoặc giá trị mặc định',
+    //         ticked: false,
+    //         nodeDetail: nodeDetail,
+    //         nodeComment: [
+    //             {
+    //                 userId: '1',
+    //                 username: 'KoPhaiVu',
+    //                 text: 'haha',
+    //                 comment: 'whao',
+    //             },
+    //             {
+    //                 userId: '2',
+    //                 username: 'KoPhaiThien',
+    //                 text: 'mcc',
+    //                 comment: 'whao',
+    //             },
+    //         ],
+    //     },
+    //     {
+    //         id: 1,
+    //         level: 1,
+    //         x: 50,
+    //         y: 150,
+    //         type: 'Checkbox',
+    //         due_time: 2,
+    //         content:
+    //             'Nhạc Remix TikTok | Vạn Sự Tùy Duyên Remix - Phía Xa Vời Có Anh Đang Chờ - Nonstop Nhạc Remix 2024',
+    //         ticked: true,
+    //         nodeDetail: '',
+    //         nodeComment: null,
+    //     },
+    // ]);
 
     const updateNodeContent = (index, newContent) => {
         setNodes((prevNodes) => {
@@ -173,6 +498,7 @@ function Timeline() {
 
     const handleSameLevelClick = (index, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
+        //console.log('newId: ', newId)
         const newLevel = {
             id: newId,
             x: x,
@@ -182,7 +508,7 @@ function Timeline() {
             ticked: false,
             due_time: 2,
             content: 'Write something...',
-            nodeComment: null,
+            nodeComment: [],
         };
 
         setNodes((prevLevels) => {
@@ -195,15 +521,18 @@ function Timeline() {
                     ? [...prevLevels, newLevel]
                     : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
+
+            // // Cập nhật id cho các node phía dưới
+            // return updatedNodes.map((node, idx) => {
+            //     return idx > index ? { ...node, id: node.id + 1 } : node;
+            // });
         });
     };
 
     const handleAddChildLevelNode = (index, width, x, y, level, type) => {
         const newId = nodes ? Math.max(...nodes.map((node) => node.id), 0) + 1 : 0;
+        //console.log('newId: ', newId)
         const newLevel = {
             id: newId,
             x: x + width + 200,
@@ -213,7 +542,7 @@ function Timeline() {
             ticked: false,
             due_time: 2,
             content: 'Write something...',
-            nodeComment: null,
+            nodeComment: [],
         };
 
         setNodes((prevLevels) => {
@@ -226,10 +555,12 @@ function Timeline() {
                     ? [...prevLevels, newLevel]
                     : [...prevLevels.slice(0, insertIndex), newLevel, ...prevLevels.slice(insertIndex)];
 
-            // Cập nhật id cho các node phía dưới
-            return updatedNodes.map((node, idx) => {
-                return idx > index ? { ...node, id: node.id + 1 } : node;
-            });
+            return updatedNodes;
+
+            // // Cập nhật id cho các node phía dưới
+            // return updatedNodes.map((node, idx) => {
+            //     return idx > index ? { ...node, id: node.id + 1 } : node;
+            // });
         });
     };
 
@@ -258,19 +589,20 @@ function Timeline() {
             newNodes[index] = updatedNode;
             return newNodes;
         });
-        console.log(nodes);
+        //console.log(nodes);
         setTimeout(() => setHoveredIndex(null), 0);
     };
 
     const updateNodeComment = (nodeId, action, commentData = null, commentIndex = null) => {
         setNodes((prevNodes) => {
             return prevNodes.map((node) => {
+                //console.log(node.id, "  ", nodeId)
                 if (node.id === nodeId) {
                     let updatedComments = node.nodeComment ? [...node.nodeComment] : [];
 
                     switch (action) {
                         case 'add':
-                            console.log('add');
+                            console.log("Add")
                             if (commentData) {
                                 updatedComments.push(commentData);
                             }
@@ -295,7 +627,6 @@ function Timeline() {
                             console.error('Invalid action:', action);
                             return node;
                     }
-                    console.log(node);
                     return { ...node, nodeComment: updatedComments.length > 0 ? updatedComments : null };
                 }
                 return node;
@@ -335,12 +666,47 @@ function Timeline() {
         }
     };
 
+    const handleSave = async () => {
+        await fetchDelAllNodeInTimeline()
+        for (let i = 0; i < nodes.length; i++) {
+            const nodeId = await fetchNewNode(nodes[i])
+            console.log("Nodes new: ", nodeId)
+
+            // Fetch comment
+            if (nodeId) {
+                if (Array.isArray(nodes[i].nodeComment)) {
+                    for (let j = 0; j < nodes[i].nodeComment.length; j++) {
+                        // Del old comment if id is not null
+                        if (nodes[i].nodeComment[j].id !== null) {
+                            //console.log("Node comment del id: ", nodes[i].nodeComment[j].id);
+                            await fetchDelNodeComment(nodes[i].nodeComment[j].id);
+                        }
+                        // Post new comment
+                        await fetchNewNodeComment(nodeId.id, nodes[i].nodeComment[j]);
+                    }
+                }
+            }
+        }
+
+        handleMakeDialog('Save', null)
+    }
+
+    useEffect(() => {
+        const intervalId = setInterval(async () => {
+            await handleSave();
+        }, 5 * 60 * 1000);
+
+        return () => clearInterval(intervalId);
+    }, []);
+
+    console.log(id)
+
     return (
         <div className={cx('wrapper')}>
-            <div className={cx('timeline-section')}>
+            <div className={cx('timeline-section', { chatextend: chatExtended })}>
                 <div className={cx('important-section')}>
                     <div className={cx('title-container')}>
-                        {authority === 'Administrator' ? (
+                        {userType === 'Administrator' ? (
                             <input
                                 className={cx('page-title')}
                                 value={roadName}
@@ -348,10 +714,11 @@ function Timeline() {
                                 onFocus={() => {
                                     if (roadName === 'Name not given') setRoadName('');
                                 }}
-                                onBlur={() => {
-                                    if (roadName.trim() === '') {
+                                onBlur={async () => {
+                                    if (roadName.trim() === '')
                                         setRoadName('Name not given');
-                                    }
+                                    if (roadName !== 'Name not given')
+                                        await fetchUpdateTimelineTitleContent()
                                 }}
                             />
                         ) : (
@@ -366,16 +733,15 @@ function Timeline() {
                         />
                     </div>
 
-                    {authority !== 'Viewer' && (
+                    {userType !== 'Viewer' && (
                         <div className={cx('save-setting')}>
-                            <button className={cx('save-btn')} onClick={() => handleMakeDialog('Save', null)}>
+                            <button className={cx('save-btn')} onClick={handleSave}>
                                 Save
                             </button>
                             <FontAwesomeIcon
                                 icon={faGear}
                                 className={cx('setting-btn')}
-                                onClick={() => navigate(`/timeline/${id}/setting`)}
-                            />
+                                onClick={() => navigate(`/timeline/${encryptedId}/setting`)} />
                             <FontAwesomeIcon
                                 className={cx('extend-chat')}
                                 icon={chatExtended ? faChevronRight : faChevronLeft}
@@ -425,13 +791,13 @@ function Timeline() {
                     className={cx('content', { expanded: contentExpanded })}
                     onClick={() => setIsContentExpanded(!contentExpanded)}
                 >
-                    {title}
+                    {titleText}
                 </span>
 
                 <div className={cx('timeline-section')}>
                     {toggle ? (
                         <AdvanceRoadmap
-                            userType={authority}
+                            userType={userType}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}
@@ -446,7 +812,7 @@ function Timeline() {
                         />
                     ) : (
                         <RoadmapSection
-                            userType={authority}
+                            userType={userType}
                             nodes={nodes}
                             setNodes={setNodes}
                             updateNodeContent={updateNodeContent}
@@ -463,12 +829,14 @@ function Timeline() {
                 </div>
             </div>
 
-            {chatExtended && !toggle && (
-                <div className={cx('chat-section', { show: chatExtended })}>
-                    <ChatSection />
-                </div>
-            )}
-        </div>
+            {
+                chatExtended && !toggle && (
+                    <div className={cx('chat-section', { show: chatExtended })}>
+                        <ChatSection profile={profile} groupData={groupData} />
+                    </div>
+                )
+            }
+        </div >
     );
 }
 

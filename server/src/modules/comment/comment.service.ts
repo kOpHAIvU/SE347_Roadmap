@@ -1,6 +1,6 @@
 import { Message } from 'src/modules/message/entities/message.entity';
 import { RoadmapService } from './../roadmap/roadmap.service';
-import { Injectable, Logger, NotFoundException, Query } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, Query, forwardRef } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,6 +8,7 @@ import { Comment } from './entities/comment.entity';
 import { IsNull, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { ResponseDto } from './common/response.interface';
+import { NodeService } from '../node/node.service';
 
 @Injectable()
 export class CommentService {
@@ -17,6 +18,8 @@ export class CommentService {
     private commentRepository: Repository<Comment>,
     private userService: UserService,
     private roadmapService: RoadmapService,
+    @Inject(forwardRef(() => NodeService))
+    private nodeService: NodeService,
   ) {}
 
   async findOneById(
@@ -60,6 +63,7 @@ export class CommentService {
     try {
         const comment = this.commentRepository.create({
           content: createCommentDto.content, 
+          title: createCommentDto.title,
           poster: null,  
           roadmap: null, 
           parentComment: null, 
@@ -107,6 +111,23 @@ export class CommentService {
                             ? parentCommentResponse.data[0]
                             : parentCommentResponse.data;
             comment.parentComment = parentComment;
+        }
+
+        let node;
+        if (typeof createCommentDto.node !== 'undefined') {
+            const nodeResponse = await this.nodeService.findOneById(createCommentDto.node);
+            if (nodeResponse.statusCode !== 200) {
+                return {
+                    statusCode: 404,
+                    message: 'Node not found',
+                    data: null
+                }
+            }
+
+            node = Array.isArray(nodeResponse.data)
+                    ? nodeResponse.data[0]
+                    : nodeResponse.data;
+            comment.node = node;
         }
 
         const result = await this.commentRepository.save(comment);
@@ -330,8 +351,6 @@ export class CommentService {
 
   async getAllCommentsOfRoadmap(
     roadmapId: number,
-    page: number = 1,
-    limit: number = 10,
   ): Promise<ResponseDto> {
     try {
       const comments = await this.commentRepository
@@ -341,9 +360,7 @@ export class CommentService {
                       .leftJoinAndSelect('comment.parentComment', 'parentComment')
                       .where("comment.isActive = :isActive", { isActive: true })
                       .andWhere("comment.deletedAt IS NULL")
-                      .andWhere("comment.roadmap = :roadmapId", { roadmapId })
-                      .skip((page - 1) * limit)  
-                      .take(limit)                
+                      .andWhere("comment.roadmap = :roadmapId", { roadmapId })              
                       .getMany();
       if (!comments) {
         return {
@@ -446,5 +463,45 @@ export class CommentService {
   
     return await this.commentRepository.save(newComment);
   }
+
+  async getCommentByNodeId(
+    nodeId: number
+): Promise<ResponseDto> {
+    try {
+        const node = await this.commentRepository
+                              .createQueryBuilder('comment')
+                              .leftJoinAndSelect('comment.node', 'node')
+                              .leftJoinAndSelect('comment.poster', 'poster')
+                              .select([
+                                'comment', 
+                                'node.id',
+                                'poster.avatar',
+                                'poster.id',
+                                'poster.fullName',
+                              ])
+                              .where('comment.nodeId = :nodeId', { nodeId })
+                              .andWhere('comment.isActive = :isActive', { isActive: true })
+                              .andWhere('comment.deletedAt IS NULL')
+                              .getMany();
+        if (!node) {
+            return {
+                statusCode: 404,
+                message: 'Comment not found',
+                data: null
+            }
+        }
+        return {
+            statusCode: 200,
+            message: 'Get comment successfully',
+            data: node
+        }
+    } catch(error) {
+        return {
+            statusCode: 500,
+            message: error.message,
+            data: null
+        }
+    }
+}
   
 }

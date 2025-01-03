@@ -28,7 +28,7 @@ export class UserService {
         console.log('File to upload:', file);
         let avatarUrl: string;
         try {
-            if (createUserDto.avatar) {
+            if (typeof createUserDto.avatar !== 'undefined') {
                 const uploadResponse = await this.cloudinaryService.uploadImage(file);
                 avatarUrl = uploadResponse.secure_url.toString() + ' ' + uploadResponse.public_id.toString();
             }
@@ -91,7 +91,7 @@ export class UserService {
                 .andWhere('user.isActive = :isActive', { isActive: true })
                 .andWhere('user.deletedAt is null')
                 .getOne();
-
+            console.log('Leader is: ', user);
             if (!user) {
                 return {
                     statusCode: 404,
@@ -99,6 +99,7 @@ export class UserService {
                     data: null,
                 };
             }
+
             return {
                 statusCode: 200,
                 message: 'Get user successfully',
@@ -180,26 +181,12 @@ export class UserService {
                 public_id = url[1];
                 secure_url = url[0];
                 let deleteResponse;
-                // if (deleteResponse.statusCode !== 200) {
-                //   return {
-                //     statusCode: 500,
-                //     message: 'Error when updating avatar',
-                //     data: null
-                //   }
-                // }
                 try {
                     deleteResponse = await this.cloudinaryService.deleteImage(public_id);
                 } catch {
                     throw new Error('Error when deleting image');
                 }
                 let uploadResponse;
-                // if (uploadResponse.statusCode !== 200) {
-                //   return {
-                //     statusCode: 500,
-                //     message: 'Error when updating avatar',
-                //     data: null
-                //   }
-                // }
                 try {
                     uploadResponse = await this.cloudinaryService.uploadImage(file);
                 } catch (error) {
@@ -218,7 +205,7 @@ export class UserService {
             return {
                 statusCode: 200,
                 message: 'Update user successfully',
-                data: result,
+                data: updatedUser,
             };
         } catch (error) {
             return {
@@ -229,7 +216,50 @@ export class UserService {
         }
     }
 
-    async findAll(): Promise<ResponseDto> {
+    async findAllFirebase(): Promise<{
+        statusCode: number;
+        message: string;
+        data: User[];
+    }> {
+        try {
+            const users = await this.usersRepository
+                .createQueryBuilder('user')
+                .leftJoinAndSelect('user.role', 'role')
+                .where('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .getMany();
+            if (!users) {
+                return {
+                    statusCode: 404,
+                    message: 'User not found',
+                    data: null,
+                }
+            }
+            return {
+                statusCode: 200,
+                message: 'Get user successfully',
+                data: users,
+            }
+        } catch(error) {
+            return {
+                statusCode: 500,
+                message: error.message,
+                data: null,
+            }
+        }
+    }
+
+    async findAll(
+        page: number = 1,
+        limit: number = 10,
+    ): Promise<{
+        statusCode: number;
+        message: string;
+        data: {
+            total: number;
+            users: User[];
+        }
+    }> {
         try {
             const users = await this.usersRepository
                 .createQueryBuilder('user')
@@ -245,18 +275,28 @@ export class UserService {
                 ])
                 .where('user.isActive = :isActive', { isActive: true })
                 .andWhere('user.deletedAt is null')
+                .skip((page - 1) * limit)
+                .take(limit)
                 .getMany();
+            const total = await this.usersRepository
+                .createQueryBuilder('user')
+                .where('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .getCount();
             if (!users) {
                 return {
                     statusCode: 404,
                     message: 'User not found',
-                    data: [],
+                    data: null,
                 };
             }
             return {
                 statusCode: 200,
                 message: 'Get user successfully',
-                data: users,
+                data: {
+                    total,
+                    users,
+                },
             };
         } catch (error) {
             return {
@@ -286,7 +326,7 @@ export class UserService {
             } catch (error) {
                 throw new Error(error);
             }
-
+            user.email = "";
             user.deletedAt = new Date();
             user.isActive = false;
 
@@ -294,7 +334,7 @@ export class UserService {
             return {
                 statusCode: 200,
                 message: 'Delete user successfully',
-                data: null,
+                data: result,
             };
         } catch (error) {
             return {
@@ -302,6 +342,62 @@ export class UserService {
                 message: error.message,
                 data: null,
             };
+        }
+    }
+
+    async findUserByName(
+        name: string,
+        page: number = 1,
+        limit: number = 10,
+    ): Promise<{
+        status: number,
+        message: string,
+        data: {
+            total: number,
+            users: User[],
+        }
+    }> {
+        try {
+            const users = await this.usersRepository
+                .createQueryBuilder('user')
+                .select([
+                    'user.id',
+                    'user.username',
+                    'user.fullName',
+                ])
+                .where('user.fullName like :name', { name: `%${name}%` })
+                .andWhere('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .skip((page - 1) * limit)
+                .take(limit)
+                .getMany();
+            if (!users) {
+                return {
+                    status: 404,
+                    message: 'User not found',
+                    data: null,
+                }
+            }
+            const total = await this.usersRepository
+                .createQueryBuilder('user')
+                .where('user.fullName like :name', { name: `%${name}%` })
+                .andWhere('user.isActive = :isActive', { isActive: true })
+                .andWhere('user.deletedAt is null')
+                .getCount();
+            return {
+                status: 200,
+                message: 'Get user successfully',
+                data: {
+                    total,
+                    users,
+                },
+            }
+        } catch(error) {
+            return {
+                status: 500,
+                message: error.message,
+                data: null,
+            }
         }
     }
 }

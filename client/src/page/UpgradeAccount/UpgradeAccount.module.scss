@@ -1,119 +1,131 @@
 .wrapper {
-    display: grid;
-    place-items: center;
-    background-color: white;
-    height: calc(100vh - 60px);
-}
-
-.pack-container {
-    width: 400px;
-    position: relative;
     display: flex;
-    max-width: 350px;
-    flex-direction: column;
-    border-radius: 12px;
-    background-color: #212121;
-    border: 1px solid #fff;
-    padding: 1.6rem;
-    color: #fff;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(120deg, #d4f1f9, #ffffff);
+    padding: 20px;
 }
 
-.header {
-    position: relative;
-    margin: 0;
-    margin-bottom: 2rem;
-    overflow: hidden;
-    border-radius: 0;
-    border-bottom: 1px solid #fff;
-    background: transparent;
-    padding-bottom: 1rem;
+.detail-container {
+    background-color: #ffffff;
+    border-radius: 15px;
+    border: 3px solid var(--main-color);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    padding: 30px 40px;
+    width: 60%;
+    max-width: 700px;
     text-align: center;
 }
 
-.title {
-    display: block;
-    font-family: sans-serif;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    text-transform: uppercase;
-    color: #fff;
+.benefit {
+    font-size: 2.5rem;
+    color: var(--main-color);
+    margin-bottom: 20px;
 }
 
-.price-container {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 4px;
-    font-family: sans-serif;
-    font-size: 4.5rem;
-    line-height: 1;
-}
-
-.price-container span:first-child {
-    margin-top: 10px;
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-}
-
-.price-container span:last-child {
-    align-self: flex-end;
-    font-size: 2.25rem;
-    line-height: 2.5rem;
-}
-
-.lists {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.list {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.list span {
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    background-color: rgba(255, 255, 255, 0.185);
-    height: 30px;
-    width: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.list span svg {
-    height: 12px;
-    width: 12px;
-}
-
-.list p {
-    display: block;
-    font-family: sans-serif;
-}
-
-.button-container {
-    margin-top: 20px;
+.benefit-list {
+    list-style: none;
     padding: 0;
+    margin: 0 0 20px;
+
+    li {
+        font-size: 1.5rem;
+        line-height: 1.8;
+        margin: 10px 0;
+        text-align: left;
+    }
 }
 
-.button-container button {
-    display: block;
-    width: 100%;
-    background-color: #fff;
-    padding: 10px 20px;
-    text-transform: uppercase;
-    color: #000;
-    outline: 0;
-    border: 0;
-    border-radius: 10px;
-    transition: var(--transform);
+.dash-line {
+    font-weight: 500;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #ff6b6b;
+    color: #888888;
 }
 
-.button-container button:active {
-    transform: scale(0.9);
+.normal-line {
+    font-weight: 700;
+    padding-left: 10px;
+    color: var(--main-color);
+}
+
+.payment-section {
+    margin-top: 30px;
+
+    .payment-price {
+        font-size: 2rem;
+        font-style: italic;
+        color: #2d89ef;
+        margin-bottom: 15px;
+    }
+
+    .upgrade-button {
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 25px;
+        border: none;
+        background-color: var(--main-color);
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+
+        &:active {
+            background-color: #003f7f;
+        }
+    }
+
+    .confirmation {
+        margin-top: 20px;
+        .small-text {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .copy-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+
+            .link {
+                font-size: 0.9rem;
+                color: #007bff;
+                background: rgba(0, 123, 255, 0.1);
+                padding: 5px 10px;
+                border-radius: 5px;
+                flex: 1;
+                white-space: nowrap;
+                overflow: hidden; 
+                text-overflow: ellipsis;
+            }
+
+            .copy-button {
+                font-size: 0.9rem;
+                padding: 5px 10px;
+                border-radius: 5px;
+                border: 1px solid var(--main-color);
+                background-color: white;
+                color: var(--main-color);
+                cursor: pointer;
+                max-width: 80px;
+
+                &:hover {
+                    background-color: var(--main-color);
+                    color: white;
+                }
+            }
+
+            .copy-success {
+                font-size: 0.9rem;
+                color: green;
+            }
+        }
+    }
 }

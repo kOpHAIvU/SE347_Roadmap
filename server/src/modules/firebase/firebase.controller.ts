@@ -9,12 +9,12 @@ export class FirebaseController {
 
   @Post('new')
   async sendPushNotification(
-    @Body() deviceToken: string,
-    @Body() title: string,
-    @Body() body: string,
+    @Body() deviceToken?: string,
+    @Body() title?: string,
+    @Body() body?: string,
     @Body() data?: any,
   ) {
-    deviceToken = "diAIwCbfGx5yNA4wJmrSFz:APA91bGydlGe4vFQi6q1AXm7djrKZTCPOswKPeZhdTUISvUdesZ3xrvrzbc4TgxgN-i_bG7dmgGmGJRRa8BC-WxeXhcpk-FH5-Y-KVpbuaDhSWtZymXgAEM"
+    deviceToken = "eWaeyfIATDAz_i8fjZPKQ4:APA91bGybAZlAt0vlDxWiQ01CWXeZZgHmNMVCS82ehSvQzVS9A8X3WmjUJjkjLw6feDRZNllAtISUT0NpN3HZBPjv7sTA6knPP-KP8fOJiQVK__wTu2RaGc"
     title = "Test"
     body = "This is test notification"
     data = {
