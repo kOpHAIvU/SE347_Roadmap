@@ -71,7 +71,10 @@ export class ReportController {
 
     @Delete('item/:id')
     @UseGuards(JwtAuthGuard)
-    async remove(@Param('id') id: string) {
+    async remove(
+        @Param('id') id: string,
+        
+    ) {
         return await this.reportService.remove(+id);
     }
 
@@ -87,8 +90,11 @@ export class ReportController {
 
     @Post('ban/:idRoadmap')
     @UseGuards(JwtAuthGuard)
-    async banUser(@Param('idRoadmap', ParseIntPipe) idRoadmap: string) {
-        return await this.reportService.banRoadmap(+idRoadmap);
+    async banUser(
+        @Param('idRoadmap', ParseIntPipe) idRoadmap: string,
+        @Req() req: any,
+    ) {
+        return await this.reportService.banRoadmap(+idRoadmap, req.user.userId);
     }
 
     @Post('checkReport/:idReport')

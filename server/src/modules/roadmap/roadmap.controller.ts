@@ -45,8 +45,11 @@ export class RoadmapController {
 
     @Get('id/:id')
     @UseGuards(JwtAuthGuard)
-    async findOneById(@Param('id', ParseIntPipe) id: number) {
-        return await this.roadmapService.findOneById(+id);
+    async findOneById(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: any,
+    ) {
+        return await this.roadmapService.findOneByIdGrant(+id, req.user.userId);
     }
 
     @Get('code/:code')
@@ -81,28 +84,42 @@ export class RoadmapController {
     async updateById(
         @Param('id', ParseIntPipe) id: string,
         @Body() updateRoadmapDto: UpdateRoadmapDto,
+        @Req() req: any,
         @UploadedFile() file?: Express.Multer.File,
     ) {
-        return await this.roadmapService.updateById(+id, updateRoadmapDto, file);
+        return await this.roadmapService.updateById(+id, updateRoadmapDto, file, req.user.userId);
     }
 
     @Patch('code/:code')
     @UseGuards(JwtAuthGuard)
-    async updateByCode(@Param('code') code: string, @Body() updateRoadmapDto: UpdateRoadmapDto) {
+    async updateByCode(
+        @Param('code') code: string, 
+        @Body() updateRoadmapDto: UpdateRoadmapDto,
+
+    ) {
         return await this.roadmapService.updateByCode(code, updateRoadmapDto);
     }
 
     @Delete('item/:id')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
-    async removeById(@Param('id', ParseIntPipe) id: number, @UploadedFile() file?: Express.Multer.File) {
-        return await this.roadmapService.removeById(+id);
+    async removeById(
+        @Param('id', ParseIntPipe) id: number,
+        @Req() req: any,
+         @UploadedFile() file?: Express.Multer.File,
+
+        ) {
+        return await this.roadmapService.removeById(+id, req.user.userId);
     }
 
     @Delete('code/:code')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
-    async removeByCode(@Param('code') code: string, @UploadedFile() file?: Express.Multer.File) {
+    async removeByCode(
+        @Param('code') code: string, 
+        @Req() req: any,
+        @UploadedFile() file?: Express.Multer.File
+    ) {
         return await this.roadmapService.removeByCode(code);
     }
 

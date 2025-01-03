@@ -131,28 +131,7 @@ export class RoadmapService {
                     .where('roadmap.isActive = :isActive', { isActive: 1 })
                     .andWhere('roadmap.deletedAt is null')
                     .getCount();
-                // role is user
             } else {
-                // roadmap = await this.roadmapRepository
-                //     .createQueryBuilder('roadmap')
-                //     .leftJoinAndSelect('roadmap.owner', 'owner')
-                //     .leftJoinAndSelect('roadmap.node', 'node')
-                //     .leftJoinAndSelect('owner.comment', 'comment')
-                //     .where('roadmap.isActive = :isActive', { isActive: 1 })
-                //     .andWhere('roadmap.deletedAt is null')
-                //     .andWhere('roadmap.owner = :owner', { owner: user.id })
-                //     .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
-                //     .orderBy('roadmap.createdAt', 'DESC')
-                //     .skip((page - 1) * limit)
-                //     .take(limit)
-                //     .getMany();
-                // totalRecord = await this.roadmapRepository
-                //     .createQueryBuilder('roadmap')
-                //     .where('roadmap.isActive = :isActive', { isActive: 1 })
-                //     .andWhere('roadmap.deletedAt is null')
-                //     .andWhere('roadmap.owner = :owner', { owner: user.id })
-                //     .andWhere('roadmap.isPublic = :isPublic', { isPublic: true })
-                //     .getCount();
                 roadmap = await this.roadmapRepository
                                             .createQueryBuilder('roadmap')
                                             .leftJoinAndSelect('roadmap.owner', 'owner')
@@ -236,6 +215,72 @@ export class RoadmapService {
         }
     }
 
+    async findOneByIdGrant(id: number, userId: number): Promise<ResponseDto> {
+        try {
+            const userResponse = await this.userService.findOneById(userId);
+            if (userResponse.statusCode !== 200) {
+                return {
+                    statusCode: 404,
+                    message: 'User not found',
+                    data: null,
+                };
+            }
+            const user = Array.isArray(userResponse.data) ? userResponse.data[0] : userResponse.data;
+
+            let roadmap: Roadmap, totalRecord: number;
+            if (user.role.id === 1) {
+                // role is admin
+                roadmap = await this.roadmapRepository
+                    .createQueryBuilder('roadmap')
+                    .leftJoinAndSelect('roadmap.owner', 'owner')
+                    .leftJoinAndSelect('roadmap.node', 'node')
+                    .leftJoinAndSelect('owner.comment', 'comment')
+                    .where('roadmap.isActive = :isActive', { isActive: true })
+                    .andWhere('roadmap.deletedAt is null')
+                    .getOne();
+            } else {
+                roadmap = await this.roadmapRepository
+                                            .createQueryBuilder('roadmap')
+                                            .leftJoinAndSelect('roadmap.owner', 'owner')
+                                            .leftJoinAndSelect('roadmap.node', 'node')
+                                            .leftJoinAndSelect('owner.comment', 'comment')
+                                            .where('roadmap.isActive = :isActive', { isActive: 1 })
+                                            .andWhere('roadmap.deletedAt is null')
+                                            .andWhere(
+                                                new Brackets((qb) => {
+                                                    qb.where('roadmap.owner = :owner', { owner: user.id })
+                                                        .orWhere(
+                                                            new Brackets((qb2) => {
+                                                                qb2.where('roadmap.owner != :owner', { owner: user.id })
+                                                                    .andWhere('roadmap.isPublic = :isPublic', { isPublic: true });
+                                                            }),
+                                                        );
+                                                }),
+                                            )
+                                            .getOne();
+            }
+            if (!roadmap) {
+                return {
+                    statusCode: 404,
+                    message: 'Roadmap not found',
+                    data: null,
+                };
+            }
+
+            return {
+                statusCode: 200,
+                message: 'Get this of roadmap successfully',
+                data: roadmap
+            };
+        } catch (error) {
+            return {
+                statusCode: 500,
+                message: error.message,
+                data: null,
+            };
+        }
+    }
+
     async findOneById(id: number): Promise<ResponseDto> {
         try {
             const roadmap = await this.roadmapRepository
@@ -296,9 +341,13 @@ export class RoadmapService {
         }
     }
 
-    async updateById(id: number, updateRoadmapDto: UpdateRoadmapDto, file?: Express.Multer.File): Promise<ResponseDto> {
+    async updateById(
+        id: number, updateRoadmapDto: UpdateRoadmapDto, 
+        file: Express.Multer.File,
+        idUser: number
+    ): Promise<ResponseDto> {
         try {
-            const getData = await this.findOneById(id);
+            const getData = await this.findOneByIdGrant(id,idUser);
             const roadmap = Array.isArray(getData.data) ? getData.data[0] : getData.data;
 
             if (!roadmap) {
@@ -409,9 +458,9 @@ export class RoadmapService {
         }
     }
 
-    async removeById(id: number): Promise<ResponseDto> {
+    async removeById(id: number, idUser): Promise<ResponseDto> {
         try {
-            const getData = await this.findOneById(id);
+            const getData = await this.findOneByIdGrant(id, idUser);
             const roadmap = Array.isArray(getData.data) ? getData.data[0] : getData.data;
 
             //
