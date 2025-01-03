@@ -21,7 +21,7 @@ export class Node {
     @Column({nullable: false})
     type: string;
 
-    @Column({nullable: false})
+    @Column({ type: 'boolean'})
     tick: boolean;
 
     @Column({default: null})
