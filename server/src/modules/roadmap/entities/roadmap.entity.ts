@@ -11,7 +11,7 @@ export class Roadmap {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({nullable: false, unique: true })
+    @Column({nullable: false})
     code: string;
 
     @Column({nullable: false })

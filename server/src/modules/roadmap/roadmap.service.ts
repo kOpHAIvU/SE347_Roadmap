@@ -199,14 +199,15 @@ export class RoadmapService {
     async findTheLastCodeOfRoadmap(): Promise<number> {
         try {
             const roadmap = await this.roadmapRepository
-                .createQueryBuilder('roadmap')
-                .where('roadmap.isActive = :isActive', { isActive: 1 })
-                .andWhere('roadmap.deletedAt is null')
-                .orderBy('roadmap.id', 'DESC')
-                .getOne();
+                                    .createQueryBuilder('roadmap')
+                                // .where('roadmap.isActive = :isActive', { isActive: 1 })
+                                    //.andWhere('roadmap.deletedAt is null')
+                                    .orderBy('roadmap.id', 'DESC')
+                                    .getOne();
             if (!roadmap) {
                 return 0;
             }
+            console.log('The last roadmap: ', roadmap);
             const code = roadmap.code;
             const numberPart = parseInt(code.slice(4), 10);
             return +numberPart;
@@ -458,9 +459,9 @@ export class RoadmapService {
         }
     }
 
-    async removeById(id: number, idUser): Promise<ResponseDto> {
+    async removeById(id: number): Promise<ResponseDto> {
         try {
-            const getData = await this.findOneByIdGrant(id, idUser);
+            const getData = await this.findOneById(id);
             const roadmap = Array.isArray(getData.data) ? getData.data[0] : getData.data;
 
             //
@@ -481,6 +482,7 @@ export class RoadmapService {
             }
 
             roadmap.deletedAt = new Date();
+           // roadmap.isActive = false;
             const result = await this.roadmapRepository.save(roadmap);
 
             return {
