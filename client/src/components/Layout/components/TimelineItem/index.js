@@ -2,13 +2,13 @@ import styles from './TimelineItem.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faUserGroup } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const cx = classNames.bind(styles);
 
 function TimelineItem({ children, onClick }) {
     // Thêm biến progressValue
-    const [progressValue, setProgressValue] = useState(80); // Giá trị từ 0 đến 100
+    const [progressValue, setProgressValue] = useState(0); // Giá trị từ 0 đến 100
 
     const backgroundGradient = `linear-gradient(
         to right,
@@ -17,6 +17,18 @@ function TimelineItem({ children, onClick }) {
         rgba(255, 255, 255, 0.7) ${Math.min(progressValue + 10, 100)}%,
         #ffffff 100%
     )`;
+
+    useEffect(() => {
+        if (children.node && Array.isArray(children.node)) {
+            const trueNodeCount = children.node.filter(node => node.tick === true).length;
+            const nodeCount = children.node.length;
+            console.log("Whao: ", (trueNodeCount * 100) / nodeCount)
+            setProgressValue((trueNodeCount * 100) / nodeCount);
+        } else {
+            setProgressValue(0); // Giá trị mặc định khi không có node
+        }
+    }, []);
+
 
     return (
         <div className={cx('wrapper')} onClick={onClick}>

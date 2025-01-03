@@ -1,7 +1,6 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateTimelineDto {
-
     @IsString()
     @IsNotEmpty()
     title: string;
@@ -10,11 +9,14 @@ export class CreateTimelineDto {
     @IsNotEmpty()
     content: string;
 
-    @IsNotEmpty()
+    avatar?: string;
+
+    startTime?: Date;
+    dueTime?: Date;
+    
     roadmap: number;
 
     leader: number;
 
     isActive: boolean;
-    
 }

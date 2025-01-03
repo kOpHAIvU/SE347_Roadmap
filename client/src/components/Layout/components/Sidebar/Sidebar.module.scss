@@ -21,15 +21,14 @@
     }
 }
 
-.menu {
-    margin-top: 5px;
-}
+// .menu {
+//     margin-top: 5px;
+// }
 
 .web-name {
     display: flex;
     align-items: center;
     font-size: 2rem;
-    padding-right: 25px;
     margin: 0 0 0 5px;
 
     &.hidden {
@@ -40,13 +39,27 @@
     }
 }
 
+.pro-edition {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: gold;
+    margin-right: 5px;
+}
+
 .icon {
     width: 20px;
-    scale: 1.5; /* Tăng kích thước của icon */
+    scale: 1.5;
 }
 
 .item {
     margin-top: 10px !important;
     font-weight: 500;
     font-size: 1.5rem;
+}
+
+.divider {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 10px 10px;
 }

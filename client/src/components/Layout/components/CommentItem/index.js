@@ -2,15 +2,32 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './CommentItem.module.scss';
 import classNames from 'classnames/bind';
 import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { faChevronDown, faChevronUp, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import CryptoJS from 'crypto-js';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
+const secretKey = 'kophaivu'; // Khóa bí mật
+
+// Hàm mã hóa
+const encryptId = (id) => {
+    let encrypted = CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+    return encrypted.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+};
+
 function CommentItem({ children, replies, onAddReply, onDelete }) {
+    const navigate = useNavigate()
     const [show, setShow] = useState(false);
     const [makeResponse, setMakeResponse] = useState(false);
     const [replyText, setReplyText] = useState("");
+    const [currentReplies, setCurrentReplies] = useState(replies);
+
+    useEffect(() => {
+        setCurrentReplies(replies);
+        //console.log('replies: ', replies)
+    }, [replies]);
 
     const handleAddReply = () => {
         if (replyText.trim().length > 0) {
@@ -32,14 +49,19 @@ function CommentItem({ children, replies, onAddReply, onDelete }) {
 
     return (
         <div className={cx('wrapper')}>
-            <div className={cx('inner', { 'child': replies === null })}>
+            <div className={cx('inner', { 'child': currentReplies === null })}>
                 <img
                     className={cx('avatar')}
                     alt='avatar'
                     src={children.avatar} />
                 <div className={cx('cmt-infor')}>
                     <div className={cx('cmt-status')}>
-                        <h1 className={cx('cmt-author')}>{children.poster}</h1>
+                        <h1 className={cx('cmt-author')}
+                            onClick={() => {
+                                const encryptedId = encryptId(children.poster.id);
+                                navigate(`/account/${encryptedId}`);
+                            }}
+                        >{children.poster.fullName}</h1>
                         <span className={cx('cmt-date')}>{children.day}</span>
                     </div>
                     <h2 className={cx('cmt-content')}>{children.content}</h2>
@@ -57,8 +79,8 @@ function CommentItem({ children, replies, onAddReply, onDelete }) {
                     onClick={handleDeleteClick} />
             </div>
 
-            {replies?.length > 0 && show && (
-                replies.map((reply) => (
+            {currentReplies?.length > 0 && show && (
+                currentReplies.map((reply) => (
                     <CommentItem key={reply.id} children={reply} replies={null} onAddReply={onAddReply} />
                 ))
             )}
@@ -66,7 +88,7 @@ function CommentItem({ children, replies, onAddReply, onDelete }) {
             {makeResponse && (
                 <div className={cx('reply-section')}>
                     <img
-                        className={cx('avatar2')}
+                        className={cx('avatar')}
                         alt='avatar'
                         src={children.avatar} />
                     <textarea
@@ -84,7 +106,7 @@ function CommentItem({ children, replies, onAddReply, onDelete }) {
                 </div>
             )}
 
-            {replies?.length > 0 && (
+            {currentReplies?.length > 0 && (
                 <div
                     onClick={() => {
                         setShow(!show)
@@ -93,7 +115,7 @@ function CommentItem({ children, replies, onAddReply, onDelete }) {
                     className={cx('see-more')}
                 >
                     <FontAwesomeIcon className={cx('drop-down')} icon={show ? faChevronUp : faChevronDown} />
-                    {show ? <span className={cx('count')}>Hide replies</span> : <span className={cx('count')}>See {replies.length} more</span>}
+                    {show ? <span className={cx('count')}>Hide replies</span> : <span className={cx('count')}>See {currentReplies.length} more</span>}
                 </div>
             )}
 

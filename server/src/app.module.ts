@@ -36,8 +36,13 @@ import { FavoriteModule } from './modules/favorite/favorite.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { CloudinaryService } from './modules/cloudinary/cloudinary.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerExceptionFilter } from './common/exception-filter/ThrottlerException.filter';
+import { PaymentModule } from './modules/payment/payment.module';
+import { MomoService } from './modules/payment/strategy/momo.service';
 
 @Module({
   imports: [
@@ -45,6 +50,31 @@ import { DatabaseModule } from './database/database.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    MulterModule.register({
+      limits: {
+        fileSize: 5 * 1024 * 1024,
+      },
+    }),
+
+    DatabaseModule,
+    UserModule,
+    RoleModule,
+    AuthModule,
+    RoadmapModule,
+    CommentModule,
+    MessageModule,
+    TimelineModule,
+    TeamModule,
+    GeminiModule,
+    ReportModule,
+    NotificationModule,
+    NodeModule,
+    GroupDivisionModule,
+    ProgressModule,
+    FavoriteModule,
+    CloudinaryModule,
+    PaymentModule
+
     // TypeOrmModule.forRoot({
     //   type: 'mysql',
     //   host: env.DATABASE.HOST,
@@ -63,31 +93,21 @@ import { DatabaseModule } from './database/database.module';
     //   ],  
     //   synchronize: true,
     // }),
-    DatabaseModule,
-    UserModule,
-    RoleModule,
-    AuthModule,
-    RoadmapModule,
-    CommentModule,
-    MessageModule,
-    TimelineModule,
-    TeamModule,
-    GeminiModule,
-    ReportModule,
-    NotificationModule,
-    NodeModule,
-    GroupDivisionModule,
-    ProgressModule,
-    FavoriteModule,
-    CloudinaryModule,
-
-    MulterModule.register({
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
-    }),
   ],
   controllers: [AppController],
-  providers: [AppService, GoogleStrategy, CloudinaryService],
+  providers: [
+    AppService, 
+    GoogleStrategy, 
+    CloudinaryService,
+    MomoService
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: ThrottlerExceptionFilter,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard
+    // }
+  ],
 })
 export class AppModule {}

@@ -5,17 +5,44 @@ import images from '~/assets/images';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import road1 from '~/assets/images/road01.png';
 import road2 from '~/assets/images/road02.png';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const cx = classNames.bind(styles);
 
 function Login() {
-    const [formData, setFormData] = useState({ email: '', password: '' });
-    const [errors, setErrors] = useState({ email: '', password: '' });
+    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [errors, setErrors] = useState({ username: '', password: '' });
     const [showPassword, setShowPassword] = useState(false);
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const checkToken = async () => {
+            const token = localStorage.getItem('vertexToken');
+            if (token) {
+                try {
+                    const response = await fetch('http://localhost:3004/auth/profile', {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        navigate('/home'); // Điều hướng nếu token hợp lệ
+                    } else {
+                        console.error('Invalid token or session expired.');
+                    }
+                } catch (error) {
+                    console.error('Error validating token:', error);
+                }
+            }
+        };
+
+        checkToken();
+    }, [navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -23,29 +50,15 @@ function Login() {
         setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi nhập lại
     };
 
-    const handleBlur = (e) => {
-        const { name, value } = e.target;
-
-        if (name === 'email') {
-            const emailError = !value
-                ? 'Please enter your email!'
-                : !/\S+@\S+\.\S+/.test(value)
-                ? 'Invalid email!'
-                : '';
-
-            setErrors((prev) => ({ ...prev, email: emailError }));
-        }
-    };
-
     const validate = () => {
         const newErrors = {};
-        if (!formData.email) newErrors.email = 'Please enter your email!';
-        else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Invalid email!';
+        if (!formData.username) {
+            newErrors.username = 'Please enter your username!';
         }
 
-        if (!formData.password) newErrors.password = 'Please enter your password!';
-        else if (formData.password.length < 6) {
+        if (!formData.password) {
+            newErrors.password = 'Please enter your password!';
+        } else if (formData.password.length < 6) {
             newErrors.password = 'Password must have at least 6 characters';
         }
 
@@ -60,18 +73,28 @@ function Login() {
         } else {
             console.log('Form data:', formData);
             try {
-                const response = await fetch('http://localhost:5000/api/login', {
+                const response = await fetch('http://localhost:3004/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData),
+                    body: JSON.stringify({
+                        username: formData.username,
+                        password: formData.password,
+                    }),
                 });
+
                 const data = await response.json();
                 // Kiểm tra mã trạng thái và thông báo
                 if (response.ok) {
-                    alert('Login successful!');
-                    navigate('/home');
+                    const { accessToken } = data; // Lấy accessToken từ phản hồi
+
+                    if (accessToken) {
+                        localStorage.setItem('vertexToken', accessToken);
+                        navigate('/home');
+                    } else {
+                        console.log('Access token not received!');
+                    }
                 } else {
-                    alert(data.message || 'Login failed!'); // Thông báo lỗi
+                    console.log(data.message || 'Login failed!'); // Thông báo lỗi
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -82,6 +105,11 @@ function Login() {
 
     const handleForgotPassword = () => {
         navigate('/password_reset');
+    };
+
+    const handleGoogleLogin = () => {
+        // Redirect to Google authentication endpoint
+        window.location.href = 'http://localhost:3004/auth/google/callback';
     };
 
     return (
@@ -98,7 +126,7 @@ function Login() {
                 <h1 className={cx('login-title')}>Log in</h1>
                 <p className={cx('login-welcome')}>Welcome back to VertexOps😍!!!</p>
 
-                <button type="button" className={cx('google-btn')}>
+                <button type="button" className={cx('google-btn')} onClick={() => handleGoogleLogin}>
                     <img src={images.google} alt="Google Logo" className={cx('google-logo')} />
                     <strong>Log in with Google</strong>
                 </button>
@@ -107,18 +135,17 @@ function Login() {
                     <span className={cx('divider-text')}>OR</span>
                 </div>
 
-                {/* Email Input */}
-                <div className={cx('form-group', { invalid: !!errors.email })}>
+                {/* Username  Input */}
+                <div className={cx('form-group', { invalid: !!errors.username })}>
                     <input
                         type="text"
-                        name="email"
-                        placeholder="Username or Email"
+                        name="username"
+                        placeholder="Username"
                         className={cx('input-field')}
-                        value={formData.email}
+                        value={formData.username}
                         onChange={handleChange}
-                        onBlur={handleBlur}
                     />
-                    {errors.email && <span className={cx('error-message')}>{errors.email}</span>}
+                    {errors.username && <span className={cx('error-message')}>{errors.username}</span>}
                 </div>
 
                 {/* Password Input */}

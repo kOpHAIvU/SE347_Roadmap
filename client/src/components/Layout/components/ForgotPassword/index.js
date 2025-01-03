@@ -56,16 +56,16 @@ function ForgotPassword() {
                 const data = await response.json();
                 // Kiểm tra mã trạng thái và thông báo
                 if (response.ok) {
-                    alert('Password reset email sent!');
+                    //alert('Password reset email sent!');
                     setTimeout(() => {
                         navigate('/login');
                     }, 2000);
                 } else {
-                    alert(data.message || 'Failed to send reset email!');
+                    //alert(data.message || 'Failed to send reset email!');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                //alert('An error occurred. Please try again.');
             }
         }
     };

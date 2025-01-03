@@ -18,6 +18,9 @@ export class Notification {
     @CreateDateColumn()  
     createdAt: Date;
 
+    @Column({ type: 'boolean', default: false }) // Default status is 0 (false)
+    isCheck: boolean;
+
     @DeleteDateColumn({ nullable: true })  
     deletedAt: Date | null;
 
@@ -26,4 +29,9 @@ export class Notification {
 
     @ManyToOne(() => User, receiver => receiver.notification)
     receiver: User;
+
+    // type is in ['sms', 'email', 'push']
+    @Column({nullable: false})
+    type: string;
+
 }

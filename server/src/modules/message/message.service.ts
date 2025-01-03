@@ -69,8 +69,8 @@ export class MessageService {
   }
 
   async findAll(
-    page: number = 0,
-    limit: number = 10,
+    page: number ,
+    limit: number ,
   ): Promise<ResponseDto> {
     try {
       const messages = await this.messageRepository
@@ -79,8 +79,8 @@ export class MessageService {
                       .leftJoinAndSelect('message.team', 'team')
                       .where('message.deletedAt is null')
                       .orderBy('message.createdAt', 'DESC')
-                      .skip(page * limit)
-                      .limit(limit)
+                      .skip((page - 1) * limit)  
+                      .take(limit)
                       .getMany();
 
       if (messages.length === 0) {
@@ -99,10 +99,48 @@ export class MessageService {
     } catch (error) {
       return {
         statusCode: 500,
-        message: 'Server error when finding messages',
+        message: error.message,
         data: null,
       }
     }
+  }
+
+  async findAllByTeamId(
+    id: number,
+  ): Promise<{
+    statusCode: number,
+    message: string,
+    data: Message[] | null,
+  }> {
+    try {
+      const messages = await this.messageRepository
+                      .createQueryBuilder('message')
+                      .leftJoinAndSelect('message.sender', 'sender')
+                      .where('message.deletedAt is null')
+                      .where('message.teamId = :id', { id })
+                      .orderBy('message.createdAt', 'DESC')
+                      .getMany();
+
+      if (messages.length === 0) {
+        return {
+          statusCode: 404,
+          message: 'Message not found',
+          data: null,
+        }
+      }
+
+      return {
+        statusCode: 200,
+        message: 'Find all messages successfully',
+        data: messages,
+      }
+    } catch (error) {
+      return {
+        statusCode: 500,
+        message: error.message,
+        data: null
+      }
+    } 
   }
 
   async findOneById(id: number): Promise<ResponseDto> {
@@ -153,38 +191,50 @@ export class MessageService {
       const message = Array.isArray(messageResponse.data)
                     ? messageResponse.data[0]
                     : messageResponse.data  
-
-      const senderResponse = await this.senderService.findOneById(updateMessageDto.senderId);
-      const sender = Array.isArray(senderResponse.data)
-                    ? senderResponse.data[0]
-                    : senderResponse.data;
-      if (!sender) {
-        return {
-          statusCode: 404,
-          message: 'Sender not found',
-          data: null
-        }
-      }
-
-      const teamResponse = await this.teamService.findOneById(updateMessageDto.teamId);
-      const team = Array.isArray(teamResponse.data)
-                  ? teamResponse.data[0]
-                  : teamResponse.data;
-      if (!team) {
-        return {
-          statusCode: 404,
-          message: 'Team not found',
-          data: null
-        }
-      }
-
       const newMessage = await this.messageRepository.create({
         ...message,
         ...updateMessageDto,
-        sender: sender,
-        team: team,
       });
-;
+
+      const fieldsToUpdate = Object.keys(updateMessageDto).filter(
+        key => updateMessageDto[key] !== undefined && updateMessageDto[key] !== null,
+      );
+
+      let sender=null;
+      console.log("Sender ID: ", updateMessageDto.senderId);
+      if (updateMessageDto.senderId) {
+        console.log("Sender ID: ", updateMessageDto.senderId);
+        const senderResponse = await this.senderService.findOneById(updateMessageDto.senderId);
+        sender = Array.isArray(senderResponse.data)
+                      ? senderResponse.data[0]
+                      : senderResponse.data;
+        if (!sender) {
+          return {
+            statusCode: 404,
+            message: 'Sender not found',
+            data: null
+          }
+        }
+        newMessage.sender = sender;
+      }
+      console.log("Update message: ", newMessage);
+
+      let team=null;
+      if (fieldsToUpdate.includes('teamId')) {
+        const teamResponse = await this.teamService.findOneById(updateMessageDto.teamId);
+        team = Array.isArray(teamResponse.data)
+                    ? teamResponse.data[0]
+                    : teamResponse.data;
+        newMessage.team = team;
+        if (!team) {
+          return {
+            statusCode: 404,
+            message: 'Team not found',
+            data: null
+          }
+        }
+      }
+
       const result = await this.messageRepository.save(newMessage);
 
       return {

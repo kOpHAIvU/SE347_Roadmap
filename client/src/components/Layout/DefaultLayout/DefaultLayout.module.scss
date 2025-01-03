@@ -2,6 +2,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
+    background-color: #ffffff;
 }
 
 .header {
@@ -30,12 +31,14 @@
 }
 
 .content {
-    margin-top: 60px;
+    background-color: #ffffff;
+    margin-top: 55px;
     width: calc(100% - 200px);
     margin-left: 200px;
+    // width: calc(100%);
     
     &.collapsed {
-        width: calc(100% - 80px);
+        width: calc(100%);
         margin-left: 80px;
     }
 }

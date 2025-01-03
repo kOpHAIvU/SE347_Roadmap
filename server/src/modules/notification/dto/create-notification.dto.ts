@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateNotificationDto {
     @IsString()
@@ -7,11 +7,20 @@ export class CreateNotificationDto {
     @IsString()
     content: string;
 
+    @IsString()
+    type: string;
+
     @IsNumber()
     posterId: number;
 
+    @IsNumber()
+    receiverId: number;
+
     @IsBoolean()
     @IsOptional()
-    isActive: boolean;  
+    isCheck?: boolean;
 
+    @IsBoolean()
+    @IsOptional()
+    isActive: boolean;
 }

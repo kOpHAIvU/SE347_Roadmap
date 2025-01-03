@@ -1,4 +1,5 @@
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -14,20 +15,14 @@ import { UpdateMessageDto } from './dto/update-message.dto';
 @WebSocketGateway({
   namespace: '/message',
   cors: {
-    origin: 'http://127.0.0.1:5500',
+    origin: true,
     methods: ['GET', 'POST', 'DELETE', 'PATCH', 'PUT'],
   },
 })
 export class MessageGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-
-  private userId: number;
-  private teamId: number;
-
-  constructor(
-    private readonly messageService: MessageService,
-  ) {}
+  constructor(private readonly messageService: MessageService) {}
 
   @WebSocketServer()
   server: Server;
@@ -38,22 +33,27 @@ export class MessageGateway
   }
 
   handleConnection(client: Socket) {
-    this.teamId = Number(client.handshake.query.teamId as string);
-    this.userId = Number(client.handshake.query.userId as string);
+    const teamId = Number(client.handshake.query.teamId as string);
+    const userId = Number(client.handshake.query.userId as string);
 
-    console.log('Client connected:', {
-      clientId: client.id,
-      teamId: this.teamId,
-      userId: this.userId,
-    });
-
-    if (!this.teamId || !this.userId) {
+    if (!teamId || !userId) {
       console.error('Connection rejected: Missing teamId or userId', client.id);
       client.disconnect();
       return;
     }
-    client.join(this.teamId.toString());
 
+    // Lưu thông tin riêng vào `client.data`
+    client.data.teamId = teamId;
+    client.data.userId = userId;
+
+    console.log('Client connected:', {
+      clientId: client.id,
+      teamId: client.data.teamId,
+      userId: client.data.userId,
+    });
+
+    // Thêm client vào phòng (room) theo `teamId`
+    client.join(client.data.teamId.toString());
   }
 
   handleDisconnect(client: Socket) {
@@ -66,16 +66,11 @@ export class MessageGateway
 
   @SubscribeMessage('send_message')
   async handleSendMessage(
-    client: Socket,
-    @MessageBody() payload: { message: string }
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { message: string },
   ): Promise<void> {
-  
-
-    console.log('Received message:', {
-      teamId: this.teamId,
-      userId :this.userId,
-      message: payload.message,
-    });
+    const userId = client.data.userId;
+    const teamId = client.data.teamId;
 
     if (!payload.message || payload.message.trim() === '') {
       console.error('Empty message received from client:', client.id);
@@ -83,74 +78,94 @@ export class MessageGateway
       return;
     }
 
+    console.log('Sender Id:', userId);
+
     try {
       const newMessage = await this.messageService.create({
-        senderId: this.userId,
-        teamId: this.teamId,
+        senderId: userId,
+        teamId: teamId,
         check: false,
         content: payload.message,
       });
-      // this.server.to(this.teamId.toString()).emit('message', {
-      //   sender: this.userId, 
-      //   message: payload.message,
-      //   timestamp: new Date(),
-      // });
 
-      this.server.to(this.teamId.toString())
-                .emit('message', newMessage);
-
+      client.broadcast.to(teamId.toString()).emit('message', {
+        message: newMessage,
+        senderId: userId,
+      });
     } catch (error) {
-      console.log('Failed to delete message:', error.message);
-      this.server.to(this.teamId.toString()).emit('error', {
+      console.log('Failed to send message:', error.message);
+      client.emit('error', {
         message: error.message,
         statusCode: 500,
-        data: null
+        data: null,
       });
     }
   }
 
   @SubscribeMessage('delete_message')
   async handleDeleteMessage(
-    client: Socket,
-    @MessageBody() payload: { message: string }
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { messageId: number },
   ): Promise<void> {
-    const messageId = Number(payload.message);
+    const userId = client.data.userId;
+    const teamId = client.data.teamId;
+
     try {
-      const deletedMessage = await this.messageService.remove(messageId);
-      this.server.to(this.teamId.toString()).emit('message', deletedMessage);
+      const deletedMessage = await this.messageService.remove(payload.messageId);
+
+      client.broadcast.to(teamId.toString()).emit('message_deleted', {
+        message: deletedMessage,
+        senderId: userId,
+      });
+
       console.log('Message deleted:', deletedMessage);
-    } catch(error) {
+    } catch (error) {
       console.log('Failed to delete message:', error.message);
-      this.server.to(this.teamId.toString()).emit('error', {
+      client.emit('error', {
         message: error.message,
         statusCode: 500,
-        data: null
+        data: null,
       });
     }
   }
 
   @SubscribeMessage('update_message')
   async handleUpdateMessage(
-    client: Socket,
-    @MessageBody() payload: { 
-      id: number, 
-      updateMessage: UpdateMessageDto
-    }
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    payload: { id: number; updateMessage: UpdateMessageDto },
   ): Promise<void> {
+    const userId = client.data.userId;
+    const teamId = client.data.teamId;
+
     try {
-      const updateResponse = await this.messageService.update(payload.id, payload.updateMessage);
-      if (updateResponse.statusCode !== 200) {
-        this.server.to(this.teamId.toString()).emit('error', 'Failed to save message');
+      const updatedMessage = await this.messageService.update(
+        payload.id,
+        payload.updateMessage,
+      );
+
+      if (!updatedMessage) {
+        client.emit('error', {
+          message: 'Failed to update message',
+          statusCode: 500,
+          data: null,
+        });
+        return;
       }
-      this.server.to(this.teamId.toString()).emit('message', updateResponse);
-    } catch(error) {
-      console.log('Failed to delete message:', error.message);
-      this.server.to(this.teamId.toString()).emit('error', {
+
+      client.broadcast.to(teamId.toString()).emit('message_updated', {
+        message: updatedMessage,
+        senderId: userId,
+      });
+
+      console.log('Message updated:', updatedMessage);
+    } catch (error) {
+      console.log('Failed to update message:', error.message);
+      client.emit('error', {
         message: error.message,
         statusCode: 500,
-        data: null
+        data: null,
       });
     }
   }
-
 }

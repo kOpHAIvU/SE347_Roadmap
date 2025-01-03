@@ -1,39 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import classNames from 'classnames/bind';
 import styles from './SettingItem.module.scss';
+import defaultavatar from '~/assets/images/defaultavatar.jpg';
 
 const cx = classNames.bind(styles);
 
-const SettingItem = ({ item, onUpdateValue }) => {
+const SettingItem = ({ item, onUpdateValue, onButtonClick, isAdmin }) => {
+    console.log('ammminn', isAdmin);
     const defaultPhotoUrl = 'https://i.pinimg.com/originals/f1/0f/f7/f10ff70a7155e5ab666bcdd1b45b726d.jpg';
 
-    const getInitialPhoto = () => {
-        const storedPhoto = localStorage.getItem('profilePhoto');
-        return storedPhoto || item.value || defaultPhotoUrl;
-    };
-
-    const [photo, setPhoto] = useState(getInitialPhoto());
+    const [photo, setPhoto] = useState(item.value);
 
     useEffect(() => {
-        // Chỉ lưu item.value vào localStorage nếu không có profilePhoto
-        if (!localStorage.getItem('profilePhoto') && item.value) {
-            localStorage.setItem('profilePhoto', item.value);
+        if (item.label === 'Profile Photo') {
+            setPhoto(item.value || defaultPhotoUrl);
         }
     }, [item.value]);
 
-    const handleRemovePhoto = () => {
-        setPhoto(defaultPhotoUrl);
-        // localStorage.removeItem('profilePhoto');
-        localStorage.setItem('profilePhoto', defaultPhotoUrl);
-        console.log('Photo removed');
+    const handleRemovePhoto = async () => {
+        try {
+            const response = await fetch(defaultavatar);
+            if (!response.ok) {
+                throw new Error('Failed to fetch default avatar.');
+            }
+
+            const blob = await response.blob();
+
+            const defaultFile = new File([blob], 'default-avatar.jpg', { type: blob.type });
+
+            setPhoto(defaultPhotoUrl);
+            console.log('Photo reset to default, file:', defaultFile);
+
+            if (onUpdateValue) {
+                onUpdateValue(defaultFile);
+            }
+        } catch (error) {
+            console.error('Error resetting photo to default:', error);
+        }
     };
 
     const handleChangePhoto = (event) => {
         if (event.target.files && event.target.files[0]) {
-            const newPhoto = URL.createObjectURL(event.target.files[0]);
-            setPhoto(newPhoto);
-            localStorage.setItem('profilePhoto', newPhoto);
-            console.log('Photo changed');
+            const file = event.target.files[0]; // Giữ file gốc
+            setPhoto(URL.createObjectURL(file)); // Hiển thị ảnh tạm thời
+
+            // Gửi file gốc qua callback
+            if (onUpdateValue) {
+                onUpdateValue(file);
+            }
+
+            console.log('Photo changed, file:', file);
         }
     };
 
@@ -47,7 +63,6 @@ const SettingItem = ({ item, onUpdateValue }) => {
 
     const handleSave = () => {
         setIsEditing(false); // Lưu giá trị và quay lại chế độ xem
-        // gọi callback để cập nhật giá trị trong component
         if (onUpdateValue) {
             onUpdateValue(value); // cập nhật giá trị
         }
@@ -68,8 +83,11 @@ const SettingItem = ({ item, onUpdateValue }) => {
     const handleOptionChange = (event) => {
         const newValue = event.target.value;
         setSelectedValue(newValue);
-        localStorage.setItem('gender', newValue);
+        // localStorage.setItem('gender', newValue);
         console.log(`Selected gender: ${newValue}`);
+        if (onUpdateValue) {
+            onUpdateValue(newValue); // Gọi callback để đồng bộ hóa với dữ liệu cha
+        }
     };
 
     return (
@@ -80,22 +98,23 @@ const SettingItem = ({ item, onUpdateValue }) => {
             {item.label === 'Profile Photo' ? (
                 <div className={cx('profile-photo')}>
                     <img src={photo} alt="Profile" className={cx('profile-img')} />
+                    {isAdmin && (
+                        <div className={cx('photo-actions')}>
+                            <button onClick={handleRemovePhoto} className={cx('remove-btn')}>
+                                Remove Photo
+                            </button>
 
-                    <div className={cx('photo-actions')}>
-                        <button onClick={handleRemovePhoto} className={cx('remove-btn')}>
-                            Remove Photo
-                        </button>
-
-                        <label className={cx('change-btn')}>
-                            Change Photo
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleChangePhoto}
-                                style={{ display: 'none' }}
-                            />
-                        </label>
-                    </div>
+                            <label className={cx('change-btn')}>
+                                Change Photo
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleChangePhoto}
+                                    style={{ display: 'none' }}
+                                />
+                            </label>
+                        </div>
+                    )}
                 </div>
             ) : item.label === 'Connected social accounts' ? (
                 <div className={cx('social-account')}>
@@ -105,10 +124,11 @@ const SettingItem = ({ item, onUpdateValue }) => {
                         <span className={cx('social-name')}>{item.value.platform}</span>
                         <span className={cx('social-username')}>{item.value.username}</span>
                     </div>
-
-                    <button onClick={handleDisconnect} className={cx('disconnect-btn')}>
-                        Disconnect
-                    </button>
+                    {isAdmin && (
+                        <button onClick={handleDisconnect} className={cx('disconnect-btn')}>
+                            Disconnect
+                        </button>
+                    )}
                 </div>
             ) : item.label === 'Login' ? (
                 <div className={cx('item-details')}>
@@ -129,6 +149,7 @@ const SettingItem = ({ item, onUpdateValue }) => {
                                 value={option}
                                 checked={selectedValue === option}
                                 onChange={handleOptionChange}
+                                disabled={!isAdmin}
                             />
                             {option}
                         </label>
@@ -137,12 +158,14 @@ const SettingItem = ({ item, onUpdateValue }) => {
             ) : item.sercurity ? (
                 <div className={cx('input-group-custom')}>
                     <span className={cx('value')}>{item.value}</span>
-                    <button className={cx('edit-btn')}>{item.button}</button>
+                    {isAdmin && (
+                        <button className={cx('edit-btn')} onClick={() => onButtonClick(item)}>
+                            {item.button}
+                        </button>
+                    )}
                 </div>
             ) : (
                 <div className={cx('input-group')}>
-                    {/* <span className={cx('value')}>{item.value}</span>
-            {item.edit && <button className={cx('edit-btn')}>Edit</button>} */}
                     {isEditing ? (
                         <>
                             <input
@@ -161,7 +184,7 @@ const SettingItem = ({ item, onUpdateValue }) => {
                     ) : (
                         <>
                             <span className={cx('value')}>{item.value}</span>
-                            {item.edit && (
+                            {isAdmin && item.edit && (
                                 <button onClick={handleEdit} className={cx('edit-btn')}>
                                     Edit
                                 </button>

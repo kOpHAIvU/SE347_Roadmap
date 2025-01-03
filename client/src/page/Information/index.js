@@ -5,11 +5,12 @@ import code from '~/assets/images/image_code.png';
 import { TbDeviceAnalytics } from 'react-icons/tb';
 import { CgDigitalocean } from 'react-icons/cg';
 import { LuSquareCode } from 'react-icons/lu';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 function Information() {
-    console.log('Rendering HomeContent');
+    const navigate = useNavigate()
     return (
         <div className={cx('container')}>
             <section className={cx('heroStack')}>
@@ -21,8 +22,16 @@ function Information() {
                         designed for modern teams.
                     </p>
                     <div className={cx('buttons')}>
-                        <button className={cx('btn', 'download')}>Try the roadmap tool</button>
-                        <button className={cx('btn', 'contact')}>Get in touch with us</button>
+                        <button className={cx('btn', 'download')}
+                            onClick={() => {
+                                window.open('https://github.com/kOpHAIvU/SE347_Roadmap', '_blank');
+                            }}
+                        >View us on Github</button>
+                        <button
+                            className={cx('btn', 'contact')}
+                            onClick={() => {
+                                navigate('/home')
+                            }}>Get in touch with us</button>
                     </div>
                     <div className={cx('image')}>
                         <img src={page} alt="Roadmap visualization" className={cx('page')} />
@@ -103,7 +112,11 @@ function Information() {
                     Empower your team with a streamlined roadmap tool. Start creating, customizing, and tracking your
                     projects today.
                 </p>
-                <button className={cx('btn', 'download')}>Start Your Free Trial</button>
+                <button className={cx('btn', 'download')}
+                    onClick={() => {
+                        navigate('/')
+                    }}
+                >Start Your Free Trial</button>
             </footer>
         </div>
     );

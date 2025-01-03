@@ -4,22 +4,23 @@ import { Comment } from './../../comment/entities/comment.entity';
 import { Timeline } from "../../timeline/entities/timeline.entity";
 import {Node} from "../../node/entities/node.entity"
 import { Favorite } from "src/modules/favorite/entities/favorite.entity";
+import {Report} from "../../report/entities/report.entity"
 
 @Entity()
 export class Roadmap {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({nullable: false, unique: true })
+    @Column({nullable: false})
     code: string;
 
     @Column({nullable: false })
     title: string;
 
-    @Column({nullable: false })
-    type: string;
+    // @Column({nullable: false })
+    // type: string;
 
-    @Column({nullable: false })
+    @Column()
     avatar: string;
 
     @Column({nullable: false })
@@ -43,6 +44,9 @@ export class Roadmap {
     @Column({default: 0})
     react: number;
 
+    @Column({ type: 'boolean', default: false })
+    isPublic: boolean;
+
     @Column({ type: 'boolean', default: true }) // Default status is 1 (true)
     isActive: boolean;
 
@@ -55,4 +59,6 @@ export class Roadmap {
     @OneToMany(() => Favorite, favorite => favorite.roadmap)
     favorite: Favorite[]
 
+    @OneToMany(() => Report, report => report.roadmap)
+    report: Report[]
 }

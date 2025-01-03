@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Notification & Socket Example</title>
 </head>
 <body>
+
+    <!-- Socket.IO Client -->
     <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
+
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js"></script>
+
     <script>
-        const socketGateway2 = io( 'http://localhost:3004/notification_roadmap', {
-            transports: ['websocket'], // Sử dụng WebSocket
+
+        const socketGateway2 = io('http://localhost:3004/newReport', {
+            transports: ['websocket'],
             reconnect: true,
         });
 
         socketGateway2.on('connect', () => {
-            console.log("Connected to notification socket successfully");
-            // socketGateway2.emit("new_roadmap_notification", { roadmapId: 1 });
-        
-            socketGateway2.on('newRoadmap', function(data) {
-                console.log("New roadmap notification received:");
+            console.log("Connected to report socket successfully");
+
+            socketGateway2.on('SendReport', function(data) {
+                console.log("New report notification received:", data);
             });
-            
+
             socketGateway2.on('disconnect', () => {
                 console.log("Disconnected from notification socket");
             });
@@ -29,6 +36,92 @@
                 console.log("Connection error:", err);
             });
         });
+    </script>
+
+    <!-- Firebase Notification -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB55zYPWfACHCgkfkx3VvkGVflfobRg2PU",
+            authDomain: "roadmap-6ffb7.firebaseapp.com",
+            projectId: "roadmap-6ffb7",
+            storageBucket: "roadmap-6ffb7.appspot.com",
+            messagingSenderId: "357357517839",
+            appId: "1:357357517839:web:281a61b187e7d4befdb77a",
+            measurementId: "G-XXQ2VLQP2V",
+            vapidKey: "BD0bLgYPRhaFPA_LOGQrrbk5E6F2paUrusizDcVFmvPt4WJ9eA_fNiP46Y3dFr8H5kFDMSwOiebX7s9qSG5hpLs"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+
+        // Request Notification Permission
+        async function requestNotificationPermission() {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    console.log("Notification permission granted.");
+                    await getDeviceToken();
+                } else {
+                    console.error("Notification permission denied.");
+                }
+            } catch (error) {
+                console.error("Error requesting notification permission:", error);
+            }
+        }
+        
+
+        // Get Device Token
+        async function getDeviceToken() {
+            try {
+                const token = await messaging.getToken({ vapidKey: firebaseConfig.vapidKey });
+                if (token) {
+                    console.log("Device token:", token);
+                    // Send this token to your server to associate it with the current user
+                } else {
+                    console.warn("No registration token available. Request permission to generate one.");
+                }
+            } catch (error) {
+                console.error("Error getting device token:", error);
+            }
+        }
+
+        // Receive foreground messages
+        messaging.onMessage((payload) => {
+            console.log("Foreground message received: ", payload);
+        
+            if (payload.notification) {
+                const { title, body } = payload.notification;
+                const notificationOptions = {
+                    body: body,
+                    icon: "https://res.cloudinary.com/daxxuqogj/image/upload/v1734147061/uploads/aa9fx0i3j9qkg8devbif.jpg",
+                };
+        
+                // Hiển thị notification trên client
+                new Notification(title, notificationOptions);
+            } else {
+                console.warn("No notification payload received.");
+            }
+        });   
+          
+        if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+            .register("./firebase-messaging-sw.js")
+            .then((registration) => {
+                console.log("Service Worker registered with scope:", registration.scope);
+            })
+            .catch((err) => {
+                console.error("Service Worker registration failed:", err);
+            });
+        }
+          
+
+        // Initialize Firebase Notification
+        (async () => {
+            await requestNotificationPermission();
+            await getDeviceToken();
+        })();
     </script>
 </body>
 </html>

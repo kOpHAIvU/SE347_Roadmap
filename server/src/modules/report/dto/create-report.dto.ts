@@ -1,16 +1,21 @@
-import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateReportDto {
     @IsString()
     title: string;
 
+    type: string;
+
     @IsString()
     content: string;
 
     @IsNumber()
-    posterId: number;
+    posterId?: number;
 
-    @IsBoolean()
-    @IsOptional()
-    isActive: boolean;  
+    @IsNumber()
+    receiverId?: number;
+
+    @IsString()
+    roadmapId?: number;
+
 }

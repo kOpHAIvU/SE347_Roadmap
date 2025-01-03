@@ -5,10 +5,6 @@ export class CreateRoadmapDto {
 
     @IsString()
     @IsNotEmpty()
-    code: string;
-
-    @IsString()
-    @IsNotEmpty()
     title: string;
 
     @IsString()
@@ -32,7 +28,9 @@ export class CreateRoadmapDto {
 
     @IsBoolean()
     @IsOptional()
-    isActive: boolean;  
+    isActive?: boolean;  
+
+    type: string;
 }
 
 

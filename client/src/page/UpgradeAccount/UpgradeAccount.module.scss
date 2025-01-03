@@ -1,0 +1,131 @@
+.wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(120deg, #d4f1f9, #ffffff);
+    padding: 20px;
+}
+
+.detail-container {
+    background-color: #ffffff;
+    border-radius: 15px;
+    border: 3px solid var(--main-color);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    padding: 30px 40px;
+    width: 60%;
+    max-width: 700px;
+    text-align: center;
+}
+
+.benefit {
+    font-size: 2.5rem;
+    color: var(--main-color);
+    margin-bottom: 20px;
+}
+
+.benefit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 20px;
+
+    li {
+        font-size: 1.5rem;
+        line-height: 1.8;
+        margin: 10px 0;
+        text-align: left;
+    }
+}
+
+.dash-line {
+    font-weight: 500;
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+    text-decoration-color: #ff6b6b;
+    color: #888888;
+}
+
+.normal-line {
+    font-weight: 700;
+    padding-left: 10px;
+    color: var(--main-color);
+}
+
+.payment-section {
+    margin-top: 30px;
+
+    .payment-price {
+        font-size: 2rem;
+        font-style: italic;
+        color: #2d89ef;
+        margin-bottom: 15px;
+    }
+
+    .upgrade-button {
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding: 10px 20px;
+        border-radius: 25px;
+        border: none;
+        background-color: var(--main-color);
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+
+        &:active {
+            background-color: #003f7f;
+        }
+    }
+
+    .confirmation {
+        margin-top: 20px;
+        .small-text {
+            font-size: 1rem;
+            color: #555;
+        }
+
+        .copy-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+
+            .link {
+                font-size: 0.9rem;
+                color: #007bff;
+                background: rgba(0, 123, 255, 0.1);
+                padding: 5px 10px;
+                border-radius: 5px;
+                flex: 1;
+                white-space: nowrap;
+                overflow: hidden; 
+                text-overflow: ellipsis;
+            }
+
+            .copy-button {
+                font-size: 0.9rem;
+                padding: 5px 10px;
+                border-radius: 5px;
+                border: 1px solid var(--main-color);
+                background-color: white;
+                color: var(--main-color);
+                cursor: pointer;
+                max-width: 80px;
+
+                &:hover {
+                    background-color: var(--main-color);
+                    color: white;
+                }
+            }
+
+            .copy-success {
+                font-size: 0.9rem;
+                color: green;
+            }
+        }
+    }
+}

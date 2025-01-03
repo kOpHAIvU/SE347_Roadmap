@@ -1,5 +1,5 @@
 :root {
-    --card-width: 304px;
+    --card-width: 300px;
     --card-height: 279px;
 }
 
@@ -32,6 +32,9 @@
     font-size: 2rem;
     margin: 0 8px;
     padding: 0 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .content {
     width: calc(var(--card-width) - 13px);

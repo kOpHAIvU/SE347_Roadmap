@@ -1,7 +1,7 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { time } from 'console';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateNodeDto {
-    
     @IsString()
     @IsNotEmpty()
     level: number;
@@ -18,16 +18,16 @@ export class CreateNodeDto {
     @IsNotEmpty()
     type: string;
 
-    @IsNotEmpty()
     @IsBoolean()
     tick: boolean;
 
     @IsNumber()
     @IsNotEmpty()
-    dueTime: number;
+    @IsOptional()
+    dueTime?: number;
 
     @IsString()
-    attachFile: string;
+    attachFile?: string;
 
     @IsString()
     content: string;
@@ -36,13 +36,8 @@ export class CreateNodeDto {
     detail: string;
 
     @IsNumber()
-    roadmap: number;
+    roadmap?: number;
 
-    @IsBoolean()
-    isActive: boolean;
-
-    createdAt: Date;
-
-    deletedAt: Date | null;
-
+    @IsNumber()
+    timeline?: number;
 }
