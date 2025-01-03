@@ -18,7 +18,7 @@ function Login() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkToken = async () => {
+        const checkToken = async() => {
             const token = localStorage.getItem('vertexToken');
             if (token) {
                 try {
@@ -46,8 +46,8 @@ function Login() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-        setErrors({ ...errors, [name]: '' }); // Xóa lỗi khi nhập lại
+        setFormData({...formData, [name]: value });
+        setErrors({...errors, [name]: '' }); // Xóa lỗi khi nhập lại
     };
 
     const validate = () => {
@@ -65,7 +65,7 @@ function Login() {
         return newErrors;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault(); // Ngăn hành vi reload trang
         const newErrors = validate();
         if (Object.keys(newErrors).length > 0) {
@@ -92,6 +92,7 @@ function Login() {
                         navigate('/home');
                     } else {
                         console.log('Access token not received!');
+                        alert("Invalid credential!")
                     }
                 } else {
                     console.log(data.message || 'Login failed!'); // Thông báo lỗi
@@ -112,76 +113,116 @@ function Login() {
         window.location.href = 'http://localhost:3004/auth/google/callback';
     };
 
-    return (
-        <div className={cx('inner')}>
-            <div className={cx('image-road')}>
-                <img src={road1} alt="Road 1" className={cx('road1')} />
-                <img src={road2} alt="Road 2" className={cx('road2')} />
-            </div>
+    return ( <
+            div className = { cx('inner') } >
+            <
+            div className = { cx('image-road') } >
+            <
+            img src = { road1 }
+            alt = "Road 1"
+            className = { cx('road1') }
+            /> <
+            img src = { road2 }
+            alt = "Road 2"
+            className = { cx('road2') }
+            /> <
+            /div>
 
-            <form className={cx('login-container')} onSubmit={handleSubmit}>
-                <div className={cx('logo')}>
-                    <img src={images.logo} alt="VertexOps" />
-                </div>
-                <h1 className={cx('login-title')}>Log in</h1>
-                <p className={cx('login-welcome')}>Welcome back to VertexOps😍!!!</p>
+            <
+            form className = { cx('login-container') }
+            onSubmit = { handleSubmit } >
+            <
+            div className = { cx('logo') } >
+            <
+            img src = { images.logo }
+            alt = "VertexOps" / >
+            <
+            /div> <
+            h1 className = { cx('login-title') } > Log in < /h1> <
+            p className = { cx('login-welcome') } > Welcome back to VertexOps😍!!! < /p>
 
-                <button type="button" className={cx('google-btn')} onClick={() => handleGoogleLogin}>
-                    <img src={images.google} alt="Google Logo" className={cx('google-logo')} />
-                    <strong>Log in with Google</strong>
-                </button>
+            <
+            button type = "button"
+            className = { cx('google-btn') }
+            onClick = {
+                () => handleGoogleLogin } >
+            <
+            img src = { images.google }
+            alt = "Google Logo"
+            className = { cx('google-logo') }
+            /> <
+            strong > Log in with Google < /strong> <
+            /button>
 
-                <div className={cx('divider')}>
-                    <span className={cx('divider-text')}>OR</span>
-                </div>
+            <
+            div className = { cx('divider') } >
+            <
+            span className = { cx('divider-text') } > OR < /span> <
+            /div>
 
-                {/* Username  Input */}
-                <div className={cx('form-group', { invalid: !!errors.username })}>
-                    <input
-                        type="text"
-                        name="username"
-                        placeholder="Username"
-                        className={cx('input-field')}
-                        value={formData.username}
-                        onChange={handleChange}
-                    />
-                    {errors.username && <span className={cx('error-message')}>{errors.username}</span>}
-                </div>
+            { /* Username  Input */ } <
+            div className = { cx('form-group', { invalid: !!errors.username }) } >
+            <
+            input type = "text"
+            name = "username"
+            placeholder = "Username"
+            className = { cx('input-field') }
+            value = { formData.username }
+            onChange = { handleChange }
+            /> {
+                errors.username && < span className = { cx('error-message') } > { errors.username } < /span>} <
+                    /div>
 
-                {/* Password Input */}
-                <div className={cx('form-group', { invalid: !!errors.password })}>
-                    <input
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        placeholder="Password"
-                        className={cx('input-field')}
-                        value={formData.password}
-                        onChange={handleChange}
-                    />
-                    <span className={cx('password-toggle')} onClick={() => setShowPassword(!showPassword)}>
-                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                    </span>
+                { /* Password Input */ } <
+                div className = { cx('form-group', { invalid: !!errors.password }) } >
+                    <
+                    input
+                type = { showPassword ? 'text' : 'password' }
+                name = "password"
+                placeholder = "Password"
+                className = { cx('input-field') }
+                value = { formData.password }
+                onChange = { handleChange }
+                /> <
+                span className = { cx('password-toggle') }
+                onClick = {
+                        () => setShowPassword(!showPassword) } >
+                    <
+                    FontAwesomeIcon icon = { showPassword ? faEyeSlash : faEye }
+                /> <
+                /span>
 
-                    {errors.password && <span className={cx('error-message')}>{errors.password}</span>}
-                </div>
+                {
+                    errors.password && < span className = { cx('error-message') } > { errors.password } < /span>} <
+                        /div>
 
-                <a href="" className={cx('forgot-password')} onClick={handleForgotPassword}>
-                    Forgot Password?
-                </a>
+                    <
+                    a href = ""
+                    className = { cx('forgot-password') }
+                    onClick = { handleForgotPassword } >
+                        Forgot Password ?
+                        <
+                        /a>
 
-                <button type="submit" className={cx('login-btn')}>
-                    Log in
-                </button>
+                    <
+                    button type = "submit"
+                    className = { cx('login-btn') } >
+                        Log in
+                        <
+                        /button>
 
-                <p className={cx('sign-up')}>
-                    Don't have an account?{' '}
-                    <Link to="/signup" className={cx('sign-up-link')}>
-                        Sign up
-                    </Link>
-                </p>
-            </form>
-        </div>
-    );
-}
+                    <
+                    p className = { cx('sign-up') } >
+                        Don 't have an account?{'
+                    '} <
+                    Link to = "/signup"
+                    className = { cx('sign-up-link') } >
+                        Sign up <
+                        /Link> <
+                        /p> <
+                        /form> <
+                        /div>
+                );
+            }
 
-export default Login;
+            export default Login;
