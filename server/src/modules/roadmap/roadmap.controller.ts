@@ -129,7 +129,8 @@ export class RoadmapController {
         @Param('name') name: string,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
+        @Req() req: any,
     ) {
-        return await this.roadmapService.findRoadmapsByTitle(name, page, limit);
+        return await this.roadmapService.findRoadmapsByTitle(name, page, limit, req.user.userId);
     }
 }
