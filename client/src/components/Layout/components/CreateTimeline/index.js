@@ -5,6 +5,7 @@ import styles from './CreateTimeline.module.scss';
 import classNames from 'classnames/bind';
 import CryptoJS from 'crypto-js';
 import { useEffect, useState } from 'react';
+import CantCloneDialogTooMany from '../MiniNotification/CantCloneTooMany/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -219,7 +220,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchOwnRoadmapData = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/roadmap/owner?page=1&limit=12`, {
+            const response = await fetch(`http://localhost:3004/timeline/owner?page=1&limit=3`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -266,8 +267,29 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
                 } else {
                     console.error("Failed to create new timeline.");
                 }
+            } else {
+                console.log("roadmapRecords", roadmapRecords)
+                handleMakeDialog()
             }
         }
+    };
+
+    const [dialogs, setDialogs] = useState([]);
+
+    const handleMakeDialog = () => {
+        const newDialog = { id: Date.now() };
+        setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+
+        // Automatically remove the CantClone after 3 seconds
+        setTimeout(() => {
+            setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+        }, 3000);
+
+        return;
+    };
+
+    const handleClose = (id) => {
+        setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
     };
 
     return (
@@ -301,12 +323,22 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
                     <button
                         className={cx('create-btn')}
-                        onClick={handleCreate}
+                        onClick={() => handleCreate()}
                         disabled={!layoutTitle || !layoutContent}
                     >
                         Create
                     </button>
                 </div>
+            </div>
+            <div className={cx('mini-notify')}>
+                {dialogs.map((dialog) => (
+                    <CantCloneDialogTooMany
+                        key={dialog.id}
+                        handleClose={handleClose}
+                        type='timelines'
+                        count={roadmapRecords}
+                    />
+                ))}
             </div>
         </div>
     );

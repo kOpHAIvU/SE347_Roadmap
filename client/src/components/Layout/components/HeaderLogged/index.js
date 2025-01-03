@@ -21,6 +21,7 @@ import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import MenuAvatar from '../MenuAvatar/index.js';
 import { SearchRoadmap } from '../Search/index.js';
+import CantCloneDialogTooMany from '../MiniNotification/CantCloneTooMany/index.js';
 
 const cx = classNames.bind(styles);
 
@@ -218,47 +219,44 @@ function HeaderLogged({ collapsed, setCollapsed }) {
 
     const handleCreate = async () => {
         if (name && description && image && userId) {
-            console.log(role);
-            if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
-                const formData = new FormData();
-                formData.append('title', name);
-                formData.append('file', image);
-                formData.append('content', description);
-                formData.append('owner', userId);
-                formData.append('clone', 0);
-                formData.append('react', 0);
-                formData.append('type', 'IT');
+            const formData = new FormData();
+            formData.append('title', name);
+            formData.append('file', image);
+            formData.append('content', description);
+            formData.append('owner', userId);
+            formData.append('clone', 0);
+            formData.append('react', 0);
+            formData.append('type', 'IT');
 
-                try {
-                    const response = await fetch('http://localhost:3004/roadmap/new_roadmap', {
-                        method: 'POST',
-                        headers: {
-                            Authorization: `Bearer ${getToken()}`, // Thêm token xác thực
-                        },
-                        body: formData, // Gửi dữ liệu dưới dạng form
-                    });
+            try {
+                const response = await fetch('http://localhost:3004/roadmap/new_roadmap', {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`, // Thêm token xác thực
+                    },
+                    body: formData, // Gửi dữ liệu dưới dạng form
+                });
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('Roadmap created:', data);
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Roadmap created:', data);
 
-                        // Điều hướng đến roadmap vừa tạo dựa trên id
-                        if (data?.data?.id) {
-                            const encryptedId = encryptId(data.data.id);
-                            navigate(`/roadmap/${encryptedId}`);
-                        }
-
-                        setShowForm(false);
-                        setName('');
-                        setDescription('');
-                        setImage(null);
-                    } else {
-                        const errorData = await response.json();
-                        console.error('Failed to create roadmap:', errorData.message);
+                    // Điều hướng đến roadmap vừa tạo dựa trên id
+                    if (data?.data?.id) {
+                        const encryptedId = encryptId(data.data.id);
+                        navigate(`/roadmap/${encryptedId}`);
                     }
-                } catch (error) {
-                    console.error('Error creating roadmap:', error);
+
+                    setShowForm(false);
+                    setName('');
+                    setDescription('');
+                    setImage(null);
+                } else {
+                    const errorData = await response.json();
+                    console.error('Failed to create roadmap:', errorData.message);
                 }
+            } catch (error) {
+                console.error('Error creating roadmap:', error);
             }
         } else {
             console.error('Please fill in all required fields.');
@@ -269,6 +267,32 @@ function HeaderLogged({ collapsed, setCollapsed }) {
         if (String(e.target.className).includes('modal-overlay')) {
             setShowForm(false);
         }
+    };
+
+    const handleShowForm = () => {
+        if ((proEdit && roadmapRecords < 15) || (!proEdit && roadmapRecords < 3) || role === 'admin') {
+            setShowForm(true)
+        } else {
+            handleMakeDialog()
+        }
+    }
+
+    const [dialogs, setDialogs] = useState([]);
+
+    const handleMakeDialog = () => {
+        const newDialog = { id: Date.now() };
+        setDialogs((prevDialogs) => [...prevDialogs, newDialog]);
+
+        // Automatically remove the CantClone after 3 seconds
+        setTimeout(() => {
+            setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== newDialog.id));
+        }, 3000);
+
+        return;
+    };
+
+    const handleClose = (id) => {
+        setDialogs((prevDialogs) => prevDialogs.filter((dialog) => dialog.id !== id));
     };
 
     return (
@@ -284,7 +308,7 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                 <SearchRoadmap />
 
                 <div className={cx('right-header')}>
-                    <button className={cx('add-roadmap')} onClick={() => setShowForm(true)}>
+                    <button className={cx('add-roadmap')} onClick={() => handleShowForm()}>
                         <FontAwesomeIcon className={cx('plus-icon')} icon={faPlus} />
                         <h1 className={cx('create-text')}>Create your own map</h1>
                     </button>
@@ -368,6 +392,17 @@ function HeaderLogged({ collapsed, setCollapsed }) {
                     </div>
                 </div>
             )}
+
+            <div className={cx('mini-notify')}>
+                {dialogs.map((dialog) => (
+                    <CantCloneDialogTooMany
+                        key={dialog.id}
+                        handleClose={handleClose}
+                        type='timelines'
+                        count={roadmapRecords}
+                    />
+                ))}
+            </div>
         </div>
     );
 }

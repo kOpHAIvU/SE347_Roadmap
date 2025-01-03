@@ -169,8 +169,6 @@ function ReportItem({ children }) {
         }
     };
 
-    console.log("Child: ", children)
-
     return (
         <div className={cx('wrapper')}>
             <div className={cx('roadmap')}>

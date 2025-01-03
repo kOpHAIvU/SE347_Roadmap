@@ -100,15 +100,20 @@ function OwnRoadmap() {
             });
 
             const data = await response.json();
+            console.log("Hehe: ", data)
             if (response.ok) {
-                setRoadmapData(data.data);
-                setVisibility(data.data.isPublic ? "Release" : "Private");
-                //console.log("Roadmap data: ", data.data);
+                if (data.statusCode !== 404) {
+                    setRoadmapData(data.data);
+                    setVisibility(data.data.isPublic ? "Release" : "Private");
+                    //console.log("Roadmap data: ", data.data);
 
-                setNodes(filterRoadmapNode(data.data.node))
-                //console.log("Nodes after fetching: ", nodes);
+                    setNodes(filterRoadmapNode(data.data.node))
+                    //console.log("Nodes after fetching: ", nodes);
 
-                return data.data;
+                    return data.data;
+                }
+                navigate('/home')
+
             } else {
                 const errorData = await response.json();
                 console.error('Error:', errorData.message);
@@ -496,13 +501,14 @@ function OwnRoadmap() {
 
         handleMakeDialog('Saved')
     }
+    console.log(id)
 
     // Tự động lưu mỗi 5 phút
     useEffect(() => {
         const intervalId = setInterval(async () => {
             await handleSave();
         }, 5 * 60 * 1000);
-    
+
         return () => clearInterval(intervalId);
     }, []);
 

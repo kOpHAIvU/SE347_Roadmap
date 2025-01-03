@@ -50,7 +50,6 @@ export class TimelineController {
     @Get('owner')
     @UseGuards(JwtAuthGuard)
     async findTimelinesByUserId(
-        @Param('userId', ParseIntPipe) idUser: number,
         @Query('page', ParseIntPipe) page: number = 1,
         @Query('limit', ParseIntPipe) limit: number = 10,
         @Req() req: any,

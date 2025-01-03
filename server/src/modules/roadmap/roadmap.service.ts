@@ -237,6 +237,7 @@ export class RoadmapService {
                     .leftJoinAndSelect('roadmap.node', 'node')
                     .leftJoinAndSelect('owner.comment', 'comment')
                     .where('roadmap.isActive = :isActive', { isActive: true })
+                    .andWhere('roadmap.id = :id', { id })
                     .andWhere('roadmap.deletedAt is null')
                     .andWhere('roadmap.id = :id', { id })
                     .getOne();
@@ -247,6 +248,7 @@ export class RoadmapService {
                                             .leftJoinAndSelect('roadmap.node', 'node')
                                             .leftJoinAndSelect('owner.comment', 'comment')
                                             .where('roadmap.isActive = :isActive', { isActive: 1 })
+                                            .andWhere('roadmap.id = :id', { id })
                                             .andWhere('roadmap.deletedAt is null')
                                             .andWhere('roadmap.id = :id', { id })
                                             .andWhere(
