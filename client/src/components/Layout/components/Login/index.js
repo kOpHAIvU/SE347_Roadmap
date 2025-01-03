@@ -107,6 +107,11 @@ function Login() {
         navigate('/password_reset');
     };
 
+    const handleGoogleLogin = () => {
+        // Redirect to Google authentication endpoint
+        window.location.href = 'http://localhost:3004/auth/google/callback';
+    };
+
     return (
         <div className={cx('inner')}>
             <div className={cx('image-road')}>
@@ -121,13 +126,7 @@ function Login() {
                 <h1 className={cx('login-title')}>Log in</h1>
                 <p className={cx('login-welcome')}>Welcome back to VertexOps😍!!!</p>
 
-                <button
-                    type="button"
-                    className={cx('google-btn')}
-                    onClick={() => {
-                        window.location.href = 'http://localhost:3004/auth/google/callback';
-                    }}
-                >
+                <button type="button" className={cx('google-btn')} onClick={() => handleGoogleLogin}>
                     <img src={images.google} alt="Google Logo" className={cx('google-logo')} />
                     <strong>Log in with Google</strong>
                 </button>

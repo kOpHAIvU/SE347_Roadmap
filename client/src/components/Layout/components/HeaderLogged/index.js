@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './HeaderLogged.module.scss';
 import classNames from 'classnames/bind';
@@ -23,42 +23,6 @@ import MenuAvatar from '../MenuAvatar/index.js';
 import { SearchRoadmap } from '../Search/index.js';
 
 const cx = classNames.bind(styles);
-const MENU_ITEMS = (encryptedId) => [
-    {
-        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faGear} />,
-        title: 'Settings',
-        children: {
-            title: 'Settings',
-            data: [
-                {
-                    icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faUser} />,
-                    title: 'Your account',
-                    to: '/account/${encryptedId}',
-                },
-                {
-                    icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faLock} />,
-                    title: 'Login & security',
-                    to: '/security',
-                },
-                {
-                    icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faFlag} />,
-                    title: 'Report a problem',
-                    to: '/report',
-                },
-            ],
-        },
-    },
-    {
-        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faCircleQuestion} />,
-        title: 'More about Vertex',
-        to: '/information',
-    },
-    {
-        icon: <FontAwesomeIcon className={cx('setting-icon', 'logout-icon')} icon={faRightFromBracket} />,
-        title: 'Log out',
-        to: '/',
-    },
-];
 
 function HeaderLogged({ collapsed, setCollapsed }) {
     const [showForm, setShowForm] = useState(false);
@@ -73,6 +37,58 @@ function HeaderLogged({ collapsed, setCollapsed }) {
     const toggleNotification = () => {
         setIsNotificationOpen((prev) => !prev);
     };
+
+    const location = useLocation();
+
+    const handleLogout = () => {
+        localStorage.removeItem('vertexToken'); // Xóa token khỏi localStorage
+        console.log('Token removed');
+        navigate('/'); // Điều hướng đến trang chủ
+    };
+
+    useEffect(() => {
+        if (location.pathname === '/') {
+            localStorage.removeItem('vertexToken');
+            console.log('Token removed');
+        }
+    }, [location]);
+
+    const MENU_ITEMS = (encryptedId) => [
+        {
+            icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faGear} />,
+            title: 'Settings',
+            children: {
+                title: 'Settings',
+                data: [
+                    {
+                        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faUser} />,
+                        title: 'Your account',
+                        to: '/account/${encryptedId}',
+                    },
+                    {
+                        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faLock} />,
+                        title: 'Login & security',
+                        to: '/security',
+                    },
+                    {
+                        icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faFlag} />,
+                        title: 'Report a problem',
+                        to: '/report',
+                    },
+                ],
+            },
+        },
+        {
+            icon: <FontAwesomeIcon className={cx('setting-icon')} icon={faCircleQuestion} />,
+            title: 'More about Vertex',
+            to: '/information',
+        },
+        {
+            icon: <FontAwesomeIcon className={cx('setting-icon', 'logout-icon')} icon={faRightFromBracket} />,
+            title: 'Log out',
+            onClick: handleLogout,
+        },
+    ];
 
     const handleClickOutside = (event) => {
         // Kiểm tra xem click có nằm ngoài bellRef và notificationRef không

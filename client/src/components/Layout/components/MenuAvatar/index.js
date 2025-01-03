@@ -41,6 +41,9 @@ function MenuAvatar({ children, items = [] }) {
         if (item.to) {
             navigate(item.to);
             setIsVisible(false);
+        } else if (item.onClick) {
+            item.onClick();
+            setIsVisible(false);
         } else if (item.children) {
             setHistory((prev) => [...prev, item.children]); // Chuyển sang menu con
         }
