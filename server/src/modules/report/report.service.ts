@@ -411,6 +411,7 @@ export class ReportService {
 
   async banRoadmap(
     idRoadmap: number,
+    idUser: number
   ): Promise<{
     statusCode: number,
     message: string,
@@ -426,7 +427,7 @@ export class ReportService {
                             .andWhere('report.isChecked = true')
                             .getCount();
       if (numberOfReport >= 3) {
-        const result = await this.roadmapService.removeById(idRoadmap);
+        const result = await this.roadmapService.removeById(idRoadmap, idUser);
         if (result.statusCode !== 200) {
           return {
             statusCode: 500,
