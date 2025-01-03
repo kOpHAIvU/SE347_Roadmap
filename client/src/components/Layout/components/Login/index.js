@@ -58,8 +58,8 @@ function Login() {
 
         if (!formData.password) {
             newErrors.password = 'Please enter your password!';
-        } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must have at least 6 characters';
+        } else if (formData.password.length < 8) {
+            newErrors.password = 'Password must have at least 8 characters';
         }
 
         return newErrors;
@@ -94,6 +94,17 @@ function Login() {
                         console.log('Access token not received!');
                     }
                 } else {
+                    const apiErrors = {};
+                    if (data.message?.toLowerCase().includes('username')) {
+                        apiErrors.username = 'Invalid username!';
+                    }
+                    if (data.message?.toLowerCase().includes('password')) {
+                        apiErrors.password = 'Invalid password!';
+                    }
+                    if (!apiErrors.username && !apiErrors.password) {
+                        apiErrors.username = 'Invalid username or password! Please try again.';
+                    }
+                    setErrors(apiErrors);
                     console.log(data.message || 'Login failed!'); // Thông báo lỗi
                 }
             } catch (error) {
@@ -126,7 +137,11 @@ function Login() {
                 <h1 className={cx('login-title')}>Log in</h1>
                 <p className={cx('login-welcome')}>Welcome back to VertexOps😍!!!</p>
 
-                <button type="button" className={cx('google-btn')} onClick={() => handleGoogleLogin}>
+                <button
+                    type="button"
+                    className={cx('google-btn')}
+                    onClick={() => (window.location.href = 'http://localhost:3004/auth/google/callback')}
+                >
                     <img src={images.google} alt="Google Logo" className={cx('google-logo')} />
                     <strong>Log in with Google</strong>
                 </button>
