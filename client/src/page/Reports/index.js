@@ -31,7 +31,7 @@ function Reports() {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
+            const response = await fetch('http://localhost:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -57,7 +57,7 @@ function Reports() {
 
     const fetchGetReportData = async () => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/report/all?page=${currentPageNumber}&limit=6`, {
+            const response = await fetch(`http://localhost:3004/report/all?page=${currentPageNumber}&limit=6`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

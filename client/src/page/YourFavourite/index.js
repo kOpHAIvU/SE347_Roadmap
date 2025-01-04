@@ -56,7 +56,7 @@ function YourFavourite() {
 
     const fetchRoadmapData = async (pageNumber) => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/favorite/all/owner?page=${pageNumber}&limit=12`, {
+            const response = await fetch(`http://localhost:3004/favorite/all/owner?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -83,7 +83,7 @@ function YourFavourite() {
     const fetchDelFavourite = async (id) => {
         console.log("Id: ", id)
         try {
-            const response = await fetch(`http://44.245.39.225:3004/favorite/item/${id}`, {
+            const response = await fetch(`http://localhost:3004/favorite/item/${id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -166,7 +166,7 @@ function YourFavourite() {
         fetchDelFavourite(roadmapToUpdate.loved.loveId);
 
         try {
-            const response = await fetch(`http://44.245.39.225:3004/roadmap/item/${id}`, {
+            const response = await fetch(`http://localhost:3004/roadmap/item/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

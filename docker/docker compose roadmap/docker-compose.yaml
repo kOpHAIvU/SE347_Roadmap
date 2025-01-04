@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 services:
   database-mysql:
     image: mysql:8.0
@@ -24,10 +24,10 @@ services:
   backend:
     build:
       context: ../../server
-      dockerfile: Dockerfile  
+      dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      DB_HOST: database-mysql 
+      DB_HOST: database-mysql
       DB_PORT: 3306
     ports:
       - "3004:3004"
@@ -64,7 +64,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      REACT_APP_API_URL: http://44.245.39.225:3004
+      REACT_APP_API_URL: http://localhost:3004
     ports:
       - "3000:3000"
     depends_on:

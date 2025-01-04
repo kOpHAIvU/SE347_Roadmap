@@ -46,7 +46,7 @@ function Timeline() {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
+            const response = await fetch('http://localhost:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -70,7 +70,7 @@ function Timeline() {
 
     const fetchTimelineData = async () => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/timeline/item/${id}`, {
+            const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -107,7 +107,7 @@ function Timeline() {
 
     const fetchUpdateTimelineTitleContent = async () => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/timeline/item/${id}`, {
+            const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -134,7 +134,7 @@ function Timeline() {
 
     const fetchGetGroupDivisionByTimeline = async () => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/group-division/timelineId/${id}`, {
+            const response = await fetch(`http://localhost:3004/group-division/timelineId/${id}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -169,7 +169,7 @@ function Timeline() {
             formData.append('detail', nodeData.nodeDetail);
             formData.append('timeline', id);
 
-            const response = await fetch('http://44.245.39.225:3004/node/new', {
+            const response = await fetch('http://localhost:3004/node/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -220,7 +220,7 @@ function Timeline() {
 
     const fetchDelAllNodeInTimeline = async () => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/node/timeline/${id}`, {
+            const response = await fetch(`http://localhost:3004/node/timeline/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -251,7 +251,7 @@ function Timeline() {
             }).toString();
             //console.log("Body: ", body)
 
-            const response = await fetch('http://44.245.39.225:3004/comment/new', {
+            const response = await fetch('http://localhost:3004/comment/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -275,7 +275,7 @@ function Timeline() {
 
     const fetchDelNodeComment = async (commentId) => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/comment/item/${commentId}`, {
+            const response = await fetch(`http://localhost:3004/comment/item/${commentId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -298,7 +298,7 @@ function Timeline() {
 
     const fetchNodeComment = async (nodeId) => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/comment/node/${nodeId}`, {
+            const response = await fetch(`http://localhost:3004/comment/node/${nodeId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

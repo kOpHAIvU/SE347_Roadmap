@@ -58,5 +58,5 @@ app.post('/api/forgot-password', (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://44.245.39.225:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

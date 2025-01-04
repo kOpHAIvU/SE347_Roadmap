@@ -38,7 +38,7 @@ function YourTimeline() {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
+            const response = await fetch('http://localhost:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -73,14 +73,14 @@ function YourTimeline() {
                 };
             })
         )
-        
+
         return mappedData;
     }
 
 
     const fetchTimelineData = async (pageNumber) => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/timeline/all?page=${pageNumber}&limit=12`, {
+            const response = await fetch(`http://localhost:3004/timeline/all?page=${pageNumber}&limit=12`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -104,7 +104,7 @@ function YourTimeline() {
 
     const fetchGetGroupDivisionByTimeline = async (timelineId) => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/group-division/timelineId/${timelineId}`, {
+            const response = await fetch(`http://localhost:3004/group-division/timelineId/${timelineId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
