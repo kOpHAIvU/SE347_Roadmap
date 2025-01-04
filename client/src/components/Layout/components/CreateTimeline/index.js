@@ -40,7 +40,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://localhost:3004/auth/profile', {
+            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -66,7 +66,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
         try {
             const updatedClone = roadmapData.clone + 1;
 
-            const response = await fetch(`http://localhost:3004/roadmap/item/${roadmapData.id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/roadmap/item/${roadmapData.id}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -89,7 +89,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchCloneRoadmap = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/timeline/clone/${children.id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/timeline/clone/${children.id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -113,7 +113,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchUpdateTimelineTitleContent = async (timelineId, title, content) => {
         try {
-            const response = await fetch(`http://localhost:3004/timeline/item/${timelineId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/timeline/item/${timelineId}`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -140,7 +140,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchNewTeam = async (name) => {
         try {
-            const response = await fetch('http://localhost:3004/team/new', {
+            const response = await fetch('http://44.245.39.225:3004/team/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -174,7 +174,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
                 timelineId: timelineId,
                 role: 1
             }).toString();
-            const response = await fetch('http://localhost:3004/group-division/new', {
+            const response = await fetch('http://44.245.39.225:3004/group-division/new', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -196,7 +196,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchPaymentStatus = async (profileId) => {
         try {
-            const response = await fetch(`http://localhost:3004/payment/user/${profileId}?page=1&limit=1`, {
+            const response = await fetch(`http://44.245.39.225:3004/payment/user/${profileId}?page=1&limit=1`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -220,7 +220,7 @@ function CreateTimeline({ children, title, setTitle, content, setContent, handle
 
     const fetchOwnRoadmapData = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/timeline/owner?page=1&limit=3`, {
+            const response = await fetch(`http://44.245.39.225:3004/timeline/owner?page=1&limit=3`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization

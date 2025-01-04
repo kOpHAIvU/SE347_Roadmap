@@ -36,7 +36,7 @@ function SearchRoadmap() {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://localhost:3004/auth/profile', {
+            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -61,7 +61,7 @@ function SearchRoadmap() {
 
     const fetchSearchRoadmap = async (profileId) => {
         try {
-            const response = await fetch(`http://localhost:3004/roadmap/search/${search}?page=1&limit=4`, {
+            const response = await fetch(`http://44.245.39.225:3004/roadmap/search/${search}?page=1&limit=4`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -83,7 +83,7 @@ function SearchRoadmap() {
 
     const fetchSearchTimeline = async (profileId) => {
         try {
-            const response = await fetch(`http://localhost:3004/timeline/search/${search}?page=1&limit=4`, {
+            const response = await fetch(`http://44.245.39.225:3004/timeline/search/${search}?page=1&limit=4`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

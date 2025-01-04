@@ -32,7 +32,7 @@ function ReportItem({ children }) {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://localhost:3004/auth/profile', {
+            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -63,7 +63,7 @@ function ReportItem({ children }) {
 
     const fetchConfirmReport = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/report/item/${children.id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/report/item/${children.id}`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -87,7 +87,7 @@ function ReportItem({ children }) {
 
     const fetchDeleteReport = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/report/item/${children.id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/report/item/${children.id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -109,7 +109,7 @@ function ReportItem({ children }) {
 
     const fetchBannedRoadmap = async () => {
         try {
-            const response = await fetch(`http://localhost:3004/report/ban/${children.roadmap.id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/report/ban/${children.roadmap.id}`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -148,7 +148,7 @@ function ReportItem({ children }) {
                 isCheck: 0,
                 isActive: 1,
             }).toString();
-            const response = await fetch('http://localhost:3004/notification/new', {
+            const response = await fetch('http://44.245.39.225:3004/notification/new', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,

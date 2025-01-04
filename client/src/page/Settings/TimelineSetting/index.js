@@ -43,7 +43,7 @@ function TimelineSetting() {
     useEffect(() => {
         const fetchUserList = async () => {
             try {
-                const response = await fetch(`http://localhost:3004/group-division/timelineId/${id}`, {
+                const response = await fetch(`http://44.245.39.225:3004/group-division/timelineId/${id}`, {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${getToken()}`,
@@ -110,7 +110,7 @@ function TimelineSetting() {
         if (!confirmRevoke) return;
 
         try {
-            const response = await fetch(`http://localhost:3004/group-division/item/${inviteId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/group-division/item/${inviteId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -140,7 +140,7 @@ function TimelineSetting() {
         if (!confirmDelete) return;
 
         try {
-            const response = await fetch(`http://localhost:3004/group-division/item/${groupId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/group-division/item/${groupId}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -178,7 +178,7 @@ function TimelineSetting() {
         if (!confirmDelete) return;
 
         try {
-            const response = await fetch(`http://localhost:3004/timeline/item/${id}`, {
+            const response = await fetch(`http://44.245.39.225:3004/timeline/item/${id}`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -206,7 +206,7 @@ function TimelineSetting() {
         setUserList((prevUsers) => prevUsers.map((user) => (user.id === groupId ? { ...user, role: newRole } : user)));
 
         try {
-            const response = await fetch(`http://localhost:3004/group-division/item/${groupId}`, {
+            const response = await fetch(`http://44.245.39.225:3004/group-division/item/${groupId}`, {
                 method: 'PATCH',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -234,7 +234,7 @@ function TimelineSetting() {
         const fetchProfileAndCheckRole = async () => {
             try {
                 // Fetch profile
-                const profileResponse = await fetch('http://localhost:3004/auth/profile', {
+                const profileResponse = await fetch('http://44.245.39.225:3004/auth/profile', {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${getToken()}`,
@@ -249,7 +249,7 @@ function TimelineSetting() {
                     const userIdFromProfile = profileData.data.id;
 
                     // Fetch group-division data
-                    const groupResponse = await fetch(`http://localhost:3004/group-division/timelineId/${id}`, {
+                    const groupResponse = await fetch(`http://44.245.39.225:3004/group-division/timelineId/${id}`, {
                         method: 'GET',
                         headers: {
                             Authorization: `Bearer ${getToken()}`,
@@ -327,7 +327,7 @@ function TimelineSetting() {
                 return;
             }
 
-            const response = await fetch(`http://localhost:3004/user/search/${term}`, {
+            const response = await fetch(`http://44.245.39.225:3004/user/search/${term}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -368,7 +368,7 @@ function TimelineSetting() {
                 isActive: 1,
             }).toString();
 
-            const response = await fetch('http://localhost:3004/notification/new', {
+            const response = await fetch('http://44.245.39.225:3004/notification/new', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${getToken()}`,
@@ -409,7 +409,7 @@ function TimelineSetting() {
                 role: 4,
             };
 
-            const response = await fetch('http://localhost:3004/group-division/new', {
+            const response = await fetch('http://44.245.39.225:3004/group-division/new', {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,

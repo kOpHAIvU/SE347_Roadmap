@@ -22,7 +22,7 @@ function Login() {
             const token = localStorage.getItem('vertexToken');
             if (token) {
                 try {
-                    const response = await fetch('http://localhost:3004/auth/profile', {
+                    const response = await fetch('http://44.245.39.225:3004/auth/profile', {
                         method: 'GET',
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -58,8 +58,8 @@ function Login() {
 
         if (!formData.password) {
             newErrors.password = 'Please enter your password!';
-        } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must have at least 6 characters';
+        } else if (formData.password.length < 8) {
+            newErrors.password = 'Password must have at least 8 characters';
         }
 
         return newErrors;
@@ -73,7 +73,7 @@ function Login() {
         } else {
             console.log('Form data:', formData);
             try {
-                const response = await fetch('http://localhost:3004/auth/login', {
+                const response = await fetch('http://44.245.39.225:3004/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -94,6 +94,17 @@ function Login() {
                         console.log('Access token not received!');
                     }
                 } else {
+                    const apiErrors = {};
+                    if (data.message?.toLowerCase().includes('username')) {
+                        apiErrors.username = 'Invalid username!';
+                    }
+                    if (data.message?.toLowerCase().includes('password')) {
+                        apiErrors.password = 'Invalid password!';
+                    }
+                    if (!apiErrors.username && !apiErrors.password) {
+                        apiErrors.username = 'Invalid username or password! Please try again.';
+                    }
+                    setErrors(apiErrors);
                     console.log(data.message || 'Login failed!'); // Thông báo lỗi
                 }
             } catch (error) {
@@ -105,11 +116,6 @@ function Login() {
 
     const handleForgotPassword = () => {
         navigate('/password_reset');
-    };
-
-    const handleGoogleLogin = () => {
-        // Redirect to Google authentication endpoint
-        window.location.href = 'http://localhost:3004/auth/google/callback';
     };
 
     return (
@@ -126,7 +132,13 @@ function Login() {
                 <h1 className={cx('login-title')}>Log in</h1>
                 <p className={cx('login-welcome')}>Welcome back to VertexOps😍!!!</p>
 
-                <button type="button" className={cx('google-btn')} onClick={() => handleGoogleLogin}>
+                <button
+                    type="button"
+                    className={cx('google-btn')}
+                    onClick={() => {
+                        window.location.href = 'http://44.245.39.225:3004/auth/google/callback';
+                    }}
+                >
                     <img src={images.google} alt="Google Logo" className={cx('google-logo')} />
                     <strong>Log in with Google</strong>
                 </button>
