@@ -3,7 +3,7 @@ INSERT INTO role(name) VALUES('user') ON DUPLICATE KEY UPDATE name = 'user';
 
 INSERT INTO user(username, password, fullName, gender, email, roleId,`deviceToken`, avatar) VALUES
 ('LoanTuyetCute', '$2a$10$D6H4Ek58Yh3EgSmoEg16gei3kWy9cCsjipjiaYk3H8.YB08sXnN2q', 'Nguyen Thi Tuyet Loan', 'Male', 'nguyenloan2000hbg@gmail.com', 1,  
-'eWaeyfIATDAz_i8fjZPKQ4:APA91bGybAZlAt0vlDxWiQ01CWXeZZgHmNMVCS82ehSvQzVS9A8X3WmjUJjkjLw6feDRZNllAtISUT0NpN3HZBPjv7sTA6knPP-KP8fOJiQVK__wTu2RaGc',
+'c2tjyDAUPf_5lzh-1us1nC:APA91bE04zbsCKRE-XYDJIMbooBUH_vXPeYMuiLdy_euthFEo47Y2dL2UT8EGuhm0Y-nnkg9hhqn36PUg6B0mlheh-_vNJSm3Qn1-P2PEJzQgYHylZsones',
 'https://res.cloudinary.com/daxxuqogj/image/upload/v1733369500/uploads/ycyrhsp8dzrcrwjc3bl1.png'
 ),
 ('ThienKhongCute', '$2a$10$D6H4Ek58Yh3EgSmoEg16gei3kWy9cCsjipjiaYk3H8.YB08sXnN2q', 'Le Gia Hoang Thien', 'Female', '22520783@gm.uit.edu.vn', 2, 
