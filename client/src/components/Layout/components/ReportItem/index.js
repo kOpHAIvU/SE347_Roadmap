@@ -211,7 +211,7 @@ function ReportItem({ children }) {
                         icon={faCheck}
                         onClick={async () => {
                             await fetchConfirmReport();
-                            //window.location.reload();
+                            window.location.reload();
                         }}
                     />
                     <FontAwesomeIcon
@@ -219,7 +219,7 @@ function ReportItem({ children }) {
                         icon={faXmark}
                         onClick={async () => {
                             await fetchDeleteReport();
-                            //window.location.reload();
+                            window.location.reload();
                         }}
                     />
                 </div>
