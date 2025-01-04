@@ -42,7 +42,7 @@ const Sercurity = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await fetch('http://44.245.39.225:3004/auth/profile', {
+                const response = await fetch('http://50.112.48.169:3004/auth/profile', {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${getToken()}`,
@@ -66,7 +66,7 @@ const Sercurity = () => {
         // Xử lý sự kiện click nút
         if (item.label === 'Delete your account') {
             try {
-                const response = await fetch(`http://44.245.39.225:3004/user/item/${userId}`, {
+                const response = await fetch(`http://50.112.48.169:3004/user/item/${userId}`, {
                     method: 'DELETE',
                     headers: {
                         Authorization: `Bearer ${getToken()}`,

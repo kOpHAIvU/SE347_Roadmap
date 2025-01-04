@@ -27,7 +27,7 @@ function UpgradeAccount() {
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
+            const response = await fetch('http://50.112.48.169:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${getToken()}`, // Đính kèm token vào tiêu đề Authorization
@@ -56,7 +56,7 @@ function UpgradeAccount() {
                 totalPayment: 100000,
                 type: 'zalopay'
             }).toString();
-            const response = await fetch('http://44.245.39.225:3004/payment/new/zalopay', {
+            const response = await fetch('http://50.112.48.169:3004/payment/new/zalopay', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
@@ -82,7 +82,7 @@ function UpgradeAccount() {
 
     const fetchPaymentStatus = async (profileId) => {
         try {
-            const response = await fetch(`http://44.245.39.225:3004/payment/user/${profileId}?page=1&limit=1`, {
+            const response = await fetch(`http://50.112.48.169:3004/payment/user/${profileId}?page=1&limit=1`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,

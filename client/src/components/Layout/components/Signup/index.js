@@ -27,8 +27,8 @@ function Signup() {
             const emailError = !value
                 ? 'Please enter your email!'
                 : !/\S+@\S+\.\S+/.test(value)
-                ? 'Invalid email!'
-                : '';
+                    ? 'Invalid email!'
+                    : '';
 
             setErrors((prev) => ({ ...prev, email: emailError }));
         }
@@ -105,7 +105,7 @@ function Signup() {
             }
 
             try {
-                const response = await fetch('http://44.245.39.225:3004/user/signup', {
+                const response = await fetch('http://50.112.48.169:3004/user/signup', {
                     method: 'POST',
                     // headers: { 'Content-Type': 'application/json' },
                     body: signupData,
@@ -122,7 +122,7 @@ function Signup() {
                     } else {
                         console.log('Form data:', formData);
                         try {
-                            const response = await fetch('http://44.245.39.225:3004/auth/login', {
+                            const response = await fetch('http://50.112.48.169:3004/auth/login', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({

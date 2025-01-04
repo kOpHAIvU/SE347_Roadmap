@@ -1,119 +1,112 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Room</title>
-</head>
-<body>
-    <div>
-        <ul id="messages"></ul>
-    </div>
-    <div>
-        <input id="message" type="text" placeholder="Type your message...">
-        <button>Send</button>
-    </div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Chat Room</title>
+    </head>
+    <body>
+        <div>
+            <ul id="messages"></ul>
+        </div>
+        <div>
+            <input id="message" type="text" placeholder="Type your message..." />
+            <button>Send</button>
+        </div>
 
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
-    <script> 
-        
-        const socket1 = io('http://44.245.39.225:3004/message', {
-            query: {
-                teamId: 2, 
-                userId: 15, 
-            },
-            timeout: 5000,
-            reconnect: true
-        });
-
-        
-
-        socket1.on('connect', () => {
-            console.log('Connected to WebSocket server:', socket.id);
-            
-            setTimeout(() => {
-                socket1.emit('send_message', { message: 'Hello' });
-              }, 100);
-            // Lắng nghe sự kiện 'message' từ server
-            socket1.on('message', function (data) {
-                console.log("Message", data);
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.0/socket.io.js"></script>
+        <script>
+            const socket1 = io('http://50.112.48.169:3004/message', {
+                query: {
+                    teamId: 2,
+                    userId: 15,
+                },
+                timeout: 5000,
+                reconnect: true,
             });
 
-            socket1.on("error", (error) => {
-                console.error('Error:', error.message);
-            });
-          }); 
+            socket1.on('connect', () => {
+                console.log('Connected to WebSocket server:', socket.id);
 
-        const socket = io('http://44.245.39.225:3004/message', {
-            query: {
-                teamId: 2, 
-                userId: 16, 
-            },
-            timeout: 5000,
-            reconnect: true
-        });
+                setTimeout(() => {
+                    socket1.emit('send_message', { message: 'Hello' });
+                }, 100);
+                // Lắng nghe sự kiện 'message' từ server
+                socket1.on('message', function (data) {
+                    console.log('Message', data);
+                });
 
-        socket.on('connect', () => {
-            console.log('Connected to WebSocket server:', socket.id);
-            
-            // Đợi kết nối hoàn tất trước khi gửi tin nhắn
-            
-
-            // Lắng nghe sự kiện 'message' từ server
-            socket.on('message', function (data) {
-                const messageList = document.getElementById('messages');
-                const newMessage = document.createElement('li');
-                newMessage.textContent = `${data.sender} (${data.timestamp}): ${data.message}`;
-                messageList.appendChild(newMessage);
+                socket1.on('error', (error) => {
+                    console.error('Error:', error.message);
+                });
             });
 
-            socket.on("error", (error) => {
-                console.error('Error:', error.message);
+            const socket = io('http://50.112.48.169:3004/message', {
+                query: {
+                    teamId: 2,
+                    userId: 16,
+                },
+                timeout: 5000,
+                reconnect: true,
             });
-          }); 
 
-          
+            socket.on('connect', () => {
+                console.log('Connected to WebSocket server:', socket.id);
 
-        // Gửi tin nhắn tới server
-        function sendMessage() {
-            const messageInput = document.getElementById('message');
-            const message = messageInput.value.trim();
+                // Đợi kết nối hoàn tất trước khi gửi tin nhắn
 
-            if (!message) {
-                alert('Message cannot be empty!');
-                return;
+                // Lắng nghe sự kiện 'message' từ server
+                socket.on('message', function (data) {
+                    const messageList = document.getElementById('messages');
+                    const newMessage = document.createElement('li');
+                    newMessage.textContent = `${data.sender} (${data.timestamp}): ${data.message}`;
+                    messageList.appendChild(newMessage);
+                });
+
+                socket.on('error', (error) => {
+                    console.error('Error:', error.message);
+                });
+            });
+
+            // Gửi tin nhắn tới server
+            function sendMessage() {
+                const messageInput = document.getElementById('message');
+                const message = messageInput.value.trim();
+
+                if (!message) {
+                    alert('Message cannot be empty!');
+                    return;
+                }
+
+                if (socket.connected) {
+                    socket.emit('send_message', { message });
+                    messageInput.value = ''; // Xóa nội dung sau khi gửi
+                } else {
+                    alert('Unable to send message: WebSocket not connected.');
+                }
             }
 
-            if (socket.connected) {
-               socket.emit('send_message', { message });
-               messageInput.value = ''; // Xóa nội dung sau khi gửi
-            } else {
-                alert('Unable to send message: WebSocket not connected.');
-            }
-        }
-
-        const socketGateway2 = io( 'http://44.245.39.225:3004/notification_roadmap', {
-            transports: ['websocket'], // Sử dụng WebSocket
-            reconnect: true,
-        });
-
-        socketGateway2.on('connect', () => {
-            console.log("Connected to notification socket successfully");
-            // socketGateway2.emit("new_roadmap_notification", { roadmapId: 1 });
-        
-            socketGateway2.on('newRoadmap', function(data) {
-                console.log("New roadmap notification received:");
-            });
-            
-            socketGateway2.on('disconnect', () => {
-                console.log("Disconnected from notification socket");
+            const socketGateway2 = io('http://50.112.48.169:3004/notification_roadmap', {
+                transports: ['websocket'], // Sử dụng WebSocket
+                reconnect: true,
             });
 
-            socketGateway2.on('connect_error', (err) => {
-                console.log("Connection error:", err);
+            socketGateway2.on('connect', () => {
+                console.log('Connected to notification socket successfully');
+                // socketGateway2.emit("new_roadmap_notification", { roadmapId: 1 });
+
+                socketGateway2.on('newRoadmap', function (data) {
+                    console.log('New roadmap notification received:');
+                });
+
+                socketGateway2.on('disconnect', () => {
+                    console.log('Disconnected from notification socket');
+                });
+
+                socketGateway2.on('connect_error', (err) => {
+                    console.log('Connection error:', err);
+                });
             });
-        });
-    
-    </script>
-</body>
+        </script>
+    </body>
 </html>

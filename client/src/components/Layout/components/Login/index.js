@@ -22,7 +22,7 @@ function Login() {
             const token = localStorage.getItem('vertexToken');
             if (token) {
                 try {
-                    const response = await fetch('http://44.245.39.225:3004/auth/profile', {
+                    const response = await fetch('http://50.112.48.169:3004/auth/profile', {
                         method: 'GET',
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -73,7 +73,7 @@ function Login() {
         } else {
             console.log('Form data:', formData);
             try {
-                const response = await fetch('http://44.245.39.225:3004/auth/login', {
+                const response = await fetch('http://50.112.48.169:3004/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -136,7 +136,7 @@ function Login() {
                     type="button"
                     className={cx('google-btn')}
                     onClick={() => {
-                        window.location.href = 'http://44.245.39.225:3004/auth/google/callback';
+                        window.location.href = 'http://50.112.48.169:3004/auth/google/callback';
                     }}
                 >
                     <img src={images.google} alt="Google Logo" className={cx('google-logo')} />

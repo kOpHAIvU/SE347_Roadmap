@@ -45,7 +45,7 @@ function NodeDetail({ userType, nodeComment, index, nodeDetail, updateNodeDetail
 
     const fetchProfile = async () => {
         try {
-            const response = await fetch('http://44.245.39.225:3004/auth/profile', {
+            const response = await fetch('http://50.112.48.169:3004/auth/profile', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${getToken()}`,
